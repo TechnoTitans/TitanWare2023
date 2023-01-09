@@ -1,15 +1,15 @@
 # TitanWare2023
 
-Code Build Status: [![CI](https://github.com/TechnoTitans/TitanWare2023/actions/workflows/CI.yml/badge.svg)]
+# Code Build Status: ![CI](https://github.com/TechnoTitans/TitanWare2023/actions/workflows/CI.yml/badge.svg)
 
-##TODO:
+## TODO:
 - [x] Upgrade project to 2023
 - [x] Upgrade vendor libraries
 - [x] Change GYRO to pigeon
 - [ ] Add Swerve Code
 - [ ] Config RobotMap.java
 
-##Drivetrain (Swerve):
+## Drivetrain (Swerve):
 - [ ] Set Module Offsets
 - [ ] Config Odomety/Kinematics
 - [ ] Tune PID
