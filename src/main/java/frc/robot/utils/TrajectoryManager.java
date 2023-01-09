@@ -1,49 +1,112 @@
 package frc.robot.utils;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
-import frc.robot.subsystems.TankDrive;
+import frc.robot.subsystems.Swerve;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class TrajectoryManager {
+    private final Swerve swerve;
+    private final HolonomicDriveController controller;
+    private final SwerveDriveOdometry odometry;
+    private final boolean reverseTrajectory = false;
 
-    public TrajectoryManager() {}
-
-    public Trajectory createTrajectory(String path) {
-        Trajectory trajectory;
-        try {
-            Path p = Filesystem.getDeployDirectory().toPath().resolve(path);
-            trajectory = TrajectoryUtil.fromPathweaverJson(p);
-            return trajectory;
-        } catch (IOException ex) {
-            DriverStation.reportError("Unable to open trajectory: " + path, ex.getStackTrace());
-            return null;
-        }
+    public TrajectoryManager(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry) {
+        this.swerve = swerve;
+        this.controller = controller;
+        this.odometry = odometry;
     }
 
-    public RamseteCommand createRamseteCommand(Trajectory trajectory, TankDrive driveTrain) {
-        return new RamseteCommand(
-                trajectory,
-                driveTrain::getPose,
-                new RamseteController(Constants.RAMSETE_B, Constants.RAMSETE_ZETA),
-                new SimpleMotorFeedforward(Constants.kS, Constants.kV, Constants.kA),
-                Constants.kDriveKinematics,
-                driveTrain::getWheelSpeeds,
-                new PIDController(Constants.kP_DRIVE_VELOCITY, 0, 0),
-                new PIDController(Constants.kP_DRIVE_VELOCITY, 0, 0),
-                driveTrain::tankDriveVolts,
-                driveTrain
-        );
+    public void follow(String trajDir, double periodic, double maxVel, double maxAccl) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
+        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj);
+        CommandScheduler.getInstance().schedule(trajFollower);
     }
-    
+
+    public void follow(String trajDir) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
+        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj);
+        CommandScheduler.getInstance().schedule(trajFollower);
+    }
+
+    public TrajFollower getCommand(String trajDir) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
+        return new TrajFollower(swerve, controller, odometry, traj);
+    }
+
+    public TrajFollower getCommand(String trajDir, double periodic, double maxVel, double maxAccl) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
+        return new TrajFollower(swerve, controller, odometry, traj);
+    }
+
+    public void testHolonomic(Pose2d targetPose, double velocity, Rotation2d targetRot) {
+        swerve.drive(controller.calculate(odometry.getPoseMeters(), targetPose, velocity, targetRot));
+    }
+}
+
+@SuppressWarnings("unused")
+class TrajFollower extends CommandBase {
+    private final PathPlannerTrajectory traj;
+    private final Timer timer = new Timer();
+    private final Swerve swerve;
+    private final HolonomicDriveController controller;
+    private final SwerveDriveOdometry odometry;
+    private final Map<Translation2d, PathPlannerTrajectory.EventMarker> trajectoryMap = new HashMap<>();
+
+    public TrajFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj) {
+        this.swerve = swerve;
+        this.controller = controller;
+        this.odometry = odometry;
+        this.traj = traj;
+    }
+
+    @Override
+    public void initialize() {
+        PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
+        Pose2d initialPose = initialState.poseMeters;
+        swerve.setAngle(initialPose.getRotation().getDegrees()); //i added this not sure if it is good to have or not
+        odometry.resetPosition(swerve.getHeading(), swerve.getModulePositions(), new Pose2d(initialPose.getTranslation(), initialState.holonomicRotation));
+
+        timer.reset();
+        timer.start();
+    }
+
+    @Override
+    public void execute() {
+        double currentTime = timer.get();
+        PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
+//        odometry.getField2dObject("Traj").setPose(sample.poseMeters);
+        driveToState(sample);
+        odometry.update(swerve.getHeading(), swerve.getModulePositions());
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        swerve.stop();
+        timer.stop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return !RobotState.isAutonomous() && timer.get() >= traj.getTotalTimeSeconds() - 1;
+    }
+
+    public void driveToState(PathPlannerTrajectory.PathPlannerState state) {
+        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state.poseMeters, state.velocityMetersPerSecond, state.holonomicRotation);
+        swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, correction.omegaRadiansPerSecond, false);
+    }
 }

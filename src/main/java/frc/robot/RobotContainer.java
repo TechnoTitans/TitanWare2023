@@ -1,57 +1,90 @@
 package frc.robot;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.drivetrain.DriveTrainTeleop;
+import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
 import frc.robot.profiler.profiles.Driver2;
-import frc.robot.subsystems.TankDrive;
+import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.SwerveModule;
+import frc.robot.utils.TrajectoryManager;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.motors.TitanFX;
 
 public class RobotContainer {
-    //TODO: FOLLOW THIS FORMAT IN THE CONSTRUCTOR WHEN DECLARING THESE VARIABLES
-
+    //OI
+    public final OI oi;
     //Motors
-    public final TitanFX leftFrontFX, leftRearFX, rightFrontFX, rightRearFX;
-
+    public final TitanFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
+    public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
+    public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
+    //Swerve
+    public final SwerveModule frontLeft, frontRight, backLeft, backRight;
+    public final SwerveDriveKinematics kinematics;
+    public final SwerveDriveOdometry odometry;
+    public final HolonomicDriveController holonomicDriveController;
+    //PDH
+    public final PowerDistribution powerDistribution;
     //Compressor
     public final Compressor compressor;
-
     //Sensors
     public final Pigeon2 pigeon;
-
-    //Solenoids
-    public final Solenoid shifterSolenoid;
-
     //SubSystems
-    public final TankDrive driveTrain;
-
+    public final Swerve swerve;
     //Teleop Commands
-    public final DriveTrainTeleop driveTrainTeleopCmd;
-
+    public final SwerveDriveTeleop swerveDriveTeleop;
     //Autonomous Commands
-
+    public final TrajectoryManager trajectoryManager;
     //SmartDashboard
     public final SendableChooser<Command> autoChooser;
     public final SendableChooser<Profile> profileChooser;
 
 
     public RobotContainer() {
-        //Drivetrain Motors
-        leftFrontFX = new TitanFX(RobotMap.LEFT_TALON_FRONT, RobotMap.REVERSED_LF_TALON);
-        leftRearFX = new TitanFX(RobotMap.LEFT_TALON_BACK, RobotMap.REVERSED_LB_TALON);
-        rightFrontFX = new TitanFX(RobotMap.RIGHT_TALON_FRONT, RobotMap.REVERSED_RF_TALON);
-        rightRearFX = new TitanFX(RobotMap.RIGHT_TALON_BACK, RobotMap.REVERSED_RB_TALON);
-        //DT Followers
-        leftRearFX.follow(leftFrontFX);
-        rightRearFX.follow(rightFrontFX);
+        //OI
+        oi = new OI();
+
+        //Swerve Drive Motors
+        frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR);
+        frontRightDrive = new TitanFX(RobotMap.frontRightDrive, RobotMap.frontRightDriveR);
+        backLeftDrive = new TitanFX(RobotMap.backLeftDrive, RobotMap.backLeftDriveR);
+        backRightDrive = new TitanFX(RobotMap.backRightDrive, RobotMap.backRightDriveR);
+
+        //Swerve Turning Motors
+        frontLeftTurn = new TitanFX(RobotMap.frontLeftTurn, RobotMap.frontLeftTurnR);
+        frontRightTurn = new TitanFX(RobotMap.frontRightTurn, RobotMap.frontRightTurnR);
+        backLeftTurn = new TitanFX(RobotMap.backLeftTurn, RobotMap.backLeftTurnR);
+        backRightTurn = new TitanFX(RobotMap.backRightTurn, RobotMap.backRightTurnR);
+
+        //Swerve CANCoders
+        frontLeftEncoder = new CANCoder(RobotMap.frontLeftEncoder);
+        frontRightEncoder = new CANCoder(RobotMap.frontRightEncoder);
+        backLeftEncoder = new CANCoder(RobotMap.backLeftEncoder);
+        backRightEncoder = new CANCoder(RobotMap.backRightEncoder);
+
+        //Swerve Modules
+        //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 0);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 0);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 0);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 0);
+
+        //Power Distribution Hub
+        powerDistribution = new PowerDistribution(PowerDistribution.ModuleType.kRev.value, PowerDistribution.ModuleType.kRev);
 
         //Compressor
         compressor = new Compressor(RobotMap.PNEUMATICS_HUB_ID, PneumaticsModuleType.CTREPCM);
@@ -59,14 +92,23 @@ public class RobotContainer {
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
 
-        //Solenoids
-        shifterSolenoid = new Solenoid(RobotMap.PNEUMATICS_HUB_ID, PneumaticsModuleType.CTREPCM, RobotMap.GEAR_SHIFT_SOLENOID);
+        //Swerve
+        kinematics = new SwerveDriveKinematics(
+            new Translation2d(-0.3, 0.3), //front left //TODO: TUNE THESE
+            new Translation2d(-0.3, -0.3), // back left
+            new Translation2d(0.3, 0.3), // front right
+            new Translation2d(0.3, -0.3)); //back right //in meters, swerve modules relative to the center of robot
 
-        //Subsystems
-        driveTrain = new TankDrive(leftFrontFX, rightFrontFX, pigeon, shifterSolenoid, compressor);
+        swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
+        odometry = new SwerveDriveOdometry(kinematics, swerve.getHeading(), swerve.getModulePositions());
+        holonomicDriveController = new HolonomicDriveController(new PIDController(0.0000001, 0, 0), new PIDController(0.0000001, 0, 0), new ProfiledPIDController(0.0000001, 0, 0, new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)));
+
 
         //Teleop Commands
-        driveTrainTeleopCmd = new DriveTrainTeleop(driveTrain, OI::getXboxLeftTriggerMain, OI::getXboxRightTriggerMain, OI::getXboxLeftXMain,false);
+        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
+
+        //Auto Commands
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry);
 
         //SmartDashboard
         autoChooser = new SendableChooser<>();
