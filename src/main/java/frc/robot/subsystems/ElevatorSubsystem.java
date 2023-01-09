@@ -58,6 +58,7 @@ class ElevatorControlCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        //TODO TUNE THIS
         final double keepPositionMotorPercent = 0.07; //7% motor power is always applied to hold elevator position
         elevator.getVerticalElevatorMotor().set(ControlMode.MotionMagic, 50, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
     }
