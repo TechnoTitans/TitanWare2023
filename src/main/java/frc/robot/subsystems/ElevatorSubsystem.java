@@ -19,16 +19,35 @@ enum ElevatorState {
 
 @SuppressWarnings("unused")
 public class ElevatorSubsystem extends SubsystemBase {
-    private final TitanFX verticalElevatorMotor;
+    private final TitanFX verticalElevatorMotor, horizontalElevatorMotor, tiltElevatorMotor;
     private ElevatorState currentState;
 
-    public ElevatorSubsystem(TitanFX verticalElevatorMotor) {
+    public ElevatorSubsystem(TitanFX verticalElevatorMotor, TitanFX horizontalElevatorMotor, TitanFX tiltElevatorMotor) {
         this.verticalElevatorMotor = verticalElevatorMotor;
+        this.horizontalElevatorMotor = horizontalElevatorMotor;
+        this.tiltElevatorMotor = tiltElevatorMotor;
+
+        configMotor(verticalElevatorMotor, horizontalElevatorMotor, tiltElevatorMotor);
     }
 
-    private void configMotor(TitanFX VEMotor) {
-        TalonFXConfiguration TFXConfig = new TalonFXConfiguration();
-        VEMotor.configAllSettings(TFXConfig);
+    private void configMotor(TitanFX VEMotor, TitanFX HEMotor, TitanFX TEMotor) {
+        TalonFXConfiguration VETFXConfig = new TalonFXConfiguration();
+        VETFXConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        VETFXConfig.slot0.kI = 0.002;
+        VETFXConfig.slot0.kD = 10;
+        VEMotor.configAllSettings(VETFXConfig);
+
+        TalonFXConfiguration HETFXConfig = new TalonFXConfiguration();
+        HETFXConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        HETFXConfig.slot0.kI = 0.002;
+        HETFXConfig.slot0.kD = 10;
+        HEMotor.configAllSettings(HETFXConfig);
+
+        TalonFXConfiguration TETFXConfig = new TalonFXConfiguration();
+        TETFXConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        TETFXConfig.slot0.kI = 0.002;
+        TETFXConfig.slot0.kD = 10;
+        TEMotor.configAllSettings(TETFXConfig);
     }
 
     public void setState(ElevatorState state) {
@@ -43,16 +62,27 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected TitanFX getVerticalElevatorMotor() {
         return verticalElevatorMotor;
     }
+    protected TitanFX getHorizontalElevatorMotor() {
+        return horizontalElevatorMotor;
+    }
+
+        protected TitanFX getTiltElevatorMotor() {
+        return tiltElevatorMotor;
+    }
 }
 
 @SuppressWarnings("unused")
 class ElevatorControlCommand extends CommandBase {
     private final ElevatorSubsystem elevator;
+    private final TitanFX verticalElevatorMotor, horizontalElevatorMotor, tiltElevatorMotor;
     private final ElevatorState elevatorState;
 
     public ElevatorControlCommand(ElevatorSubsystem elevator, ElevatorState state) {
         this.elevator = elevator;
         this.elevatorState = state;
+        this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
+        this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
+        this.tiltElevatorMotor = elevator.getTiltElevatorMotor();
         addRequirements(elevator);
     }
 
@@ -60,13 +90,43 @@ class ElevatorControlCommand extends CommandBase {
     public void initialize() {
         //TODO TUNE THIS
         final double keepPositionMotorPercent = 0.07; //7% motor power is always applied to hold elevator position
-        elevator.getVerticalElevatorMotor().set(ControlMode.MotionMagic, 50, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
+        //demand0 = encoder ticks to be at
+        final double HETargetTicks;
+        final double VETargetTicks;
+        switch (elevatorState) {
+            case ELEVATOR_EXTENDED_HIGH:
+                HETargetTicks = 50000;
+                VETargetTicks = 50000;
+                break;
+            case ELEVATOR_EXTENDED_MID:
+                HETargetTicks = 2500;
+                VETargetTicks = 2500;
+                break;
+            case ELEVATOR_EXTENDED_LOW:
+                HETargetTicks = 1700;
+                VETargetTicks = 1700;
+                break;
+            case ELEVATOR_STANDBY:
+                HETargetTicks = 0;
+                VETargetTicks = 0;
+                break;
+            case ELEVATOR_PREGAME:
+                HETargetTicks = 0;
+                VETargetTicks = 0;
+                break;
+            default:
+                HETargetTicks = 0;
+                VETargetTicks = 0;
+        }
+        horizontalElevatorMotor.set(ControlMode.Position, VETargetTicks, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
+        verticalElevatorMotor.set(ControlMode.Position, HETargetTicks, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
+
     }
 
-    @Override
-    public void execute() {
-
-    }
+//    @Override
+//    public void execute() {
+//
+//    }
 
     @Override
     public boolean isFinished() {
