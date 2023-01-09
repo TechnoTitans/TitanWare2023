@@ -1,7 +1,6 @@
 # TitanWare2023
 
-Code Build Status: [![CI](https://github.com/TechnoTitans/RobotBase/actions/workflows/CI.yml/badge.svg)]
-(https://github.com/TechnoTitans/RobotBase/actions/workflows/CI.yml)
+Code Build Status: [![CI](https://github.com/TechnoTitans/TitanWare2023/actions/workflows/CI.yml/badge.svg)]
 
 ##TODO:
 - [x] Upgrade project to 2023
