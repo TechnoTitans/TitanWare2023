@@ -8,6 +8,9 @@ public interface RobotMap {
     //Compressor
     int PNEUMATICS_HUB_ID = 15;
 
+        //Solenoids
+        int CLAW_SOLENOID = 1;
+
     //Sensors
     int PIGEON_ID = 0;
 

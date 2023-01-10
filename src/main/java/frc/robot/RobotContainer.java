@@ -14,6 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,9 +24,11 @@ import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
 import frc.robot.profiler.profiles.Driver2;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.utils.Enums;
 import frc.robot.utils.TrajectoryManager;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
@@ -43,7 +46,7 @@ public class RobotContainer {
 
     //Elevator
     public final TitanFX leftElevatorMotor, rightElevatorMotor;
-    public final CANSparkMax elevatorHorizontalNeo, clawWheelsNeo550;
+    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo550, clawWheelsNeo550;
     public final TitanSRX horizontalElevatorSRXMAG, verticalElevatorSRXMAG, clawTiltElevatorSRXMAG;
 
     //Swerve
@@ -61,16 +64,20 @@ public class RobotContainer {
     //Sensors
     public final Pigeon2 pigeon;
 
+    //Solenoids
+    public final Solenoid clawSolenoid;
+
     //SubSystems
     public final Swerve swerve;
     public final Elevator elevator;
+    public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
 
     //Buttons
-    public final TitanButton resetGyroBtn, autoBalanceBtn;
+    public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -120,6 +127,7 @@ public class RobotContainer {
         leftElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
         rightElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
         elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltNeo550 = new CANSparkMax(RobotMap.clawTilt550, CANSparkMaxLowLevel.MotorType.kBrushless);
         clawWheelsNeo550 = new CANSparkMax(RobotMap.clawWheels550, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
@@ -128,10 +136,14 @@ public class RobotContainer {
         verticalElevatorSRXMAG = new TitanSRX(RobotMap.verticalElevatorSRXMAG, false);
         clawTiltElevatorSRXMAG = new TitanSRX(RobotMap.clawTiltElevator550SRXMAG, false);
 
-        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, elevatorHorizontalNeo, clawWheelsNeo550, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
-
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
+
+        //Solenoids
+        clawSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, RobotMap.CLAW_SOLENOID);
+
+        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, elevatorHorizontalNeo, clawTiltNeo550, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
+        claw = new Claw(clawWheelsNeo550, clawSolenoid);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -157,6 +169,7 @@ public class RobotContainer {
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_RIGHT);
+        elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry);
@@ -178,6 +191,15 @@ public class RobotContainer {
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
         autoBalanceBtn.onTrue(autoBalanceTeleop);
+        elevatorControlBtn.onTrue(new InstantCommand(() -> {
+            int currentState = elevator.getCurrentState().ordinal();
+            if (currentState == Enums.ElevatorState.values().length-1) {
+                currentState = 0;
+            } else {
+                currentState++;
+            }
+            elevator.setState(Enums.ElevatorState.values()[currentState]);
+        }));
     }
 
     public Command getAutonomousCommand() {

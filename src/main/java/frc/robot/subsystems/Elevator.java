@@ -11,26 +11,16 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
-enum ElevatorState {
-    ELEVATOR_EXTENDED_HIGH, //Elevator High and Dropper extended
-    ELEVATOR_EXTENDED_MID, //Elevator Mid and Dropper extended
-    ELEVATOR_EXTENDED_GROUND, //Elevator Low and Dropper extended
-    ELEVATOR_EXTENDED_PLATFORM, //Elevator Low and Dropper extended
-    ELEVATOR_STANDBY, //Elevator at pickup height and grabber open
-    ELEVATOR_PREGAME //Elevator at pickup height and grabber tilted vertically
-}
-
-@SuppressWarnings("unused")
-
 public class Elevator extends SubsystemBase {
     private final TitanFX leftVerticalElevatorMotor, rightVerticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor, clawTiltElevator550;
     private final TitanSRX verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG;
-    private ElevatorState currentState;
+    private Enums.ElevatorState currentState;
 
     public Elevator(TitanFX leftVerticalElevatorMotor, TitanFX rightVerticalElevatorMotor, CANSparkMax horizontalElevatorMotor,
                     CANSparkMax clawTiltElevator550, TitanSRX verticalElevatorSRXMAG, TitanSRX horizontalElevatorSRXMAG,
@@ -85,12 +75,12 @@ public class Elevator extends SubsystemBase {
         clawTiltElevator550.setClosedLoopRampRate(0.2);
     }
 
-    public void setState(ElevatorState state) {
+    public void setState(Enums.ElevatorState state) {
         CommandScheduler.getInstance().schedule(new ElevatorControlCommand(this, state));
         currentState = state;
     }
 
-    public ElevatorState getCurrentState() {
+    public Enums.ElevatorState getCurrentState() {
         return currentState;
     }
 
@@ -112,9 +102,9 @@ class ElevatorControlCommand extends CommandBase {
     private final Elevator elevator;
     private final TitanFX verticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor, clawTiltElevator550;
-    private final ElevatorState elevatorState;
+    private final Enums.ElevatorState elevatorState;
 
-    public ElevatorControlCommand(Elevator elevator, ElevatorState state) {
+    public ElevatorControlCommand(Elevator elevator, Enums.ElevatorState state) {
         this.elevator = elevator;
         this.elevatorState = state;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
@@ -180,11 +170,6 @@ class ElevatorControlCommand extends CommandBase {
                 CANSparkMax.ControlType.kPosition,
                 0,
                 keepPositionMotorPercent);
-    }
-
-    @Override
-    public boolean isFinished() {
-        return elevatorState == elevator.getCurrentState();
     }
 
     @Override
