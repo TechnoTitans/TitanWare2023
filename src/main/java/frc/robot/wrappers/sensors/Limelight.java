@@ -3,7 +3,6 @@ package frc.robot.wrappers.sensors;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.utils.MathMethods;
 
 @SuppressWarnings("unused")
@@ -44,9 +43,6 @@ public class Limelight {
         targetVelocity = calculateVelocity(distance);
         double OFFSET = -2;
         turretError = xError + OFFSET;
-
-        SmartDashboard.putNumber("Distance from target", distance);
-
     }
 
     public double calculateDistance(double angle) {

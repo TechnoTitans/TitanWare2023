@@ -110,7 +110,8 @@ public class TitanFX extends WPI_TalonFX implements MotorController {
         return super.getSelectedSensorVelocity();
     }
 
-    public void stop() {
+    @Override
+    public void stopMotor() {
         set(0);
     }
 

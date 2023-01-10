@@ -2,6 +2,8 @@ package frc.robot;
 
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -20,12 +22,14 @@ import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
 import frc.robot.profiler.profiles.Driver2;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.TrajectoryManager;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
+import frc.robot.wrappers.motors.TitanSRX;
 
 public class RobotContainer {
     //OI
@@ -35,6 +39,11 @@ public class RobotContainer {
     public final TitanFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
+
+    //Elevator
+    public final TitanFX leftElevatorMotor, rightElevatorMotor;
+    public final CANSparkMax elevatorHorizontalNeo, clawWheelsNeo550;
+    public final TitanSRX horizontalElevatorSRXMAG, verticalElevatorSRXMAG, clawTiltElevatorSRXMAG;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -53,6 +62,7 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
+    public final Elevator elevator;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
@@ -71,6 +81,13 @@ public class RobotContainer {
     public RobotContainer() {
         //OI
         oi = new OI();
+
+        //Power Distribution Hub
+        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
+        powerDistribution.clearStickyFaults();
+
+        //Compressor
+        compressor = new Compressor(RobotMap.PNEUMATICS_HUB_ID, PneumaticsModuleType.CTREPCM);
 
         //Swerve Drive Motors
         frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR);
@@ -97,12 +114,19 @@ public class RobotContainer {
         backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 3.6);
         backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 115.94);
 
-        //Power Distribution Hub
-        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
-        powerDistribution.clearStickyFaults();
+        //Elevator Motors
+        leftElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
+        rightElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
+        elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawWheelsNeo550 = new CANSparkMax(RobotMap.clawWheels550, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-        //Compressor
-        compressor = new Compressor(RobotMap.PNEUMATICS_HUB_ID, PneumaticsModuleType.CTREPCM);
+        //Elevator Encoders
+        //Plus Mag encoders into SRX and we will access through can
+        horizontalElevatorSRXMAG = new TitanSRX(RobotMap.horizontalElevatorSRXMAG, false);
+        verticalElevatorSRXMAG = new TitanSRX(RobotMap.verticalElevatorSRXMAG, false);
+        clawTiltElevatorSRXMAG = new TitanSRX(RobotMap.clawTiltElevator550SRXMAG, false);
+
+        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, elevatorHorizontalNeo, clawWheelsNeo550, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);

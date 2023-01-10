@@ -3,7 +3,7 @@ package frc.robot.wrappers.motors;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Encoder;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
  * TitanSRX is our enhanced version of the regular TalonSRX code
  */
 @SuppressWarnings("unused")
-public class TitanSRX extends WPI_TalonFX implements MotorController {
+public class TitanSRX extends WPI_TalonSRX implements MotorController {
 
     private TitanSRX brownoutFollower = null;
     private Encoder encoder;
@@ -36,11 +36,6 @@ public class TitanSRX extends WPI_TalonFX implements MotorController {
      */
     public TitanSRX(int channel, boolean reversed) {
         super(channel);
-        super.setInverted(reversed);
-    }
-
-    public TitanSRX(int channel, String canBus, boolean reversed) {
-        super(channel, canBus);
         super.setInverted(reversed);
     }
 

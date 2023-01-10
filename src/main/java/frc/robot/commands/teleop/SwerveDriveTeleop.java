@@ -1,7 +1,6 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
@@ -32,7 +31,6 @@ public class SwerveDriveTeleop extends CommandBase {
         } else {
             double rot = MathMethods.deadband(controller.getRightX(), 0.2) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
             swerve.drive(frontBack, leftRight, rot, fieldRelative);
-            SmartDashboard.putNumber("Rotate Angle", rot);
         }
     }
 
