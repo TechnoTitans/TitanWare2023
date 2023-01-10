@@ -8,6 +8,8 @@
 - [x] Change GYRO to pigeon
 - [ ] Add Swerve Code
 - [ ] Config RobotMap.java
+- [x] Add Elevator
+- [ ] Add AutoBalance (next)
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets
