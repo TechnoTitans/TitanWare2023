@@ -93,34 +93,39 @@ class ElevatorControlCommand extends CommandBase {
         //demand0 = encoder ticks to be at
         final double HETargetTicks;
         final double VETargetTicks;
+        final double TETargetTicks;
         switch (elevatorState) {
             case ELEVATOR_EXTENDED_HIGH:
                 HETargetTicks = 50000;
                 VETargetTicks = 50000;
+                TETargetTicks = 50000;
                 break;
             case ELEVATOR_EXTENDED_MID:
                 HETargetTicks = 2500;
                 VETargetTicks = 2500;
+                TETargetTicks = 50000;
                 break;
             case ELEVATOR_EXTENDED_LOW:
                 HETargetTicks = 1700;
                 VETargetTicks = 1700;
+                TETargetTicks = 50000;
                 break;
             case ELEVATOR_STANDBY:
-                HETargetTicks = 0;
+                HETargetTicks = 1000;
                 VETargetTicks = 0;
+                TETargetTicks = 0;
                 break;
             case ELEVATOR_PREGAME:
                 HETargetTicks = 0;
                 VETargetTicks = 0;
+                TETargetTicks = 0;
                 break;
             default:
-                HETargetTicks = 0;
-                VETargetTicks = 0;
+                return;
         }
         horizontalElevatorMotor.set(ControlMode.Position, VETargetTicks, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
         verticalElevatorMotor.set(ControlMode.Position, HETargetTicks, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
-
+        tiltElevatorMotor.set(ControlMode.Position, TETargetTicks, DemandType.ArbitraryFeedForward, keepPositionMotorPercent);
     }
 
 //    @Override

@@ -23,11 +23,11 @@ public class MathMethods {
     }
 
     public static double deadband(double input, double band) {
-        return (input <= band || input <= -band) ? 0 : input;
+        return (Math.abs(input) <= band || Math.abs(input) <= -band) ? 0 : input;
     }
 
     public static double deadband(double input, double band, double setPoint) {
-        return (input <= band || input <= -band) ? setPoint : input;
+        return (Math.abs(input) <= band || Math.abs(input) <= -band) ? setPoint : input;
     }
 
 }

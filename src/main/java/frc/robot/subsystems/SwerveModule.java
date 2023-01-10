@@ -21,7 +21,7 @@ public class SwerveModule extends SubsystemBase {
     private final CANCoder turnEncoder;
     private final double magnetOffset;
 
-    public SwerveModule(TitanFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, int magnetOffset) {
+    public SwerveModule(TitanFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
@@ -35,39 +35,40 @@ public class SwerveModule extends SubsystemBase {
         canCoderConfiguration.unitString = "deg";
         canCoderConfiguration.sensorDirection = false;
         canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        canCoderConfiguration.magnetOffsetDegrees = magnetOffset;
+        canCoderConfiguration.magnetOffsetDegrees = -magnetOffset;
         turnEncoder.configAllSettings(canCoderConfiguration);
 
+        driveMotor.configFactoryDefault();
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-//        driverConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
-//        driverConfig.slot0.kI = 0.002;
-//        driverConfig.slot0.integralZone = 200;
-//        driverConfig.slot0.kD = 10;
-//        driverConfig.slot0.kF = 0.04857549857549857;
-//        driverConfig.closedloopRamp = .2;
+        driverConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        driverConfig.slot0.kI = 0.002;
+        driverConfig.slot0.integralZone = 200;
+        driverConfig.slot0.kD = 5;
+        driverConfig.slot0.kF = 0.045;
+        driverConfig.closedloopRamp = .2;
         driveMotor.configAllSettings(driverConfig);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-//        turnerConfig.slot0.kP = 0.5;
-//        turnerConfig.slot0.kI = 0;
-//        turnerConfig.slot0.kD = 0;
-//        turnerConfig.slot0.kF = 0;
+        turnerConfig.slot0.kP = 0.47;
+        turnerConfig.slot0.kI = 0;
+        turnerConfig.slot0.kD = 0;
+        turnerConfig.slot0.kF = 0;
 //        turnerConfig.neutralDeadband = 0.07;
-//        turnerConfig.peakOutputForward = 0.5;
-//        turnerConfig.peakOutputReverse = -0.5;
+        turnerConfig.peakOutputForward = 0.5;
+        turnerConfig.peakOutputReverse = -0.5;
         turnerConfig.remoteFilter0.remoteSensorDeviceID = turnEncoder.getDeviceID();
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-//        turnerConfig.closedloopRamp = .000;
+        turnerConfig.closedloopRamp = .000;
         turnMotor.configAllSettings(turnerConfig);
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getSelectedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS, new Rotation2d(getAngle()));
+        return new SwerveModuleState(driveMotor.getSensorCollection().getIntegratedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS, Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getSelectedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS, new Rotation2d(getAngle()));
+        return new SwerveModulePosition(driveMotor.getSensorCollection().getIntegratedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS, Rotation2d.fromDegrees(getAngle()));
     }
 
     public double getAngle() {
@@ -78,7 +79,7 @@ public class SwerveModule extends SubsystemBase {
         Rotation2d currentRotation = Rotation2d.fromDegrees(getAngle());
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentRotation);
         double desired_driver_velocity_ticks = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_RADIUS * Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.ONESECOND_TO_100_MILLISECONDS;
-        Rotation2d delta_rotation = wantedState.angle.minus(currentRotation);
+        Rotation2d delta_rotation = currentRotation.minus(wantedState.angle);
         double delta_ticks = delta_rotation.getDegrees() * Constants.Modules.TICKS_PER_CANCODER_DEGREE;
         double current_ticks = turnMotor.getSelectedSensorPosition();
         double desired_turner_ticks = current_ticks + delta_ticks;

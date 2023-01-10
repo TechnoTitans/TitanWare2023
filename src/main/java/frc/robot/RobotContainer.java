@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
@@ -23,32 +24,45 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.TrajectoryManager;
 import frc.robot.wrappers.control.OI;
+import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
 
 public class RobotContainer {
     //OI
     public final OI oi;
+
     //Motors
     public final TitanFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
+
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
     public final HolonomicDriveController holonomicDriveController;
+
     //PDH
     public final PowerDistribution powerDistribution;
+
     //Compressor
     public final Compressor compressor;
+
     //Sensors
     public final Pigeon2 pigeon;
+
     //SubSystems
     public final Swerve swerve;
+
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
+
+    //Buttons
+    public final TitanButton resetGyroBtn;
+
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
+
     //SmartDashboard
     public final SendableChooser<Command> autoChooser;
     public final SendableChooser<Profile> profileChooser;
@@ -78,13 +92,14 @@ public class RobotContainer {
 
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 0);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 0);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 0);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 0);
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 108.46);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, -166.38);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 3.6);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 115.94);
 
         //Power Distribution Hub
-        powerDistribution = new PowerDistribution(PowerDistribution.ModuleType.kRev.value, PowerDistribution.ModuleType.kRev);
+        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
+        powerDistribution.clearStickyFaults();
 
         //Compressor
         compressor = new Compressor(RobotMap.PNEUMATICS_HUB_ID, PneumaticsModuleType.CTREPCM);
@@ -94,18 +109,26 @@ public class RobotContainer {
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-            new Translation2d(-0.3, 0.3), //front left //TODO: TUNE THESE
-            new Translation2d(-0.3, -0.3), // back left
-            new Translation2d(0.3, 0.3), // front right
-            new Translation2d(0.3, -0.3)); //back right //in meters, swerve modules relative to the center of robot
+            new Translation2d(0.31653734, 0.19324828), //front left //TODO: TUNE THESE
+            new Translation2d(-0.31653734, 0.41000172), // back left
+            new Translation2d(0.28671266, -0.19324828), // front right
+            new Translation2d(-0.28671266, -0.41000172)); //back right //in meters, swerve modules relative to the center of robot
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getHeading(), swerve.getModulePositions());
-        holonomicDriveController = new HolonomicDriveController(new PIDController(0.0000001, 0, 0), new PIDController(0.0000001, 0, 0), new ProfiledPIDController(0.0000001, 0, 0, new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)));
-
+        holonomicDriveController = new HolonomicDriveController(
+            new PIDController(1, 0, 0),
+            new PIDController(1, 0, 0),
+            new ProfiledPIDController(
+                    10, 0, 0,
+                    new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
+            ));
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
+
+        //Buttons
+        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry);
@@ -125,7 +148,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-
+        resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
     }
 
     public Command getAutonomousCommand() {

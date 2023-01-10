@@ -9,7 +9,7 @@
 - [ ] Add Swerve Code
 - [ ] Config RobotMap.java
 - [x] Add Elevator
-- [ ] Add AutoBalance (next)
+- [x] Add AutoBalance
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets

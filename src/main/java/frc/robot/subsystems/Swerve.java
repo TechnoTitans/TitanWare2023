@@ -55,18 +55,13 @@ public class Swerve extends SubsystemBase {
     }
 
     public Consumer<SwerveModuleState[]> getModuleStatesConsumer() {
-        return swerveModuleStates -> {
-            frontLeft.getState();
-            frontRight.getState();
-            backLeft.getState();
-            backRight.getState();
-        };
+        return this::drive;
     }
 
     public void tankDrive(double lspeed, double rspeed) {
         frontLeft.percentOutputControl(lspeed);
-        frontRight.percentOutputControl(-rspeed);
         backLeft.percentOutputControl(lspeed);
+        frontRight.percentOutputControl(-rspeed);
         backRight.percentOutputControl(-rspeed);
     }
 
@@ -82,8 +77,8 @@ public class Swerve extends SubsystemBase {
     public void drive(SwerveModuleState[] states) {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.Swerve.MODULE_MAX_SPEED);
         frontLeft.setDesiredState(states[0]);
-        frontRight.setDesiredState(states[1]);
-        backLeft.setDesiredState(states[2]);
+        backLeft.setDesiredState(states[1]);
+        frontRight.setDesiredState(states[2]);
         backRight.setDesiredState(states[3]);
     }
 
@@ -91,7 +86,6 @@ public class Swerve extends SubsystemBase {
         SwerveModuleState stopped = new SwerveModuleState(0, null);
     }
 
-    //Needs to be called in execute
     public void faceDirection(double dx, double dy, double theta, boolean fieldRelative) {
         double errorTheta = (theta - (int) getAngle() % 360);
 
@@ -107,7 +101,7 @@ public class Swerve extends SubsystemBase {
         drive(dx, dy, -pRotation, fieldRelative);
     }
 
-    //Needs to be called in execute
+
     public void faceClosest(double dx, double dy, boolean fieldRelative) {
         int current_rotation = (int) getAngle() % 360;
         if (current_rotation < 0) current_rotation += 360;
@@ -120,10 +114,10 @@ public class Swerve extends SubsystemBase {
     }
 
     public void tuneTurner(int desiredAngle) {
-        frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(desiredAngle)));
-        frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(desiredAngle)));
-        backLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(desiredAngle)));
-        backRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(desiredAngle)));
+        frontLeft.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
+        frontRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
+        backLeft.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
+        backRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
     }
 
     public void manualPercentOutput(double percentOutput) {
