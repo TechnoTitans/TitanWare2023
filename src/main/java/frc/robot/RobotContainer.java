@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.teleop.AutoBalanceTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
@@ -66,9 +67,10 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
+    public final AutoBalanceTeleop autoBalanceTeleop;
 
     //Buttons
-    public final TitanButton resetGyroBtn;
+    public final TitanButton resetGyroBtn, autoBalanceBtn;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -150,9 +152,11 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
+        autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
+        autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_RIGHT);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry);
@@ -173,6 +177,7 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
+        autoBalanceBtn.onTrue(autoBalanceTeleop);
     }
 
     public Command getAutonomousCommand() {
