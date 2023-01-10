@@ -21,7 +21,8 @@ public class Limelight {
 
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
-    public Limelight() {}
+    public Limelight() {
+    }
 
     public void periodic() {
         // Data grabbing
@@ -83,11 +84,17 @@ public class Limelight {
         return targetFound;
     }
 
-    public void disableLEDs() { table.getEntry("ledMode").setNumber(1); }
+    public void disableLEDs() {
+        table.getEntry("ledMode").setNumber(1);
+    }
 
-    public void enableLEDs() { table.getEntry("ledMode").setNumber(3); }
+    public void enableLEDs() {
+        table.getEntry("ledMode").setNumber(3);
+    }
 
-    public void configLEDs() { table.getEntry("ledMode").setNumber(0); }
+    public void configLEDs() {
+        table.getEntry("ledMode").setNumber(0);
+    }
 
     public void LEDMode(boolean mode) {
         if (mode) {

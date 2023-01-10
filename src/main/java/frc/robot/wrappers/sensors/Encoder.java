@@ -3,19 +3,19 @@ package frc.robot.wrappers.sensors;
 @SuppressWarnings("unused")
 public interface Encoder {
 
-	double getDistance();
+    double getDistance();
 
-	double getSpeed();
+    double getSpeed();
 
-	double getSpeedInches();
+    double getSpeedInches();
 
-	void reset();
+    void reset();
 
-	void resetToRaw(int position);
+    void resetToRaw(int position);
 
-	void resetTo(double position);
+    void resetTo(double position);
 
-	double getRawPosition();
+    double getRawPosition();
 
-	double getInchesPerPulse();
+    double getInchesPerPulse();
 }

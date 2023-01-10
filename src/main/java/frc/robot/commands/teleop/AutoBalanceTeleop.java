@@ -11,6 +11,7 @@ import frc.robot.utils.MathMethods;
 public class AutoBalanceTeleop extends CommandBase {
     private final Swerve swerve;
     private final Pigeon2 pigeon;
+
     public AutoBalanceTeleop(Swerve swerve, Pigeon2 pigeon2) {
         this.swerve = swerve;
         this.pigeon = pigeon2;

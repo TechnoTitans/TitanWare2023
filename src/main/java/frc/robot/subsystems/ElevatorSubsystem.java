@@ -62,11 +62,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected TitanFX getVerticalElevatorMotor() {
         return verticalElevatorMotor;
     }
+
     protected TitanFX getHorizontalElevatorMotor() {
         return horizontalElevatorMotor;
     }
 
-        protected TitanFX getTiltElevatorMotor() {
+    protected TitanFX getTiltElevatorMotor() {
         return tiltElevatorMotor;
     }
 }

@@ -109,20 +109,20 @@ public class RobotContainer {
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-            new Translation2d(0.31653734, 0.19324828), //front left //TODO: TUNE THESE
-            new Translation2d(-0.31653734, 0.41000172), // back left
-            new Translation2d(0.28671266, -0.19324828), // front right
-            new Translation2d(-0.28671266, -0.41000172)); //back right //in meters, swerve modules relative to the center of robot
+                new Translation2d(0.31653734, 0.19324828), //front left //TODO: TUNE THESE
+                new Translation2d(-0.31653734, 0.41000172), // back left
+                new Translation2d(0.28671266, -0.19324828), // front right
+                new Translation2d(-0.28671266, -0.41000172)); //back right //in meters, swerve modules relative to the center of robot
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getHeading(), swerve.getModulePositions());
         holonomicDriveController = new HolonomicDriveController(
-            new PIDController(1, 0, 0),
-            new PIDController(1, 0, 0),
-            new ProfiledPIDController(
-                    10, 0, 0,
-                    new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
-            ));
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0),
+                new ProfiledPIDController(
+                        10, 0, 0,
+                        new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
+                ));
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
