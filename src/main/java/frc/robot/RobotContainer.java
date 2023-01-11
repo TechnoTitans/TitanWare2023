@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -53,6 +54,7 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
+    public final SwerveDrivePoseEstimator poseEstimator;
     public final HolonomicDriveController holonomicDriveController;
 
     //PDH
@@ -154,6 +156,8 @@ public class RobotContainer {
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getHeading(), swerve.getModulePositions());
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getHeading(), swerve.getModulePositions(), odometry.getPoseMeters());
+        swerve.setPoseEstimator(poseEstimator);
         holonomicDriveController = new HolonomicDriveController(
                 new PIDController(1, 0, 0),
                 new PIDController(1, 0, 0),
