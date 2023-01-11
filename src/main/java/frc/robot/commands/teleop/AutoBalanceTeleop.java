@@ -25,12 +25,12 @@ public class AutoBalanceTeleop extends CommandBase {
         }
         double pitch = pigeon.getPitch();
         double val = pitch * Constants.Swerve.AUTO_BALANCE_PITCH_P;
-        swerve.drive(0, val, 0, true);
+        swerve.drive(val, 0, 0, true);
     }
 
     @Override
     public boolean isFinished() {
-        return MathMethods.withinBand(pigeon.getPitch(), 10);
+        return MathMethods.withinBand(pigeon.getPitch(), 2);
     }
 
     @Override

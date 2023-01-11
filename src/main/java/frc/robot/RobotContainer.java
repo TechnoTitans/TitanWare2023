@@ -16,10 +16,12 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoBalanceTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
@@ -30,7 +32,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.Enums;
-import frc.robot.utils.TrajectoryManager;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
@@ -56,6 +57,7 @@ public class RobotContainer {
     public final SwerveDriveOdometry odometry;
     public final SwerveDrivePoseEstimator poseEstimator;
     public final HolonomicDriveController holonomicDriveController;
+    public final Field2d field;
 
     //PDH
     public final PowerDistribution powerDistribution;
@@ -158,6 +160,7 @@ public class RobotContainer {
         odometry = new SwerveDriveOdometry(kinematics, swerve.getHeading(), swerve.getModulePositions());
         poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getHeading(), swerve.getModulePositions(), odometry.getPoseMeters());
         swerve.setPoseEstimator(poseEstimator);
+        field = new Field2d();
         holonomicDriveController = new HolonomicDriveController(
                 new PIDController(1, 0, 0),
                 new PIDController(1, 0, 0),
@@ -176,7 +179,7 @@ public class RobotContainer {
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, poseEstimator, field);
 
         //SmartDashboard
         autoChooser = new SendableChooser<>();

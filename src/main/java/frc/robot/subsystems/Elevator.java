@@ -7,7 +7,6 @@ import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.MotorFeedbackSensor;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,20 +56,18 @@ public class Elevator extends SubsystemBase {
         rightVerticalElevatorMotor.configAllSettings(RVEConfig);
         rightVerticalElevatorMotor.follow(leftVerticalElevatorMotor);
 
-        SparkMaxPIDController horizontalNeoPID = horizontalElevatorMotor.getPIDController();
-        horizontalNeoPID.setP(0.1);
-        horizontalNeoPID.setI(0.002);
-        horizontalNeoPID.setIZone(200);
-        horizontalNeoPID.setD(10);
-        horizontalNeoPID.setFeedbackDevice((MotorFeedbackSensor) horizontalElevatorSRXMAG);
+        horizontalElevatorMotor.getPIDController().setP(0.1);
+        horizontalElevatorMotor.getPIDController().setI(0.002);
+        horizontalElevatorMotor.getPIDController().setIZone(200);
+        horizontalElevatorMotor.getPIDController().setD(10);
+        horizontalElevatorMotor.getPIDController().setFeedbackDevice((MotorFeedbackSensor) horizontalElevatorSRXMAG.getEncoder());
         horizontalElevatorMotor.setClosedLoopRampRate(0.2);
 
-        SparkMaxPIDController claw550PID = clawTiltElevator550.getPIDController();
-        claw550PID.setP(0.1);
-        claw550PID.setI(0.002);
-        claw550PID.setIZone(200);
-        claw550PID.setD(10);
-        claw550PID.setFeedbackDevice((MotorFeedbackSensor) clawTiltElevatorSRXMAG);
+        clawTiltElevator550.getPIDController().setP(0.1);
+        clawTiltElevator550.getPIDController().setI(0.002);
+        clawTiltElevator550.getPIDController().setIZone(200);
+        clawTiltElevator550.getPIDController().setD(10);
+        clawTiltElevator550.getPIDController().setFeedbackDevice((MotorFeedbackSensor) clawTiltElevatorSRXMAG.getEncoder());
         clawTiltElevator550.setSmartCurrentLimit(40); // prevent motor from turning into smoke
         clawTiltElevator550.setClosedLoopRampRate(0.2);
     }
@@ -99,18 +96,15 @@ public class Elevator extends SubsystemBase {
 
 @SuppressWarnings("unused")
 class ElevatorControlCommand extends CommandBase {
-    private final Elevator elevator;
     private final TitanFX verticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor, clawTiltElevator550;
     private final Enums.ElevatorState elevatorState;
 
     public ElevatorControlCommand(Elevator elevator, Enums.ElevatorState state) {
-        this.elevator = elevator;
         this.elevatorState = state;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
         this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
         this.clawTiltElevator550 = elevator.getTiltElevatorMotor();
-        addRequirements(elevator);
     }
 
     @Override
@@ -120,7 +114,7 @@ class ElevatorControlCommand extends CommandBase {
         //demand0 = encoder ticks motor to go to
         final double HETargetTicks; //Horizontal Elevator Target Ticks
         final double VETargetTicks; //Vertical Elevator Target Ticks
-        final double TETargetTicks; //Tilt Elevator Target Ticks
+        final double TETargetTicks; //Tilt Claw Target Ticks
         switch (elevatorState) {
             case ELEVATOR_EXTENDED_HIGH:
                 VETargetTicks = 50000;

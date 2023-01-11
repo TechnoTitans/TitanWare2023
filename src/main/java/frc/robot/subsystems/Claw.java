@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -22,8 +21,7 @@ public class Claw extends SubsystemBase {
     }
 
     private void configMotor() {
-        SparkMaxPIDController clawWheelPID = clawWheelMotor.getPIDController();
-        clawWheelPID.setP(0.1);
+        clawWheelMotor.getPIDController().setP(0.1);
         clawWheelMotor.setSmartCurrentLimit(40);
         clawWheelMotor.setClosedLoopRampRate(0.2);
     }
@@ -70,8 +68,8 @@ class ClawControlCommand extends CommandBase {
                 speed = 1;
                 clawOpen = true;
                 break;
-            case CLAW_OPEN_STOPPED:
-                speed = 0;
+            case CLAW_OPEN_STANDBY:
+                speed = 0.1;
                 clawOpen = true;
                 break;
             default:

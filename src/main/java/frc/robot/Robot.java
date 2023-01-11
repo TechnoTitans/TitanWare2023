@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         robotContainer.poseEstimator.update(robotContainer.swerve.getHeading(), robotContainer.swerve.getModulePositions());
         robotContainer.odometry.update(robotContainer.poseEstimator.getEstimatedPosition().getRotation(), robotContainer.swerve.getModulePositions());
+        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
     }
 
     @Override
@@ -63,6 +64,7 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         robotContainer.poseEstimator.update(robotContainer.swerve.getHeading(), robotContainer.swerve.getModulePositions());
         robotContainer.odometry.update(robotContainer.poseEstimator.getEstimatedPosition().getRotation(), robotContainer.swerve.getModulePositions());
+        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
     }
 
     @Override

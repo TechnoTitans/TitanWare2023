@@ -1,22 +1,20 @@
-package frc.robot.utils;
+package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @SuppressWarnings("unused")
 public class TrajectoryManager {
@@ -24,33 +22,37 @@ public class TrajectoryManager {
     private final HolonomicDriveController controller;
     private final SwerveDriveOdometry odometry;
     private final boolean reverseTrajectory = false;
+    private final SwerveDrivePoseEstimator poseEstimator;
+    private final Field2d field;
 
-    public TrajectoryManager(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry) {
+    public TrajectoryManager(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, SwerveDrivePoseEstimator poseEstimator, Field2d field) {
         this.swerve = swerve;
         this.controller = controller;
         this.odometry = odometry;
+        this.poseEstimator = poseEstimator;
+        this.field = field;
     }
 
     public void follow(String trajDir, double periodic, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj);
+        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj, poseEstimator, field);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj);
+        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj, poseEstimator, field);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public TrajFollower getCommand(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        return new TrajFollower(swerve, controller, odometry, traj);
+        return new TrajFollower(swerve, controller, odometry, traj, poseEstimator, field);
     }
 
     public TrajFollower getCommand(String trajDir, double periodic, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        return new TrajFollower(swerve, controller, odometry, traj);
+        return new TrajFollower(swerve, controller, odometry, traj, poseEstimator, field);
     }
 
     public void testHolonomic(Pose2d targetPose, double velocity, Rotation2d targetRot) {
@@ -65,13 +67,17 @@ class TrajFollower extends CommandBase {
     private final Swerve swerve;
     private final HolonomicDriveController controller;
     private final SwerveDriveOdometry odometry;
-    private final Map<Translation2d, PathPlannerTrajectory.EventMarker> trajectoryMap = new HashMap<>();
+    private final SwerveDrivePoseEstimator poseEstimator;
+    private final Field2d field;
 
-    public TrajFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj) {
+    public TrajFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, SwerveDrivePoseEstimator poseEstimator, Field2d field) {
         this.swerve = swerve;
         this.controller = controller;
         this.odometry = odometry;
         this.traj = traj;
+        this.poseEstimator = poseEstimator;
+        this.field = field;
+        addRequirements(swerve);
     }
 
     @Override
@@ -79,8 +85,8 @@ class TrajFollower extends CommandBase {
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialPose.getRotation().getDegrees()); //i added this not sure if it is good to have or not
-        odometry.resetPosition(swerve.getHeading(), swerve.getModulePositions(), new Pose2d(initialPose.getTranslation(), initialState.holonomicRotation));
-
+        odometry.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), new Pose2d(initialPose.getTranslation(), initialState.holonomicRotation));
+        field.getObject("Robot").setPose(initialPose);
         timer.reset();
         timer.start();
     }
@@ -91,7 +97,7 @@ class TrajFollower extends CommandBase {
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
 //        odometry.getField2dObject("Traj").setPose(sample.poseMeters);
         driveToState(sample);
-        odometry.update(swerve.getHeading(), swerve.getModulePositions());
+//        odometry.update(poseEstimator.getEstimatedPosition().getRotation(), swerve.getModulePositions());
     }
 
     @Override
@@ -106,7 +112,7 @@ class TrajFollower extends CommandBase {
     }
 
     public void driveToState(PathPlannerTrajectory.PathPlannerState state) {
-        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state.poseMeters, state.velocityMetersPerSecond, state.holonomicRotation);
+        ChassisSpeeds correction = controller.calculate(poseEstimator.getEstimatedPosition(), state.poseMeters, state.velocityMetersPerSecond, state.holonomicRotation);
         swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, correction.omegaRadiansPerSecond, false);
     }
 }
