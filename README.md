@@ -15,3 +15,7 @@
 - [ ] Set Module Offsets
 - [ ] Config Odomety/Kinematics
 - [ ] Tune PID
+- [ ] Run path planning paths
+- [ ] Locking System
+- [ ] Vison alignment 
+
