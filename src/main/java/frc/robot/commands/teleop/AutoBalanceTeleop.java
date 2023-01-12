@@ -20,7 +20,7 @@ public class AutoBalanceTeleop extends CommandBase {
 
     @Override
     public void execute() {
-        if (!MathMethods.withinBand(swerve.getAngle(), 5)) {
+        if (!MathMethods.withinBand(swerve.getHeading(), 5)) {
             swerve.faceDirection(0, 0, 0, true);
         }
         double pitch = pigeon.getPitch();

@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -17,7 +16,6 @@ public class Swerve extends SubsystemBase {
     private final Pigeon2 pigeon;
     private final SwerveModule frontLeft, frontRight, backLeft, backRight;
     private final SwerveDriveKinematics kinematics;
-    private SwerveDrivePoseEstimator poseEstimator;
 
     public Swerve(Pigeon2 pigeon, SwerveDriveKinematics kinematics, SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight) {
         this.pigeon = pigeon;
@@ -28,20 +26,16 @@ public class Swerve extends SubsystemBase {
         this.kinematics = kinematics;
     }
 
-    public double getAngle() {
+    public double getHeading() {
         return pigeon.getYaw();
     }
 
-    public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(getAngle());
+    public Rotation2d getRotation2d() {
+        return Rotation2d.fromDegrees(getHeading());
     }
 
     public void setAngle(double angle) {
         pigeon.setYaw(angle);
-    }
-
-    public void setPoseEstimator(SwerveDrivePoseEstimator poseEstimator) {
-        this.poseEstimator = poseEstimator;
     }
 
     public void zeroRotation() {
@@ -72,7 +66,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
-        ChassisSpeeds speeds = (fieldRelative) ? ChassisSpeeds.fromFieldRelativeSpeeds(xspeed, yspeed, rot, poseEstimator.getEstimatedPosition().getRotation()) : new ChassisSpeeds(xspeed, yspeed, rot);
+        ChassisSpeeds speeds = (fieldRelative) ? ChassisSpeeds.fromFieldRelativeSpeeds(xspeed, yspeed, rot, getRotation2d()) : new ChassisSpeeds(xspeed, yspeed, rot);
         drive(speeds);
     }
 
@@ -93,7 +87,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void faceDirection(double dx, double dy, double theta, boolean fieldRelative) {
-        double errorTheta = (theta - (int) getAngle() % 360);
+        double errorTheta = (theta - (int) getHeading() % 360);
 
         if (errorTheta < -180) errorTheta += 360;
         if (errorTheta > 180) errorTheta -= 360;
@@ -109,7 +103,7 @@ public class Swerve extends SubsystemBase {
 
 
     public void faceClosest(double dx, double dy, boolean fieldRelative) {
-        int current_rotation = (int) getAngle() % 360;
+        int current_rotation = (int) getHeading() % 360;
         if (current_rotation < 0) current_rotation += 360;
 
         if (current_rotation <= 90 || current_rotation >= 270) {

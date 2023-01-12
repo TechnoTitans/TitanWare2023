@@ -54,10 +54,11 @@ public interface RobotMap {
     int horizontalElevatorNeo = 3;
     int horizontalElevatorSRXMAG = 3;
 
-    int clawWheels550 = 3;
-
-    int clawTilt550 = 3;
+    int clawTiltBag = 3;
+    boolean clawTiltBagR = false;
     int clawTiltElevator550SRXMAG = 3;
+
+    int clawWheels550 = 3;
 
     int MainController = 2;
     int CoController = 1;

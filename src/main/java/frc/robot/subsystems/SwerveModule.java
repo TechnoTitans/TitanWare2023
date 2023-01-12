@@ -63,6 +63,10 @@ public class SwerveModule extends SubsystemBase {
         turnMotor.configAllSettings(turnerConfig);
     }
 
+    public double getAngle() {
+        return turnEncoder.getAbsolutePosition();
+    }
+
     public SwerveModuleState getState() {
         return new SwerveModuleState(driveMotor.getSelectedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS, Rotation2d.fromDegrees(getAngle()));
     }
@@ -71,15 +75,11 @@ public class SwerveModule extends SubsystemBase {
         return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / 8.14 * 2048.0), Rotation2d.fromDegrees(getAngle()));
     }
 
-    public double getAngle() {
-        return turnEncoder.getAbsolutePosition();
-    }
-
     public void setDesiredState(SwerveModuleState state) {
-        Rotation2d currentRotation = Rotation2d.fromDegrees(getAngle());
-        SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentRotation);
+        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle()); // TODO: CHECK THIS
+        SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         double desired_driver_velocity_ticks = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_RADIUS * Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.ONESECOND_TO_100_MILLISECONDS;
-        Rotation2d delta_rotation = currentRotation.minus(wantedState.angle);
+        Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
         double delta_ticks = delta_rotation.getDegrees() * Constants.Modules.TICKS_PER_CANCODER_DEGREE;
         double current_ticks = turnMotor.getSelectedSensorPosition();
         double desired_turner_ticks = current_ticks + delta_ticks;
@@ -90,12 +90,12 @@ public class SwerveModule extends SubsystemBase {
 
     public void percentOutputControl(double output) {
         driveMotor.set(TalonFXControlMode.PercentOutput, output);
-        turnMotor.set(TalonFXControlMode.Position, turnMotor.getSelectedSensorPosition());
+        turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
     public void manualVelocityControl(double velocity_ticks_per_100ms) {
         driveMotor.set(TalonFXControlMode.Velocity, velocity_ticks_per_100ms);
-        turnMotor.set(TalonFXControlMode.Position, 0);
+        turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
 }
