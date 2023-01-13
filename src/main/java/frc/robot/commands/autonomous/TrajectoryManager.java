@@ -81,7 +81,7 @@ class TrajFollower extends CommandBase {
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialPose.getRotation().getDegrees()); //i added this not sure if it is good to have or not
         odometry.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);
-        field.getObject("Robot").setPose(initialPose);
+//        field.getObject("Traj").setPose(initialPose);
         timer.reset();
         timer.start();
     }
@@ -90,8 +90,8 @@ class TrajFollower extends CommandBase {
     public void execute() {
         double currentTime = timer.get();
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
-//        odometry.getField2dObject("Traj").setPose(sample.poseMeters);
         driveToState(sample);
+        field.getObject("Traj").setPose(sample.poseMeters);
         odometry.update(swerve.getRotation2d(), swerve.getModulePositions());
     }
 

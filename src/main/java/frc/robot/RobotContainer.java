@@ -48,8 +48,8 @@ public class RobotContainer {
 
     //Elevator
     public final TitanFX leftElevatorMotor, rightElevatorMotor;
-    public final TitanSRX clawTiltBagMotor;
-    public final CANSparkMax elevatorHorizontalNeo, clawWheelsNeo550;
+    public final TitanSRX clawWheelsLeftMotor, clawWheelsRightMotor;
+    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo550;
     public final TitanSRX horizontalElevatorSRXMAG, verticalElevatorSRXMAG, clawTiltElevatorSRXMAG;
 
     //Swerve
@@ -131,9 +131,10 @@ public class RobotContainer {
         //Elevator Motors
         leftElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
         rightElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
-        clawTiltBagMotor = new TitanSRX(RobotMap.clawTiltBag, RobotMap.clawTiltBagR);
+        clawWheelsLeftMotor = new TitanSRX(RobotMap.clawWheelsLeftMotor, RobotMap.clawWheelsLeftMotorR);
+        clawWheelsRightMotor = new TitanSRX(RobotMap.clawWheelsRightMotor, RobotMap.clawWheelsRightMotorR);
         elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawWheelsNeo550 = new CANSparkMax(RobotMap.clawWheels550, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltNeo550 = new CANSparkMax(RobotMap.clawTilt550, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
         //Plug Mag encoders into SRX and we will access through can
@@ -147,8 +148,8 @@ public class RobotContainer {
         //Solenoids
         clawSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, RobotMap.CLAW_SOLENOID);
 
-        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, clawTiltBagMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
-        claw = new Claw(clawWheelsNeo550, clawSolenoid);
+        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, clawTiltNeo550, elevatorHorizontalNeo, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
+        claw = new Claw(clawWheelsLeftMotor, clawWheelsRightMotor, clawSolenoid);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(

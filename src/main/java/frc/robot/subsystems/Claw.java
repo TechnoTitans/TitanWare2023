@@ -1,29 +1,40 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
 public class Claw extends SubsystemBase {
-    private final CANSparkMax clawWheelMotor;
+    private final TitanSRX clawLeftWheelBag, clawRightWheelBag;
     private final Solenoid clawSolenoid;
     private Enums.ClawState currentState;
 
-    public Claw(CANSparkMax clawWheelMotor, Solenoid clawSolenoid) {
-        this.clawWheelMotor = clawWheelMotor;
+    public Claw(TitanSRX clawLeftWheelBag, TitanSRX clawRightWheelBag, Solenoid clawSolenoid) {
+        this.clawLeftWheelBag = clawLeftWheelBag;
+        this.clawRightWheelBag = clawRightWheelBag;
         this.clawSolenoid = clawSolenoid;
 
         configMotor();
     }
 
     private void configMotor() {
-        clawWheelMotor.getPIDController().setP(0.1);
-        clawWheelMotor.setSmartCurrentLimit(40);
-        clawWheelMotor.setClosedLoopRampRate(0.2);
+        TalonSRXConfiguration CWConfig = new TalonSRXConfiguration();
+        CWConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        CWConfig.slot0.kI = 0.002;
+        CWConfig.slot0.integralZone = 0.002;
+        CWConfig.slot0.kD = 10;
+        CWConfig.slot0.kF = 0.1;
+        CWConfig.closedloopRamp = 0.2;
+        clawLeftWheelBag.configAllSettings(CWConfig);
+        clawRightWheelBag.configAllSettings(CWConfig);
+        clawRightWheelBag.follow(clawLeftWheelBag);
     }
 
     public void setState(Enums.ClawState state) {
@@ -35,8 +46,8 @@ public class Claw extends SubsystemBase {
         return currentState;
     }
 
-    protected CANSparkMax getClawWheelMotor() {
-        return clawWheelMotor;
+    protected TitanSRX getClawWheelMotor() {
+        return clawRightWheelBag;
     }
 
     protected Solenoid getClawSolenoid() {
@@ -76,6 +87,6 @@ class ClawControlCommand extends CommandBase {
                 return;
         }
         claw.getClawSolenoid().set(clawOpen);
-        claw.getClawWheelMotor().set(speed);
+        claw.getClawWheelMotor().set(ControlMode.PercentOutput, speed);
     }
 }

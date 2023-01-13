@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.MotorFeedbackSensor;
+import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,18 +19,17 @@ import frc.robot.wrappers.motors.TitanSRX;
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
     private final TitanFX leftVerticalElevatorMotor, rightVerticalElevatorMotor;
-    private final TitanSRX clawTiltElevatorMotor;
-    private final CANSparkMax horizontalElevatorMotor;
+    private final CANSparkMax horizontalElevatorMotor, clawTiltElevator550;
     private final TitanSRX verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG;
     private Enums.ElevatorState currentState;
 
-    public Elevator(TitanFX leftVerticalElevatorMotor, TitanFX rightVerticalElevatorMotor, TitanSRX clawTiltElevatorMotor,
+    public Elevator(TitanFX leftVerticalElevatorMotor, TitanFX rightVerticalElevatorMotor, CANSparkMax clawTiltElevator550,
                     CANSparkMax horizontalElevatorMotor, TitanSRX verticalElevatorSRXMAG, TitanSRX horizontalElevatorSRXMAG,
                     TitanSRX clawTiltElevatorSRXMAG) {
         this.leftVerticalElevatorMotor = leftVerticalElevatorMotor;
         this.rightVerticalElevatorMotor = rightVerticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
-        this.clawTiltElevatorMotor = clawTiltElevatorMotor;
+        this.clawTiltElevator550 = clawTiltElevator550;
         this.verticalElevatorSRXMAG = verticalElevatorSRXMAG;
         this.horizontalElevatorSRXMAG = horizontalElevatorSRXMAG;
         this.clawTiltElevatorSRXMAG = clawTiltElevatorSRXMAG;
@@ -58,15 +58,12 @@ public class Elevator extends SubsystemBase {
         rightVerticalElevatorMotor.configAllSettings(RVEConfig);
         rightVerticalElevatorMotor.follow(leftVerticalElevatorMotor);
 
-        TalonSRXConfiguration CTEConfig = new TalonSRXConfiguration();
-        CTEConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
-        CTEConfig.slot0.kI = 0.002;
-        CTEConfig.slot0.integralZone = 0.002;
-        CTEConfig.slot0.kD = 10;
-        CTEConfig.closedloopRamp = 0.2;
-        CTEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
-        CTEConfig.remoteFilter0.remoteSensorDeviceID = clawTiltElevatorSRXMAG.getDeviceID();
-        clawTiltElevatorMotor.configAllSettings(CTEConfig);
+        SparkMaxPIDController clawTilt550PID = clawTiltElevator550.getPIDController();
+        clawTilt550PID.setP(0.1); //TODO: TUNE ALL OF THESE
+        clawTilt550PID.setI(0.002);
+        clawTilt550PID.setIZone(0.002);
+        clawTilt550PID.setD(10);
+        clawTiltElevator550.setClosedLoopRampRate(0.2);
 
         horizontalElevatorMotor.getPIDController().setP(0.1);
         horizontalElevatorMotor.getPIDController().setI(0.002);
@@ -89,8 +86,8 @@ public class Elevator extends SubsystemBase {
         return leftVerticalElevatorMotor;
     }
 
-    protected TitanSRX getTiltElevatorMotor() {
-        return clawTiltElevatorMotor;
+    protected CANSparkMax getTiltElevatorMotor() {
+        return clawTiltElevator550;
     }
 
     protected CANSparkMax getHorizontalElevatorMotor() {
@@ -101,15 +98,14 @@ public class Elevator extends SubsystemBase {
 @SuppressWarnings("unused")
 class ElevatorControlCommand extends CommandBase {
     private final TitanFX verticalElevatorMotor;
-    private final TitanSRX clawTiltElevatorMotor;
-    private final CANSparkMax horizontalElevatorMotor;
+    private final CANSparkMax horizontalElevatorMotor, clawTiltElevator550;
     private final Enums.ElevatorState elevatorState;
 
     public ElevatorControlCommand(Elevator elevator, Enums.ElevatorState state) {
         this.elevatorState = state;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
         this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
-        this.clawTiltElevatorMotor = elevator.getTiltElevatorMotor();
+        this.clawTiltElevator550 = elevator.getTiltElevatorMotor();
     }
 
     @Override
@@ -160,13 +156,14 @@ class ElevatorControlCommand extends CommandBase {
                 DemandType.ArbitraryFeedForward,
                 keepPositionMotorPercent);
 
-        clawTiltElevatorMotor.set(ControlMode.Position,
-                TETargetTicks,
-                DemandType.ArbitraryFeedForward,
-                keepPositionMotorPercent);
-
         horizontalElevatorMotor.getPIDController().setReference(
                 VETargetTicks,
+                CANSparkMax.ControlType.kPosition,
+                0,
+                keepPositionMotorPercent);
+
+        clawTiltElevator550.getPIDController().setReference(
+                TETargetTicks,
                 CANSparkMax.ControlType.kPosition,
                 0,
                 keepPositionMotorPercent);
@@ -175,8 +172,8 @@ class ElevatorControlCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         verticalElevatorMotor.stopMotor();
-        clawTiltElevatorMotor.stopMotor();
         horizontalElevatorMotor.stopMotor();
+        clawTiltElevator550.stopMotor();
     }
 
 }
