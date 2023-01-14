@@ -10,7 +10,7 @@
 - [ ] Config RobotMap.java
 - [x] Add Elevator
 - [x] Add AutoBalance
-- [ ] Fix Auto !!!
+- [x] Fix Auto !!!
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets
