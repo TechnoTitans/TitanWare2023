@@ -3,7 +3,7 @@ package frc.robot;
 @SuppressWarnings("unused")
 public interface Constants {
     interface Modules {
-        int WHEEL_RADIUS = 2;
+        double WHEEL_RADIUS = 0.0508; //2 in
         int MOTOR_ROTATION_TO_TALON_ENCODER_TICKS = 2048;
         int CANCODER_TICKS_PER_ROTATION = 4096;
         double DRIVER_GEAR_RATIO = 8.14;
@@ -18,13 +18,13 @@ public interface Constants {
     }
 
     interface Swerve {
-        double MODULE_MAX_SPEED = 13.9; //TODO: tune this
-        double ROBOT_MAX_SPEED = 9.533;
+        double ROBOT_MAX_SPEED = 13.5; //TODO: tune this
+        double MODULE_MAX_SPEED = 9;
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = Math.PI;
         double TRAJ_MAX_SPEED = ROBOT_MAX_SPEED;
-        double TRAJ_MAX_ACCELERATION = TRAJ_MAX_SPEED / 0.5;
+        double TRAJ_MAX_ACCELERATION = TRAJ_MAX_SPEED * 0.5;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 2; //TUNE THIS: (rotation pid) 2

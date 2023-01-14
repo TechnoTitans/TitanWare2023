@@ -18,8 +18,8 @@ public class SwerveDriveTeleop extends CommandBase {
 
     @Override
     public void execute() {
-        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.2) * Constants.Swerve.TELEOP_MAX_SPEED;
-        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.2) * Constants.Swerve.TELEOP_MAX_SPEED;
+        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED;
+        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED;
         boolean fieldRelative = true;
 
         if (controller.getLeftBumper()) {
@@ -29,7 +29,7 @@ public class SwerveDriveTeleop extends CommandBase {
         } else if (controller.getBButtonPressed()) {
             swerve.faceClosest(frontBack, leftRight, fieldRelative);
         } else {
-            double rot = MathMethods.deadband(controller.getRightX(), 0.2) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
+            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
             swerve.drive(frontBack, leftRight, rot, fieldRelative);
         }
     }

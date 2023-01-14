@@ -20,29 +20,29 @@ public interface RobotMap {
 
     //Motors
         //Swerve
-    int frontLeftDrive = 12;
-    int frontLeftTurn = 14;
+    int frontLeftDrive = 1;
+    int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
-    boolean frontLeftDriveR = false;
+    boolean frontLeftDriveR = true;
     boolean frontLeftTurnR = false;
 
-    int frontRightDrive = 5;
+    int frontRightDrive = 3;
     int frontRightTurn = 4;
-    int frontRightEncoder = 0;
+    int frontRightEncoder = 2;
     boolean frontRightDriveR = false;
     boolean frontRightTurnR = false;
 
-    int backLeftDrive = 8;
-    int backLeftTurn = 6;
-    int backLeftEncoder = 4;
-    boolean backLeftDriveR = false;
-    boolean backLeftTurnR = false;
-
-    int backRightDrive = 2;
-    int backRightTurn = 5;
+    int backRightDrive = 5;
+    int backRightTurn = 6;
     int backRightEncoder = 3;
     boolean backRightDriveR = false;
     boolean backRightTurnR = false;
+
+    int backLeftDrive = 7;
+    int backLeftTurn = 8;
+    int backLeftEncoder = 4;
+    boolean backLeftDriveR = true;
+    boolean backLeftTurnR = false;
 
         //Elevator
     int leftVerticalFalcon = 5;
@@ -62,6 +62,6 @@ public interface RobotMap {
     int clawWheelsRightMotor = 3;
     boolean clawWheelsRightMotorR = false;
 
-    int MainController = 2;
+    int MainController = 1;
     int CoController = 1;
 }

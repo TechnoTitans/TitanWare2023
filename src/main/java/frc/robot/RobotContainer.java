@@ -49,14 +49,14 @@ public class RobotContainer {
     //Elevator
     public final TitanFX leftElevatorMotor, rightElevatorMotor;
     public final TitanSRX clawWheelsLeftMotor, clawWheelsRightMotor;
-    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo550;
+//    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo550;
     public final TitanSRX horizontalElevatorSRXMAG, verticalElevatorSRXMAG, clawTiltElevatorSRXMAG;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-    public final SwerveDrivePoseEstimator poseEstimator;
+//    public final SwerveDrivePoseEstimator poseEstimator;
     public final HolonomicDriveController holonomicDriveController;
     public final Field2d field;
 
@@ -74,8 +74,8 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
-    public final Elevator elevator;
-    public final Claw claw;
+//    public final Elevator elevator;
+//    public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
@@ -97,7 +97,7 @@ public class RobotContainer {
         oi = new OI();
 
         //Power Distribution Hub
-        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
+        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kCTRE);
         powerDistribution.clearStickyFaults();
 
         //Compressor
@@ -133,8 +133,8 @@ public class RobotContainer {
         rightElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
         clawWheelsLeftMotor = new TitanSRX(RobotMap.clawWheelsLeftMotor, RobotMap.clawWheelsLeftMotorR);
         clawWheelsRightMotor = new TitanSRX(RobotMap.clawWheelsRightMotor, RobotMap.clawWheelsRightMotorR);
-        elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawTiltNeo550 = new CANSparkMax(RobotMap.clawTilt550, CANSparkMaxLowLevel.MotorType.kBrushless);
+//        elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+//        clawTiltNeo550 = new CANSparkMax(RobotMap.clawTilt550, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
         //Plug Mag encoders into SRX and we will access through can
@@ -148,8 +148,8 @@ public class RobotContainer {
         //Solenoids
         clawSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, RobotMap.CLAW_SOLENOID);
 
-        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, clawTiltNeo550, elevatorHorizontalNeo, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
-        claw = new Claw(clawWheelsLeftMotor, clawWheelsRightMotor, clawSolenoid);
+//        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, clawTiltNeo550, elevatorHorizontalNeo, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
+//        claw = new Claw(clawWheelsLeftMotor, clawWheelsRightMotor, clawSolenoid);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -160,13 +160,13 @@ public class RobotContainer {
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
-        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), odometry.getPoseMeters()); // this will only be used when we get pose input from LL and then we will update odometry with it.
+//        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), odometry.getPoseMeters()); // this will only be used when we get pose input from LL and then we will update odometry with it.
         field = new Field2d();
         holonomicDriveController = new HolonomicDriveController(
-                new PIDController(1, 0, 0),
-                new PIDController(1, 0, 0),
+                new PIDController(0.05, 0, 0),
+                new PIDController(0.05, 0, 0),
                 new ProfiledPIDController(
-                        10, 0, 0,
+                        0.8, 0, 0.01,
                         new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
                 ));
 
@@ -175,7 +175,7 @@ public class RobotContainer {
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
 
         //Buttons
-        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
+        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_RIGHT);
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
 
@@ -184,7 +184,7 @@ public class RobotContainer {
 
         //SmartDashboard
         autoChooser = new SendableChooser<>();
-        autoChooser.setDefaultOption("Auto1", null);
+        autoChooser.setDefaultOption("Auto1", trajectoryManager.getCommand("pathing"));
         autoChooser.addOption("Auto2", null);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -199,15 +199,15 @@ public class RobotContainer {
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
         autoBalanceBtn.onTrue(autoBalanceTeleop);
-        elevatorControlBtn.onTrue(new InstantCommand(() -> {
-            int currentState = elevator.getCurrentState().ordinal();
-            if (currentState == Enums.ElevatorState.values().length-1) {
-                currentState = 0;
-            } else {
-                currentState++;
-            }
-            elevator.setState(Enums.ElevatorState.values()[currentState]);
-        }));
+//        elevatorControlBtn.onTrue(new InstantCommand(() -> {
+//            int currentState = elevator.getCurrentState().ordinal();
+//            if (currentState == Enums.ElevatorState.values().length-1) {
+//                currentState = 0;
+//            } else {
+//                currentState++;
+//            }
+//            elevator.setState(Enums.ElevatorState.values()[currentState]);
+//        }));
     }
 
     public Command getAutonomousCommand() {

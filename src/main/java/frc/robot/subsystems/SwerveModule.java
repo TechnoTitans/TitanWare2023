@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -47,6 +48,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.slot0.kF = 0.045;
         driverConfig.closedloopRamp = .2;
         driveMotor.configAllSettings(driverConfig);
+        driveMotor.setNeutralMode(NeutralMode.Brake);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
         turnerConfig.slot0.kP = 0.47;
@@ -72,7 +74,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / 8.14 * 2048.0), Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / (8.14 * 2048.0)), Rotation2d.fromDegrees(getAngle()));
     }
 
     public void setDesiredState(SwerveModuleState state) {
@@ -97,5 +99,4 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.set(TalonFXControlMode.Velocity, velocity_ticks_per_100ms);
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
-
 }
