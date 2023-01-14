@@ -10,7 +10,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
@@ -81,9 +80,9 @@ class TrajFollower extends CommandBase {
         addRequirements(swerve);
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
-//        swerve.setAngle(initialPose.getRotation().getDegrees()); //i added this not sure if it is good to have or not
+        swerve.setAngle(initialPose.getRotation().getDegrees()); //i added this not sure if it is good to have or not
         odometry.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);
-//        field.getObject("Traj").setPose(initialPose);
+        field.getObject("Traj").setPose(initialPose);
         timer.reset();
         timer.start();
     }
@@ -93,7 +92,7 @@ class TrajFollower extends CommandBase {
         double currentTime = timer.get();
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
         driveToState(sample);
-//        field.getObject("Traj").setPose(sample.poseMeters);
+        field.getObject("Traj").setPose(sample.poseMeters);
         odometry.update(swerve.getRotation2d(), swerve.getModulePositions());
     }
 
@@ -114,7 +113,7 @@ class TrajFollower extends CommandBase {
                 state.poseMeters,
                 state.velocityMetersPerSecond,
                 state.holonomicRotation);
-//        swerve.drive(correction);
-        swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, correction.omegaRadiansPerSecond, false);
+        //TODO: TEST FIELD RELATIVE PATH PLANNING AT DE
+        swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, state.holonomicRotation.getDegrees(), false);
     }
 }

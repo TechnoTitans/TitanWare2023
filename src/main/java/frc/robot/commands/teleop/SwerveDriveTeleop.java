@@ -1,5 +1,7 @@
 package frc.robot.commands.teleop;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -26,7 +28,7 @@ public class SwerveDriveTeleop extends CommandBase {
             swerve.faceDirection(frontBack, leftRight, 0, fieldRelative);
         } else if (controller.getRightBumper()) {
             swerve.faceDirection(frontBack, leftRight, 180, fieldRelative);
-        } else if (controller.getBButtonPressed()) {
+        } else if (controller.getBButton()) {
             swerve.faceClosest(frontBack, leftRight, fieldRelative);
         } else {
             double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;

@@ -36,10 +36,10 @@ public class AutoBalanceTeleop extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.drive(new SwerveModuleState[]{
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
                 new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(-45))});
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45))});
         // This should make an X pattern with the wheels
     }
 }

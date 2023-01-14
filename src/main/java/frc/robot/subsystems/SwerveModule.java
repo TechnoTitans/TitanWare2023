@@ -41,7 +41,7 @@ public class SwerveModule extends SubsystemBase {
 
         driveMotor.configFactoryDefault();
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        driverConfig.slot0.kP = 0.1;
         driverConfig.slot0.kI = 0.002;
         driverConfig.slot0.integralZone = 200;
         driverConfig.slot0.kD = 5;
@@ -61,7 +61,6 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.remoteFilter0.remoteSensorDeviceID = turnEncoder.getDeviceID();
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-        turnerConfig.closedloopRamp = .000;
         turnMotor.configAllSettings(turnerConfig);
     }
 
@@ -70,7 +69,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getSelectedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS, Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModuleState(driveMotor.getSelectedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS * 10, Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getPosition() {

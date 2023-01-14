@@ -7,7 +7,7 @@ public interface Constants {
         int MOTOR_ROTATION_TO_TALON_ENCODER_TICKS = 2048;
         int CANCODER_TICKS_PER_ROTATION = 4096;
         double DRIVER_GEAR_RATIO = 8.14;
-        double TURNER_GEAR_RATIO = 150/7d;
+        double TURNER_GEAR_RATIO = 150.0/7.0;
         double TICKS_PER_MOTOR_RADIAN = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / (2 * Math.PI);
         double TICKS_PER_DRIVER_WHEEL_ROTATION = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS * DRIVER_GEAR_RATIO;
         double DRIVER_TICKS_PER_WHEEL_RADIAN = TICKS_PER_MOTOR_RADIAN * DRIVER_GEAR_RATIO;
@@ -18,13 +18,13 @@ public interface Constants {
     }
 
     interface Swerve {
-        double ROBOT_MAX_SPEED = 13.5; //TODO: tune this
-        double MODULE_MAX_SPEED = 9;
+        double ROBOT_MAX_SPEED = 7; //TODO: tune this
+        double MODULE_MAX_SPEED = 13.5;
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
-        double TELEOP_MAX_ANGULAR_SPEED = Math.PI;
-        double TRAJ_MAX_SPEED = ROBOT_MAX_SPEED;
-        double TRAJ_MAX_ACCELERATION = TRAJ_MAX_SPEED * 0.5;
+        double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
+        double TRAJ_MAX_SPEED = ROBOT_MAX_SPEED/2;
+        double TRAJ_MAX_ACCELERATION = TRAJ_MAX_SPEED / 2;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 2; //TUNE THIS: (rotation pid) 2

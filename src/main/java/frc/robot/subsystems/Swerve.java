@@ -93,7 +93,9 @@ public class Swerve extends SubsystemBase {
 
         if (errorTheta < -180) errorTheta += 360;
         if (errorTheta > 180) errorTheta -= 360;
-        if (Math.abs(errorTheta) < 5) errorTheta = 0;
+        if (Math.abs(errorTheta) < 15) errorTheta = 0.1 * errorTheta;
+        if (Math.abs(errorTheta) < 3) errorTheta = 0;
+
 
         double pRotation = errorTheta * Constants.Swerve.ROTATE_P;
 
@@ -105,10 +107,19 @@ public class Swerve extends SubsystemBase {
 
 
     public void faceClosest(double dx, double dy, boolean fieldRelative) {
-        int current_rotation = (int) getHeading() % 360;
-        if (current_rotation < 0) current_rotation += 360;
 
-        if (current_rotation <= 90 || current_rotation >= 270) {
+
+        int current_rotation = (int) getHeading() % 360;
+        //if (current_rotation < 0) current_rotation += 360;
+        if (current_rotation < -180) current_rotation += 360;
+        if (current_rotation > 180) current_rotation -= 360;
+
+//        if (current_rotation <= 90 || current_rotation >= 270) {
+//            faceDirection(dx, dy, 0, fieldRelative);
+//        } else {
+//            faceDirection(dx, dy, 180, fieldRelative);
+//        }
+        if (Math.abs(current_rotation) <= 90) {
             faceDirection(dx, dy, 0, fieldRelative);
         } else {
             faceDirection(dx, dy, 180, fieldRelative);

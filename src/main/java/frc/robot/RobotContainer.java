@@ -163,10 +163,10 @@ public class RobotContainer {
 //        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), odometry.getPoseMeters()); // this will only be used when we get pose input from LL and then we will update odometry with it.
         field = new Field2d();
         holonomicDriveController = new HolonomicDriveController(
-                new PIDController(0.05, 0, 0),
-                new PIDController(0.05, 0, 0),
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0),
                 new ProfiledPIDController(
-                        0.8, 0, 0.01,
+                        10, -0.003, 0,
                         new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
                 ));
 
