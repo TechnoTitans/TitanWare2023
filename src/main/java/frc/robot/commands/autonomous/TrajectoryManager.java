@@ -5,12 +5,14 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
@@ -118,8 +120,21 @@ class TrajFollower extends CommandBase {
                 state.poseMeters,
                 state.velocityMetersPerSecond,
                 state.holonomicRotation);
-        //TODO: TEST FIELD RELATIVE PATH PLANNING AT DE
+        //TODO: TEST FIELD RELATIVE PATH PLANNING
         swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, state.holonomicRotation.getDegrees(), false);
+
+        Transform2d error = odometry.getPoseMeters().minus(state.poseMeters);
+        SmartDashboard.putNumber("Holonomic error x", error.getX());
+        SmartDashboard.putNumber("Holonomic error y", error.getY());
+        SmartDashboard.putNumber("Holonomic error rot", error.getRotation().getDegrees());
+
+        SmartDashboard.putNumber("target x", state.poseMeters.getX());
+        SmartDashboard.putNumber("target y", state.poseMeters.getY());
+        SmartDashboard.putNumber("target rot", state.poseMeters.getRotation().getDegrees());
+
+        SmartDashboard.putNumber("current x", odometry.getPoseMeters().getX());
+        SmartDashboard.putNumber("current y", odometry.getPoseMeters().getY());
+        SmartDashboard.putNumber("current rot", odometry.getPoseMeters().getRotation().getDegrees());
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {

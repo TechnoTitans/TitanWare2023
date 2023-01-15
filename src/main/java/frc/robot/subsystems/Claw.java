@@ -45,6 +45,7 @@ public class Claw extends SubsystemBase {
         CCConfig.slot0.kI = 0.002;
         CCConfig.slot0.integralZone = 200;
         CCConfig.slot0.kD = 10;
+        CCConfig.neutralDeadband = 0.1;
         CCConfig.closedloopRamp = 0.2;
         clawOpenCloseMotor.configAllSettings(CCConfig);
 
