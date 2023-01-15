@@ -24,6 +24,7 @@ public class Limelight {
     private final DoubleSubscriber tx = table.getDoubleTopic("tx").subscribe(0.0); // horizontal offset from crosshair to target
     private final DoubleSubscriber ty = table.getDoubleTopic("ty").subscribe(0.0); // vertical offset from crosshair to target
     private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
+
     private final IntegerPublisher ledMode = table.getIntegerTopic("ledMode").publish();
 
     public Limelight() {

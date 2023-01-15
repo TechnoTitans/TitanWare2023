@@ -5,6 +5,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.RobotState;
@@ -14,6 +15,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
+import frc.robot.utils.MathMethods;
+
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class TrajectoryManager {
@@ -91,6 +95,7 @@ class TrajFollower extends CommandBase {
     public void execute() {
         double currentTime = timer.get();
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
+//        commander(sample);
         driveToState(sample);
         field.getObject("Traj").setPose(sample.poseMeters);
         odometry.update(swerve.getRotation2d(), swerve.getModulePositions());
@@ -107,7 +112,7 @@ class TrajFollower extends CommandBase {
         return !RobotState.isAutonomous() && timer.get() >= traj.getTotalTimeSeconds() - 1;
     }
 
-    public void driveToState(PathPlannerTrajectory.PathPlannerState state) {
+    private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
         ChassisSpeeds correction = controller.calculate(
                 odometry.getPoseMeters(),
                 state.poseMeters,
@@ -115,5 +120,26 @@ class TrajFollower extends CommandBase {
                 state.holonomicRotation);
         //TODO: TEST FIELD RELATIVE PATH PLANNING AT DE
         swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, state.holonomicRotation.getDegrees(), false);
+    }
+
+    private void commander(PathPlannerTrajectory.PathPlannerState sample) {
+        List<PathPlannerTrajectory.EventMarker> eventMarkers = traj.getMarkers();
+        if (eventMarkers.size() == 0) return;
+        PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
+        double distError = 0.05; //TODO: tune this
+        if (MathMethods.withinBand(marker.positionMeters.getDistance(sample.poseMeters.getTranslation()), distError)) {
+            eventMarkers.remove(0);
+            List<String> commands = marker.names;
+            for (String x : commands) {
+                String[] args = x.split(":");
+                try {
+                    switch (args[0].toLowerCase()) {
+                        // TODO: CALL SUBSYSTEMS HERE
+                    }
+                } catch (IllegalArgumentException e) {
+//                    throw new IllegalArgumentException(e); //or this
+                }
+            }
+        }
     }
 }

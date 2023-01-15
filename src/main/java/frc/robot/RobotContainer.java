@@ -167,8 +167,9 @@ public class RobotContainer {
 
         //SmartDashboard
         autoChooser = new SendableChooser<>();
-        autoChooser.setDefaultOption("Auto1", trajectoryManager.getCommand("pathing"));
-        autoChooser.addOption("Auto2", null);
+        autoChooser.setDefaultOption("Line", trajectoryManager.getCommand("line"));
+        autoChooser.addOption("Curve", trajectoryManager.getCommand("curve"));
+        autoChooser.addOption("Spin Line", trajectoryManager.getCommand("spinline"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         profileChooser = new SendableChooser<>();
