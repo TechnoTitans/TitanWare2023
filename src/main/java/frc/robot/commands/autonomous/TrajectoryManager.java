@@ -123,7 +123,7 @@ class TrajFollower extends CommandBase {
         //TODO: TEST FIELD RELATIVE PATH PLANNING
         swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, state.holonomicRotation.getDegrees(), false);
 
-        Transform2d error = odometry.getPoseMeters().minus(state.poseMeters);
+        Transform2d error = state.poseMeters.minus(odometry.getPoseMeters());
         SmartDashboard.putNumber("Holonomic error x", error.getX());
         SmartDashboard.putNumber("Holonomic error y", error.getY());
         SmartDashboard.putNumber("Holonomic error rot", error.getRotation().getDegrees());
