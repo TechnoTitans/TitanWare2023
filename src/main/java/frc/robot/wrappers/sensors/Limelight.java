@@ -1,12 +1,13 @@
 package frc.robot.wrappers.sensors;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
+import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
 @SuppressWarnings("unused")
 public class Limelight {
+    private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+
     private double targetVelocity = 0;
     private double turretError = 0;
 
@@ -18,25 +19,24 @@ public class Limelight {
     boolean targetFound = false;
     boolean targetAligned = false;
 
-    private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    // Data grabbing
+    private final IntegerSubscriber tv = table.getIntegerTopic("tv").subscribe(0); // has any targets (0 or 1)
+    private final DoubleSubscriber tx = table.getDoubleTopic("tx").subscribe(0.0); // horizontal offset from crosshair to target
+    private final DoubleSubscriber ty = table.getDoubleTopic("ty").subscribe(0.0); // vertical offset from crosshair to target
+    private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
+    private final IntegerPublisher ledMode = table.getIntegerTopic("ledMode").publish();
 
     public Limelight() {
     }
 
     public void periodic() {
-        // Data grabbing
-        NetworkTableEntry tx = table.getEntry("tx");
-        NetworkTableEntry ty = table.getEntry("ty");
-        NetworkTableEntry ta = table.getEntry("ta");
-        NetworkTableEntry tv = table.getEntry("tv");
-
         // Read data
-        xError = tx.getDouble(0);
-        yError = ty.getDouble(0);
+        xError = tx.getAsDouble();
+        yError = ty.getAsDouble();
         distance = calculateDistance(yError);
 
         // Check if target is found
-        targetFound = tv.getDouble(0.0) > 0;
+        targetFound = tv.get() > 0;
         targetAligned = withinDeadband(xError);
 
         // Calculate velocity and turret angle
@@ -80,23 +80,17 @@ public class Limelight {
         return targetFound;
     }
 
-    public void disableLEDs() {
-        table.getEntry("ledMode").setNumber(1);
-    }
-
-    public void enableLEDs() {
-        table.getEntry("ledMode").setNumber(3);
-    }
-
-    public void configLEDs() {
-        table.getEntry("ledMode").setNumber(0);
-    }
-
-    public void LEDMode(boolean mode) {
-        if (mode) {
-            table.getEntry("ledMode").setNumber(3);
-        } else {
-            table.getEntry("ledMode").setNumber(1);
+    public void setLEDMode(Enums.LimeLightLEDState limeLightLEDState) {
+        switch (limeLightLEDState) {
+            case LED_OFF:
+                ledMode.set(1);
+                break;
+            case LED_CONFIG:
+                ledMode.set(0);
+                break;
+            case LED_ON:
+                ledMode.set(3);
+                break;
         }
     }
 }

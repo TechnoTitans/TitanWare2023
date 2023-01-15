@@ -16,4 +16,10 @@ public class Enums {
         CLAW_OPEN_SPINNING,
         CLAW_OPEN_STANDBY
     }
+
+    public enum LimeLightLEDState {
+        LED_OFF,
+        LED_CONFIG,
+        LED_ON
+    }
 }
