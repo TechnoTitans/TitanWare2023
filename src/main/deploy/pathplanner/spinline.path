@@ -45,5 +45,13 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.3818181818181819,
+      "names": [
+        "event",
+        "testing:hello"
+      ]
+    }
+  ]
 }

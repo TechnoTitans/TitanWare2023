@@ -6,7 +6,6 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.RobotState;
@@ -97,7 +96,7 @@ class TrajFollower extends CommandBase {
     public void execute() {
         double currentTime = timer.get();
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
-//        commander(sample);
+        commander(sample);
         driveToState(sample);
         field.getObject("Traj").setPose(sample.poseMeters);
         odometry.update(swerve.getRotation2d(), swerve.getModulePositions());
@@ -149,7 +148,10 @@ class TrajFollower extends CommandBase {
                 String[] args = x.split(":");
                 try {
                     switch (args[0].toLowerCase()) {
-                        // TODO: CALL SUBSYSTEMS HERE
+                        case "testing":
+                            SmartDashboard.putString("Testing", args[1]);
+                            break;
+
                     }
                 } catch (IllegalArgumentException e) {
 //                    throw new IllegalArgumentException(e); //or this
