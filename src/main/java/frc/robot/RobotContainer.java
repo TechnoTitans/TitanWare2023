@@ -12,10 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,7 +28,6 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
-import frc.robot.utils.Enums;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
@@ -47,35 +43,29 @@ public class RobotContainer {
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TitanFX leftElevatorMotor, rightElevatorMotor;
-    public final TitanSRX clawWheelsLeftMotor, clawWheelsRightMotor;
-//    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo550;
-    public final TitanSRX horizontalElevatorSRXMAG, verticalElevatorSRXMAG, clawTiltElevatorSRXMAG;
+    public final TitanFX mainElevatorMotor, followerElevatorMotor;
+    public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
+    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo;
+    public final TitanSRX verticalElevatorSRXMAG;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-//    public final SwerveDrivePoseEstimator poseEstimator;
+    public final SwerveDrivePoseEstimator poseEstimator;
     public final HolonomicDriveController holonomicDriveController;
     public final Field2d field;
 
     //PDH
     public final PowerDistribution powerDistribution;
 
-    //Compressor
-    public final Compressor compressor;
-
     //Sensors
     public final Pigeon2 pigeon;
 
-    //Solenoids
-    public final Solenoid clawSolenoid;
-
     //SubSystems
     public final Swerve swerve;
-//    public final Elevator elevator;
-//    public final Claw claw;
+    public final Elevator elevator;
+    public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
@@ -99,9 +89,6 @@ public class RobotContainer {
         //Power Distribution Hub
         powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kCTRE);
         powerDistribution.clearStickyFaults();
-
-        //Compressor
-        compressor = new Compressor(RobotMap.PNEUMATICS_HUB_ID, PneumaticsModuleType.CTREPCM);
 
         //Swerve Drive Motors
         frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR);
@@ -129,27 +116,23 @@ public class RobotContainer {
         backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 115.94);
 
         //Elevator Motors
-        leftElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
-        rightElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
-        clawWheelsLeftMotor = new TitanSRX(RobotMap.clawWheelsLeftMotor, RobotMap.clawWheelsLeftMotorR);
-        clawWheelsRightMotor = new TitanSRX(RobotMap.clawWheelsRightMotor, RobotMap.clawWheelsRightMotorR);
-//        elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-//        clawTiltNeo550 = new CANSparkMax(RobotMap.clawTilt550, CANSparkMaxLowLevel.MotorType.kBrushless);
+        mainElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
+        followerElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
+        clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
+        clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
+        clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
+        elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
         //Plug Mag encoders into SRX and we will access through can
-        horizontalElevatorSRXMAG = new TitanSRX(RobotMap.horizontalElevatorSRXMAG, false);
         verticalElevatorSRXMAG = new TitanSRX(RobotMap.verticalElevatorSRXMAG, false);
-        clawTiltElevatorSRXMAG = new TitanSRX(RobotMap.clawTiltElevator550SRXMAG, false);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
 
-        //Solenoids
-        clawSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, RobotMap.CLAW_SOLENOID);
-
-//        elevator = new Elevator(leftElevatorMotor, rightElevatorMotor, clawTiltNeo550, elevatorHorizontalNeo, verticalElevatorSRXMAG, horizontalElevatorSRXMAG, clawTiltElevatorSRXMAG);
-//        claw = new Claw(clawWheelsLeftMotor, clawWheelsRightMotor, clawSolenoid);
+        elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -160,7 +143,7 @@ public class RobotContainer {
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
-//        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), odometry.getPoseMeters()); // this will only be used when we get pose input from LL and then we will update odometry with it.
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), odometry.getPoseMeters()); // this will only be used when we get pose input from LL and then we will update odometry with it.
         field = new Field2d();
         holonomicDriveController = new HolonomicDriveController(
                 new PIDController(1, 0, 0),

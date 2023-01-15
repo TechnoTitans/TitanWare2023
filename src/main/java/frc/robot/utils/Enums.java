@@ -11,6 +11,7 @@ public class Enums {
     }
 
     public enum ClawState {
+        Claw_RETRACTED,
         CLAW_CLOSED,
         CLAW_OPEN_SPINNING,
         CLAW_OPEN_STANDBY

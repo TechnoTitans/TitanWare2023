@@ -5,12 +5,6 @@ public interface RobotMap {
     //PDP
     int POWER_DISTRIBUTION_HUB = 0;
 
-    //Compressor
-    int PNEUMATICS_HUB_ID = 15;
-
-        //Solenoids
-        int CLAW_SOLENOID = 1;
-
     //Sensors
     int PIGEON_ID = 0;
 
@@ -52,16 +46,18 @@ public interface RobotMap {
     int verticalElevatorSRXMAG = 3;
 
     int horizontalElevatorNeo = 3;
-    int horizontalElevatorSRXMAG = 3;
 
-    int clawTilt550 = 3;
-    int clawTiltElevator550SRXMAG = 3;
+    int clawTiltNeo = 3;
 
-    int clawWheelsLeftMotor = 3;
-    boolean clawWheelsLeftMotorR = false;
-    int clawWheelsRightMotor = 3;
-    boolean clawWheelsRightMotorR = false;
+    int clawOpenCloseMotor = 3;
+    boolean clawOpenCloseMotorR = false;
 
+    int clawMainWheelsMotor = 3;
+    boolean clawMainWheelsMotorR = false;
+    int clawFollowerWheelsMotor = 3;
+    boolean clawFollowerWheelsMotorR = false;
+
+    //Controllers
     int MainController = 1;
     int CoController = 1;
 }

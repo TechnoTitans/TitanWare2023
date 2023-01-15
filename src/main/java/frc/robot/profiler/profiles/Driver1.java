@@ -4,7 +4,7 @@ import frc.robot.profiler.Profile;
 
 public class Driver1 extends Profile {
     public Driver1() {
-        ThrottleSensitivity = 0.5;
-        SteeringSensitivity = 0.5;
+        ThrottleSensitivity = 1;
+        SpinningSensitivity = 1;
     }
 }

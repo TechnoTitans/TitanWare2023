@@ -1,10 +1,9 @@
 package frc.robot.commands.teleop;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
+import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.MathMethods;
 
@@ -20,18 +19,16 @@ public class SwerveDriveTeleop extends CommandBase {
 
     @Override
     public void execute() {
-        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED;
-        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED;
+        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * Profiler.getProfile().ThrottleSensitivity;
+        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * Profiler.getProfile().ThrottleSensitivity;
         boolean fieldRelative = true;
 
         if (controller.getLeftBumper()) {
             swerve.faceDirection(frontBack, leftRight, 0, fieldRelative);
         } else if (controller.getRightBumper()) {
             swerve.faceDirection(frontBack, leftRight, 180, fieldRelative);
-        } else if (controller.getBButton()) {
-            swerve.faceClosest(frontBack, leftRight, fieldRelative);
         } else {
-            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
+            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * Profiler.getProfile().SpinningSensitivity;
             swerve.drive(frontBack, leftRight, rot, fieldRelative);
         }
     }

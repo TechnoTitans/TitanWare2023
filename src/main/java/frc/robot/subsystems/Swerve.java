@@ -6,7 +6,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -52,7 +51,6 @@ public class Swerve extends SubsystemBase {
     }
 
     public SwerveModulePosition[] getModulePositions() {
-        SmartDashboard.putString("frontleft pos", frontLeft.getPosition().toString());
         return new SwerveModulePosition[]{frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
     }
 
@@ -93,7 +91,7 @@ public class Swerve extends SubsystemBase {
 
         if (errorTheta < -180) errorTheta += 360;
         if (errorTheta > 180) errorTheta -= 360;
-        if (Math.abs(errorTheta) < 15) errorTheta = 0.1 * errorTheta;
+        if (Math.abs(errorTheta) < 15) errorTheta *= 0.1;
         if (Math.abs(errorTheta) < 3) errorTheta = 0;
 
 
@@ -107,8 +105,6 @@ public class Swerve extends SubsystemBase {
 
 
     public void faceClosest(double dx, double dy, boolean fieldRelative) {
-
-
         int current_rotation = (int) getHeading() % 360;
         //if (current_rotation < 0) current_rotation += 360;
         if (current_rotation < -180) current_rotation += 360;
