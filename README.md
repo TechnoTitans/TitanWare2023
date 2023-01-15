@@ -11,6 +11,7 @@
 - [x] Add Elevator
 - [x] Add AutoBalance
 - [x] Fix Auto !!!
+- [ ] Limelight assisted lineup
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets
@@ -20,3 +21,10 @@
 - [ ] Locking System
 - [ ] Vison alignment 
 
+## Elevator:
+- [ ] Tune PID
+- [ ] Config Preset Ticks
+
+## Claw:
+- [ ] Tune PID
+- [ ] Config Preset Ticks
