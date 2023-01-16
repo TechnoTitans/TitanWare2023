@@ -28,6 +28,7 @@ import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanSRX;
+import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
     //OI
@@ -57,6 +58,7 @@ public class RobotContainer {
 
     //Sensors
     public final Pigeon2 pigeon;
+    public final PhotonCamera camera;
 
     //SubSystems
     public final Swerve swerve;
@@ -126,6 +128,7 @@ public class RobotContainer {
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
+        camera = new PhotonCamera("photonvision");
 
         //elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG);
         //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
