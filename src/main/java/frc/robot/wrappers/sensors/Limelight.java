@@ -8,8 +8,7 @@ import frc.robot.utils.MathMethods;
 public class Limelight {
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
-    private double targetVelocity = 0;
-    private double turretError = 0;
+    private double swerveError = 0;
 
     public double xError;
     public double yError;
@@ -40,37 +39,28 @@ public class Limelight {
         targetFound = tv.get() > 0;
         targetAligned = withinDeadband(xError);
 
-        // Calculate velocity and turret angle
-        targetVelocity = calculateVelocity(distance);
-        double OFFSET = -2;
-        turretError = xError + OFFSET;
+        double OFFSET = 0; //TODO: fientune during testing
+        swerveError = xError + OFFSET;
     }
 
     public double calculateDistance(double angle) {
         // Hardware constants
-        // TODO: find these measurements
-        double HEIGHT_FROM_FLOOR_GOAL = 64.5;
+        // TODO: find these measurements, won't really need
+        double HEIGHT_FROM_FLOOR_GOAL = 64.5; //TODO:
         double HEIGHT_FROM_FLOOR_CAMERA = 6;
         double ANGLE_FROM_FLOOR = 0;
         return (HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + angle));
     }
 
-    public double calculateVelocity(double distance) {
-        //TODO: CALCULATE EQUATION
-        return .0172 * Math.pow(distance, 3) + 5.4876 * Math.pow(distance, 2) + 584.54 * distance + 23128;
-    }
 
     public boolean withinDeadband(double error) {
         double ERROR_TOLERANCE = 1;
         return MathMethods.withinRange(error, 0, ERROR_TOLERANCE);
     }
 
-    public double getTargetVelocity() {
-        return targetVelocity;
-    }
 
-    public double getTurretError() {
-        return turretError;
+    public double getSwerveError() {
+        return swerveError;
     }
 
     public boolean isTargetAligned() {

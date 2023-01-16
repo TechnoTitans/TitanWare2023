@@ -2,8 +2,6 @@ package frc.robot;
 
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -24,8 +22,6 @@ import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
 import frc.robot.profiler.profiles.Driver2;
-import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.wrappers.control.OI;
@@ -45,7 +41,7 @@ public class RobotContainer {
     //Elevator
     public final TitanFX mainElevatorMotor, followerElevatorMotor;
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo;
+    //public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo;
     public final TitanSRX verticalElevatorSRXMAG;
 
     //Swerve
@@ -64,8 +60,8 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
-    public final Elevator elevator;
-    public final Claw claw;
+    //public final Elevator elevator;
+    //public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
@@ -121,8 +117,8 @@ public class RobotContainer {
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
-        elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        //elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        //clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
         //Plug Mag encoders into SRX and we will access through can
@@ -131,8 +127,8 @@ public class RobotContainer {
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
 
-        elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
+        //elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG);
+        //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -159,7 +155,7 @@ public class RobotContainer {
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-        autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_RIGHT);
+        autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
 
         //Auto Commands
@@ -182,7 +178,7 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        autoBalanceBtn.onTrue(autoBalanceTeleop);
+
 //        elevatorControlBtn.onTrue(new InstantCommand(() -> {
 //            int currentState = elevator.getCurrentState().ordinal();
 //            if (currentState == Enums.ElevatorState.values().length-1) {

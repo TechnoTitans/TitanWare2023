@@ -27,7 +27,7 @@ public interface Constants {
         double TRAJ_MAX_ACCELERATION = TRAJ_MAX_SPEED / 2;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
-        double ROTATE_P = 2; //TUNE THIS: (rotation pid) 2
+        double ROTATE_P = 4; //TUNE THIS: (rotation pid) 2
         double AUTO_BALANCE_PITCH_P = 0.005; // P value for auto balance
     }
 }
