@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoBalanceTeleop;
+import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profile;
 import frc.robot.profiler.profiles.Driver1;
@@ -74,9 +75,10 @@ public class RobotContainer {
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
+    public final SwerveAlignment swerveAlignment;
 
     //Buttons
-    public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn;
+    public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn, autoAlignBtn;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -165,11 +167,13 @@ public class RobotContainer {
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
+        swerveAlignment = new SwerveAlignment(swerve, odometry, limelight, photonVision);
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
+        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field);
@@ -201,6 +205,7 @@ public class RobotContainer {
 //            }
 //            elevator.setState(Enums.ElevatorState.values()[currentState]);
 //        }));
+        autoAlignBtn.onTrue(swerveAlignment);
     }
 
     public Command getAutonomousCommand() {

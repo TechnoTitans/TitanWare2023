@@ -1,14 +1,12 @@
 package frc.robot.wrappers.sensors.vision;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PhotonVision {
     private final PhotonCamera photonCamera;
@@ -22,43 +20,28 @@ public class PhotonVision {
         this.poseEstimator = poseEstimator;
     }
 
-    public Transform3d getRobotPoseRelativeToAprilTag() {
+    public Transform3d getRobotTransformationRelativeToAprilTag() {
         lastPipelineResult = photonCamera.getLatestResult();
         if (lastPipelineResult.hasTargets()) {
             PhotonTrackedTarget bestTarget = lastPipelineResult.getBestTarget();
             // Single best target
             return bestTarget.getBestCameraToTarget();
         }
-        return null;
+        return new Transform3d();
     }
 
-    public void testing() {
-        List<Transform3d> targets = new ArrayList<>();
+    public Pose2d getRobotPoseRelativeToAprilTag() {
         lastPipelineResult = photonCamera.getLatestResult();
-        lastPipelineResult.getTargets().forEach(target -> {
-            // Making sure targets are accurate
-            if (target.getPoseAmbiguity() <= 0.15) { //TODO: TUNE AMBIGUITY VALUE
-                targets.add(target.getBestCameraToTarget());
-            }
-        });
-        if (targets.size() > 0) {
-            double x = 0, y = 0, z = 0, theta = 0;
-
-            for (Transform3d target : targets) {
-                x += target.getX();
-                y += target.getY();
-                z += target.getZ();
-                theta += target.getRotation().getAngle();
-            }
-            x /= targets.size();
-            y /= targets.size();
-            z /= targets.size();
-            theta /= targets.size();
-
-//            Pose3d averageTarget = new Pose3d(x, y, z, Rotation3d.fromDegrees(theta)); im to tied ill play with this later
+        if (lastPipelineResult.hasTargets()) {
+            PhotonTrackedTarget bestTarget = lastPipelineResult.getBestTarget();
+            // Single best target
+            return new Pose2d(bestTarget.getBestCameraToTarget().getTranslation().toTranslation2d(), bestTarget.getBestCameraToTarget().getRotation().toRotation2d());
         }
-
-
+        return new Pose2d();
     }
 
+    public boolean hasResults() {
+        lastPipelineResult = photonCamera.getLatestResult();
+        return lastPipelineResult.hasTargets();
+    }
 }
