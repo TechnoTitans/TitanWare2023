@@ -2,7 +2,7 @@ package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
-import frc.robot.wrappers.sensors.Limelight;
+import frc.robot.wrappers.sensors.vision.Limelight;
 
 public class SwerveAlignment extends CommandBase {
     private final Swerve swerve;
@@ -15,21 +15,15 @@ public class SwerveAlignment extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-    }
-
-    @Override
     public void execute() {
         if (limelight.isTargetFound()){
-            swerve.drive(limelight.getSwerveError(),0,0,true);
+            swerve.drive(limelight.getSwerveError(), 0, 0, true);
         }
-
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return limelight.isTargetAligned();
     }
 
     @Override

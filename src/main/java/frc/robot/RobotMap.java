@@ -8,6 +8,9 @@ public interface RobotMap {
     //Sensors
     int PIGEON_ID = 0;
 
+    //Vision
+    String PhotonVision_AprilTag_Cam = "apriltag1";
+
     //Canivore
     int CANIVORE_ID = 1;
     String CANIVORE_CAN_NAME = "canivore";

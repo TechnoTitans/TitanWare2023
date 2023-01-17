@@ -37,24 +37,24 @@ public class TrajectoryManager {
 
     public void follow(String trajDir, double periodic, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj, field);
+        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajFollower trajFollower = new TrajFollower(swerve, controller, odometry, traj, field);
+        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
-    public TrajFollower getCommand(String trajDir) {
+    public TrajectroyFollower getCommand(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        return new TrajFollower(swerve, controller, odometry, traj, field);
+        return new TrajectroyFollower(swerve, controller, odometry, traj, field);
     }
 
-    public TrajFollower getCommand(String trajDir, double periodic, double maxVel, double maxAccl) {
+    public TrajectroyFollower getCommand(String trajDir, double periodic, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        return new TrajFollower(swerve, controller, odometry, traj, field);
+        return new TrajectroyFollower(swerve, controller, odometry, traj, field);
     }
 
     public void testHolonomic(Pose2d targetPose, double velocity, Rotation2d targetRot) {
@@ -63,7 +63,7 @@ public class TrajectoryManager {
 }
 
 @SuppressWarnings("unused")
-class TrajFollower extends CommandBase {
+class TrajectroyFollower extends CommandBase {
     private final PathPlannerTrajectory traj;
     private final Timer timer = new Timer();
     private final Swerve swerve;
@@ -71,7 +71,7 @@ class TrajFollower extends CommandBase {
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
 
-    public TrajFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field) {
+    public TrajectroyFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field) {
         this.swerve = swerve;
         this.controller = controller;
         this.odometry = odometry;

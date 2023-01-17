@@ -28,6 +28,8 @@ import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanSRX;
+import frc.robot.wrappers.sensors.vision.Limelight;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
@@ -58,7 +60,11 @@ public class RobotContainer {
 
     //Sensors
     public final Pigeon2 pigeon;
+
+    //Vision
+    public final Limelight limelight;
     public final PhotonCamera camera;
+    public final PhotonVision photonVision;
 
     //SubSystems
     public final Swerve swerve;
@@ -128,7 +134,6 @@ public class RobotContainer {
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
-        camera = new PhotonCamera("photonvision");
 
         //elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG);
         //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
@@ -151,6 +156,11 @@ public class RobotContainer {
                         10, -0.003, 0,
                         new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
                 ));
+
+        //Vision
+        limelight = new Limelight();
+        camera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
+        photonVision = new PhotonVision(camera, odometry, poseEstimator);
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());

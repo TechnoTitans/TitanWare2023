@@ -1,4 +1,4 @@
-package frc.robot.wrappers.sensors;
+package frc.robot.wrappers.sensors.vision;
 
 import edu.wpi.first.networktables.*;
 import frc.robot.utils.Enums;
@@ -8,11 +8,7 @@ import frc.robot.utils.MathMethods;
 public class Limelight {
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
-    private double swerveError = 0;
-
-    public double xError;
-    public double yError;
-    public double distance;
+    private double OFFSET = 0; //TODO: fientune during testing
 
     // Debugging booleans
     boolean targetFound = false;
@@ -26,30 +22,15 @@ public class Limelight {
 
     private final IntegerPublisher ledMode = table.getIntegerTopic("ledMode").publish();
 
-    public Limelight() {
-    }
+    public Limelight() {}
 
-    public void periodic() {
-        // Read data
-        xError = tx.getAsDouble();
-        yError = ty.getAsDouble();
-        distance = calculateDistance(yError);
-
-        // Check if target is found
-        targetFound = tv.get() > 0;
-        targetAligned = withinDeadband(xError);
-
-        double OFFSET = 0; //TODO: fientune during testing
-        swerveError = xError + OFFSET;
-    }
-
-    public double calculateDistance(double angle) {
+    public double calculateDistance() {
         // Hardware constants
         // TODO: find these measurements, won't really need
         double HEIGHT_FROM_FLOOR_GOAL = 64.5; //TODO:
         double HEIGHT_FROM_FLOOR_CAMERA = 6;
         double ANGLE_FROM_FLOOR = 0;
-        return (HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + angle));
+        return (HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + ty.getAsDouble()));
     }
 
 
@@ -58,17 +39,20 @@ public class Limelight {
         return MathMethods.withinRange(error, 0, ERROR_TOLERANCE);
     }
 
+    public void setOFFSET(double OFFSET) {
+        this.OFFSET = OFFSET;
+    }
 
     public double getSwerveError() {
-        return swerveError;
+        return tx.getAsDouble() + OFFSET;
     }
 
     public boolean isTargetAligned() {
-        return targetAligned;
+        return withinDeadband(tx.getAsDouble());
     }
 
     public boolean isTargetFound() {
-        return targetFound;
+        return tv.get() > 0;
     }
 
     public void setLEDMode(Enums.LimeLightLEDState limeLightLEDState) {

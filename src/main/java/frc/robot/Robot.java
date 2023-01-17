@@ -4,16 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
-import org.photonvision.PhotonUtils;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
@@ -66,17 +60,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
-
-        final PhotonPipelineResult result = robotContainer.camera.getLatestResult();
-        if (result.hasTargets()) {
-            final PhotonTrackedTarget bestTarget = result.getBestTarget();
-            final Transform3d bestTargetTransform = bestTarget.getBestCameraToTarget();
-
-            SmartDashboard.putNumber("X", bestTargetTransform.getX());
-            SmartDashboard.putNumber("Y", bestTargetTransform.getY());
-            SmartDashboard.putNumber("Z", bestTargetTransform.getZ());
-        }
-
         robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
     }
 
