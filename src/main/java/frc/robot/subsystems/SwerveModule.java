@@ -48,7 +48,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.slot0.kF = 0.045;
         driverConfig.closedloopRamp = .2;
         driveMotor.configAllSettings(driverConfig);
-        driveMotor.setNeutralMode(NeutralMode.Brake);
+        driveMotor.setNeutralMode(NeutralMode.Coast);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
         turnerConfig.slot0.kP = 0.47;
@@ -62,6 +62,7 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         turnMotor.configAllSettings(turnerConfig);
+        turnMotor.setNeutralMode(NeutralMode.Coast);
     }
 
     public double getAngle() {

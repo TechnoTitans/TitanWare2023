@@ -167,7 +167,7 @@ public class RobotContainer {
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
-        swerveAlignment = new SwerveAlignment(swerve, odometry, limelight, photonVision);
+        swerveAlignment = new SwerveAlignment(swerve, limelight, photonVision);
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
