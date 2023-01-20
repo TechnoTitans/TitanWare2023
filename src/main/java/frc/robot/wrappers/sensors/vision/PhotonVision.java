@@ -40,7 +40,7 @@ public class PhotonVision {
         return new Pose2d();
     }
 
-    public boolean hasResults() {
+    public boolean hasTargets() {
         lastPipelineResult = photonCamera.getLatestResult();
         return lastPipelineResult.hasTargets();
     }

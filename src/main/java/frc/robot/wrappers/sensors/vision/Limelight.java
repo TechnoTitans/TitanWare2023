@@ -47,6 +47,14 @@ public class Limelight {
         return tx.getAsDouble() + OFFSET;
     }
 
+    public double getX() {
+        return tx.getAsDouble();
+    }
+
+    public double getY() {
+        return ty.getAsDouble();
+    }
+
     public boolean isTargetAligned() {
         return withinDeadband(tx.getAsDouble());
     }
