@@ -1,9 +1,11 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
+import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
@@ -13,7 +15,8 @@ public class SwerveAlignment extends CommandBase {
     private final Limelight limelight;
     private final PhotonVision photonVision;
     private double targetErrorX, targetErrorY;
-    private PIDController xPidController, yPidController;
+    private final PIDController xPidController, yPidController;
+    private Enums.VisionMode visionMode;
 
     public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision) {
         this.swerve = swerve;
@@ -26,18 +29,36 @@ public class SwerveAlignment extends CommandBase {
     }
 
     @Override
-    public void execute() {
-        if (photonVision.hasTargets()) {
-            targetErrorY = photonVision.getRobotPoseRelativeToAprilTag().getY();
-            targetErrorX = photonVision.getRobotPoseRelativeToAprilTag().getX();
-            SmartDashboard.putNumber("x", targetErrorX);
-            swerve.faceDirection(xPidController.calculate(targetErrorX), yPidController.calculate(targetErrorY), 0, false);
+    public void initialize() {
+        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
+            end(true);
+        } else if (photonVision.hasTargets() && limelight.isTargetFound()) {
+            if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag().getY()) {
+                visionMode = Enums.VisionMode.PhotonVision;
+            } else {
+                visionMode = Enums.VisionMode.LimeLight;
+            }
         } else if (limelight.isTargetFound()) {
+            visionMode = Enums.VisionMode.LimeLight;
+        } else if (photonVision.hasTargets()) {
+            visionMode = Enums.VisionMode.PhotonVision;
+        } else {
+            end(true);
+        }
+    }
+
+    @Override
+    public void execute() {
+        if (visionMode == Enums.VisionMode.PhotonVision && photonVision.hasTargets()) {
+            Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
+            targetErrorY = targetPose.getY();
+            targetErrorX = targetPose.getX();
+        } else if (visionMode == Enums.VisionMode.LimeLight && limelight.isTargetFound()) {
             targetErrorX = limelight.getX();
             targetErrorY = limelight.getY();
-            SmartDashboard.putNumber("x", targetErrorX);
-            swerve.faceDirection(xPidController.calculate(targetErrorX), yPidController.calculate(targetErrorY), 0, false);
         }
+        SmartDashboard.putNumber("x", targetErrorX);
+        swerve.faceDirection(xPidController.calculate(targetErrorX), yPidController.calculate(targetErrorY), 0, false);
     }
 
     @Override

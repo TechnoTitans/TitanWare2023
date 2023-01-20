@@ -22,4 +22,9 @@ public class Enums {
         LED_CONFIG, //Limelight LEDS to how they were set in the config
         LED_ON //Limelight LEDS on
     }
+
+    public enum VisionMode {
+        PhotonVision,
+        LimeLight
+    }
 }
