@@ -42,7 +42,6 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public boolean isFinished() {
-//        return limelight.isTargetAligned();
         return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.1));
     }
 
