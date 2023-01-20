@@ -13,9 +13,7 @@ public class SwerveAlignment extends CommandBase {
     private final Limelight limelight;
     private final PhotonVision photonVision;
     private double targetErrorX, targetErrorY;
-    private PIDController pidController;
-    private final double barDistance = 0.1;
-
+    private PIDController xPidController, yPidController;
 
     public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision) {
         this.swerve = swerve;
@@ -26,7 +24,8 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public void initialize() {
-        pidController = new PIDController(3, 0.1, 0);
+        xPidController = new PIDController(0.2, 0.1, 0);
+        yPidController = new PIDController(3, 0.1, 0);
     }
 
     @Override
@@ -37,7 +36,7 @@ public class SwerveAlignment extends CommandBase {
         targetErrorY = photonVision.getRobotPoseRelativeToAprilTag().getY();
         targetErrorX = photonVision.getRobotPoseRelativeToAprilTag().getX();
         SmartDashboard.putNumber("x", targetErrorX);
-        swerve.faceDirection(-targetErrorX, pidController.calculate(targetErrorY), 0, false);
+        swerve.faceDirection(xPidController.calculate(targetErrorX), yPidController.calculate(targetErrorY), 0, false);
     }
 
     @Override

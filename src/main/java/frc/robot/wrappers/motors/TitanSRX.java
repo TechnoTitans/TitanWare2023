@@ -31,8 +31,8 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
     /**
      * Constructor for a TalonSRX motor
      *
-     * @param channel  The port where the TalonFX is plugged in.
-     * @param reversed If the TalonFX should invert the signal.
+     * @param channel  The port where the TalonSRX is plugged in.
+     * @param reversed If the TalonSRX should invert the signal.
      */
     public TitanSRX(int channel, boolean reversed) {
         super(channel);
@@ -52,7 +52,7 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
     }
 
     /**
-     * Set the speed of the TalonFX.
+     * Set the speed of the TalonSRX.
      *
      * @param speed -- Speed from 0 to 1 (or negative for backwards)
      */

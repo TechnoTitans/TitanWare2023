@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2Configuration;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -39,7 +40,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void zeroRotation() {
-        pigeon.setYaw(0);
+        setAngle(0);
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {

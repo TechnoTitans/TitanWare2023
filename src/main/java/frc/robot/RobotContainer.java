@@ -46,7 +46,7 @@ public class RobotContainer {
     public final TitanFX mainElevatorMotor, followerElevatorMotor;
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     //public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo;
-    public final TitanSRX verticalElevatorSRXMAG;
+    public final CANCoder verticalElevatorCanCoder;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -131,13 +131,12 @@ public class RobotContainer {
         //clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
-        //Plug Mag encoders into SRX and we will access through can
-        verticalElevatorSRXMAG = new TitanSRX(RobotMap.verticalElevatorSRXMAG, false);
+        verticalElevatorCanCoder = new CANCoder(RobotMap.verticalElevatorCanCoder);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
 
-        //elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorSRXMAG);
+        //elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorCanCoder);
         //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
 
         //Swerve
@@ -195,7 +194,6 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-
 //        elevatorControlBtn.onTrue(new InstantCommand(() -> {
 //            int currentState = elevator.getCurrentState().ordinal();
 //            if (currentState == Enums.ElevatorState.values().length-1) {

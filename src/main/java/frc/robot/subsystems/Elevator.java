@@ -1,46 +1,57 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
+import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanFX;
-import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
     private final TitanFX mainVerticalElevatorMotor, followerVerticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor;
-    private final TitanSRX verticalElevatorSRXMAG;
+    private final CANCoder verticalElevatorCanCoder;
     private Enums.ElevatorState currentState;
 
     public Elevator(TitanFX mainVerticalElevatorMotor, TitanFX followerVerticalElevatorMotor,
-                    CANSparkMax horizontalElevatorMotor, TitanSRX verticalElevatorSRXMAG) {
+                    CANSparkMax horizontalElevatorMotor, CANCoder verticalElevatorCanCoder) {
         this.mainVerticalElevatorMotor = mainVerticalElevatorMotor;
         this.followerVerticalElevatorMotor = followerVerticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
-        this.verticalElevatorSRXMAG = verticalElevatorSRXMAG;
+        this.verticalElevatorCanCoder = verticalElevatorCanCoder;
 
         configMotor();
     }
 
     private void configMotor() {
+        CANCoderConfiguration canCoderConfig = new CANCoderConfiguration();
+        canCoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition; //TUNE DIS
+        canCoderConfig.unitString = "deg";
+        canCoderConfig.sensorDirection = false;
+        canCoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        canCoderConfig.magnetOffsetDegrees = -69;
+        verticalElevatorCanCoder.configAllSettings(canCoderConfig);
+
         TalonFXConfiguration LVEConfig = new TalonFXConfiguration();
         LVEConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
         LVEConfig.slot0.kI = 0.002;
         LVEConfig.slot0.integralZone = 200;
         LVEConfig.slot0.kD = 10;
+        LVEConfig.slot0.kF = 0.07;
         LVEConfig.closedloopRamp = 0.2;
-        LVEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
-        LVEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorSRXMAG.getDeviceID();
+        LVEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
+        LVEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorCanCoder.getDeviceID();
         LVEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         mainVerticalElevatorMotor.configAllSettings(LVEConfig);
 
@@ -49,6 +60,7 @@ public class Elevator extends SubsystemBase {
         RVEConfig.slot0.kI = 0.002;
         RVEConfig.slot0.integralZone = 200;
         RVEConfig.slot0.kD = 10;
+        RVEConfig.slot0.kF = 0.07;
         RVEConfig.closedloopRamp = 0.2;
         followerVerticalElevatorMotor.configAllSettings(RVEConfig);
         followerVerticalElevatorMotor.follow(mainVerticalElevatorMotor);
@@ -58,7 +70,8 @@ public class Elevator extends SubsystemBase {
         HVEConfig.setI(0.002);
         HVEConfig.setIZone(200);
         HVEConfig.setD(10);
-        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle));
+        HVEConfig.setFF(0.07);
+        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
         horizontalElevatorMotor.setClosedLoopRampRate(0.2);
     }
 
@@ -86,6 +99,9 @@ class ElevatorControlCommand extends CommandBase {
     private final CANSparkMax horizontalElevatorMotor;
     private final Enums.ElevatorState elevatorState;
 
+    double HETargetTicks; //Horizontal Elevator Target Ticks
+    double VETargetTicks; //Vertical Elevator Target Ticks
+
     public ElevatorControlCommand(Elevator elevator, Enums.ElevatorState state) {
         this.elevatorState = state;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
@@ -95,10 +111,6 @@ class ElevatorControlCommand extends CommandBase {
     @Override
     public void initialize() {
         //TODO TUNE THIS
-        final double keepPositionMotorPercent = 0.07; //7% motor power is always applied to hold elevator position
-        //demand0 = encoder ticks motor to go to
-        final double HETargetTicks; //Horizontal Elevator Target Ticks
-        final double VETargetTicks; //Vertical Elevator Target Ticks
         switch (elevatorState) {
             case ELEVATOR_EXTENDED_HIGH:
                 VETargetTicks = 50000;
@@ -129,21 +141,23 @@ class ElevatorControlCommand extends CommandBase {
         }
         verticalElevatorMotor.set(
                 ControlMode.Position,
-                HETargetTicks,
-                DemandType.ArbitraryFeedForward,
-                keepPositionMotorPercent);
+                VETargetTicks);
 
         horizontalElevatorMotor.getPIDController().setReference(
-                VETargetTicks,
-                CANSparkMax.ControlType.kPosition,
-                0,
-                keepPositionMotorPercent);
+                HETargetTicks,
+                CANSparkMax.ControlType.kPosition);
     }
 
     @Override
-    public void end(boolean interrupted) {
-        verticalElevatorMotor.stopMotor();
-        horizontalElevatorMotor.stopMotor();
+    public boolean isFinished() {
+        final double ticksTolerance = 50;
+        return MathMethods.withinRange(
+                verticalElevatorMotor.getSelectedSensorPosition(),
+                VETargetTicks,
+                ticksTolerance) &&
+                MathMethods.withinRange(
+                        horizontalElevatorMotor.getAlternateEncoder(8196).getPosition(),
+                        HETargetTicks,
+                        ticksTolerance);
     }
-
 }

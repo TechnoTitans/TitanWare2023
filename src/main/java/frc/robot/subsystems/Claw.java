@@ -3,12 +3,12 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
+import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
@@ -54,7 +54,7 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setI(0.002);
         clawTiltPID.setD(10);
         clawTiltPID.setFF(0.1);
-        clawTiltPID.setFeedbackDevice(clawTiltNeo.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle));
+        clawTiltPID.setFeedbackDevice(clawTiltNeo.getAlternateEncoder(8192));
     }
 
     public void setState(Enums.ClawState state) {
@@ -81,21 +81,24 @@ public class Claw extends SubsystemBase {
 
 @SuppressWarnings("unused")
 class ClawControlCommand extends CommandBase {
-    private final Claw claw;
+    private final TitanSRX clawWheelMotor, clawOpenCloseMotor;
+    private final CANSparkMax clawTiltNeo;
     private final Enums.ClawState clawState;
 
+    double speed; //Claw Intake Wheel Speed
+    int tiltTicks; //Claw Tilt Ticks
+    int openCloseTicks; //Claw Open Close Ticks
+
     public ClawControlCommand(Claw claw, Enums.ClawState state) {
-        this.claw = claw;
+        this.clawWheelMotor = claw.getClawWheelMotor();
+        this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
+        this.clawTiltNeo = claw.getClawTiltNeo();
         this.clawState = state;
         addRequirements(claw);
     }
 
     @Override
     public void initialize() {
-        final double speed;
-        final int tiltTicks;
-        final int openCloseTicks;
-
         switch (clawState) {
             case Claw_RETRACTED:
                 speed = 0;
@@ -120,8 +123,29 @@ class ClawControlCommand extends CommandBase {
             default:
                 return;
         }
-        claw.getClawWheelMotor().set(ControlMode.PercentOutput, speed);
-        claw.getClawOpenCloseMotor().set(ControlMode.Position, openCloseTicks);
-        claw.getClawTiltNeo().getPIDController().setReference(tiltTicks, CANSparkMax.ControlType.kPosition);
+        clawWheelMotor.set(
+                ControlMode.PercentOutput,
+                speed);
+
+        clawOpenCloseMotor.set(
+                ControlMode.Position,
+                openCloseTicks);
+
+        clawTiltNeo.getPIDController().setReference(
+                tiltTicks,
+                CANSparkMax.ControlType.kPosition);
+    }
+
+    @Override
+    public boolean isFinished() {
+        final double ticksTolerance = 50;
+        return MathMethods.withinRange(
+                clawTiltNeo.getAlternateEncoder(8196).getPosition(),
+                tiltTicks,
+                ticksTolerance) &&
+                MathMethods.withinRange(
+                        clawOpenCloseMotor.getSelectedSensorPosition(),
+                        openCloseTicks,
+                        ticksTolerance);
     }
 }

@@ -56,10 +56,6 @@ public class TrajectoryManager {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
         return new TrajectroyFollower(swerve, controller, odometry, traj, field);
     }
-
-    public void testHolonomic(Pose2d targetPose, double velocity, Rotation2d targetRot) {
-        swerve.drive(controller.calculate(odometry.getPoseMeters(), targetPose, velocity, targetRot));
-    }
 }
 
 @SuppressWarnings("unused")
@@ -96,7 +92,7 @@ class TrajectroyFollower extends CommandBase {
     public void execute() {
         double currentTime = timer.get();
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
-        commander(sample);
+//        commander(sample);
         driveToState(sample);
         field.getObject("Traj").setPose(sample.poseMeters);
         odometry.update(swerve.getRotation2d(), swerve.getModulePositions());
@@ -122,6 +118,8 @@ class TrajectroyFollower extends CommandBase {
         //TODO: TEST FIELD RELATIVE PATH PLANNING
         swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, state.holonomicRotation.getDegrees(), false);
 
+
+        //TODO REMOVE ONCE TUNED
         Transform2d error = state.poseMeters.minus(odometry.getPoseMeters());
         SmartDashboard.putNumber("Holonomic error x", error.getX());
         SmartDashboard.putNumber("Holonomic error y", error.getY());
