@@ -5,7 +5,6 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -50,7 +49,6 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-    public final SwerveDrivePoseEstimator poseEstimator;
     public final HolonomicDriveController holonomicDriveController;
     public final Field2d field;
 
@@ -145,7 +143,6 @@ public class RobotContainer {
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
-        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), odometry.getPoseMeters()); // this will only be used when we get pose input from LL and then we will update odometry with it.
         field = new Field2d();
         holonomicDriveController = new HolonomicDriveController(
                 new PIDController(1, 0, 0),
@@ -158,7 +155,7 @@ public class RobotContainer {
         //Vision
         limelight = new Limelight();
         camera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
-        photonVision = new PhotonVision(camera, odometry, poseEstimator);
+        photonVision = new PhotonVision(camera);
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
