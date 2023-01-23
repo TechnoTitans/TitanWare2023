@@ -10,6 +10,7 @@ import frc.robot.utils.MathMethods;
 public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
     private final XboxController controller;
+    private Profiler driverProfile;
 
     public SwerveDriveTeleop(Swerve swerve, XboxController controller) {
         this.swerve = swerve;
@@ -18,9 +19,14 @@ public class SwerveDriveTeleop extends CommandBase {
     }
 
     @Override
+    public void initialize() {
+        this.driverProfile = Profiler.getProfile();
+    }
+
+    @Override
     public void execute() {
-        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * Profiler.getProfile().ThrottleSensitivity;
-        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * Profiler.getProfile().ThrottleSensitivity;
+        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
+        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
         boolean fieldRelative = true;
 
         if (controller.getLeftBumper()) {
@@ -28,7 +34,7 @@ public class SwerveDriveTeleop extends CommandBase {
         } else if (controller.getRightBumper()) {
             swerve.faceDirection(frontBack, leftRight, 180, fieldRelative);
         } else {
-            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * Profiler.getProfile().SpinningSensitivity;
+            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getSpinningSensitivity();
             swerve.drive(frontBack, leftRight, rot, fieldRelative);
         }
     }

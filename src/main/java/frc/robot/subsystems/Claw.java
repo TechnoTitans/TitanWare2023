@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
@@ -17,6 +16,7 @@ public class Claw extends SubsystemBase {
     private final TitanSRX clawOpenCloseMotor;
     private final CANSparkMax clawTiltNeo;
     private Enums.ClawState currentState;
+    private final ClawControlCommand clawControl;
 
     public Claw(TitanSRX clawMainWheelBag, TitanSRX clawFollowerWheelBag, TitanSRX clawOpenCloseMotor,
                 CANSparkMax clawTiltNeo) {
@@ -26,6 +26,9 @@ public class Claw extends SubsystemBase {
         this.clawOpenCloseMotor = clawOpenCloseMotor;
 
         configMotor();
+
+        clawControl = new ClawControlCommand(this);
+        CommandScheduler.getInstance().setDefaultCommand(this, clawControl);
     }
 
     private void configMotor() {
@@ -58,8 +61,8 @@ public class Claw extends SubsystemBase {
     }
 
     public void setState(Enums.ClawState state) {
-        CommandScheduler.getInstance().schedule(new ClawControlCommand(this, state));
         currentState = state;
+        clawControl.setState(currentState);
     }
 
     public Enums.ClawState getCurrentState() {
@@ -83,46 +86,47 @@ public class Claw extends SubsystemBase {
 class ClawControlCommand extends CommandBase {
     private final TitanSRX clawWheelMotor, clawOpenCloseMotor;
     private final CANSparkMax clawTiltNeo;
-    private final Enums.ClawState clawState;
 
-    double speed; //Claw Intake Wheel Speed
-    int tiltTicks; //Claw Tilt Ticks
-    int openCloseTicks; //Claw Open Close Ticks
+    private double speed = 0, //Claw Intake Wheel Speed
+    tiltRotations = 0; //Claw Tilt Rotations
+    private int openCloseTicks = 0; //Claw Open Close Ticks
 
-    public ClawControlCommand(Claw claw, Enums.ClawState state) {
+    public ClawControlCommand(Claw claw) {
         this.clawWheelMotor = claw.getClawWheelMotor();
         this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
         this.clawTiltNeo = claw.getClawTiltNeo();
-        this.clawState = state;
         addRequirements(claw);
     }
 
-    @Override
-    public void initialize() {
-        switch (clawState) {
+    public void setState(Enums.ClawState state) {
+        switch (state) {
             case Claw_RETRACTED:
                 speed = 0;
-                tiltTicks = 0;
+                tiltRotations = 0;
                 openCloseTicks = 0;
                 break;
             case CLAW_CLOSED:
                 speed = 0;
-                tiltTicks = 500;
+                tiltRotations = 500;
                 openCloseTicks = 0;
                 break;
             case CLAW_OPEN_SPINNING:
                 speed = 1;
-                tiltTicks = 500;
+                tiltRotations = 500;
                 openCloseTicks = 1000;
                 break;
             case CLAW_OPEN_STANDBY:
                 speed = 0.1;
-                tiltTicks = 500;
+                tiltRotations = 500;
                 openCloseTicks = 1000;
                 break;
             default:
-                return;
+                break;
         }
+    }
+
+    @Override
+    public void execute() {
         clawWheelMotor.set(
                 ControlMode.PercentOutput,
                 speed);
@@ -132,20 +136,24 @@ class ClawControlCommand extends CommandBase {
                 openCloseTicks);
 
         clawTiltNeo.getPIDController().setReference(
-                tiltTicks,
+                tiltRotations,
                 CANSparkMax.ControlType.kPosition);
     }
 
-    @Override
+        @Override
     public boolean isFinished() {
-        final double ticksTolerance = 50;
-        return MathMethods.withinRange(
-                clawTiltNeo.getAlternateEncoder(8196).getPosition(),
-                tiltTicks,
-                ticksTolerance) &&
-                MathMethods.withinRange(
-                        clawOpenCloseMotor.getSelectedSensorPosition(),
-                        openCloseTicks,
-                        ticksTolerance);
+        return false;
     }
+//    @Override
+//    public boolean isFinished() {
+//        final double ticksTolerance = 50;
+//        return MathMethods.withinRange(
+//                clawTiltNeo.getAlternateEncoder(8196).getPosition(),
+//                tiltTicks,
+//                ticksTolerance) &&
+//                MathMethods.withinRange(
+//                        clawOpenCloseMotor.getSelectedSensorPosition(),
+//                        openCloseTicks,
+//                        ticksTolerance);
+//    }
 }

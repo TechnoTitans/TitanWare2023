@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanFX;
 
 @SuppressWarnings("unused")
@@ -23,6 +22,7 @@ public class Elevator extends SubsystemBase {
     private final CANSparkMax horizontalElevatorMotor;
     private final CANCoder verticalElevatorCanCoder;
     private Enums.ElevatorState currentState;
+    private final ElevatorControlCommand elevatorControl;
 
     public Elevator(TitanFX mainVerticalElevatorMotor, TitanFX followerVerticalElevatorMotor,
                     CANSparkMax horizontalElevatorMotor, CANCoder verticalElevatorCanCoder) {
@@ -32,6 +32,9 @@ public class Elevator extends SubsystemBase {
         this.verticalElevatorCanCoder = verticalElevatorCanCoder;
 
         configMotor();
+
+        this.elevatorControl = new ElevatorControlCommand(this);
+        CommandScheduler.getInstance().setDefaultCommand(this, elevatorControl);
     }
 
     private void configMotor() {
@@ -76,8 +79,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setState(Enums.ElevatorState state) {
-        CommandScheduler.getInstance().schedule(new ElevatorControlCommand(this, state));
         currentState = state;
+        elevatorControl.setState(currentState);
     }
 
     public Enums.ElevatorState getCurrentState() {
@@ -97,67 +100,74 @@ public class Elevator extends SubsystemBase {
 class ElevatorControlCommand extends CommandBase {
     private final TitanFX verticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor;
-    private final Enums.ElevatorState elevatorState;
+    private Enums.ElevatorState elevatorState;
 
-    double HETargetTicks; //Horizontal Elevator Target Ticks
-    double VETargetTicks; //Vertical Elevator Target Ticks
+    private double HETargetRotations = 0, //Horizontal Elevator Target Ticks
+    VETargetTicks = 0; //Vertical Elevator Target Ticks
 
-    public ElevatorControlCommand(Elevator elevator, Enums.ElevatorState state) {
-        this.elevatorState = state;
+    public ElevatorControlCommand(Elevator elevator) {
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
         this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
+        addRequirements(elevator);
     }
 
-    @Override
-    public void initialize() {
+    public void setState(Enums.ElevatorState state) {
         //TODO TUNE THIS
         switch (elevatorState) {
             case ELEVATOR_EXTENDED_HIGH:
                 VETargetTicks = 50000;
-                HETargetTicks = 50000;
+                HETargetRotations = 30;
                 break;
             case ELEVATOR_EXTENDED_MID:
                 VETargetTicks = 4000;
-                HETargetTicks = 2500;
+                HETargetRotations = 20;
                 break;
             case ELEVATOR_EXTENDED_GROUND:
                 VETargetTicks = 1700;
-                HETargetTicks = 1700;
+                HETargetRotations = 15;
                 break;
             case ELEVATOR_STANDBY:
                 VETargetTicks = 0;
-                HETargetTicks = 1000;
+                HETargetRotations = 10;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
-                VETargetTicks = 50000;
-                HETargetTicks = 2500;
+                VETargetTicks = 5000;
+                HETargetRotations = 15;
                 break;
             case ELEVATOR_PREGAME:
-                HETargetTicks = 0;
+                HETargetRotations = 0;
                 VETargetTicks = 0;
                 break;
             default:
-                return;
+                break;
         }
+    }
+
+    @Override
+    public void execute() {
         verticalElevatorMotor.set(
                 ControlMode.Position,
                 VETargetTicks);
 
         horizontalElevatorMotor.getPIDController().setReference(
-                HETargetTicks,
+                HETargetRotations,
                 CANSparkMax.ControlType.kPosition);
     }
 
     @Override
     public boolean isFinished() {
-        final double ticksTolerance = 50;
-        return MathMethods.withinRange(
-                verticalElevatorMotor.getSelectedSensorPosition(),
-                VETargetTicks,
-                ticksTolerance) &&
-                MathMethods.withinRange(
-                        horizontalElevatorMotor.getAlternateEncoder(8196).getPosition(),
-                        HETargetTicks,
-                        ticksTolerance);
+        return false;
     }
+//    @Override
+//    public boolean isFinished() {
+//        final double ticksTolerance = 50;
+//        return MathMethods.withinRange(
+//                verticalElevatorMotor.getSelectedSensorPosition(),
+//                VETargetTicks,
+//                ticksTolerance) &&
+//                MathMethods.withinRange(
+//                        horizontalElevatorMotor.getAlternateEncoder(8196).getPosition(),
+//                        HETargetRotations,
+//                        ticksTolerance);
+//    }
 }

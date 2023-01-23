@@ -20,9 +20,7 @@ import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoBalanceTeleop;
 import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
-import frc.robot.profiler.Profile;
-import frc.robot.profiler.profiles.Driver1;
-import frc.robot.profiler.profiles.Driver2;
+import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.wrappers.control.OI;
@@ -85,7 +83,7 @@ public class RobotContainer {
 
     //SmartDashboard
     public final SendableChooser<Command> autoChooser;
-    public final SendableChooser<Profile> profileChooser;
+    public final SendableChooser<Profiler.Profiles> profileChooser;
 
 
     public RobotContainer() {
@@ -185,8 +183,8 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         profileChooser = new SendableChooser<>();
-        profileChooser.setDefaultOption("Driver1", new Driver1());
-        profileChooser.addOption("Driver2", new Driver2());
+        profileChooser.setDefaultOption("Driver1", Profiler.Profiles.Driver1);
+        profileChooser.addOption("Driver2", Profiler.Profiles.Driver2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
         configureButtonBindings();
