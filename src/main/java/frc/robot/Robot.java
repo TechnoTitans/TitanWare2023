@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
         robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
-        SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
+        SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading() % 360);
     }
 
     @Override

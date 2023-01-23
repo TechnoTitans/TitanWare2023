@@ -46,7 +46,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.slot0.integralZone = 200;
         driverConfig.slot0.kD = 5;
         driverConfig.slot0.kF = 0.045;
-        driverConfig.closedloopRamp = .2;
+        driverConfig.closedloopRamp = 0.2;
         driveMotor.configAllSettings(driverConfig);
         driveMotor.setNeutralMode(NeutralMode.Coast);
 
@@ -55,6 +55,7 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.slot0.kI = 0;
         turnerConfig.slot0.kD = 0;
         turnerConfig.slot0.kF = 0;
+//        turnerConfig.closedloopRamp = 0.1;
 //        turnerConfig.neutralDeadband = 0.07;
         turnerConfig.peakOutputForward = 0.5;
         turnerConfig.peakOutputReverse = -0.5;

@@ -22,7 +22,7 @@ public class SwerveAlignment extends CommandBase {
         this.swerve = swerve;
         this.limelight = limelight;
         this.photonVision = photonVision;
-        this.xPidController = new PIDController(0.2, 0.1, 0);
+        this.xPidController = new PIDController(2, 0.1, 0);
         this.yPidController = new PIDController(3, 0.1, 0);
 
         addRequirements(swerve);
@@ -47,15 +47,17 @@ public class SwerveAlignment extends CommandBase {
         }
     }
 
+    private final double xOffset = -0.46;
+
     @Override
     public void execute() {
         if (visionMode == Enums.VisionMode.PhotonVision && photonVision.hasTargets()) {
             Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
             targetErrorY = targetPose.getY();
-            targetErrorX = targetPose.getX();
+            targetErrorX = targetPose.getX() + xOffset;
         } else if (visionMode == Enums.VisionMode.LimeLight && limelight.isTargetFound()) {
-            targetErrorX = limelight.getX();
             targetErrorY = limelight.getY();
+            targetErrorX = limelight.getX();
         }
         SmartDashboard.putNumber("x", targetErrorX);
         swerve.faceDirection(xPidController.calculate(targetErrorX), yPidController.calculate(targetErrorY), 0, false);
