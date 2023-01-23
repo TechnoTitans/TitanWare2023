@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
+import frc.robot.utils.Enums;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
@@ -20,6 +21,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         robotContainer = new RobotContainer();
         robotContainer.swerve.zeroRotation();
+        robotContainer.limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
@@ -65,6 +67,7 @@ public class Robot extends TimedRobot {
         robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
         robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading() % 360);
+        SmartDashboard.putNumber("distance", robotContainer.limelight.calculateDistance());
     }
 
     @Override

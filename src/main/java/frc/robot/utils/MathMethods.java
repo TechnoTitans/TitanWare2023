@@ -19,7 +19,7 @@ public class MathMethods {
     }
 
     public static boolean withinBand(double val, double band) {
-        return val <= band && val >= -band;
+        return Math.abs(val) <= band && Math.abs(val) >= -band;
     }
 
     public static double deadband(double input, double band) {
