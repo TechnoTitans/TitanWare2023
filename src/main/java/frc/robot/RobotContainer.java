@@ -41,7 +41,7 @@ public class RobotContainer {
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TitanFX mainElevatorMotor, followerElevatorMotor;
+    public final TitanFX mainElevatorMotor;
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     //public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo;
     public final CANCoder verticalElevatorCanCoder;
@@ -121,7 +121,6 @@ public class RobotContainer {
 
         //Elevator Motors
         mainElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
-        followerElevatorMotor = new TitanFX(RobotMap.rightVerticalFalcon, RobotMap.rightElevatorMotorR);
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
@@ -134,7 +133,7 @@ public class RobotContainer {
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID);
 
-        //elevator = new Elevator(mainElevatorMotor, followerElevatorMotor, elevatorHorizontalNeo, verticalElevatorCanCoder);
+        //elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo, verticalElevatorCanCoder);
         //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
 
         //Swerve

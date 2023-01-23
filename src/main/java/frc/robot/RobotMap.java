@@ -44,8 +44,6 @@ public interface RobotMap {
         //Elevator
     int leftVerticalFalcon = 5;
     boolean leftElevatorMotorR = false;
-    int rightVerticalFalcon = 6;
-    boolean rightElevatorMotorR = false;
     int verticalElevatorCanCoder = 3;
 
     int horizontalElevatorNeo = 3;

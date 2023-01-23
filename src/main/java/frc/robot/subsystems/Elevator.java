@@ -18,7 +18,7 @@ import frc.robot.wrappers.motors.TitanFX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
-    private final TitanFX mainVerticalElevatorMotor, followerVerticalElevatorMotor;
+    private final TitanFX mainVerticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor;
     private final CANCoder verticalElevatorCanCoder;
     private Enums.ElevatorState currentState;
@@ -27,7 +27,6 @@ public class Elevator extends SubsystemBase {
     public Elevator(TitanFX mainVerticalElevatorMotor, TitanFX followerVerticalElevatorMotor,
                     CANSparkMax horizontalElevatorMotor, CANCoder verticalElevatorCanCoder) {
         this.mainVerticalElevatorMotor = mainVerticalElevatorMotor;
-        this.followerVerticalElevatorMotor = followerVerticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.verticalElevatorCanCoder = verticalElevatorCanCoder;
 
@@ -39,7 +38,7 @@ public class Elevator extends SubsystemBase {
 
     private void configMotor() {
         CANCoderConfiguration canCoderConfig = new CANCoderConfiguration();
-        canCoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition; //TUNE DIS
+        canCoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition; //TODO TUNE DIS
         canCoderConfig.unitString = "deg";
         canCoderConfig.sensorDirection = false;
         canCoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
@@ -57,16 +56,6 @@ public class Elevator extends SubsystemBase {
         LVEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorCanCoder.getDeviceID();
         LVEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         mainVerticalElevatorMotor.configAllSettings(LVEConfig);
-
-        TalonFXConfiguration RVEConfig = new TalonFXConfiguration();
-        RVEConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
-        RVEConfig.slot0.kI = 0.002;
-        RVEConfig.slot0.integralZone = 200;
-        RVEConfig.slot0.kD = 10;
-        RVEConfig.slot0.kF = 0.07;
-        RVEConfig.closedloopRamp = 0.2;
-        followerVerticalElevatorMotor.configAllSettings(RVEConfig);
-        followerVerticalElevatorMotor.follow(mainVerticalElevatorMotor);
 
         SparkMaxPIDController HVEConfig = horizontalElevatorMotor.getPIDController();
         HVEConfig.setP(0.1);
