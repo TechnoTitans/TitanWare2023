@@ -22,6 +22,7 @@ import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.utils.Enums;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
@@ -186,6 +187,7 @@ public class RobotContainer {
         configureButtonBindings();
     }
 
+    private boolean limelightON = false;
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 //        elevatorControlBtn.onTrue(new InstantCommand(() -> {
@@ -197,7 +199,13 @@ public class RobotContainer {
 //            }
 //            elevator.setState(Enums.ElevatorState.values()[currentState]);
 //        }));
-        autoAlignBtn.onTrue(swerveAlignment);
+
+//        autoAlignBtn.onTrue(swerveAlignment);
+        autoAlignBtn.onTrue(new InstantCommand(() -> {
+            limelight.setLEDMode(limelightON ? Enums.LimeLightLEDState.LED_OFF : Enums.LimeLightLEDState.LED_ON);
+            limelightON = !limelightON;
+            SmartDashboard.putBoolean("limelight is on?", limelightON);
+        }));
     }
 
     public Command getAutonomousCommand() {
