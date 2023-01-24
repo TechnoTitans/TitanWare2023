@@ -33,7 +33,7 @@ public class TitanFX extends WPI_TalonFX implements MotorController {
         super.setInverted(reversed);
     }
 
-    public TitanFX(int channel, String canBus, boolean reversed) {
+    public TitanFX(int channel, boolean reversed, String canBus) {
         super(channel, canBus);
         super.setInverted(reversed);
     }
