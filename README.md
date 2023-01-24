@@ -12,6 +12,7 @@
 - [x] Add AutoBalance
 - [x] Fix Auto !!!
 - [x] Limelight assisted lineup
+- [ ] Auto Paths
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets
