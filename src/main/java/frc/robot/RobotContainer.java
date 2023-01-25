@@ -187,7 +187,6 @@ public class RobotContainer {
         configureButtonBindings();
     }
 
-    private boolean limelightON = false;
     private void configureButtonBindings() {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 //        elevatorControlBtn.onTrue(new InstantCommand(() -> {
@@ -200,12 +199,7 @@ public class RobotContainer {
 //            elevator.setState(Enums.ElevatorState.values()[currentState]);
 //        }));
 
-//        autoAlignBtn.onTrue(swerveAlignment);
-        autoAlignBtn.onTrue(new InstantCommand(() -> {
-            limelight.setLEDMode(limelightON ? Enums.LimeLightLEDState.LED_OFF : Enums.LimeLightLEDState.LED_ON);
-            limelightON = !limelightON;
-            SmartDashboard.putBoolean("limelight is on?", limelightON);
-        }));
+        autoAlignBtn.onTrue(swerveAlignment);
     }
 
     public Command getAutonomousCommand() {

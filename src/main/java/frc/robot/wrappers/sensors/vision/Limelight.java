@@ -8,8 +8,6 @@ import frc.robot.utils.MathMethods;
 public class Limelight {
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
-    private double OFFSET = 0; //TODO: fientune during testing
-
     // Debugging booleans
     boolean targetFound = false;
     boolean targetAligned = false;
@@ -21,7 +19,6 @@ public class Limelight {
     private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
 
     private final IntegerPublisher ledMode = table.getIntegerTopic("ledMode").publish();
-
     public Limelight() {}
 
     public double calculateDistance() {
@@ -39,12 +36,12 @@ public class Limelight {
         return MathMethods.withinRange(error, 0, ERROR_TOLERANCE);
     }
 
-    public void setOFFSET(double OFFSET) {
-        this.OFFSET = OFFSET;
-    }
+//    public void setOFFSET(double OFFSET) {
+//        this.OFFSET = OFFSET;
+//    }
 
     public double getSwerveError() {
-        return tx.getAsDouble() + OFFSET;
+        return tx.getAsDouble();
     }
 
     public double getX() {
@@ -60,7 +57,7 @@ public class Limelight {
     }
 
     public boolean isTargetFound() {
-        return tv.get() > 0;
+        return tv.getAsLong() > 0;
     }
 
     public void setLEDMode(Enums.LimeLightLEDState limeLightLEDState) {
@@ -74,7 +71,6 @@ public class Limelight {
             case LED_ON:
                 ledMode.set(3);
                 break;
-
         }
     }
 }

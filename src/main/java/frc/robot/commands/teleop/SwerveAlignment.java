@@ -36,11 +36,10 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public void initialize() {
-        SmartDashboard.putString("LL state", "limelight ON called");
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
-//        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
-//            end(true);
-//        } else
+        limelight.setLEDMode(Enums.LimeLightLEDState.LED_CONFIG);
+        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
+            end(true);
+        } else
 
         if (photonVision.hasTargets() && limelight.isTargetFound()) {
             if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag().getY()) {
@@ -52,9 +51,9 @@ public class SwerveAlignment extends CommandBase {
             visionMode = Enums.VisionMode.LimeLight;
         } else if (photonVision.hasTargets()) {
             visionMode = Enums.VisionMode.PhotonVision;
-        } //else {
-//            end(true);
-//        }
+        } else {
+            end(true);
+        }
     }
 
     @Override
@@ -63,7 +62,7 @@ public class SwerveAlignment extends CommandBase {
 //            end(true);
 //        }
 
-        if (visionMode == Enums.VisionMode.PhotonVision && photonVision.hasTargets()) {
+        if (visionMode == Enums.VisionMode.PhotonVision) {
             final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
 
             targetErrorY = targetPose.getY();
@@ -76,12 +75,10 @@ public class SwerveAlignment extends CommandBase {
                     false
             );
 
-        } else if (visionMode == Enums.VisionMode.LimeLight && limelight.isTargetFound()) {
+        } else if (visionMode == Enums.VisionMode.LimeLight) {
             targetErrorY = limelight.calculateDistance();
             targetErrorX = limelight.getX();
 
-            SmartDashboard.putNumber("LL X", targetErrorX);
-            SmartDashboard.putNumber("LL Y", targetErrorY);
 
             swerve.faceDirection(
                     yLimelightPIDController.calculate(targetErrorY),
@@ -90,6 +87,10 @@ public class SwerveAlignment extends CommandBase {
                     false
             );
         }
+
+        SmartDashboard.putNumber("LL X", targetErrorX);
+        SmartDashboard.putNumber("LL Y", targetErrorY);
+
     }
 
     @Override
@@ -101,6 +102,5 @@ public class SwerveAlignment extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
-        SmartDashboard.putString("LL state", "limelight OFF called");
     }
 }
