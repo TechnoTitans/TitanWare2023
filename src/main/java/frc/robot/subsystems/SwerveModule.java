@@ -100,4 +100,9 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.set(TalonFXControlMode.Velocity, velocity_ticks_per_100ms);
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
+
+    public void stop() {
+        driveMotor.set(TalonFXControlMode.Velocity, 0);
+        turnMotor.set(TalonFXControlMode.PercentOutput, 0);
+    }
 }

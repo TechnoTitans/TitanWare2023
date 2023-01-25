@@ -13,7 +13,7 @@ public interface RobotMap {
 
     //Canivore
     int CANIVORE_ID = 1;
-    String CANIVORE_CAN_NAME = "canivore";
+    String CANIVORE_CAN_NAME = "CANivore";
 
     //Motors
         //Swerve
@@ -48,7 +48,7 @@ public interface RobotMap {
 
     int horizontalElevatorNeo = 3;
 
-    int clawTiltNeo = 3;
+    int clawTiltNeo = 21;
 
     int clawOpenCloseMotor = 3;
     boolean clawOpenCloseMotorR = false;

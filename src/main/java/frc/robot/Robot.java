@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -21,12 +23,13 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         robotContainer = new RobotContainer();
         robotContainer.swerve.zeroRotation();
-        robotContainer.limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
+
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
     }
 
     @Override
@@ -35,6 +38,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        robotContainer.limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override

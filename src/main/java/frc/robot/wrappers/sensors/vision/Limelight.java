@@ -1,6 +1,7 @@
 package frc.robot.wrappers.sensors.vision;
 
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
@@ -18,7 +19,7 @@ public class Limelight {
     private final DoubleSubscriber ty = table.getDoubleTopic("ty").subscribe(0.0); // vertical offset from crosshair to target
     private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
 
-    private final IntegerPublisher ledMode = table.getIntegerTopic("ledMode").publish();
+    private final DoublePublisher ledMode = table.getDoubleTopic("ledMode").publish();
     public Limelight() {}
 
     public double calculateDistance() {

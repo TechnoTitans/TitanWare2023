@@ -2,6 +2,8 @@ package frc.robot;
 
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -43,7 +45,7 @@ public class RobotContainer {
     //Elevator
     public final TitanFX mainElevatorMotor;
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    //public final CANSparkMax elevatorHorizontalNeo, clawTiltNeo;
+//    public final CANSparkMax elevatorHorizontalNeo, -clawTiltNeo;
     public final CANCoder verticalElevatorCanCoder;
 
     //Swerve
@@ -94,22 +96,22 @@ public class RobotContainer {
         powerDistribution.clearStickyFaults();
 
         //Swerve Drive Motors
-        frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR);
-        frontRightDrive = new TitanFX(RobotMap.frontRightDrive, RobotMap.frontRightDriveR);
-        backLeftDrive = new TitanFX(RobotMap.backLeftDrive, RobotMap.backLeftDriveR);
-        backRightDrive = new TitanFX(RobotMap.backRightDrive, RobotMap.backRightDriveR);
+        frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
+        frontRightDrive = new TitanFX(RobotMap.frontRightDrive, RobotMap.frontRightDriveR, RobotMap.CANIVORE_CAN_NAME);
+        backLeftDrive = new TitanFX(RobotMap.backLeftDrive, RobotMap.backLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
+        backRightDrive = new TitanFX(RobotMap.backRightDrive, RobotMap.backRightDriveR, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Turning Motors
-        frontLeftTurn = new TitanFX(RobotMap.frontLeftTurn, RobotMap.frontLeftTurnR);
-        frontRightTurn = new TitanFX(RobotMap.frontRightTurn, RobotMap.frontRightTurnR);
-        backLeftTurn = new TitanFX(RobotMap.backLeftTurn, RobotMap.backLeftTurnR);
-        backRightTurn = new TitanFX(RobotMap.backRightTurn, RobotMap.backRightTurnR);
+        frontLeftTurn = new TitanFX(RobotMap.frontLeftTurn, RobotMap.frontLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
+        frontRightTurn = new TitanFX(RobotMap.frontRightTurn, RobotMap.frontRightTurnR, RobotMap.CANIVORE_CAN_NAME);
+        backLeftTurn = new TitanFX(RobotMap.backLeftTurn, RobotMap.backLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
+        backRightTurn = new TitanFX(RobotMap.backRightTurn, RobotMap.backRightTurnR, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve CANCoders
-        frontLeftEncoder = new CANCoder(RobotMap.frontLeftEncoder);
-        frontRightEncoder = new CANCoder(RobotMap.frontRightEncoder);
-        backLeftEncoder = new CANCoder(RobotMap.backLeftEncoder);
-        backRightEncoder = new CANCoder(RobotMap.backRightEncoder);
+        frontLeftEncoder = new CANCoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+        frontRightEncoder = new CANCoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+        backLeftEncoder = new CANCoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+        backRightEncoder = new CANCoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
@@ -124,13 +126,13 @@ public class RobotContainer {
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
         //elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        //clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+//        clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Elevator Encoders
         verticalElevatorCanCoder = new CANCoder(RobotMap.verticalElevatorCanCoder);
 
         //Sensors
-        pigeon = new Pigeon2(RobotMap.PIGEON_ID);
+        pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 
         //elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo, verticalElevatorCanCoder);
         //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
@@ -146,10 +148,10 @@ public class RobotContainer {
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
         field = new Field2d();
         holonomicDriveController = new HolonomicDriveController(
-                new PIDController(1, 0, 0),
-                new PIDController(1, 0, 0),
+                new PIDController(0.9, 0, 0),
+                new PIDController(1.1, 0, 0),
                 new ProfiledPIDController(
-                        10, -0.003, 0,
+                        1, -0.003, 0,
                         new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
                 ));
 
@@ -177,7 +179,7 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Line", trajectoryManager.getCommand("line"));
         autoChooser.addOption("Curve", trajectoryManager.getCommand("curve"));
         autoChooser.addOption("Spin Line", trajectoryManager.getCommand("spinline"));
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("Auton Chooser", autoChooser);
 
         profileChooser = new SendableChooser<>();
         profileChooser.setDefaultOption("Driver1", Profiler.Profiles.Driver1);

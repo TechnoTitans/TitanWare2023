@@ -105,7 +105,8 @@ class TrajectroyFollower extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return !RobotState.isAutonomous() && timer.get() >= traj.getTotalTimeSeconds() - 1;
+//        return !RobotState.isAutonomous() && timer.get() >= traj.getTotalTimeSeconds() - 1;
+        return timer.get() >= traj.getTotalTimeSeconds();
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
@@ -115,22 +116,11 @@ class TrajectroyFollower extends CommandBase {
                 state.velocityMetersPerSecond,
                 state.holonomicRotation);
         //TODO: TEST FIELD RELATIVE PATH PLANNING
-        swerve.faceDirection(correction.vxMetersPerSecond, correction.vyMetersPerSecond, state.holonomicRotation.getDegrees(), false);
-
-
-        //TODO REMOVE ONCE TUNED
-        Transform2d error = state.poseMeters.minus(odometry.getPoseMeters());
-        SmartDashboard.putNumber("Holonomic error x", error.getX());
-        SmartDashboard.putNumber("Holonomic error y", error.getY());
-        SmartDashboard.putNumber("Holonomic error rot", error.getRotation().getDegrees());
-
-        SmartDashboard.putNumber("target x", state.poseMeters.getX());
-        SmartDashboard.putNumber("target y", state.poseMeters.getY());
-        SmartDashboard.putNumber("target rot", state.poseMeters.getRotation().getDegrees());
-
-        SmartDashboard.putNumber("current x", odometry.getPoseMeters().getX());
-        SmartDashboard.putNumber("current y", odometry.getPoseMeters().getY());
-        SmartDashboard.putNumber("current rot", odometry.getPoseMeters().getRotation().getDegrees());
+        swerve.drive(
+                correction.vxMetersPerSecond,
+                correction.vyMetersPerSecond,
+                state.holonomicRotation.getDegrees(),
+                false);
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {

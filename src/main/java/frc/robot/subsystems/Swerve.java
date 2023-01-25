@@ -83,7 +83,10 @@ public class Swerve extends SubsystemBase {
     }
 
     public void stop() {
-        SwerveModuleState stopped = new SwerveModuleState(0, null);
+        frontLeft.stop();
+        backLeft.stop();
+        frontRight.stop();
+        backRight.stop();
     }
 
     public void faceDirection(double dx, double dy, double theta, boolean fieldRelative) {
