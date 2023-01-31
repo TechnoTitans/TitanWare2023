@@ -28,6 +28,8 @@ import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanSRX;
+import frc.robot.wrappers.sensors.Encoder;
+import frc.robot.wrappers.sensors.QuadEncoder;
 import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.PhotonCamera;
@@ -46,6 +48,8 @@ public class RobotContainer {
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
 //    public final CANSparkMax elevatorHorizontalNeo, -clawTiltNeo;
     public final CANCoder verticalElevatorCanCoder;
+
+    //Claw
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;

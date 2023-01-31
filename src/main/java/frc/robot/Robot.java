@@ -28,6 +28,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("distance", robotContainer.limelight.calculateDistance());
+        SmartDashboard.putNumber("open close enc", robotContainer.clawOpenCloseMotor.getSelectedSensorPosition());
     }
 
     @Override
@@ -64,6 +65,8 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
+
+        robotContainer.clawOpenCloseMotor.setSelectedSensorPosition(0);
     }
 
     @Override
