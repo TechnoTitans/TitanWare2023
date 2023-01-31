@@ -51,7 +51,6 @@ public class TrajectoryManager {
         for (File path : paths) {
             String autoPath = path.getName().substring(0, path.getName().lastIndexOf("."));
             autoChooser.addOption(autoPath, this.getCommand(autoPath));
-
         }
         SmartDashboard.putData("Auton Chooser", autoChooser);
     }
