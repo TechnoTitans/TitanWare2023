@@ -4,19 +4,25 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.MathMethods;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -26,15 +32,35 @@ public class TrajectoryManager {
     private final SwerveDriveOdometry odometry;
     private final boolean reverseTrajectory = false;
     private final Field2d field;
+    private SendableChooser<Command> autoChooser;
+
 
     public TrajectoryManager(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, Field2d field) {
         this.swerve = swerve;
         this.controller = controller;
         this.odometry = odometry;
         this.field = field;
+
+        createChooser();
     }
 
-    public void follow(String trajDir, double periodic, double maxVel, double maxAccl) {
+    private void createChooser() {
+        autoChooser = new SendableChooser<>();
+        File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
+        if (paths == null) return;
+        for (File path : paths) {
+            String autoPath = path.getName().substring(0, path.getName().lastIndexOf("."));
+            autoChooser.addOption(autoPath, this.getCommand(autoPath));
+
+        }
+        SmartDashboard.putData("Auton Chooser", autoChooser);
+    }
+
+    public Command getSelectedPath() {
+        return autoChooser.getSelected();
+    }
+
+    public void follow(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
         TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field);
         CommandScheduler.getInstance().schedule(trajFollower);
@@ -51,7 +77,7 @@ public class TrajectoryManager {
         return new TrajectroyFollower(swerve, controller, odometry, traj, field);
     }
 
-    public TrajectroyFollower getCommand(String trajDir, double periodic, double maxVel, double maxAccl) {
+    public TrajectroyFollower getCommand(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
         return new TrajectroyFollower(swerve, controller, odometry, traj, field);
     }
@@ -65,6 +91,7 @@ class TrajectroyFollower extends CommandBase {
     private final HolonomicDriveController controller;
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
+    private boolean ballon = false;
 
     public TrajectroyFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field) {
         this.swerve = swerve;
@@ -80,8 +107,8 @@ class TrajectroyFollower extends CommandBase {
         addRequirements(swerve);
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
-        swerve.setAngle(initialPose.getRotation().getDegrees()); //i added this not sure if it is good to have or not
-        odometry.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);
+        swerve.setAngle(0);
+        odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), initialPose);
         field.getObject("Traj").setPose(initialPose);
         timer.reset();
         timer.start();
@@ -91,7 +118,7 @@ class TrajectroyFollower extends CommandBase {
     public void execute() {
         double currentTime = timer.get();
         PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
-//        commander(sample);
+        commander(sample);
         driveToState(sample);
         field.getObject("Traj").setPose(sample.poseMeters);
         odometry.update(swerve.getRotation2d(), swerve.getModulePositions());
@@ -101,12 +128,12 @@ class TrajectroyFollower extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         timer.stop();
+//        swerve.setAngle(traj.getEndState().holonomicRotation.getDegrees());
     }
 
     @Override
     public boolean isFinished() {
-//        return !RobotState.isAutonomous() && timer.get() >= traj.getTotalTimeSeconds() - 1;
-        return timer.get() >= traj.getTotalTimeSeconds();
+        return !RobotState.isAutonomous() || timer.get() >= traj.getTotalTimeSeconds();
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
@@ -116,10 +143,11 @@ class TrajectroyFollower extends CommandBase {
                 state.velocityMetersPerSecond,
                 state.holonomicRotation);
         //TODO: TEST FIELD RELATIVE PATH PLANNING
-        swerve.drive(
+
+        swerve.faceDirection(
                 correction.vxMetersPerSecond,
                 correction.vyMetersPerSecond,
-                state.holonomicRotation.getDegrees(),
+                Rotation2d.fromDegrees(180).minus(state.holonomicRotation).getDegrees(),
                 false);
     }
 

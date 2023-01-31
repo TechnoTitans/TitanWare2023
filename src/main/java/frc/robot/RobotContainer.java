@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,6 +23,7 @@ import frc.robot.commands.teleop.AutoBalanceTeleop;
 import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profiler;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.Enums;
@@ -69,7 +71,7 @@ public class RobotContainer {
     //SubSystems
     public final Swerve swerve;
     //public final Elevator elevator;
-    //public final Claw claw;
+    public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
@@ -83,9 +85,7 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    public final SendableChooser<Command> autoChooser;
     public final SendableChooser<Profiler.Profiles> profileChooser;
-
 
     public RobotContainer() {
         //OI
@@ -135,14 +135,14 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 
         //elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo, verticalElevatorCanCoder);
-        //claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-                new Translation2d(0.31653734, 0.19324828), //front left //TODO: TUNE THESE
-                new Translation2d(-0.31653734, 0.41000172), // back left
-                new Translation2d(0.28671266, -0.19324828), // front right
-                new Translation2d(-0.28671266, -0.41000172)); //back right //in meters, swerve modules relative to the center of robot
+                new Translation2d(Constants.Swerve.WHEEL_BASE/2, Constants.Swerve.TRACK_WIDTH/2), //front left //TODO: TUNE THESE
+                new Translation2d(-Constants.Swerve.WHEEL_BASE/2, Constants.Swerve.TRACK_WIDTH/2), // back left
+                new Translation2d(Constants.Swerve.WHEEL_BASE/2, -Constants.Swerve.TRACK_WIDTH/2), // front right
+                new Translation2d(-Constants.Swerve.WHEEL_BASE/2, -Constants.Swerve.TRACK_WIDTH/2)); //back right //in meters, swerve modules relative to the center of robot
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
@@ -151,7 +151,7 @@ public class RobotContainer {
                 new PIDController(0.9, 0, 0),
                 new PIDController(1.1, 0, 0),
                 new ProfiledPIDController(
-                        1, -0.003, 0,
+                        10, -0.003, 0,
                         new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
                 ));
 
@@ -175,12 +175,6 @@ public class RobotContainer {
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field);
 
         //SmartDashboard
-        autoChooser = new SendableChooser<>();
-        autoChooser.setDefaultOption("Line", trajectoryManager.getCommand("line"));
-        autoChooser.addOption("Curve", trajectoryManager.getCommand("curve"));
-        autoChooser.addOption("Spin Line", trajectoryManager.getCommand("spinline"));
-        SmartDashboard.putData("Auton Chooser", autoChooser);
-
         profileChooser = new SendableChooser<>();
         profileChooser.setDefaultOption("Driver1", Profiler.Profiles.Driver1);
         profileChooser.addOption("Driver2", Profiler.Profiles.Driver2);
@@ -201,10 +195,22 @@ public class RobotContainer {
 //            elevator.setState(Enums.ElevatorState.values()[currentState]);
 //        }));
 
+        elevatorControlBtn.onTrue(new InstantCommand(() -> {
+            if (claw.getCurrentState() == Enums.ClawState.CLAW_OPEN_SPINNING) {
+                claw.setState(Enums.ClawState.CLAW_CLOSED);
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_CLOSED) {
+                claw.setState(Enums.ClawState.CLAW_SPIT);
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_SPIT || claw.getCurrentState() == Enums.ClawState.Claw_RETRACTED) {
+                claw.setState(Enums.ClawState.CLAW_OPEN_STANDBY);
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_OPEN_STANDBY) {
+                claw.setState(Enums.ClawState.CLAW_OPEN_SPINNING);
+            }
+        }));
+
         autoAlignBtn.onTrue(swerveAlignment);
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return trajectoryManager.getSelectedPath();
     }
 }

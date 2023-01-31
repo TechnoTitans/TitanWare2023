@@ -23,13 +23,13 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         robotContainer = new RobotContainer();
         robotContainer.swerve.zeroRotation();
-
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-
+        SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
+        SmartDashboard.putNumber("distance", robotContainer.limelight.calculateDistance());
     }
 
     @Override
@@ -43,6 +43,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
@@ -57,6 +58,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        robotContainer.swerve.coast();
         //Set Profile
         Profiler.setProfile(robotContainer.profileChooser.getSelected());
 
@@ -70,9 +72,6 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
         robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
-
-        SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading() % 360);
-        SmartDashboard.putNumber("distance", robotContainer.limelight.calculateDistance());
     }
 
     @Override

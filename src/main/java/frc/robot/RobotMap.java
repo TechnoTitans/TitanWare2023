@@ -50,13 +50,14 @@ public interface RobotMap {
 
     int clawTiltNeo = 21;
 
-    int clawOpenCloseMotor = 3;
-    boolean clawOpenCloseMotorR = false;
+    //Claw Motors
+    int clawOpenCloseMotor = 12;
+    boolean clawOpenCloseMotorR = true;
 
-    int clawMainWheelsMotor = 3;
+    int clawMainWheelsMotor = 15;
     boolean clawMainWheelsMotorR = false;
-    int clawFollowerWheelsMotor = 3;
-    boolean clawFollowerWheelsMotorR = false;
+    int clawFollowerWheelsMotor = 13;
+    boolean clawFollowerWheelsMotorR = true;
 
     //Controllers
     int MainController = 1;

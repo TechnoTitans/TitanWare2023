@@ -13,6 +13,7 @@ public class Enums {
     public enum ClawState {
         Claw_RETRACTED, //Claw tilted up and closed
         CLAW_CLOSED, //Claw tilted down and closed
+        CLAW_SPIT, //Claw shoot cube
         CLAW_OPEN_SPINNING, //Claw tilted down and quickly spinning open
         CLAW_OPEN_STANDBY //Claw tilted down and slowly spinning open
     }

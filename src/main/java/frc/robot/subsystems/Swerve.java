@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2Configuration;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -80,6 +81,20 @@ public class Swerve extends SubsystemBase {
         backLeft.setDesiredState(states[1]);
         frontRight.setDesiredState(states[2]);
         backRight.setDesiredState(states[3]);
+    }
+
+    public void brake() {
+        frontLeft.brake();
+        backLeft.brake();
+        frontRight.brake();
+        backRight.brake();
+    }
+
+    public void coast() {
+        frontLeft.coast();
+        backLeft.coast();
+        frontRight.coast();
+        backRight.coast();
     }
 
     public void stop() {
