@@ -1,7 +1,6 @@
 package frc.robot.wrappers.sensors.vision;
 
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 

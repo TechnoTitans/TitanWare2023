@@ -5,7 +5,6 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -22,7 +21,6 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.utils.MathMethods;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -90,7 +88,6 @@ class TrajectroyFollower extends CommandBase {
     private final HolonomicDriveController controller;
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
-    private boolean ballon = false;
 
     public TrajectroyFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field) {
         this.swerve = swerve;
