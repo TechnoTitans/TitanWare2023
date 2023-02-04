@@ -2,11 +2,15 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
@@ -16,28 +20,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
+import frc.robot.utils.DriveController;
+import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
+import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class TrajectoryManager {
     private final Swerve swerve;
-    private final HolonomicDriveController controller;
+    private final DriveController controller;
     private final SwerveDriveOdometry odometry;
     private final boolean reverseTrajectory = false;
     private final Field2d field;
     private SendableChooser<Command> autoChooser;
 
+    private final Claw claw;
 
-    public TrajectoryManager(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, Field2d field) {
+    public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, Field2d field, Claw claw) {
         this.swerve = swerve;
         this.controller = controller;
         this.odometry = odometry;
         this.field = field;
+        this.claw = claw;
 
         createChooser();
     }
@@ -59,42 +71,47 @@ public class TrajectoryManager {
 
     public void follow(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field);
+        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field, claw);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field);
+        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field, claw);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public TrajectroyFollower getCommand(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        return new TrajectroyFollower(swerve, controller, odometry, traj, field);
+        return new TrajectroyFollower(swerve, controller, odometry, traj, field, claw);
     }
 
     public TrajectroyFollower getCommand(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        return new TrajectroyFollower(swerve, controller, odometry, traj, field);
+        return new TrajectroyFollower(swerve, controller, odometry, traj, field, claw);
     }
 }
 
 @SuppressWarnings("unused")
 class TrajectroyFollower extends CommandBase {
     private final PathPlannerTrajectory traj;
-    private final Timer timer = new Timer();
+    private final Timer timer;
     private final Swerve swerve;
-    private final HolonomicDriveController controller;
+    private final DriveController controller;
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
 
-    public TrajectroyFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field) {
+    private final Claw claw;
+
+    public TrajectroyFollower(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field, Claw claw) {
         this.swerve = swerve;
+        this.timer = new Timer();
         this.controller = controller;
         this.odometry = odometry;
-        this.traj = traj;
+        this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
         this.field = field;
+
+        this.claw = claw;
         addRequirements(swerve);
     }
 
@@ -103,7 +120,7 @@ class TrajectroyFollower extends CommandBase {
         addRequirements(swerve);
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
-        swerve.setAngle(0);
+        swerve.zeroRotation();
         odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), initialPose);
         field.getObject("Traj").setPose(initialPose);
         timer.reset();
@@ -124,7 +141,7 @@ class TrajectroyFollower extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         timer.stop();
-//        swerve.setAngle(traj.getEndState().holonomicRotation.getDegrees());
+        swerve.setAngle(traj.getEndState().holonomicRotation.getDegrees());
     }
 
     @Override
@@ -133,18 +150,8 @@ class TrajectroyFollower extends CommandBase {
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
-        ChassisSpeeds correction = controller.calculate(
-                odometry.getPoseMeters(),
-                state.poseMeters,
-                state.velocityMetersPerSecond,
-                state.holonomicRotation);
-        //TODO: TEST FIELD RELATIVE PATH PLANNING
-
-        swerve.faceDirection(
-                correction.vxMetersPerSecond,
-                correction.vyMetersPerSecond,
-                Rotation2d.fromDegrees(180).minus(state.holonomicRotation).getDegrees(),
-                false);
+        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state, swerve.getRotation2d());
+        swerve.drive(correction);
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {
@@ -162,7 +169,9 @@ class TrajectroyFollower extends CommandBase {
                         case "testing":
                             SmartDashboard.putString("Testing", args[1]);
                             break;
-
+                        case "claw":
+                            claw.setState(Enums.ClawState.valueOf(args[1].toUpperCase()));
+                            break;
                     }
                 } catch (IllegalArgumentException e) {
 //                    throw new IllegalArgumentException(e); //or this

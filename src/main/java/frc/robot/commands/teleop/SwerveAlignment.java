@@ -43,14 +43,14 @@ public class SwerveAlignment extends CommandBase {
 
         if (photonVision.hasTargets() && limelight.isTargetFound()) {
             if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag().getY()) {
-                visionMode = Enums.VisionMode.PhotonVision;
+                visionMode = Enums.VisionMode.PHOTON_VISION;
             } else {
-                visionMode = Enums.VisionMode.LimeLight;
+                visionMode = Enums.VisionMode.LIME_LIGHT;
             }
         } else if (limelight.isTargetFound()) {
-            visionMode = Enums.VisionMode.LimeLight;
+            visionMode = Enums.VisionMode.LIME_LIGHT;
         } else if (photonVision.hasTargets()) {
-            visionMode = Enums.VisionMode.PhotonVision;
+            visionMode = Enums.VisionMode.PHOTON_VISION;
         } else {
             end(true);
         }
@@ -62,7 +62,7 @@ public class SwerveAlignment extends CommandBase {
 //            end(true);
 //        }
 
-        if (visionMode == Enums.VisionMode.PhotonVision) {
+        if (visionMode == Enums.VisionMode.PHOTON_VISION) {
             final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
 
             targetErrorY = targetPose.getY();
@@ -75,7 +75,7 @@ public class SwerveAlignment extends CommandBase {
                     false
             );
 
-        } else if (visionMode == Enums.VisionMode.LimeLight) {
+        } else if (visionMode == Enums.VisionMode.LIME_LIGHT) {
             targetErrorY = limelight.calculateDistance();
             targetErrorX = limelight.getX();
 

@@ -2,14 +2,11 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanSRX;
-
-import static frc.robot.utils.MathMethods.withinBand;
 
 @SuppressWarnings("unused")
 public class Claw extends SubsystemBase {
@@ -27,7 +24,7 @@ public class Claw extends SubsystemBase {
 //        this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
 
-        this.currentState = Enums.ClawState.Claw_RETRACTED;
+        this.currentState = Enums.ClawState.CLAW_RETRACTED;
 
         configMotor();
 
@@ -98,29 +95,29 @@ class ClawControlCommand extends CommandBase {
 
     public void setState(Enums.ClawState state) {
         switch (state) {
-            case Claw_RETRACTED:
+            case CLAW_RETRACTED:
                 speed = 0;
-                tiltRotations = -300;
-                openClosePower = 0.15;
+                tiltRotations = 0;
+                openClosePower = -0.15;
                 break;
             case CLAW_CLOSED:
-                speed = 0.1;
-                tiltRotations = -300;
-                openClosePower = 0.2;
+                speed = 0.15;
+                tiltRotations = 500;
+                openClosePower = -0.2;
                 break;
             case CLAW_SPIT:
                 speed = -0.4;
-                tiltRotations = -200;
-                openClosePower = 0.075;
+                tiltRotations = 500;
+                openClosePower = 0;
                 break;
             case CLAW_OPEN_SPINNING:
                 speed = 0.3;
-                tiltRotations = -200;
+                tiltRotations = 500;
                 openClosePower = -0.1;
                 break;
             case CLAW_OPEN_STANDBY:
                 speed = 0.2;
-                tiltRotations = -200;
+                tiltRotations = 500;
                 openClosePower = 0.2;
                 break;
             default:
@@ -134,14 +131,9 @@ class ClawControlCommand extends CommandBase {
                 ControlMode.PercentOutput,
                 speed);
 
-
-        if (!withinBand(Math.abs(clawOpenCloseMotor.getSelectedSensorPosition()), tiltRotations-10, tiltRotations+10)) {
-
-            clawOpenCloseMotor.set((tiltRotations - clawOpenCloseMotor.getSelectedSensorPosition()) * .001);
-        } else {
-
-            clawOpenCloseMotor.set(0);
-        }
+        clawOpenCloseMotor.set(
+                ControlMode.PercentOutput,
+                openClosePower);
 
 //        clawTiltNeo.getPIDController().setReference(
 //                tiltRotations,

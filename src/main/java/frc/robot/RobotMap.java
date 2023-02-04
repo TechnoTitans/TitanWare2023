@@ -15,6 +15,8 @@ public interface RobotMap {
     int CANIVORE_ID = 1;
     String CANIVORE_CAN_NAME = "CANivore";
 
+    int CANdle_ID = 0;
+
     //Motors
         //Swerve
     int frontLeftDrive = 1;

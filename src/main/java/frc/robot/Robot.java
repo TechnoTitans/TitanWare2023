@@ -20,7 +20,6 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         robotContainer = new RobotContainer();
-        robotContainer.swerve.zeroRotation();
     }
 
     @Override
@@ -42,6 +41,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        robotContainer.swerve.zeroRotation();
         robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
 

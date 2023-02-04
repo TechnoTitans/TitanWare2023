@@ -1,10 +1,15 @@
 package frc.robot;
 
+import com.ctre.phoenix.led.*;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -23,13 +28,12 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanSRX;
-import frc.robot.wrappers.sensors.Encoder;
-import frc.robot.wrappers.sensors.QuadEncoder;
 import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.PhotonCamera;
@@ -55,7 +59,8 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-    public final HolonomicDriveController holonomicDriveController;
+//    public final HolonomicDriveController holonomicDriveController;
+    public final DriveController holonomicDriveController;
     public final Field2d field;
 
     //PDH
@@ -68,6 +73,9 @@ public class RobotContainer {
     public final Limelight limelight;
     public final PhotonCamera camera;
     public final PhotonVision photonVision;
+
+    //Candle
+    public final CANdle cANdle;
 
     //SubSystems
     public final Swerve swerve;
@@ -148,18 +156,22 @@ public class RobotContainer {
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
         field = new Field2d();
-        holonomicDriveController = new HolonomicDriveController(
-                new PIDController(0.9, 0, 0),
-                new PIDController(1.1, 0, 0),
-                new ProfiledPIDController(
-                        10, -0.003, 0,
-                        new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION)
-                ));
+
+        holonomicDriveController = new DriveController(
+                new PIDController(0, 0, 0),
+                new PIDController(0, 0, 0),
+                new PIDController(0.12, 0, 0)
+        );
 
         //Vision
         limelight = new Limelight();
         camera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonVision = new PhotonVision(camera);
+
+        cANdle = new CANdle(RobotMap.CANdle_ID);
+        cANdle.setLEDs(200, 0, 150); // purple
+//        cANdle.setLEDs(200, 100, 0); // yellow
+//        cANdle.animate(new RainbowAnimation());
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
@@ -173,7 +185,7 @@ public class RobotContainer {
         autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -201,7 +213,7 @@ public class RobotContainer {
                 claw.setState(Enums.ClawState.CLAW_CLOSED);
             } else if (claw.getCurrentState() == Enums.ClawState.CLAW_CLOSED) {
                 claw.setState(Enums.ClawState.CLAW_SPIT);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_SPIT || claw.getCurrentState() == Enums.ClawState.Claw_RETRACTED) {
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_SPIT || claw.getCurrentState() == Enums.ClawState.CLAW_RETRACTED) {
                 claw.setState(Enums.ClawState.CLAW_OPEN_STANDBY);
             } else if (claw.getCurrentState() == Enums.ClawState.CLAW_OPEN_STANDBY) {
                 claw.setState(Enums.ClawState.CLAW_OPEN_SPINNING);

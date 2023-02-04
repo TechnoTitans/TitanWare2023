@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2Configuration;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -27,7 +28,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public double getHeading() {
-        return pigeon.getYaw();
+        return pigeon.getYaw() % 360;
     }
 
     public Rotation2d getRotation2d() {
@@ -54,7 +55,7 @@ public class Swerve extends SubsystemBase {
         return new SwerveModulePosition[]{frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
     }
 
-    public Consumer<SwerveModuleState[]> getModuleStatesConsumer() {
+    public Consumer<ChassisSpeeds> getChassisSpeedConsumer() {
         return this::drive;
     }
 
