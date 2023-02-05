@@ -12,13 +12,20 @@ public class Enums {
 
     public enum ClawState {
         CLAW_RETRACTED, //Claw tilted up and closed
-        CLAW_CLOSED, //Claw tilted down and closed
-        CLAW_SPIT, //Claw shoot cube
-        CLAW_OPEN_SPINNING, //Claw tilted down and quickly spinning open
-        CLAW_OPEN_STANDBY //Claw tilted down and slowly spinning open
+        CLAW_OUTTAKE, //Claw shoot cube
+        CLAW_HOLDING, //Claw tilted down and closed
+        CLAW_DROP_CONE, //Claw tilted down and open
+        CLAW_INTAKING, //Claw tilted down and intake wheel speed
+        CLAW_STANDBY //Claw tilted down and standby wheel speed
     }
 
-    public enum LimeLightLEDState {
+    public enum CANdleState {
+        OFF,
+        YELLOW,
+        PURPLE
+    }
+
+    public enum LimeLightLEDSate {
         LED_OFF, //Limelight LEDS off
         LED_CONFIG, //Limelight LEDS to how they were set in the config
         LED_ON //Limelight LEDS on

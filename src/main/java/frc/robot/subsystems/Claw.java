@@ -82,9 +82,10 @@ class ClawControlCommand extends CommandBase {
     private final TitanSRX clawWheelMotor, clawOpenCloseMotor;
 //    private final CANSparkMax clawTiltNeo;
 
+    private ControlMode openCloseControlMode;
     private double speed = 0, //Claw Intake Wheel Speed
     tiltRotations = 0, //Claw Tilt Rotations
-    openClosePower = 0; //Claw Open Close Ticks
+    openCloseControl = 0; //Claw Open Close Ticks
 
     public ClawControlCommand(Claw claw) {
         this.clawWheelMotor = claw.getClawWheelMotor();
@@ -98,27 +99,38 @@ class ClawControlCommand extends CommandBase {
             case CLAW_RETRACTED:
                 speed = 0;
                 tiltRotations = 0;
-                openClosePower = -0.15;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = -0.15;
                 break;
-            case CLAW_CLOSED:
+            case CLAW_HOLDING:
                 speed = 0.15;
                 tiltRotations = 500;
-                openClosePower = -0.2;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = -0.2;
                 break;
-            case CLAW_SPIT:
+            case CLAW_OUTTAKE:
                 speed = -0.4;
                 tiltRotations = 500;
-                openClosePower = 0;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = 0;
                 break;
-            case CLAW_OPEN_SPINNING:
+            case CLAW_INTAKING:
                 speed = 0.3;
                 tiltRotations = 500;
-                openClosePower = -0.1;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = -0.1;
                 break;
-            case CLAW_OPEN_STANDBY:
+            case CLAW_DROP_CONE:
                 speed = 0.2;
                 tiltRotations = 500;
-                openClosePower = 0.2;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = 0.2;
+                break;
+            case CLAW_STANDBY:
+                speed = 0.2;
+                tiltRotations = 500;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = 0.2;
                 break;
             default:
                 break;
@@ -132,8 +144,8 @@ class ClawControlCommand extends CommandBase {
                 speed);
 
         clawOpenCloseMotor.set(
-                ControlMode.PercentOutput,
-                openClosePower);
+                openCloseControlMode,
+                openCloseControl);
 
 //        clawTiltNeo.getPIDController().setReference(
 //                tiltRotations,

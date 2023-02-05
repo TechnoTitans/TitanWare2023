@@ -34,7 +34,7 @@ public class Profiler {
             case Driver2:
                 return new Profiler(1.1, 1);
             default:
-                return new Profiler(0, 0);
+                return new Profiler(1, 1);
         }
     }
 }

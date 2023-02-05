@@ -32,6 +32,7 @@ import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
+import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.Limelight;
@@ -51,7 +52,6 @@ public class RobotContainer {
     public final TitanFX mainElevatorMotor;
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
 //    public final CANSparkMax elevatorHorizontalNeo, -clawTiltNeo;
-    public final CANCoder verticalElevatorCanCoder;
 
     //Claw
 
@@ -76,6 +76,7 @@ public class RobotContainer {
 
     //Candle
     public final CANdle cANdle;
+    public final CandleController candleController;
 
     //SubSystems
     public final Swerve swerve;
@@ -88,7 +89,11 @@ public class RobotContainer {
     public final SwerveAlignment swerveAlignment;
 
     //Buttons
+        //Main Driver
     public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn, autoAlignBtn;
+        //Co Driver
+    public final TitanButton candleYellowBtn, candlePurpleBtn;
+
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -137,13 +142,10 @@ public class RobotContainer {
         //elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 //        clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-        //Elevator Encoders
-        verticalElevatorCanCoder = new CANCoder(RobotMap.verticalElevatorCanCoder);
-
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 
-        //elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo, verticalElevatorCanCoder);
+        //elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor);
 
         //Swerve
@@ -169,9 +171,7 @@ public class RobotContainer {
         photonVision = new PhotonVision(camera);
 
         cANdle = new CANdle(RobotMap.CANdle_ID);
-        cANdle.setLEDs(200, 0, 150); // purple
-//        cANdle.setLEDs(200, 100, 0); // yellow
-//        cANdle.animate(new RainbowAnimation());
+        candleController = new CandleController(cANdle);
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
@@ -183,6 +183,9 @@ public class RobotContainer {
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
         autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
+
+        candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
+        candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw);
@@ -197,6 +200,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 //        elevatorControlBtn.onTrue(new InstantCommand(() -> {
 //            int currentState = elevator.getCurrentState().ordinal();
@@ -209,18 +213,28 @@ public class RobotContainer {
 //        }));
 
         elevatorControlBtn.onTrue(new InstantCommand(() -> {
-            if (claw.getCurrentState() == Enums.ClawState.CLAW_OPEN_SPINNING) {
-                claw.setState(Enums.ClawState.CLAW_CLOSED);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_CLOSED) {
-                claw.setState(Enums.ClawState.CLAW_SPIT);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_SPIT || claw.getCurrentState() == Enums.ClawState.CLAW_RETRACTED) {
-                claw.setState(Enums.ClawState.CLAW_OPEN_STANDBY);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_OPEN_STANDBY) {
-                claw.setState(Enums.ClawState.CLAW_OPEN_SPINNING);
+            if (claw.getCurrentState() == Enums.ClawState.CLAW_INTAKING) {
+                claw.setState(Enums.ClawState.CLAW_HOLDING);
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_HOLDING) {
+                claw.setState(Enums.ClawState.CLAW_OUTTAKE);
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_OUTTAKE || claw.getCurrentState() == Enums.ClawState.CLAW_RETRACTED) {
+                claw.setState(Enums.ClawState.CLAW_STANDBY);
+            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_STANDBY) {
+                claw.setState(Enums.ClawState.CLAW_INTAKING);
             }
         }));
 
         autoAlignBtn.onTrue(swerveAlignment);
+
+        // Co Driver
+        candleYellowBtn.onTrue(new InstantCommand(() -> {
+            candleController.setState(Enums.CANdleState.YELLOW);
+        }));
+
+        candlePurpleBtn.onTrue(new InstantCommand(() -> {
+            candleController.setState(Enums.CANdleState.PURPLE);
+        }));
+
     }
 
     public Command getAutonomousCommand() {

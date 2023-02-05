@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -20,15 +21,13 @@ import frc.robot.wrappers.motors.TitanFX;
 public class Elevator extends SubsystemBase {
     private final TitanFX mainVerticalElevatorMotor;
     private final CANSparkMax horizontalElevatorMotor;
-    private final CANCoder verticalElevatorCanCoder;
     private Enums.ElevatorState currentState;
     private final ElevatorControlCommand elevatorControl;
 
     public Elevator(TitanFX mainVerticalElevatorMotor, TitanFX followerVerticalElevatorMotor,
-                    CANSparkMax horizontalElevatorMotor, CANCoder verticalElevatorCanCoder) {
+                    CANSparkMax horizontalElevatorMotor) {
         this.mainVerticalElevatorMotor = mainVerticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
-        this.verticalElevatorCanCoder = verticalElevatorCanCoder;
 
         configMotor();
 
@@ -37,14 +36,6 @@ public class Elevator extends SubsystemBase {
     }
 
     private void configMotor() {
-        CANCoderConfiguration canCoderConfig = new CANCoderConfiguration();
-        canCoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition; //TODO TUNE DIS
-        canCoderConfig.unitString = "deg";
-        canCoderConfig.sensorDirection = false;
-        canCoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        canCoderConfig.magnetOffsetDegrees = -69;
-        verticalElevatorCanCoder.configAllSettings(canCoderConfig);
-
         TalonFXConfiguration LVEConfig = new TalonFXConfiguration();
         LVEConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
         LVEConfig.slot0.kI = 0.002;
@@ -52,9 +43,6 @@ public class Elevator extends SubsystemBase {
         LVEConfig.slot0.kD = 10;
         LVEConfig.slot0.kF = 0.07;
         LVEConfig.closedloopRamp = 0.2;
-        LVEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
-        LVEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorCanCoder.getDeviceID();
-        LVEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         mainVerticalElevatorMotor.configAllSettings(LVEConfig);
 
         SparkMaxPIDController HVEConfig = horizontalElevatorMotor.getPIDController();
