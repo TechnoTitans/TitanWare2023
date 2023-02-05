@@ -13,6 +13,8 @@
 - [x] Fix Auto !!!
 - [x] Limelight assisted lineup
 - [ ] Auto Paths
+- [x] Add Candle
+- [ ] Figure out controls
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets
