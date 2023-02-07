@@ -9,16 +9,17 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanFX;
+import frc.robot.wrappers.motors.TitanMAX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
     private final TitanFX mainVerticalElevatorMotor;
-    private final CANSparkMax horizontalElevatorMotor;
+    private final TitanMAX horizontalElevatorMotor;
     private Enums.ElevatorState currentState;
     private final ElevatorControlCommand elevatorControl;
 
-    public Elevator(TitanFX mainVerticalElevatorMotor, TitanFX followerVerticalElevatorMotor,
-                    CANSparkMax horizontalElevatorMotor) {
+    public Elevator(TitanFX mainVerticalElevatorMotor,
+                    TitanMAX horizontalElevatorMotor) {
         this.mainVerticalElevatorMotor = mainVerticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
 
@@ -61,7 +62,7 @@ public class Elevator extends SubsystemBase {
         return mainVerticalElevatorMotor;
     }
 
-    protected CANSparkMax getHorizontalElevatorMotor() {
+    protected TitanMAX getHorizontalElevatorMotor() {
         return horizontalElevatorMotor;
     }
 }
@@ -69,7 +70,7 @@ public class Elevator extends SubsystemBase {
 @SuppressWarnings("unused")
 class ElevatorControlCommand extends CommandBase {
     private final TitanFX verticalElevatorMotor;
-    private final CANSparkMax horizontalElevatorMotor;
+    private final TitanMAX horizontalElevatorMotor;
     private Enums.ElevatorState elevatorState;
 
     private double HETargetRotations = 0, //Horizontal Elevator Target Ticks
@@ -119,9 +120,9 @@ class ElevatorControlCommand extends CommandBase {
                 ControlMode.Position,
                 VETargetTicks);
 
-        horizontalElevatorMotor.getPIDController().setReference(
-                HETargetRotations,
-                CANSparkMax.ControlType.kPosition);
+        horizontalElevatorMotor.set(
+                CANSparkMax.ControlType.kPosition,
+                HETargetRotations);
     }
 
     @Override

@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -19,6 +20,7 @@ import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.DriveController;
@@ -27,6 +29,7 @@ import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanFX;
+import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
@@ -44,7 +47,7 @@ public class RobotContainer {
     //Elevator
     public final TitanFX mainElevatorMotor;
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-//    public final CANSparkMax elevatorHorizontalNeo, -clawTiltNeo;
+    public final TitanMAX elevatorHorizontalNeo, clawTiltNeo;
 
     //Claw
 
@@ -52,7 +55,6 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-//    public final HolonomicDriveController holonomicDriveController;
     public final DriveController holonomicDriveController;
     public final Field2d field;
 
@@ -73,7 +75,7 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
-    //public final Elevator elevator;
+    public final Elevator elevator;
     public final Claw claw;
 
     //Teleop Commands
@@ -132,13 +134,13 @@ public class RobotContainer {
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
-        //elevatorHorizontalNeo = new CANSparkMax(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-//        clawTiltNeo = new CANSparkMax(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 
-        //elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo);
+        elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor);
 
         //Swerve

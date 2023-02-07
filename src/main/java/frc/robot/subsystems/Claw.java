@@ -12,12 +12,12 @@ import frc.robot.wrappers.motors.TitanSRX;
 public class Claw extends SubsystemBase {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
-//    private final CANSparkMax clawTiltNeo;
+//    private final TitanMAX clawTiltNeo;
     private Enums.ClawState currentState;
     private final ClawControlCommand clawControl;
 
     public Claw(TitanSRX clawMainWheelBag, TitanSRX clawFollowerWheelBag, TitanSRX clawOpenCloseMotor
-//                CANSparkMax clawTiltNeo
+//                TitanMAX clawTiltNeo
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
@@ -72,7 +72,7 @@ public class Claw extends SubsystemBase {
         return clawOpenCloseMotor;
     }
 
-//    protected CANSparkMax getClawTiltNeo() {
+//    protected TitanMAX getClawTiltNeo() {
 //        return clawTiltNeo;
 //    }
 }
@@ -80,7 +80,7 @@ public class Claw extends SubsystemBase {
 @SuppressWarnings("unused")
 class ClawControlCommand extends CommandBase {
     private final TitanSRX clawWheelMotor, clawOpenCloseMotor;
-//    private final CANSparkMax clawTiltNeo;
+//    private final TitanMAX clawTiltNeo;
 
     private ControlMode openCloseControlMode;
     private double speed = 0, //Claw Intake Wheel Speed
@@ -147,9 +147,9 @@ class ClawControlCommand extends CommandBase {
                 openCloseControlMode,
                 openCloseControl);
 
-//        clawTiltNeo.getPIDController().setReference(
-//                tiltRotations,
-//                CANSparkMax.ControlType.kPosition);
+//        clawTiltNeo.set(
+//                CANSparkMax.ControlType.kPosition,
+//                tiltRotations);
     }
 
         @Override
