@@ -12,7 +12,7 @@ public class TitanMAX extends CANSparkMax  {
 
     public TitanMAX(int deviceId, MotorType type, boolean inverted) {
         super(deviceId, type);
-        this.setInverted(inverted);
+        super.setInverted(inverted);
     }
 
     public void set(double speed) {
