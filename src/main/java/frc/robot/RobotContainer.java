@@ -141,7 +141,7 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 
         elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(

@@ -2,26 +2,31 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
 public class Claw extends SubsystemBase {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
-//    private final TitanMAX clawTiltNeo;
+    private final TitanMAX clawTiltNeo;
     private Enums.ClawState currentState;
     private final ClawControlCommand clawControl;
 
-    public Claw(TitanSRX clawMainWheelBag, TitanSRX clawFollowerWheelBag, TitanSRX clawOpenCloseMotor
-//                TitanMAX clawTiltNeo
+    public Claw(TitanSRX clawMainWheelBag,
+                TitanSRX clawFollowerWheelBag,
+                TitanSRX clawOpenCloseMotor,
+                TitanMAX clawTiltNeo
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
-//        this.clawTiltNeo = clawTiltNeo;
+        this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
 
         this.currentState = Enums.ClawState.CLAW_RETRACTED;
@@ -40,19 +45,23 @@ public class Claw extends SubsystemBase {
         TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
         CCConfig.slot0.kP = 0.2; //TODO: TUNE ALL OF THESE
         CCConfig.slot0.kI = 0.002;
-//        CCConfig.slot0.integralZone = 200;
         CCConfig.slot0.kD = 10;
-//        CCConfig.neutralDeadband = 0.1;
-//        CCConfig.closedloopRamp = 0.2;
-//        CCConfig.continuousCurrentLimit = 4;
+        CCConfig.motionAcceleration = 2048 * 5; // 5 rotation per sec
         clawOpenCloseMotor.configAllSettings(CCConfig);
 
-//        SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
-//        clawTiltPID.setP(0.1);
-//        clawTiltPID.setI(0.002);
-//        clawTiltPID.setD(10);
-//        clawTiltPID.setFF(0.1);
-//        clawTiltPID.setFeedbackDevice(clawTiltNeo.getAlternateEncoder(8192));
+        SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
+        clawTiltPID.setP(0.1);
+        clawTiltPID.setI(0.002);
+        clawTiltPID.setD(10);
+        clawTiltPID.setFF(0.1);
+        clawTiltPID.setOutputRange(-0.1, 0.1);
+        clawTiltPID.setFeedbackDevice(clawTiltNeo.getAlternateEncoder(8192));
+        clawTiltPID.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
+        clawTiltPID.setSmartMotionMaxAccel(25, 0);
+        clawTiltPID.setSmartMotionMaxVelocity(50, 0);
+        clawTiltPID.setSmartMotionAllowedClosedLoopError(2, 0);
+        clawTiltNeo.setClosedLoopRampRate(0.2);
+        clawTiltNeo.currentLimit(40, 20);
     }
 
     public void setState(Enums.ClawState state) {
@@ -72,15 +81,15 @@ public class Claw extends SubsystemBase {
         return clawOpenCloseMotor;
     }
 
-//    protected TitanMAX getClawTiltNeo() {
-//        return clawTiltNeo;
-//    }
+    protected TitanMAX getClawTiltNeo() {
+        return clawTiltNeo;
+    }
 }
 
 @SuppressWarnings("unused")
 class ClawControlCommand extends CommandBase {
     private final TitanSRX clawWheelMotor, clawOpenCloseMotor;
-//    private final TitanMAX clawTiltNeo;
+    private final TitanMAX clawTiltNeo;
 
     private ControlMode openCloseControlMode;
     private double speed = 0, //Claw Intake Wheel Speed
@@ -90,7 +99,7 @@ class ClawControlCommand extends CommandBase {
     public ClawControlCommand(Claw claw) {
         this.clawWheelMotor = claw.getClawWheelMotor();
         this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
-//        this.clawTiltNeo = claw.getClawTiltNeo();
+        this.clawTiltNeo = claw.getClawTiltNeo();
         addRequirements(claw);
     }
 
@@ -117,7 +126,7 @@ class ClawControlCommand extends CommandBase {
             case CLAW_INTAKING:
                 speed = 0.3;
                 tiltRotations = 500;
-                openCloseControlMode = ControlMode.Position;
+                openCloseControlMode = ControlMode.MotionMagic;
                 openCloseControl = -0.1;
                 break;
             case CLAW_DROP_CONE:
@@ -129,7 +138,7 @@ class ClawControlCommand extends CommandBase {
             case CLAW_STANDBY:
                 speed = 0.2;
                 tiltRotations = 500;
-                openCloseControlMode = ControlMode.Position;
+                openCloseControlMode = ControlMode.MotionMagic;
                 openCloseControl = 0.2;
                 break;
             default:
@@ -147,25 +156,13 @@ class ClawControlCommand extends CommandBase {
                 openCloseControlMode,
                 openCloseControl);
 
-//        clawTiltNeo.set(
-//                CANSparkMax.ControlType.kPosition,
-//                tiltRotations);
+        clawTiltNeo.set(
+                CANSparkMax.ControlType.kSmartMotion,
+                tiltRotations);
     }
 
         @Override
     public boolean isFinished() {
         return false;
     }
-//    @Override
-//    public boolean isFinished() {
-//        final double ticksTolerance = 50;
-//        return MathMethods.withinRange(
-//                clawTiltNeo.getAlternateEncoder(8196).getPosition(),
-//                tiltTicks,
-//                ticksTolerance) &&
-//                MathMethods.withinRange(
-//                        clawOpenCloseMotor.getSelectedSensorPosition(),
-//                        openCloseTicks,
-//                        ticksTolerance);
-//    }
 }

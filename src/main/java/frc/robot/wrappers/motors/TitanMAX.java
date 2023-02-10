@@ -40,6 +40,18 @@ public class TitanMAX extends CANSparkMax  {
         super.follow(other);
     }
 
+    public void currentLimit(int stallLimit) {
+        super.setSmartCurrentLimit(stallLimit);
+    }
+
+    public void currentLimit(int stallLimit, int freeLimit) {
+        super.setSmartCurrentLimit(stallLimit, freeLimit);
+    }
+
+    public void currentLimit(int stallLimit, int freeLimit, int limitRPM) {
+        super.setSmartCurrentLimit(stallLimit, freeLimit, limitRPM);
+    }
+
     public SparkMaxPIDController getPIDController() {
         return super.getPIDController();
     }

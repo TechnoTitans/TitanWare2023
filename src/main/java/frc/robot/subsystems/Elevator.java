@@ -37,6 +37,7 @@ public class Elevator extends SubsystemBase {
         LVEConfig.slot0.kD = 10;
         LVEConfig.slot0.kF = 0.07;
         LVEConfig.closedloopRamp = 0.2;
+        LVEConfig.motionAcceleration = 204.8 * 5; // 5 rotation per sec
         mainVerticalElevatorMotor.configAllSettings(LVEConfig);
 
         SparkMaxPIDController HVEConfig = horizontalElevatorMotor.getPIDController();
@@ -46,7 +47,13 @@ public class Elevator extends SubsystemBase {
         HVEConfig.setD(10);
         HVEConfig.setFF(0.07);
         HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
+        HVEConfig.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
+        HVEConfig.setSmartMotionMaxAccel(125, 0);
+        HVEConfig.setSmartMotionMaxVelocity(500, 0);
+        HVEConfig.setSmartMotionMinOutputVelocity(0, 0);
+        HVEConfig.setSmartMotionAllowedClosedLoopError(3, 0);
         horizontalElevatorMotor.setClosedLoopRampRate(0.2);
+        horizontalElevatorMotor.currentLimit(60, 30);
     }
 
     public void setState(Enums.ElevatorState state) {
@@ -117,11 +124,11 @@ class ElevatorControlCommand extends CommandBase {
     @Override
     public void execute() {
         verticalElevatorMotor.set(
-                ControlMode.Position,
+                ControlMode.MotionMagic,
                 VETargetTicks);
 
         horizontalElevatorMotor.set(
-                CANSparkMax.ControlType.kPosition,
+                CANSparkMax.ControlType.kSmartMotion,
                 HETargetRotations);
     }
 
@@ -129,16 +136,4 @@ class ElevatorControlCommand extends CommandBase {
     public boolean isFinished() {
         return false;
     }
-//    @Override
-//    public boolean isFinished() {
-//        final double ticksTolerance = 50;
-//        return MathMethods.withinRange(
-//                verticalElevatorMotor.getSelectedSensorPosition(),
-//                VETargetTicks,
-//                ticksTolerance) &&
-//                MathMethods.withinRange(
-//                        horizontalElevatorMotor.getAlternateEncoder(8196).getPosition(),
-//                        HETargetRotations,
-//                        ticksTolerance);
-//    }
 }

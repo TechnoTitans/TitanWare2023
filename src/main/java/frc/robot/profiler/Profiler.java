@@ -7,13 +7,10 @@ public class Profiler {
     }
 
     private static Profiles profile;
-    private final double ThrottleSensitivity;
-    private final double SpinningSensitivity;
+    public double ThrottleSensitivity = 1;
+    public double SpinningSensitivity = 1;
 
-    private Profiler(double ThrottleSensitivity, double SpinningSensitivity) {
-        this.ThrottleSensitivity = ThrottleSensitivity;
-        this.SpinningSensitivity = SpinningSensitivity;
-    }
+    private Profiler() {}
 
     public double getThrottleSensitivity() {
         return ThrottleSensitivity;
@@ -28,13 +25,21 @@ public class Profiler {
     }
 
     public static Profiler getProfile() {
+        Profiler newProfile = new Profiler();
         switch (profile) {
             case Driver1:
-                return new Profiler(1, 1);
+                newProfile.SpinningSensitivity = 0.9;
+                newProfile.ThrottleSensitivity = 0.9;
+                break;
             case Driver2:
-                return new Profiler(1.1, 1);
+                newProfile.SpinningSensitivity = 1.1;
+                newProfile.ThrottleSensitivity = 1.1;
+                break;
             default:
-                return new Profiler(1, 1);
+                newProfile.SpinningSensitivity = 1;
+                newProfile.ThrottleSensitivity = 1;
+                break;
         }
+        return newProfile;
     }
 }
