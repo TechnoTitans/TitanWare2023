@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,18 +19,21 @@ public class Claw extends SubsystemBase {
     private final TitanMAX clawTiltNeo;
     private Enums.ClawState currentState;
     private final ClawControlCommand clawControl;
+    private final ColorSensorV3 colorSensor;
 
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
                 TitanSRX clawOpenCloseMotor,
-                TitanMAX clawTiltNeo
+                TitanMAX clawTiltNeo,
+                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
         this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
+        this.colorSensor = colorSensor;
 
-        this.currentState = Enums.ClawState.CLAW_RETRACTED;
+        this.currentState = Enums.ClawState.CLAW_HOLDING;
 
         configMotor();
 
@@ -55,7 +59,7 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setD(10);
         clawTiltPID.setFF(0.1);
         clawTiltPID.setOutputRange(-0.1, 0.1);
-        clawTiltPID.setFeedbackDevice(clawTiltNeo.getAlternateEncoder(8192));
+        clawTiltPID.setFeedbackDevice(clawTiltNeo.getRevBoreThroughEncoder());
         clawTiltPID.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
         clawTiltPID.setSmartMotionMaxAccel(25, 0);
         clawTiltPID.setSmartMotionMaxVelocity(50, 0);
@@ -66,7 +70,19 @@ public class Claw extends SubsystemBase {
 
     public void setState(Enums.ClawState state) {
         currentState = state;
-        clawControl.setState(currentState);
+        clawControl.setState(state);
+    }
+
+    public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS
+        if (colorSensor.getProximity() < 800) {
+            return Enums.CurrentGamePiece.NONE;
+        } else if (colorSensor.getColor().green > 100) {
+            return Enums.CurrentGamePiece.CONE;
+        } else if (colorSensor.getProximity() > 800) {
+            return Enums.CurrentGamePiece.CUBE;
+        } else {
+            return Enums.CurrentGamePiece.NONE;
+        }
     }
 
     public Enums.ClawState getCurrentState() {
@@ -92,9 +108,10 @@ class ClawControlCommand extends CommandBase {
     private final TitanMAX clawTiltNeo;
 
     private ControlMode openCloseControlMode;
-    private double speed = 0, //Claw Intake Wheel Speed
-    tiltRotations = 0, //Claw Tilt Rotations
-    openCloseControl = 0; //Claw Open Close Ticks
+    private double
+            speed = 0, //Claw Intake Wheel Speed
+            tiltRotations = 0, //Claw Tilt Rotations
+            openCloseControl = 0; //Claw Open Close Ticks
 
     public ClawControlCommand(Claw claw) {
         this.clawWheelMotor = claw.getClawWheelMotor();
@@ -105,15 +122,9 @@ class ClawControlCommand extends CommandBase {
 
     public void setState(Enums.ClawState state) {
         switch (state) {
-            case CLAW_RETRACTED:
-                speed = 0;
-                tiltRotations = 0;
-                openCloseControlMode = ControlMode.PercentOutput;
-                openCloseControl = -0.15;
-                break;
             case CLAW_HOLDING:
                 speed = 0.15;
-                tiltRotations = 500;
+                tiltRotations = 0;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.2;
                 break;

@@ -62,22 +62,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         super.set(ControlMode.PercentOutput, speed);
     }
 
-    public void setFiltered(double speed) {
-        speed = MathUtil.clamp(speed, -1, 1);
-        super.set(ControlMode.PercentOutput, filter.calculate(speed));
-    }
-
-    public void setVelocityPID(double rpm) {
-        target = rpm;
-        double ticksper100ms = rpm * 2048 / 600;
-        super.set(ControlMode.Velocity, ticksper100ms);
-    }
-
-    public void setVelocityPIDFiltered(double rpm) {
-        rpm = rpm * 2048 / (60 * 10);
-        super.set(ControlMode.Velocity, PIDCalculate(filter.calculate(rpm)));
-    }
-
     public void setEncoder(Encoder encoder) {
         this.encoder = encoder;
     }

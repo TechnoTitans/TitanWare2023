@@ -5,6 +5,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.MathUtil;
 
+@SuppressWarnings("unused")
 public class TitanMAX extends CANSparkMax  {
     public TitanMAX(int deviceId, MotorType type) {
         super(deviceId, type);
@@ -62,5 +63,9 @@ public class TitanMAX extends CANSparkMax  {
 
     public RelativeEncoder getAlternateEncoder(int countsPerRev) {
         return super.getAlternateEncoder(countsPerRev);
+    }
+
+    public RelativeEncoder getRevBoreThroughEncoder() {
+        return getAlternateEncoder(8192);
     }
 }

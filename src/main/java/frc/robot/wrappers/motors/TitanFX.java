@@ -55,9 +55,8 @@ public class TitanFX extends WPI_TalonFX implements MotorController {
         super.set(ControlMode.PercentOutput, speed);
     }
 
-    public void setFiltered(double speed) {
-        speed = MathUtil.clamp(speed, -1, 1);
-        super.set(ControlMode.PercentOutput, filter.calculate(speed));
+    public double getClosedLoopError(int slotIdx) {
+        return super.getClosedLoopError(slotIdx);
     }
 
     public void brake() {

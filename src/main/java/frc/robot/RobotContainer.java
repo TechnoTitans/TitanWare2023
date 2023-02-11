@@ -4,6 +4,7 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoBalanceTeleop;
+import frc.robot.commands.teleop.IntakeTeleop;
 import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profiler;
@@ -63,6 +65,7 @@ public class RobotContainer {
 
     //Sensors
     public final Pigeon2 pigeon;
+    public final ColorSensorV3 clawColorSensor;
 
     //Vision
     public final Limelight limelight;
@@ -82,6 +85,7 @@ public class RobotContainer {
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
     public final SwerveAlignment swerveAlignment;
+    public final IntakeTeleop intakeTeleop;
 
     //Buttons
         //Main Driver
@@ -139,9 +143,10 @@ public class RobotContainer {
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
+        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
         elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo, clawColorSensor);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -165,6 +170,7 @@ public class RobotContainer {
         camera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonVision = new PhotonVision(camera);
 
+        //LEDS
         cANdle = new CANdle(RobotMap.CANdle_ID);
         candleController = new CandleController(cANdle);
 
@@ -172,12 +178,13 @@ public class RobotContainer {
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
         swerveAlignment = new SwerveAlignment(swerve, limelight, photonVision);
+        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain());
 
         //Buttons
-        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-        autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
+        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
-        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
+        autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
+        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
 
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
@@ -206,18 +213,6 @@ public class RobotContainer {
 //            }
 //            elevator.setState(Enums.ElevatorState.values()[currentState]);
 //        }));
-
-        elevatorControlBtn.onTrue(new InstantCommand(() -> {
-            if (claw.getCurrentState() == Enums.ClawState.CLAW_INTAKING) {
-                claw.setState(Enums.ClawState.CLAW_HOLDING);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_HOLDING) {
-                claw.setState(Enums.ClawState.CLAW_OUTTAKE);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_OUTTAKE || claw.getCurrentState() == Enums.ClawState.CLAW_RETRACTED) {
-                claw.setState(Enums.ClawState.CLAW_STANDBY);
-            } else if (claw.getCurrentState() == Enums.ClawState.CLAW_STANDBY) {
-                claw.setState(Enums.ClawState.CLAW_INTAKING);
-            }
-        }));
 
         autoAlignBtn.onTrue(swerveAlignment);
 

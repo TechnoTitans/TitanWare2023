@@ -2,16 +2,15 @@ package frc.robot.utils;
 
 public class Enums {
     public enum ElevatorState {
-        ELEVATOR_EXTENDED_HIGH, //Elevator High and Dropper extended
-        ELEVATOR_EXTENDED_MID, //Elevator Mid and Dropper extended
-        ELEVATOR_EXTENDED_GROUND, //Elevator Low and Dropper extended
-        ELEVATOR_EXTENDED_PLATFORM, //Elevator Low and Dropper extended
-        ELEVATOR_STANDBY, //Elevator at pickup height and grabber open
-        ELEVATOR_PREGAME //Elevator at pickup height and grabber tilted vertically
+        ELEVATOR_EXTENDED_HIGH, //Elevator High and Horizontal extended
+        ELEVATOR_EXTENDED_MID, //Elevator Mid and Horizontal extended
+        ELEVATOR_EXTENDED_GROUND, //Elevator Low and Horizontal extended
+        ELEVATOR_EXTENDED_PLATFORM, //Elevator Platform and Horizontal extended
+        ELEVATOR_STANDBY, //Elevator at pickup height
+        ELEVATOR_PREGAME //Elevator at 0
     }
 
     public enum ClawState {
-        CLAW_RETRACTED, //Claw tilted up and closed
         CLAW_OUTTAKE, //Claw shoot cube
         CLAW_HOLDING, //Claw tilted down and closed
         CLAW_DROP_CONE, //Claw tilted down and open
@@ -23,6 +22,12 @@ public class Enums {
         OFF,
         YELLOW,
         PURPLE
+    }
+
+    public enum CurrentGamePiece {
+        NONE,
+        CUBE,
+        CONE
     }
 
     public enum LimeLightLEDState {

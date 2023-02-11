@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
+import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 
@@ -46,7 +47,7 @@ public class Elevator extends SubsystemBase {
         HVEConfig.setIZone(200);
         HVEConfig.setD(10);
         HVEConfig.setFF(0.07);
-        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
+        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getRevBoreThroughEncoder());
         HVEConfig.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
         HVEConfig.setSmartMotionMaxAccel(125, 0);
         HVEConfig.setSmartMotionMaxVelocity(500, 0);
@@ -58,7 +59,11 @@ public class Elevator extends SubsystemBase {
 
     public void setState(Enums.ElevatorState state) {
         currentState = state;
-        elevatorControl.setState(currentState);
+        elevatorControl.setState(state);
+    }
+
+    public boolean isAtWantedState() {
+        return elevatorControl.isAtWantedState();
     }
 
     public Enums.ElevatorState getCurrentState() {
@@ -78,10 +83,10 @@ public class Elevator extends SubsystemBase {
 class ElevatorControlCommand extends CommandBase {
     private final TitanFX verticalElevatorMotor;
     private final TitanMAX horizontalElevatorMotor;
-    private Enums.ElevatorState elevatorState;
 
-    private double HETargetRotations = 0, //Horizontal Elevator Target Ticks
-    VETargetTicks = 0; //Vertical Elevator Target Ticks
+    private double
+            HETargetRotations = 0, //Horizontal Elevator Target Ticks
+            VETargetTicks = 0; //Vertical Elevator Target Ticks
 
     public ElevatorControlCommand(Elevator elevator) {
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
@@ -91,7 +96,7 @@ class ElevatorControlCommand extends CommandBase {
 
     public void setState(Enums.ElevatorState state) {
         //TODO TUNE THIS
-        switch (elevatorState) {
+        switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
                 VETargetTicks = 50000;
                 HETargetRotations = 30;
@@ -119,6 +124,17 @@ class ElevatorControlCommand extends CommandBase {
             default:
                 break;
         }
+    }
+
+    protected boolean isAtWantedState() {
+        return MathMethods.withinRange(
+                    verticalElevatorMotor.getSelectedSensorPosition(),
+                    VETargetTicks,
+                    20) &&
+                MathMethods.withinRange(
+                    horizontalElevatorMotor.getRevBoreThroughEncoder().getPosition(),
+                    HETargetRotations,
+                    0.1);
     }
 
     @Override

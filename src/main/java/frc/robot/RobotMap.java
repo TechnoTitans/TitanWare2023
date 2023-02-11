@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.I2C;
+
 @SuppressWarnings("unused")
 public interface RobotMap {
     //PDP
@@ -7,6 +9,7 @@ public interface RobotMap {
 
     //Sensors
     int PIGEON_ID = 0;
+    I2C.Port CLAW_COLOR_SENSOR = I2C.Port.kOnboard;
 
     //Vision
     String PhotonVision_AprilTag_Cam = "apriltag1";
