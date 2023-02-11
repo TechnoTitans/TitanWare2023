@@ -16,10 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
-import frc.robot.commands.teleop.AutoBalanceTeleop;
-import frc.robot.commands.teleop.IntakeTeleop;
-import frc.robot.commands.teleop.SwerveAlignment;
-import frc.robot.commands.teleop.SwerveDriveTeleop;
+import frc.robot.commands.teleop.*;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -47,11 +44,12 @@ public class RobotContainer {
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TitanFX mainElevatorMotor;
-    public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    public final TitanMAX elevatorHorizontalNeo, clawTiltNeo;
+    public final TitanFX elevatorVerticalMotor;
+    public final TitanMAX elevatorHorizontalNeo;
 
     //Claw
+    public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
+    public final TitanMAX clawTiltNeo;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -68,7 +66,7 @@ public class RobotContainer {
     public final ColorSensorV3 clawColorSensor;
 
     //Vision
-    public final Limelight limelight;
+    public final Limelight limeLight;
     public final PhotonCamera camera;
     public final PhotonVision photonVision;
 
@@ -86,13 +84,14 @@ public class RobotContainer {
     public final AutoBalanceTeleop autoBalanceTeleop;
     public final SwerveAlignment swerveAlignment;
     public final IntakeTeleop intakeTeleop;
+    public final ElevatorTeleop elevatorTeleop;
+    public final DropGamePieceTeleop dropGamePieceTeleop;
 
     //Buttons
         //Main Driver
     public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn, autoAlignBtn;
         //Co Driver
-    public final TitanButton candleYellowBtn, candlePurpleBtn;
-
+    public final TitanButton dropGamePieceBtn, candleYellowBtn, candlePurpleBtn;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -134,7 +133,7 @@ public class RobotContainer {
         backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 115.94);
 
         //Elevator Motors
-        mainElevatorMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
+        elevatorVerticalMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
@@ -145,7 +144,7 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
         clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-        elevator = new Elevator(mainElevatorMotor, elevatorHorizontalNeo);
+        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawTiltNeo, clawColorSensor);
 
         //Swerve
@@ -166,7 +165,7 @@ public class RobotContainer {
         );
 
         //Vision
-        limelight = new Limelight();
+        limeLight = new Limelight();
         camera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonVision = new PhotonVision(camera);
 
@@ -177,8 +176,10 @@ public class RobotContainer {
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
-        swerveAlignment = new SwerveAlignment(swerve, limelight, photonVision);
+        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision);
         intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain());
+        elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxMain());
+        dropGamePieceTeleop = new DropGamePieceTeleop(claw, elevator, candleController);
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
@@ -186,6 +187,7 @@ public class RobotContainer {
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
         autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
 
+        dropGamePieceBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_B);
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
@@ -204,26 +206,16 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-//        elevatorControlBtn.onTrue(new InstantCommand(() -> {
-//            int currentState = elevator.getCurrentState().ordinal();
-//            if (currentState == Enums.ElevatorState.values().length-1) {
-//                currentState = 0;
-//            } else {
-//                currentState++;
-//            }
-//            elevator.setState(Enums.ElevatorState.values()[currentState]);
-//        }));
 
         autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
-        candleYellowBtn.onTrue(new InstantCommand(() -> {
-            candleController.setState(Enums.CANdleState.YELLOW);
-        }));
 
-        candlePurpleBtn.onTrue(new InstantCommand(() -> {
-            candleController.setState(Enums.CANdleState.PURPLE);
-        }));
+        dropGamePieceBtn.onTrue(dropGamePieceTeleop);
+
+        candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
+
+        candlePurpleBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.PURPLE)));
 
     }
 

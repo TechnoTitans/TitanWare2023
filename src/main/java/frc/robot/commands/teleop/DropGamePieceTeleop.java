@@ -4,16 +4,17 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.leds.CandleController;
 
-import java.util.Timer;
-
-public class DropGamePiece extends CommandBase {
-    private final Elevator elevator;
+public class DropGamePieceTeleop extends CommandBase {
     private final Claw claw;
+    private final Elevator elevator;
+    private final CandleController candleController;
 
-    public DropGamePiece(Elevator elevator, Claw claw) {
-        this.elevator = elevator;
+    public DropGamePieceTeleop(Claw claw, Elevator elevator, CandleController candleController) {
         this.claw = claw;
+        this.elevator = elevator;
+        this.candleController = candleController;
     }
 
     @Override
@@ -37,6 +38,7 @@ public class DropGamePiece extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
+        candleController.setState(Enums.CANdleState.OFF);
         claw.setState(Enums.ClawState.CLAW_HOLDING);
         elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
     }

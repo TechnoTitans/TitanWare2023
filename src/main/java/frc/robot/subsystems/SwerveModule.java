@@ -31,6 +31,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     private void config() {
+        //TODO MAKE SURE SENSORS ARE CCW+ AND GYRO IS CCW+
         CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
         canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         canCoderConfiguration.unitString = "deg";

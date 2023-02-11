@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("distance", robotContainer.limelight.calculateDistance());
+        SmartDashboard.putNumber("distance", robotContainer.limeLight.calculateDistance());
         SmartDashboard.putNumber("open close enc", robotContainer.clawOpenCloseMotor.getSelectedSensorPosition());
     }
 
@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        robotContainer.limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
+        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override

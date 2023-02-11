@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
@@ -39,6 +41,8 @@ public class Elevator extends SubsystemBase {
         LVEConfig.slot0.kF = 0.07;
         LVEConfig.closedloopRamp = 0.2;
         LVEConfig.motionAcceleration = 204.8 * 5; // 5 rotation per sec
+        LVEConfig.reverseLimitSwitchSource = LimitSwitchSource.FeedbackConnector;
+        LVEConfig.reverseLimitSwitchNormal = LimitSwitchNormal.NormallyOpen;
         mainVerticalElevatorMotor.configAllSettings(LVEConfig);
 
         SparkMaxPIDController HVEConfig = horizontalElevatorMotor.getPIDController();
