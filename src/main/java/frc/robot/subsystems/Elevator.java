@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase {
         HVEConfig.setIZone(200);
         HVEConfig.setD(10);
         HVEConfig.setFF(0.07);
-        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getRevBoreThroughEncoder());
+        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getABSRevBoreThroughEncoder());
         HVEConfig.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
         HVEConfig.setSmartMotionMaxAccel(125, 0);
         HVEConfig.setSmartMotionMaxVelocity(500, 0);
@@ -132,7 +132,7 @@ class ElevatorControlCommand extends CommandBase {
                     VETargetTicks,
                     20) &&
                 MathMethods.withinRange(
-                    horizontalElevatorMotor.getRevBoreThroughEncoder().getPosition(),
+                    horizontalElevatorMotor.getABSRevBoreThroughEncoder().getPosition(),
                     HETargetRotations,
                     0.1);
     }

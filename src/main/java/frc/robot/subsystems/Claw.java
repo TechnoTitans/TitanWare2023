@@ -59,7 +59,7 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setD(10);
         clawTiltPID.setFF(0.1);
         clawTiltPID.setOutputRange(-0.1, 0.1);
-        clawTiltPID.setFeedbackDevice(clawTiltNeo.getRevBoreThroughEncoder());
+        clawTiltPID.setFeedbackDevice(clawTiltNeo.getABSRevBoreThroughEncoder());
         clawTiltPID.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
         clawTiltPID.setSmartMotionMaxAccel(25, 0);
         clawTiltPID.setSmartMotionMaxVelocity(50, 0);
