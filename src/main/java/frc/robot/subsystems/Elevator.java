@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenixpro.configs.*;
+import com.ctre.phoenixpro.configs.ClosedLoopRampsConfigs;
+import com.ctre.phoenixpro.configs.HardwareLimitSwitchConfigs;
+import com.ctre.phoenixpro.configs.MotionMagicConfigs;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
