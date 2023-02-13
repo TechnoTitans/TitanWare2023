@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
         robotContainer.odometry.resetPosition(Rotation2d.fromDegrees(0), robotContainer.swerve.getModulePositions(), new Pose2d());
-        if (false) {
+        if (robotContainer.oi.getXboxMain().getXButton()) {
             File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
             if (paths == null) return;
             for (File path : paths) {
