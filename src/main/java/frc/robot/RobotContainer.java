@@ -46,7 +46,7 @@ public class RobotContainer {
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TitanFX elevatorVerticalMotor;
+    public final TalonFX elevatorVerticalMotor;
     public final TitanMAX elevatorHorizontalNeo;
 
     //Claw
@@ -106,7 +106,7 @@ public class RobotContainer {
         oi = new OI();
 
         //Power Distribution Hub
-        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kCTRE);
+        powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
         powerDistribution.clearStickyFaults();
 
         //Swerve Drive Motors
@@ -143,7 +143,8 @@ public class RobotContainer {
         backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 115.94);
 
         //Elevator Motors
-        elevatorVerticalMotor = new TitanFX(RobotMap.leftVerticalFalcon, RobotMap.leftElevatorMotorR);
+        elevatorVerticalMotor = new TalonFX(RobotMap.leftVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
+        elevatorVerticalMotor.setInverted(RobotMap.leftElevatorMotorR);
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);

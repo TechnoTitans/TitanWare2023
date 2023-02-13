@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenixpro.configs.*;
+import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
+import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenixpro.signals.NeutralModeValue;
+import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
+import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -11,19 +14,18 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
-import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
-    private final TitanFX mainVerticalElevatorMotor;
+    private final TalonFX verticalElevatorMotor;
     private final TitanMAX horizontalElevatorMotor;
     private Enums.ElevatorState currentState;
     private final ElevatorControlCommand elevatorControl;
 
-    public Elevator(TitanFX mainVerticalElevatorMotor,
+    public Elevator(TalonFX verticalElevatorMotor,
                     TitanMAX horizontalElevatorMotor) {
-        this.mainVerticalElevatorMotor = mainVerticalElevatorMotor;
+        this.verticalElevatorMotor = verticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
 
         configMotor();
@@ -33,17 +35,27 @@ public class Elevator extends SubsystemBase {
     }
 
     private void configMotor() {
+        ClosedLoopRampsConfigs closedLoopRampsConfigs = new ClosedLoopRampsConfigs();
+        closedLoopRampsConfigs.DutyCycleClosedLoopRampPeriod = 0.2;
+
+        MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
+        motionMagicConfigs.MotionMagicAcceleration = 5;
+
+        HardwareLimitSwitchConfigs hardwareLimitSwitchConfigs = new HardwareLimitSwitchConfigs();
+        hardwareLimitSwitchConfigs.ReverseLimitEnable = true;
+        hardwareLimitSwitchConfigs.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
+        hardwareLimitSwitchConfigs.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
+
         TalonFXConfiguration LVEConfig = new TalonFXConfiguration();
-        LVEConfig.slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
-        LVEConfig.slot0.kI = 0.002;
-        LVEConfig.slot0.integralZone = 200;
-        LVEConfig.slot0.kD = 10;
-        LVEConfig.slot0.kF = 0.07;
-        LVEConfig.closedloopRamp = 0.2;
-        LVEConfig.motionAcceleration = 204.8 * 5; // 5 rotation per sec
-        LVEConfig.reverseLimitSwitchSource = LimitSwitchSource.FeedbackConnector;
-        LVEConfig.reverseLimitSwitchNormal = LimitSwitchNormal.NormallyOpen;
-        mainVerticalElevatorMotor.configAllSettings(LVEConfig);
+        LVEConfig.Slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        LVEConfig.Slot0.kI = 0.002;
+        LVEConfig.Slot0.kD = 10;
+        LVEConfig.Slot0.kS = 0.07;
+        LVEConfig.ClosedLoopRamps = closedLoopRampsConfigs;
+        LVEConfig.MotionMagic = motionMagicConfigs;
+        LVEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        LVEConfig.HardwareLimitSwitch = hardwareLimitSwitchConfigs;
+        verticalElevatorMotor.getConfigurator().apply(LVEConfig);
 
         SparkMaxPIDController HVEConfig = horizontalElevatorMotor.getPIDController();
         HVEConfig.setP(0.1);
@@ -74,8 +86,8 @@ public class Elevator extends SubsystemBase {
         return currentState;
     }
 
-    protected TitanFX getVerticalElevatorMotor() {
-        return mainVerticalElevatorMotor;
+    protected TalonFX getVerticalElevatorMotor() {
+        return verticalElevatorMotor;
     }
 
     protected TitanMAX getHorizontalElevatorMotor() {
@@ -85,12 +97,12 @@ public class Elevator extends SubsystemBase {
 
 @SuppressWarnings("unused")
 class ElevatorControlCommand extends CommandBase {
-    private final TitanFX verticalElevatorMotor;
+    private final TalonFX verticalElevatorMotor;
     private final TitanMAX horizontalElevatorMotor;
 
     private double
             HETargetRotations = 0, //Horizontal Elevator Target Ticks
-            VETargetTicks = 0; //Vertical Elevator Target Ticks
+            VEPosition = 0; //Vertical Elevator Target Ticks
 
     public ElevatorControlCommand(Elevator elevator) {
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
@@ -102,28 +114,28 @@ class ElevatorControlCommand extends CommandBase {
         //TODO TUNE THIS
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
-                VETargetTicks = 50000;
+                VEPosition = 50;
                 HETargetRotations = 30;
                 break;
             case ELEVATOR_EXTENDED_MID:
-                VETargetTicks = 4000;
+                VEPosition = 40;
                 HETargetRotations = 20;
                 break;
             case ELEVATOR_EXTENDED_GROUND:
-                VETargetTicks = 1700;
+                VEPosition = 17;
                 HETargetRotations = 15;
                 break;
             case ELEVATOR_STANDBY:
-                VETargetTicks = 0;
+                VEPosition = 0;
                 HETargetRotations = 10;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
-                VETargetTicks = 5000;
+                VEPosition = 50;
                 HETargetRotations = 15;
                 break;
             case ELEVATOR_PREGAME:
                 HETargetRotations = 0;
-                VETargetTicks = 0;
+                VEPosition = 0;
                 break;
             default:
                 break;
@@ -132,8 +144,8 @@ class ElevatorControlCommand extends CommandBase {
 
     protected boolean isAtWantedState() {
         return MathMethods.withinRange(
-                    verticalElevatorMotor.getSelectedSensorPosition(),
-                    VETargetTicks,
+                    verticalElevatorMotor.getPosition().getValue(),
+                VEPosition,
                     20) &&
                 MathMethods.withinRange(
                     horizontalElevatorMotor.getABSRevBoreThroughEncoder().getPosition(),
@@ -143,9 +155,9 @@ class ElevatorControlCommand extends CommandBase {
 
     @Override
     public void execute() {
-        verticalElevatorMotor.set(
-                ControlMode.MotionMagic,
-                VETargetTicks);
+        MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(VEPosition, true, 0, 0, false);
+        verticalElevatorMotor.setControl(
+                motionMagicDutyCycle);
 
         horizontalElevatorMotor.set(
                 CANSparkMax.ControlType.kSmartMotion,

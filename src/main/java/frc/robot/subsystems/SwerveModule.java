@@ -9,6 +9,7 @@ import com.ctre.phoenixpro.configs.MotorOutputConfigs;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionDutyCycle;
 import com.ctre.phoenixpro.controls.VelocityDutyCycle;
+import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
@@ -49,7 +50,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.Slot0.kP = 0.1;
         driverConfig.Slot0.kI = 0.002;
         driverConfig.Slot0.kD = 5;
-//        driverConfig.Slot0.kF = 0.045;
+        driverConfig.Slot0.kS = 0.045;
         driverConfig.ClosedLoopRamps = closedLoopRampsConfigs;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveMotor.getConfigurator().apply(driverConfig);
