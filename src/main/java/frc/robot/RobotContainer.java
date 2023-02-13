@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ColorSensorV3;
@@ -41,7 +42,7 @@ public class RobotContainer {
     //Motors
     public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TalonFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
-    public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
+    public final CANcoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
     public final TalonFX elevatorVerticalMotor;
@@ -128,10 +129,10 @@ public class RobotContainer {
         backLeftTurn.setInverted(RobotMap.backRightTurnR);
 
         //Swerve CANCoders
-        frontLeftEncoder = new CANCoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
-        frontRightEncoder = new CANCoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
-        backLeftEncoder = new CANCoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
-        backRightEncoder = new CANCoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftEncoder = new CANcoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+        frontRightEncoder = new CANcoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+        backLeftEncoder = new CANcoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+        backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard

@@ -1,17 +1,15 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenixpro.configs.ClosedLoopRampsConfigs;
-import com.ctre.phoenixpro.configs.MotorOutputConfigs;
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.configs.*;
 import com.ctre.phoenixpro.controls.PositionDutyCycle;
 import com.ctre.phoenixpro.controls.VelocityDutyCycle;
+import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
+import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -21,10 +19,10 @@ import frc.robot.Constants;
 @SuppressWarnings("unused")
 public class SwerveModule extends SubsystemBase {
     private final TalonFX driveMotor, turnMotor;
-    private final CANCoder turnEncoder;
+    private final CANcoder turnEncoder;
     private final double magnetOffset;
 
-    public SwerveModule(TalonFX driveMotor, TalonFX turnMotor, CANCoder turnEncoder, double magnetOffset) {
+    public SwerveModule(TalonFX driveMotor, TalonFX turnMotor, CANcoder turnEncoder, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
@@ -34,13 +32,14 @@ public class SwerveModule extends SubsystemBase {
 
     private void config() {
         //TODO MAKE SURE SENSORS ARE CCW+ AND GYRO IS CCW+
-        CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
-        canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        canCoderConfiguration.unitString = "deg";
-        canCoderConfiguration.sensorDirection = false;
-        canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        canCoderConfiguration.magnetOffsetDegrees = -magnetOffset;
-        turnEncoder.configAllSettings(canCoderConfiguration);
+        MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
+        magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        magnetSensorConfigs.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+        magnetSensorConfigs.MagnetOffset = -magnetOffset;
+
+        CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
+        canCoderConfiguration.MagnetSensor = magnetSensorConfigs;
+        turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         ClosedLoopRampsConfigs closedLoopRampsConfigs = new ClosedLoopRampsConfigs();
         closedLoopRampsConfigs.DutyCycleClosedLoopRampPeriod = 0.2;
@@ -69,7 +68,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public double getAngle() {
-        return turnEncoder.getAbsolutePosition();
+        return turnEncoder.getAbsolutePosition().getValue();
     }
 
     public SwerveModuleState getState() {
