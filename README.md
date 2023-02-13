@@ -15,6 +15,7 @@
 - [ ] Auto Paths
 - [x] Add Candle
 - [ ] Figure out controls
+- [x] Switch to Phoenix Pro (https://api.ctr-electronics.com/phoenixpro/release/java/index.html)
 
 ## Drivetrain (Swerve):
 - [ ] Set Module Offsets
