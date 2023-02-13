@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
@@ -20,14 +19,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
     private Encoder encoder;
     private boolean brownout = false;
 
-    private SlewRateLimiter filter;
-
-    public double P, I, D;
-    private double error;
-    private double previousError;
-    private double target;
-    private double integral;
-
     /**
      * Constructor for a TalonSRX motor
      *
@@ -37,12 +28,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
     public TitanSRX(int channel, boolean reversed) {
         super(channel);
         super.setInverted(reversed);
-    }
-
-    public TitanSRX(int channel, boolean reversed, SlewRateLimiter filter) {
-        super(channel);
-        super.setInverted(reversed);
-        this.filter = filter;
     }
 
     public TitanSRX(int channel, boolean reversed, Encoder encoder) {
@@ -137,29 +122,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
             brownoutFollower.set(ControlMode.Follower, getChannel());
         }
         brownout = false;
-    }
-
-    public void configPID(double P, double I, double D) {
-        this.P = P;
-        this.I = I;
-        this.D = D;
-    }
-
-    public double PIDCalculate(double target) {
-        this.target = target;
-        error = this.target - (getSpeed() / 5);
-        integral += (error * .02);
-        double derivative = (error - previousError) / .02;
-//		return P * error + I * integral + D * derivative;
-        return target;
-    }
-
-    public double getError() {
-        return error;
-    }
-
-    public double getTarget() {
-        return target;
     }
 
     public void setVoltage(double outputVolts) {
