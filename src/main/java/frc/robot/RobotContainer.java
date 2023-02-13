@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.math.controller.PIDController;
@@ -10,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,8 +41,8 @@ public class RobotContainer {
     public final OI oi;
 
     //Motors
-    public final TitanFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
-    public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
+    public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
+    public final TalonFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
@@ -108,16 +110,24 @@ public class RobotContainer {
         powerDistribution.clearStickyFaults();
 
         //Swerve Drive Motors
-        frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
-        frontRightDrive = new TitanFX(RobotMap.frontRightDrive, RobotMap.frontRightDriveR, RobotMap.CANIVORE_CAN_NAME);
-        backLeftDrive = new TitanFX(RobotMap.backLeftDrive, RobotMap.backLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
-        backRightDrive = new TitanFX(RobotMap.backRightDrive, RobotMap.backRightDriveR, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftDrive.setInverted(RobotMap.frontLeftDriveR);
+        frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
+        frontRightDrive.setInverted(RobotMap.frontRightDriveR);
+        backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+        backLeftDrive.setInverted(RobotMap.backLeftDriveR);
+        backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
+        backRightDrive.setInverted(RobotMap.backRightDriveR);
 
         //Swerve Turning Motors
-        frontLeftTurn = new TitanFX(RobotMap.frontLeftTurn, RobotMap.frontLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
-        frontRightTurn = new TitanFX(RobotMap.frontRightTurn, RobotMap.frontRightTurnR, RobotMap.CANIVORE_CAN_NAME);
-        backLeftTurn = new TitanFX(RobotMap.backLeftTurn, RobotMap.backLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
-        backRightTurn = new TitanFX(RobotMap.backRightTurn, RobotMap.backRightTurnR, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftTurn = new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftTurn.setInverted(RobotMap.frontLeftTurnR);
+        frontRightTurn = new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME);
+        frontRightTurn.setInverted(RobotMap.frontRightTurnR);
+        backLeftTurn = new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME);
+        backLeftTurn.setInverted(RobotMap.backLeftTurnR);
+        backRightTurn = new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME);
+        backLeftTurn.setInverted(RobotMap.backRightTurnR);
 
         //Swerve CANCoders
         frontLeftEncoder = new CANCoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
