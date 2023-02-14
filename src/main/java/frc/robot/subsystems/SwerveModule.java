@@ -68,21 +68,23 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public double getAngle() {
-        return turnEncoder.getAbsolutePosition().getValue();
+        return turnEncoder.getAbsolutePosition().getValue() * 360;
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getVelocity().getValue() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS * 10, Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModuleState(driveMotor.getVelocity().getValue() / Constants.Modules.DRIVER_GEAR_RATIO * 2*Math.PI*Constants.Modules.WHEEL_RADIUS, Rotation2d.fromDegrees(getAngle()));
+//        return new SwerveModuleState(driveMotor.getVelocity().getValue() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS * 10, Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getPosition().getValue() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / (8.14 * 2048.0)), Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModulePosition(driveMotor.getPosition().getValue() * (Constants.Modules.WHEEL_RADIUS*2*Math.PI)/ Constants.Modules.DRIVER_GEAR_RATIO , Rotation2d.fromDegrees(getAngle()));
+//        return new SwerveModulePosition(driveMotor.getPosition().getValue() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / (8.14 * 2048.0)), Rotation2d.fromDegrees(getAngle()));
     }
 
     public void setDesiredState(SwerveModuleState state) {
-        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle()); // TODO: CHECK THIS
+        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle());
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
-        double desired_driver_velocity_rps = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_RADIUS;
+        double desired_driver_velocity_rps = wantedState.speedMetersPerSecond / (2 * Math.PI * Constants.Modules.WHEEL_RADIUS);
 
         Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
 
@@ -94,7 +96,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void percentOutputControl(double output) {
-        driveMotor.set(output);
+        driveMotor.set(output);  //TODO: SHOULD WE ADAPT TO PHOENIX PRO
         turnMotor.stopMotor();
     }
 
