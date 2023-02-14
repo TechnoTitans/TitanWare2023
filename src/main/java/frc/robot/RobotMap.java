@@ -57,6 +57,7 @@ public interface RobotMap {
     //Claw Motors
     int clawOpenCloseMotor = 12;
     boolean clawOpenCloseMotorR = true;
+    int clawOpenCloseEncoder = 5;
 
     int clawMainWheelsMotor = 15;
     boolean clawMainWheelsMotorR = false;

@@ -26,6 +26,7 @@ public class SwerveModule extends SubsystemBase {
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
+
         config();
     }
 
@@ -94,13 +95,13 @@ public class SwerveModule extends SubsystemBase {
 
     public void percentOutputControl(double output) {
         driveMotor.set(output);
-        turnMotor.set(0);
+        turnMotor.stopMotor();
     }
 
     public void manualVelocityControl(double rotationPerSecond) {
         VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(rotationPerSecond, true, 0, 0, false);
         driveMotor.setControl(velocityDutyCycle);
-        turnMotor.set(0);
+        turnMotor.stopMotor();
     }
 
     public void brake() {
@@ -116,7 +117,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void stop() {
-        driveMotor.set(0);
-        turnMotor.set(0);
+        driveMotor.stopMotor();
+        turnMotor.stopMotor();
     }
 }

@@ -1,7 +1,10 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkMaxPIDController;
@@ -16,6 +19,7 @@ import frc.robot.wrappers.motors.TitanSRX;
 public class Claw extends SubsystemBase {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
+    private final CANCoder clawOpenCloseEncoder;
     private final TitanMAX clawTiltNeo;
     private Enums.ClawState currentState;
     private final ClawControlCommand clawControl;
@@ -24,6 +28,7 @@ public class Claw extends SubsystemBase {
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
                 TitanSRX clawOpenCloseMotor,
+                CANCoder clawOpenCloseEncoder,
                 TitanMAX clawTiltNeo,
                 ColorSensorV3 colorSensor
     ) {
@@ -31,6 +36,7 @@ public class Claw extends SubsystemBase {
         this.clawFollowerWheelBag = clawFollowerWheelBag;
         this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
+        this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.colorSensor = colorSensor;
 
         this.currentState = Enums.ClawState.CLAW_HOLDING;
@@ -51,6 +57,9 @@ public class Claw extends SubsystemBase {
         CCConfig.slot0.kI = 0.002;
         CCConfig.slot0.kD = 10;
         CCConfig.motionAcceleration = 2048 * 5; // 5 rotation per sec
+        CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
+        CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
+        CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         clawOpenCloseMotor.configAllSettings(CCConfig);
 
         SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
