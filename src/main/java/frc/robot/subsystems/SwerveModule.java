@@ -41,15 +41,14 @@ public class SwerveModule extends SubsystemBase {
         canCoderConfiguration.MagnetSensor = magnetSensorConfigs;
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
-        ClosedLoopRampsConfigs closedLoopRampsConfigs = new ClosedLoopRampsConfigs();
-        closedLoopRampsConfigs.DutyCycleClosedLoopRampPeriod = 0.2;
-
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
         driverConfig.Slot0.kP = 0.1;
         driverConfig.Slot0.kI = 0.002;
-        driverConfig.Slot0.kD = 5;
-        driverConfig.Slot0.kS = 0.045;
-        driverConfig.ClosedLoopRamps = closedLoopRampsConfigs;
+//        driverConfig.Slot0.kD = 5;
+        driverConfig.Slot0.kD = 0;
+//        driverConfig.Slot0.kS = 0.045;
+        driverConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.2;
+        driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveMotor.getConfigurator().apply(driverConfig);
 
@@ -63,7 +62,9 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO;
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 
