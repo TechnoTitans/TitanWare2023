@@ -56,9 +56,11 @@ public class Claw extends SubsystemBase {
         CCConfig.slot0.kP = 0.2; //TODO: TUNE ALL OF THESE
         CCConfig.slot0.kI = 0.002;
         CCConfig.slot0.kD = 10;
-        CCConfig.motionAcceleration = 2048 * 5; // 5 rotation per sec
-        CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
+        CCConfig.motionCruiseVelocity = 4096 * 5;
+        CCConfig.motionAcceleration = 4096 * 5;
+        CCConfig.motionCurveStrength = 3; // S-curve
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
+        CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         clawOpenCloseMotor.configAllSettings(CCConfig);
 
@@ -66,7 +68,6 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setP(0.1);
         clawTiltPID.setI(0.002);
         clawTiltPID.setD(10);
-        clawTiltPID.setFF(0.1);
         clawTiltPID.setOutputRange(-0.1, 0.1);
         clawTiltPID.setFeedbackDevice(clawTiltNeo.getABSRevBoreThroughEncoder());
         clawTiltPID.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
@@ -75,6 +76,7 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setSmartMotionAllowedClosedLoopError(2, 0);
         clawTiltNeo.setClosedLoopRampRate(0.2);
         clawTiltNeo.currentLimit(40, 20);
+        clawTiltNeo.brake();
     }
 
     public void setState(Enums.ClawState state) {
@@ -138,7 +140,7 @@ class ClawControlCommand extends CommandBase {
                 openCloseControl = -0.2;
                 break;
             case CLAW_OUTTAKE:
-                speed = -0.4;
+                speed = -0.1;
                 tiltRotations = 500;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = 0;

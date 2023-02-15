@@ -68,14 +68,12 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
-
-        robotContainer.clawOpenCloseMotor.setSelectedSensorPosition(0);
     }
 
     @Override
     public void teleopPeriodic() {
-        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
-        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
+//        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
+//        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
     }
 
     @Override

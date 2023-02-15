@@ -39,7 +39,7 @@ public class DropGamePieceTeleop extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         candleController.setState(Enums.CANdleState.OFF);
-        claw.setState(Enums.ClawState.CLAW_HOLDING);
+        claw.setState(Enums.ClawState.CLAW_STANDBY);
         elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
     }
 }

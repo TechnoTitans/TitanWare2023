@@ -3,6 +3,7 @@ package frc.robot.wrappers.leds;
 import com.ctre.phoenix.led.CANdle;
 import frc.robot.utils.Enums;
 
+@SuppressWarnings("unused")
 public class CandleController {
     private final CANdle caNdle;
     private Enums.CANdleState state;
