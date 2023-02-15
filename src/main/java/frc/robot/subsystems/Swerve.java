@@ -54,7 +54,7 @@ public class Swerve extends SubsystemBase {
         return new SwerveModulePosition[]{frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
     }
 
-    public Consumer<ChassisSpeeds> getChassisSpeedConsumer() {
+    public Consumer<SwerveModuleState[]> getModuleStateConsumer() {
         return this::drive;
     }
 

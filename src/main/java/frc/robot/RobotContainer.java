@@ -5,6 +5,8 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.Pigeon2;
 import com.ctre.phoenixpro.hardware.TalonFX;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.math.controller.PIDController;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.autonomous.TestTraj;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.*;
 import frc.robot.profiler.Profiler;
@@ -233,6 +236,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return trajectoryManager.getSelectedPath();
+        TestTraj testTraj = new TestTraj(swerve, kinematics, odometry);
+        PathPlannerTrajectory path = PathPlanner.loadPath("auto1", Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, false);
+        return testTraj.followPPTrajectory(path, true);
+//        return trajectoryManager.getSelectedPath();
     }
 }

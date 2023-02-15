@@ -43,7 +43,7 @@ public class SwerveModule extends SubsystemBase {
 
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
         driverConfig.Slot0.kP = 0.1;
-        driverConfig.Slot0.kI = 0.002;
+//        driverConfig.Slot0.kI = 0.002;
 //        driverConfig.Slot0.kD = 5;
         driverConfig.Slot0.kD = 0;
 //        driverConfig.Slot0.kS = 0.045;
@@ -60,11 +60,11 @@ public class SwerveModule extends SubsystemBase {
 //        turnerConfig.neutralDeadband = 0.07;
         turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
         turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
-        turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO;
-        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
+        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
+        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 

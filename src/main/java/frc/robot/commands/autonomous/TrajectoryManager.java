@@ -92,7 +92,6 @@ class TrajectroyFollower extends CommandBase {
     private final DriveController controller;
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
-
     private final Claw claw;
 
     public TrajectroyFollower(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field, Claw claw) {
