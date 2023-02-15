@@ -1,6 +1,6 @@
 package frc.robot.commands.teleop;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -11,6 +11,7 @@ import frc.robot.utils.MathMethods;
 public class AutoBalanceTeleop extends CommandBase {
     private final Swerve swerve;
     private final Pigeon2 pigeon;
+    private double pitch = 0;
 
     public AutoBalanceTeleop(Swerve swerve, Pigeon2 pigeon2) {
         this.swerve = swerve;
@@ -23,14 +24,14 @@ public class AutoBalanceTeleop extends CommandBase {
         if (!MathMethods.withinBand(swerve.getHeading(), 5)) {
             swerve.faceDirection(0, 0, 0, false);
         }
-        double pitch = pigeon.getPitch();
+        pitch = pigeon.getPitch().getValue();
         double val = pitch * Constants.Swerve.AUTO_BALANCE_PITCH_P;
         swerve.drive(val, 0, 0, false);
     }
 
     @Override
     public boolean isFinished() {
-        return MathMethods.withinBand(pigeon.getPitch(), 2);
+        return MathMethods.withinBand(pitch, 2);
     }
 
     @Override

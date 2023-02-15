@@ -73,12 +73,12 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getVelocity().getValue() / Constants.Modules.DRIVER_GEAR_RATIO * 2*Math.PI*Constants.Modules.WHEEL_RADIUS, Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModuleState(driveMotor.getVelocity().getValue() * (2*Constants.Modules.WHEEL_RADIUS*Math.PI), Rotation2d.fromDegrees(getAngle()));
 //        return new SwerveModuleState(driveMotor.getVelocity().getValue() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS * 10, Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getPosition().getValue() * (Constants.Modules.WHEEL_RADIUS*2*Math.PI)/ Constants.Modules.DRIVER_GEAR_RATIO , Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModulePosition(driveMotor.getPosition().getValue() * (2*Constants.Modules.WHEEL_RADIUS*Math.PI), Rotation2d.fromDegrees(getAngle()));
 //        return new SwerveModulePosition(driveMotor.getPosition().getValue() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / (8.14 * 2048.0)), Rotation2d.fromDegrees(getAngle()));
     }
 

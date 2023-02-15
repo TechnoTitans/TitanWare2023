@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -27,11 +27,11 @@ public class Swerve extends SubsystemBase {
     }
 
     public double getHeading() {
-        return pigeon.getYaw() % 360;
+        return pigeon.getAngle();
     }
 
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+        return pigeon.getRotation2d();
     }
 
     public void setAngle(double angle) {
@@ -123,15 +123,8 @@ public class Swerve extends SubsystemBase {
 
     public void faceClosest(double dx, double dy, boolean fieldRelative) {
         int current_rotation = (int) getHeading() % 360;
-        //if (current_rotation < 0) current_rotation += 360;
         if (current_rotation < -180) current_rotation += 360;
         if (current_rotation > 180) current_rotation -= 360;
-
-//        if (current_rotation <= 90 || current_rotation >= 270) {
-//            faceDirection(dx, dy, 0, fieldRelative);
-//        } else {
-//            faceDirection(dx, dy, 180, fieldRelative);
-//        }
         if (Math.abs(current_rotation) <= 90) {
             faceDirection(dx, dy, 0, fieldRelative);
         } else {

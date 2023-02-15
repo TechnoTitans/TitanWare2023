@@ -2,8 +2,8 @@ package frc.robot;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenixpro.hardware.CANcoder;
+import com.ctre.phoenixpro.hardware.Pigeon2;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ColorSensorV3;
