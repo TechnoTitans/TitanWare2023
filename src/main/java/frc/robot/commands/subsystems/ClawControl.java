@@ -9,7 +9,6 @@ import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 
 public class ClawControl extends CommandBase {
-    private final Claw claw;
     private final TitanSRX clawWheelMotor, clawOpenCloseMotor;
     private final TitanMAX clawTiltNeo;
 
@@ -20,14 +19,13 @@ public class ClawControl extends CommandBase {
             openCloseControl = 0; //Claw Open Close Ticks
 
     public ClawControl(Claw claw) {
-        this.claw = claw;
         this.clawWheelMotor = claw.getClawWheelMotor();
         this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
         this.clawTiltNeo = claw.getClawTiltNeo();
         addRequirements(claw);
     }
 
-    private void setState(Enums.ClawState state) {
+    public void setState(Enums.ClawState state) {
         switch (state) {
             case CLAW_HOLDING:
                 speed = 0.15;
@@ -66,8 +64,6 @@ public class ClawControl extends CommandBase {
 
     @Override
     public void execute() {
-        setState(claw.getCurrentState());
-
         clawWheelMotor.set(
                 ControlMode.PercentOutput,
                 speed);

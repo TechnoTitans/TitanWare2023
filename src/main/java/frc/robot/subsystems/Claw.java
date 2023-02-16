@@ -22,6 +22,8 @@ public class Claw extends SubsystemBase {
     private Enums.ClawState currentState;
     private final ColorSensorV3 colorSensor;
 
+    private final ClawControl clawControl;
+
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
                 TitanSRX clawOpenCloseMotor,
@@ -36,7 +38,7 @@ public class Claw extends SubsystemBase {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.colorSensor = colorSensor;
 
-        ClawControl clawControl = new ClawControl(this);
+        clawControl = new ClawControl(this);
         CommandScheduler.getInstance().setDefaultCommand(this, clawControl);
 
         this.currentState = Enums.ClawState.CLAW_HOLDING;
@@ -78,6 +80,7 @@ public class Claw extends SubsystemBase {
 
     public void setState(Enums.ClawState state) {
         currentState = state;
+        clawControl.setState(state);
     }
 
     public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS
