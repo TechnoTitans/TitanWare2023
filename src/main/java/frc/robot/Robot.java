@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
+import com.ctre.phoenixpro.controls.PositionDutyCycle;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -23,6 +26,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         robotContainer = new RobotContainer();
+        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
@@ -67,13 +71,23 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
+        //CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
+//        CommandScheduler.getInstance().setDefaultCommand(robotContainer.elevator, robotContainer.elevatorTeleop);
+
     }
 
     @Override
     public void teleopPeriodic() {
 //        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
 //        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
+//        robotContainer.horizontalExtensionPID.setReference(2,CANSparkMax.ControlType.kPosition);
+
+
+        robotContainer.elevatorVerticalMotor.setInverted(RobotMap.leftElevatorMotorR);
+
+        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(20, true, 0, 0, false);
+        robotContainer.elevatorVerticalMotor.setControl(positionDutyCycle);
+
     }
 
     @Override

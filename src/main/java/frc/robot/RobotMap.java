@@ -5,10 +5,10 @@ import edu.wpi.first.wpilibj.I2C;
 @SuppressWarnings("unused")
 public interface RobotMap {
     //PDP
-    int POWER_DISTRIBUTION_HUB = 0;
+    int POWER_DISTRIBUTION_HUB = 1;
 
     //Sensors
-    int PIGEON_ID = 0;
+    int PIGEON_ID = 1;
     I2C.Port CLAW_COLOR_SENSOR = I2C.Port.kOnboard;
 
     //Vision
@@ -47,24 +47,24 @@ public interface RobotMap {
     boolean backLeftTurnR = false;
 
         //Elevator
-    int leftVerticalFalcon = 5;
-    boolean leftElevatorMotorR = false;
+    int leftVerticalFalcon = 10;
+    boolean leftElevatorMotorR = true;
 
-    int horizontalElevatorNeo = 3;
+    int horizontalElevatorNeo = 2;
 
-    int clawTiltNeo = 21;
+    int clawTiltNeo = 3;
 
     //Claw Motors
-    int clawOpenCloseMotor = 12;
+    int clawOpenCloseMotor = 6;
     boolean clawOpenCloseMotorR = true;
-    int clawOpenCloseEncoder = 5;
+    int clawOpenCloseEncoder = 9;
 
-    int clawMainWheelsMotor = 15;
+    int clawMainWheelsMotor = 7;
     boolean clawMainWheelsMotorR = false;
-    int clawFollowerWheelsMotor = 13;
+    int clawFollowerWheelsMotor = 8;
     boolean clawFollowerWheelsMotorR = true;
 
     //Controllers
-    int MainController = 1;
+    int MainController = 0;
     int CoController = 1;
 }

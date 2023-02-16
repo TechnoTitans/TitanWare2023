@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenixpro.configs.*;
+import com.ctre.phoenixpro.configs.CANcoderConfiguration;
+import com.ctre.phoenixpro.configs.MagnetSensorConfigs;
+import com.ctre.phoenixpro.configs.MotorOutputConfigs;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionDutyCycle;
 import com.ctre.phoenixpro.controls.VelocityDutyCycle;
 import com.ctre.phoenixpro.hardware.CANcoder;
@@ -12,6 +15,7 @@ import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -42,7 +46,7 @@ public class SwerveModule extends SubsystemBase {
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.Slot0.kP = 0.1;
+        driverConfig.Slot0.kP = 0.3;
 //        driverConfig.Slot0.kI = 0.002;
 //        driverConfig.Slot0.kD = 5;
         driverConfig.Slot0.kD = 0;
@@ -53,23 +57,24 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.getConfigurator().apply(driverConfig);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0.kP = 0.47;
+        turnerConfig.Slot0.kP = 0.1;
         turnerConfig.Slot0.kI = 0;
         turnerConfig.Slot0.kD = 0;
 //        turnerConfig.closedloopRamp = 0.1;
 //        turnerConfig.neutralDeadband = 0.07;
+        turnerConfig.MotorOutput.DutyCycleNeutralDeadband = 0.07;
         turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
         turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
-        turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
+        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 
     public double getAngle() {
-        return turnEncoder.getAbsolutePosition().getValue() * 360;
+        return turnEncoder.getAbsolutePosition().getValue();
     }
 
     public SwerveModuleState getState() {
@@ -89,11 +94,11 @@ public class SwerveModule extends SubsystemBase {
 
         Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
 
-        VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(desired_driver_velocity_rps, true, 0, 0, false);
-        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(delta_rotation.getRotations(), true, 0, 0, false);
+        VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(6, true, 0, 0, false);
+        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(0.8, true, 0, 0, false);
 
-        driveMotor.setControl(velocityDutyCycle);
-        turnMotor.setControl(positionDutyCycle);
+//        driveMotor.setControl(velocityDutyCycle);
+//        turnMotor.setControl(positionDutyCycle);
     }
 
     public void percentOutputControl(double output) {

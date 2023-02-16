@@ -1,9 +1,6 @@
 package frc.robot.wrappers.motors;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.*;
 import edu.wpi.first.math.MathUtil;
 
 @SuppressWarnings("unused")
@@ -63,7 +60,7 @@ public class TitanMAX extends CANSparkMax  {
     }
 
     public RelativeEncoder getAlternateEncoder(int countsPerRev) {
-        return super.getAlternateEncoder(countsPerRev);
+        return super.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, countsPerRev);
     }
 
     public RelativeEncoder getRevBoreThroughEncoder() {

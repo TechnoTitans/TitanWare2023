@@ -11,6 +11,7 @@ import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
 import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,7 +34,7 @@ public class Elevator extends SubsystemBase {
         configMotor();
 
         this.elevatorControl = new ElevatorControlCommand(this);
-        CommandScheduler.getInstance().setDefaultCommand(this, elevatorControl);
+
     }
 
     private void configMotor() {
@@ -48,29 +49,28 @@ public class Elevator extends SubsystemBase {
         hardwareLimitSwitchConfigs.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
         hardwareLimitSwitchConfigs.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
 
-        TalonFXConfiguration LVEConfig = new TalonFXConfiguration();
-        LVEConfig.Slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
-        LVEConfig.Slot0.kI = 0.002;
-        LVEConfig.Slot0.kD = 10;
-        LVEConfig.Slot0.kS = 0.07;
-        LVEConfig.ClosedLoopRamps = closedLoopRampsConfigs;
-        LVEConfig.MotionMagic = motionMagicConfigs;
-        LVEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        LVEConfig.HardwareLimitSwitch = hardwareLimitSwitchConfigs;
-        verticalElevatorMotor.getConfigurator().apply(LVEConfig);
+        TalonFXConfiguration VEConfig = new TalonFXConfiguration();
+        VEConfig.Slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
+        VEConfig.Slot0.kI = 0.002;
+        VEConfig.Slot0.kD = 10;
+        VEConfig.Slot0.kS = 0.07;
+        VEConfig.ClosedLoopRamps = closedLoopRampsConfigs;
+        VEConfig.MotionMagic = motionMagicConfigs;
+        VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        VEConfig.HardwareLimitSwitch = hardwareLimitSwitchConfigs;
+        verticalElevatorMotor.getConfigurator().apply(VEConfig);
 
-        SparkMaxPIDController HVEConfig = horizontalElevatorMotor.getPIDController();
-        HVEConfig.setP(0.1);
-        HVEConfig.setI(0.002);
-        HVEConfig.setIZone(200);
-        HVEConfig.setD(10);
-        HVEConfig.setFF(0.07);
-        HVEConfig.setFeedbackDevice(horizontalElevatorMotor.getABSRevBoreThroughEncoder());
-        HVEConfig.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
-        HVEConfig.setSmartMotionMaxAccel(125, 0);
-        HVEConfig.setSmartMotionMaxVelocity(500, 0);
-        HVEConfig.setSmartMotionMinOutputVelocity(0, 0);
-        HVEConfig.setSmartMotionAllowedClosedLoopError(3, 0);
+        SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();HEConfig.setP(0.1);
+        HEConfig.setI(0.002);
+        HEConfig.setIZone(200);
+        HEConfig.setD(10);
+        HEConfig.setFF(0.07);
+        HEConfig.setFeedbackDevice(horizontalElevatorMotor.getABSRevBoreThroughEncoder());
+        HEConfig.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
+        HEConfig.setSmartMotionMaxAccel(125, 0);
+        HEConfig.setSmartMotionMaxVelocity(500, 0);
+        HEConfig.setSmartMotionMinOutputVelocity(0, 0);
+        HEConfig.setSmartMotionAllowedClosedLoopError(3, 0);
         horizontalElevatorMotor.setClosedLoopRampRate(0.2);
         horizontalElevatorMotor.currentLimit(60, 30);
     }
@@ -157,13 +157,13 @@ class ElevatorControlCommand extends CommandBase {
 
     @Override
     public void execute() {
-        MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(VEPosition, true, 0, 0, false);
-        verticalElevatorMotor.setControl(
-                motionMagicDutyCycle);
+//        MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(40, true, 0, 0, false);
+//        verticalElevatorMotor.setControl(
+//                motionMagicDutyCycle);
 
-        horizontalElevatorMotor.set(
-                CANSparkMax.ControlType.kSmartMotion,
-                HETargetRotations);
+//        horizontalElevatorMotor.set(
+//                CANSparkMax.ControlType.kSmartMotion,
+//                HETargetRotations);
     }
 
     @Override
