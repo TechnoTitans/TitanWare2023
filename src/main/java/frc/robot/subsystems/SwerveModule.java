@@ -57,19 +57,19 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.getConfigurator().apply(driverConfig);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0.kP = 0.1;
-        turnerConfig.Slot0.kI = 0;
-        turnerConfig.Slot0.kD = 0;
+        turnerConfig.Slot0.kP = 0.1; //need
+        turnerConfig.Slot0.kI = 0; //need
+        turnerConfig.Slot0.kD = 0; //need
 //        turnerConfig.closedloopRamp = 0.1;
 //        turnerConfig.neutralDeadband = 0.07;
         turnerConfig.MotorOutput.DutyCycleNeutralDeadband = 0.07;
         turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
         turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
-        turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO;
-        turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        turnerConfig.ClosedLoopGeneral.ContinuousWrap = true; //need
+        turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO; //need / correct
+        turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID(); //need
+        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder; // need idk what dif is betwee   n FusedCancoder
+        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; //need
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 
