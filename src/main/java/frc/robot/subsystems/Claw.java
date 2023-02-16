@@ -1,14 +1,11 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkMaxPIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ClawControl;
@@ -25,8 +22,6 @@ public class Claw extends SubsystemBase {
     private Enums.ClawState currentState;
     private final ColorSensorV3 colorSensor;
 
-    private final ClawControl clawControl;
-
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
                 TitanSRX clawOpenCloseMotor,
@@ -41,7 +36,7 @@ public class Claw extends SubsystemBase {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.colorSensor = colorSensor;
 
-        clawControl = new ClawControl(this);
+        ClawControl clawControl = new ClawControl(this);
         CommandScheduler.getInstance().setDefaultCommand(this, clawControl);
 
         this.currentState = Enums.ClawState.CLAW_HOLDING;

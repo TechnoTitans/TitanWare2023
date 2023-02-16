@@ -15,7 +15,6 @@ import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -24,12 +23,17 @@ public class SwerveModule extends SubsystemBase {
     private final TalonFX driveMotor, turnMotor;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
+    private final VelocityDutyCycle velocityDutyCycle;
+    private final PositionDutyCycle positionDutyCycle;
 
     public SwerveModule(TalonFX driveMotor, TalonFX turnMotor, CANcoder turnEncoder, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
+
+        velocityDutyCycle = new VelocityDutyCycle(0, true, 0, 0, false);
+        positionDutyCycle = new PositionDutyCycle(0, true, 0, 0, false);
 
         config();
     }
@@ -94,21 +98,17 @@ public class SwerveModule extends SubsystemBase {
 
         Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
 
-        VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(6, true, 0, 0, false);
-        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(0.8, true, 0, 0, false);
-
-//        driveMotor.setControl(velocityDutyCycle);
-//        turnMotor.setControl(positionDutyCycle);
+        driveMotor.setControl(velocityDutyCycle.withVelocity(desired_driver_velocity_rps));
+        turnMotor.setControl(positionDutyCycle.withPosition(delta_rotation.getRotations()));
     }
 
     public void percentOutputControl(double output) {
-        driveMotor.set(output);  //TODO: SHOULD WE ADAPT TO PHOENIX PRO
+        driveMotor.set(output);
         turnMotor.stopMotor();
     }
 
     public void manualVelocityControl(double rotationPerSecond) {
-        VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(rotationPerSecond, true, 0, 0, false);
-        driveMotor.setControl(velocityDutyCycle);
+        driveMotor.setControl(velocityDutyCycle.withVelocity(rotationPerSecond));
         turnMotor.stopMotor();
     }
 

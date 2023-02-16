@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
-import com.ctre.phoenixpro.controls.PositionDutyCycle;
-import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -33,8 +30,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("distance", robotContainer.limeLight.calculateDistance());
-        SmartDashboard.putNumber("open close enc", robotContainer.clawOpenCloseMotor.getSelectedSensorPosition());
     }
 
     @Override
@@ -83,10 +78,10 @@ public class Robot extends TimedRobot {
 //        robotContainer.horizontalExtensionPID.setReference(2,CANSparkMax.ControlType.kPosition);
 
 
-        robotContainer.elevatorVerticalMotor.setInverted(RobotMap.leftElevatorMotorR);
-
-        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(20, true, 0, 0, false);
-        robotContainer.elevatorVerticalMotor.setControl(positionDutyCycle);
+//        robotContainer.elevatorVerticalMotor.setInverted(RobotMap.leftElevatorMotorR);
+//
+//        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(20, true, 0, 0, false);
+//        robotContainer.elevatorVerticalMotor.setControl(positionDutyCycle);
 
     }
 
