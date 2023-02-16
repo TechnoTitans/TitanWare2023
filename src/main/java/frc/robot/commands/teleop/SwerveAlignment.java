@@ -2,8 +2,12 @@ package frc.robot.commands.teleop;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
@@ -16,6 +20,8 @@ public class SwerveAlignment extends CommandBase {
     private final PhotonVision photonVision;
     private double targetErrorX, targetErrorY;
 
+    private XboxController coController;
+
     private final PIDController xPhotonPIDController = new PIDController(2, 0.1, 0);
     private final PIDController yPhotonPIDController = new PIDController(3, 0.1, 0);
     private final PIDController xLimelightPIDController = new PIDController(0.075, 0.1, 0);
@@ -26,10 +32,11 @@ public class SwerveAlignment extends CommandBase {
 
     private Enums.VisionMode visionMode;
 
-    public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision) {
+    public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
         this.swerve = swerve;
         this.limelight = limelight;
         this.photonVision = photonVision;
+        this.coController = coController;
 
         addRequirements(swerve);
     }
@@ -102,5 +109,16 @@ public class SwerveAlignment extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
+        new WaitCommand(0.3) {  //Rumble codriver control to they know the command has ended
+            @Override
+            public void initialize() {
+                coController.setRumble(XboxController.RumbleType.kBothRumble, 0.5);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                coController.setRumble(XboxController.RumbleType.kBothRumble, 0);
+            }
+        }.schedule();
     }
 }

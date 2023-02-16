@@ -72,7 +72,7 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true; //need
         turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO; //need / correct
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID(); //need
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder; // need idk what dif is betwee   n FusedCancoder
+        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder; //need
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; //need
         turnMotor.getConfigurator().apply(turnerConfig);
     }
