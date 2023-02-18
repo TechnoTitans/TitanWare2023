@@ -1,19 +1,18 @@
 package frc.robot.commands.subsystems;
 
-import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
-import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
+import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 
 public class ElevatorControl extends CommandBase {
     private final Elevator elevator;
-    private final TalonFX verticalElevatorMotor;
+    private final TitanFX verticalElevatorMotor;
     private final TitanMAX horizontalElevatorMotor;
-    private final MotionMagicDutyCycle motionMagicDutyCycle;
 
     private Enums.ElevatorState currentState;
 
@@ -25,7 +24,6 @@ public class ElevatorControl extends CommandBase {
         this.elevator = elevator;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
         this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
-        this.motionMagicDutyCycle = new MotionMagicDutyCycle(0, true, 0, 0, false);
 
         addRequirements(elevator);
     }
@@ -34,20 +32,20 @@ public class ElevatorControl extends CommandBase {
         //TODO TUNE THIS
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
-                VEPosition = 50;
-                HETargetRotations = 30;
+                VEPosition = 16000;
+                HETargetRotations = 3;
                 break;
             case ELEVATOR_EXTENDED_MID:
-                VEPosition = 40;
-                HETargetRotations = 20;
+                VEPosition = 10000;
+                HETargetRotations = 1.7;
                 break;
             case ELEVATOR_EXTENDED_GROUND:
-                VEPosition = 17;
-                HETargetRotations = 15;
+                VEPosition = 1;
+                HETargetRotations = 0;
                 break;
             case ELEVATOR_STANDBY:
-                VEPosition = 0;
-                HETargetRotations = 10;
+                VEPosition = 50;
+                HETargetRotations = 0;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
                 VEPosition = 50;
@@ -64,7 +62,7 @@ public class ElevatorControl extends CommandBase {
 
     public boolean isAtWantedState() {
         return MathMethods.withinRange(
-                verticalElevatorMotor.getPosition().getValue(),
+                verticalElevatorMotor.getSelectedSensorPosition(),
                 VEPosition,
                 0.1) &&
                 MathMethods.withinRange(
@@ -75,14 +73,15 @@ public class ElevatorControl extends CommandBase {
 
     @Override
     public void execute() {
-        Enums.ElevatorState newState = elevator.getCurrentState();
-        if (newState != currentState) {
-            currentState = newState;
+        Enums.ElevatorState targetState = elevator.getTargetState();
+        if (targetState != currentState) {
+            currentState = targetState;
             setState(currentState);
         }
 
-        verticalElevatorMotor.setControl(
-                motionMagicDutyCycle.withPosition(VEPosition));
+        verticalElevatorMotor.set(
+                ControlMode.Position,
+                VEPosition);
 
         horizontalElevatorMotor.set(
                 CANSparkMax.ControlType.kPosition,

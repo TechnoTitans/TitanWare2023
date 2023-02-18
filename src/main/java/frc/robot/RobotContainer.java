@@ -2,9 +2,7 @@ package frc.robot;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.Pigeon2;
-import com.ctre.phoenixpro.hardware.TalonFX;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMaxLowLevel;
@@ -21,7 +19,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TestTraj;
 import frc.robot.commands.teleop.AutoBalanceTeleop;
+import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.DriveController;
@@ -29,6 +30,7 @@ import frc.robot.utils.Enums;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.leds.CandleController;
+import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.Limelight;
@@ -40,12 +42,12 @@ public class RobotContainer {
     public final OI oi;
 
     //Motors
-    public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
-    public final TalonFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
-    public final CANcoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
+    public final TitanFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
+    public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
+    public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TalonFX elevatorVerticalMotor;
+    public final TitanFX elevatorVerticalMotor;
     public final TitanMAX elevatorHorizontalNeo;
 
     //Claw
@@ -78,15 +80,15 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
-//    public final Elevator elevator;
-//    public final Claw claw;
+    public final Elevator elevator;
+    public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
 //    public final SwerveAlignment swerveAlignment;
 //    public final IntakeTeleop intakeTeleop;
-//    public final ElevatorTeleop elevatorTeleop;
+    public final ElevatorTeleop elevatorTeleop;
 //    public final DropGamePieceTeleop dropGamePieceTeleop;
 
     //Buttons
@@ -110,32 +112,32 @@ public class RobotContainer {
         powerDistribution.clearStickyFaults();
 
         //Swerve Drive Motors
-        frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
-        frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
-        backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
-        backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
+        frontRightDrive = new TitanFX(RobotMap.frontRightDrive, RobotMap.frontRightDriveR, RobotMap.CANIVORE_CAN_NAME);
+        backLeftDrive = new TitanFX(RobotMap.backLeftDrive, RobotMap.backLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
+        backRightDrive = new TitanFX(RobotMap.backRightDrive, RobotMap.backRightDriveR, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Turning Motors
-        frontLeftTurn = new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME);
-        frontRightTurn = new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME);
-        backLeftTurn = new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME);
-        backRightTurn = new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftTurn = new TitanFX(RobotMap.frontLeftTurn, RobotMap.frontLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
+        frontRightTurn = new TitanFX(RobotMap.frontRightTurn, RobotMap.frontRightTurnR, RobotMap.CANIVORE_CAN_NAME);
+        backLeftTurn = new TitanFX(RobotMap.backLeftTurn, RobotMap.backLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
+        backRightTurn = new TitanFX(RobotMap.backRightTurn, RobotMap.backRightTurnR, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve CANCoders
-        frontLeftEncoder = new CANcoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
-        frontRightEncoder = new CANcoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
-        backLeftEncoder = new CANcoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
-        backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftEncoder = new CANCoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+        frontRightEncoder = new CANCoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+        backLeftEncoder = new CANCoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+        backRightEncoder = new CANCoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 0.320, RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 0.009, RobotMap.frontRightDriveR, RobotMap.frontRightTurnR);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 0.05, RobotMap.backLeftDriveR, RobotMap.backLeftTurnR);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, -0.21, RobotMap.backRightDriveR, RobotMap.backRightTurnR);
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 116.19);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 3.516);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 17.84);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 282.92);
 
         //Elevator Motors
-        elevatorVerticalMotor = new TalonFX(RobotMap.leftVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
+        elevatorVerticalMotor = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
 
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
@@ -149,8 +151,8 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
         clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-//        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo);
-//        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawColorSensor);
+        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawColorSensor);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -183,7 +185,7 @@ public class RobotContainer {
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
 //        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
 //        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain());
-//        elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxMain());
+        elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 //        dropGamePieceTeleop = new DropGamePieceTeleop(claw, elevator, candleController);
 
         //Buttons

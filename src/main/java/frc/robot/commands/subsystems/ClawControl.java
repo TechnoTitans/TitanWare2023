@@ -61,7 +61,7 @@ public class ClawControl extends CommandBase {
                 speed = 0.2;
                 tiltRotations = 500;
                 openCloseControlMode = ControlMode.Position;
-                openCloseControl = 0.2;
+                openCloseControl = 40;
                 break;
             default:
                 break;
@@ -81,7 +81,7 @@ public class ClawControl extends CommandBase {
 
     @Override
     public void execute() {
-        Enums.ClawState newState = claw.getCurrentState();
+        Enums.ClawState newState = claw.getTargetState();
         if (newState != currentState) {
             currentState = newState;
             setState(currentState);
@@ -95,9 +95,9 @@ public class ClawControl extends CommandBase {
                 openCloseControlMode,
                 openCloseControl);
 
-        clawTiltNeo.set(
-                CANSparkMax.ControlType.kPosition,
-                tiltRotations);
+//        clawTiltNeo.set(
+//                CANSparkMax.ControlType.kPosition,
+//                tiltRotations);
     }
 
     @Override

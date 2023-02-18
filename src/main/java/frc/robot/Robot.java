@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -30,10 +32,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("sm frontleft", robotContainer.frontLeftEncoder.getAbsolutePosition().getValue());
-        SmartDashboard.putNumber("sm backleft", robotContainer.backLeftEncoder.getAbsolutePosition().getValue());
-        SmartDashboard.putNumber("sm frontright", robotContainer.frontRightEncoder.getAbsolutePosition().getValue());
-        SmartDashboard.putNumber("sm backright", robotContainer.backRightEncoder.getAbsolutePosition().getValue());
+        SmartDashboard.putNumber("claw enc", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
     }
 
     @Override
@@ -51,7 +50,7 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        // schedule the autonomous command (example)
+//         //schedule the autonomous command (example)
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
@@ -71,12 +70,14 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
+        CommandScheduler.getInstance().schedule(robotContainer.elevatorTeleop);
     }
 
     @Override
     public void teleopPeriodic() {
 //        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
 //        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
+
 
     }
 

@@ -4,6 +4,8 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -22,7 +24,7 @@ public class Claw extends SubsystemBase {
     private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
-    private Enums.ClawState currentState = Enums.ClawState.CLAW_HOLDING;
+    private Enums.ClawState targetState = Enums.ClawState.CLAW_STANDBY;
 
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
@@ -49,6 +51,13 @@ public class Claw extends SubsystemBase {
         clawFollowerWheelBag.configFactoryDefault();
         clawFollowerWheelBag.follow(clawMainWheelBag);
 
+        CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
+        canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+        canCoderConfiguration.unitString = "deg";
+        canCoderConfiguration.magnetOffsetDegrees = -74;
+        canCoderConfiguration.sensorDirection = false;
+        clawOpenCloseEncoder.configAllSettings(canCoderConfiguration);
+
         TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
         CCConfig.slot0.kP = 0.2; //TODO: TUNE ALL OF THESE
         CCConfig.slot0.kI = 0.002;
@@ -68,11 +77,10 @@ public class Claw extends SubsystemBase {
         clawTiltNeo.setClosedLoopRampRate(0.2);
         clawTiltNeo.currentLimit(50, 30);
         clawTiltNeo.brake();
-
     }
 
     public void setState(Enums.ClawState state) {
-        currentState = state;
+        targetState = state;
     }
 
     public boolean isAtWantedState() {
@@ -91,8 +99,8 @@ public class Claw extends SubsystemBase {
         }
     }
 
-    public Enums.ClawState getCurrentState() {
-        return currentState;
+    public Enums.ClawState getTargetState() {
+        return targetState;
     }
 
     public TitanSRX getClawWheelMotor() {

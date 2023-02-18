@@ -1,30 +1,32 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenixpro.configs.HardwareLimitSwitchConfigs;
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
-import com.ctre.phoenixpro.hardware.TalonFX;
-import com.ctre.phoenixpro.signals.NeutralModeValue;
-import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
-import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ElevatorControl;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
+import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
-    private final TalonFX verticalElevatorMotor;
+    private final TitanFX verticalElevatorMotor;
     private final TitanMAX horizontalElevatorMotor;
+    private final TitanSRX encoderSRX;
 
     private final ElevatorControl elevatorControl;
-    private Enums.ElevatorState currentState;
+    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
 
-    public Elevator(TalonFX verticalElevatorMotor,
-                    TitanMAX horizontalElevatorMotor) {
+    public Elevator(TitanFX verticalElevatorMotor,
+                    TitanMAX horizontalElevatorMotor,
+                    TitanSRX encoderSRX) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
+        this.encoderSRX = encoderSRX;
 
         configMotor();
 
@@ -33,45 +35,43 @@ public class Elevator extends SubsystemBase {
     }
 
     private void configMotor() {
-        HardwareLimitSwitchConfigs hardwareLimitSwitchConfigs = new HardwareLimitSwitchConfigs();
-        hardwareLimitSwitchConfigs.ReverseLimitEnable = true;
-        hardwareLimitSwitchConfigs.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
-        hardwareLimitSwitchConfigs.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
-
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.Slot0.kP = 0.1; //TODO: TUNE ALL OF THESE
-        VEConfig.Slot0.kI = 0.002;
-        VEConfig.Slot0.kD = 10;
-        VEConfig.Slot0.kS = 0.07;
-        VEConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.2;
-        VEConfig.MotionMagic.MotionMagicAcceleration = 5;
-        VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        VEConfig.HardwareLimitSwitch = hardwareLimitSwitchConfigs;
-        verticalElevatorMotor.getConfigurator().apply(VEConfig);
+        VEConfig.slot0.kP = 0.55;
+        VEConfig.slot0.kF = 0.15;
+        VEConfig.slot0.kD = 0.03;
+        VEConfig.closedloopRamp = 0.2;
+        VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
+        VEConfig.remoteFilter0.remoteSensorDeviceID = encoderSRX.getDeviceID();
+        VEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
+//        VEConfig.reverseLimitSwitchNormal = LimitSwitchNormal.NormallyClosed;
+//        VEConfig.reverseLimitSwitchSource = LimitSwitchSource.FeedbackConnector;
+
+        verticalElevatorMotor.configAllSettings(VEConfig);
+        verticalElevatorMotor.brake();
 
         SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
-        HEConfig.setP(0.1);
-        HEConfig.setI(0.002);
-        HEConfig.setIZone(200);
-        HEConfig.setD(10);
+        HEConfig.setP(0.13);
+//        HEConfig.setI(0.002);
+//        HEConfig.setIZone(200);
+//        HEConfig.setD(10);
         HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
         horizontalElevatorMotor.currentLimit(60, 30);
         horizontalElevatorMotor.brake();
     }
 
-    public void setState(Enums.ElevatorState state) {
-        currentState = state;
+    public void setState(Enums.ElevatorState targetState) {
+        currentState = targetState;
     }
 
     public boolean isAtWantedState() {
         return elevatorControl.isAtWantedState();
     }
 
-    public Enums.ElevatorState getCurrentState() {
+    public Enums.ElevatorState getTargetState() {
         return currentState;
     }
 
-    public TalonFX getVerticalElevatorMotor() {
+    public TitanFX getVerticalElevatorMotor() {
         return verticalElevatorMotor;
     }
 
