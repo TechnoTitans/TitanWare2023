@@ -21,11 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TestTraj;
 import frc.robot.commands.teleop.AutoBalanceTeleop;
-import frc.robot.commands.teleop.IntakeTeleop;
-import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
-import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.utils.DriveController;
@@ -51,8 +47,6 @@ public class RobotContainer {
     //Elevator
     public final TalonFX elevatorVerticalMotor;
     public final TitanMAX elevatorHorizontalNeo;
-//    public SparkMaxPIDController horizontalExtensionPID;
-//    public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
@@ -85,27 +79,27 @@ public class RobotContainer {
     //SubSystems
     public final Swerve swerve;
 //    public final Elevator elevator;
-    public final Claw claw;
+//    public final Claw claw;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
-    public final SwerveAlignment swerveAlignment;
-    public final IntakeTeleop intakeTeleop;
+//    public final SwerveAlignment swerveAlignment;
+//    public final IntakeTeleop intakeTeleop;
 //    public final ElevatorTeleop elevatorTeleop;
 //    public final DropGamePieceTeleop dropGamePieceTeleop;
 
     //Buttons
-        //Main Driver
+    //Main Driver
     public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn, autoAlignBtn;
-        //Co Driver
+    //Co Driver
     public final TitanButton dropGamePieceBtn, candleYellowBtn, candlePurpleBtn;
 
     //Autonomous Commands
 //    public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    public final SendableChooser<Profiler.Profiles> profileChooser;
+    public final SendableChooser<Enums.DriverProfiles> profileChooser;
 
     public RobotContainer() {
         //OI
@@ -117,23 +111,15 @@ public class RobotContainer {
 
         //Swerve Drive Motors
         frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
-        frontLeftDrive.setInverted(RobotMap.frontLeftDriveR);
         frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
-        frontRightDrive.setInverted(RobotMap.frontRightDriveR);
         backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
-        backLeftDrive.setInverted(RobotMap.backLeftDriveR);
         backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
-        backRightDrive.setInverted(RobotMap.backRightDriveR);
 
         //Swerve Turning Motors
         frontLeftTurn = new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME);
-        frontLeftTurn.setInverted(RobotMap.frontLeftTurnR);
         frontRightTurn = new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME);
-        frontRightTurn.setInverted(RobotMap.frontRightTurnR);
         backLeftTurn = new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME);
-        backLeftTurn.setInverted(RobotMap.backLeftTurnR);
         backRightTurn = new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME);
-        backLeftTurn.setInverted(RobotMap.backRightTurnR);
 
         //Swerve CANCoders
         frontLeftEncoder = new CANcoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
@@ -143,34 +129,13 @@ public class RobotContainer {
 
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 0.02);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 0.644);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 0.603);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, -0.924);
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 0.320, RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 0.009, RobotMap.frontRightDriveR, RobotMap.frontRightTurnR);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 0.05, RobotMap.backLeftDriveR, RobotMap.backLeftTurnR);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, -0.21, RobotMap.backRightDriveR, RobotMap.backRightTurnR);
 
         //Elevator Motors
-//        ClosedLoopRampsConfigs closedLoopRampsConfigs = new ClosedLoopRampsConfigs();
-//        closedLoopRampsConfigs.DutyCycleClosedLoopRampPeriod = 0.2;
-//
-//        MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
-//        motionMagicConfigs.MotionMagicAcceleration = 5;
-
-//        HardwareLimitSwitchConfigs hardwareLimitSwitchConfigs = new HardwareLimitSwitchConfigs();
-//        hardwareLimitSwitchConfigs.ReverseLimitEnable = true;
-//        hardwareLimitSwitchConfigs.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
-//        hardwareLimitSwitchConfigs.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
-
         elevatorVerticalMotor = new TalonFX(RobotMap.leftVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
-//        TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-//        VEConfig.Slot0.kP = .15; //TODO: TUNE ALL OF THESE
-//        VEConfig.Slot0.kI = 0;
-//        VEConfig.Slot0.kD = 0;
-//        VEConfig.Slot0.kS = 0.07;
-//        VEConfig.ClosedLoopRamps = closedLoopRampsConfigs;
-//        VEConfig.MotionMagic = motionMagicConfigs;
-//        VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-//        VEConfig.HardwareLimitSwitch = hardwareLimitSwitchConfigs;
-//        elevatorVerticalMotor.getConfigurator().apply(VEConfig);
 
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
@@ -178,21 +143,6 @@ public class RobotContainer {
         clawOpenCloseEncoder = new CANCoder(RobotMap.clawOpenCloseEncoder);
 
         elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-//        horizontalExtensionPID = elevatorHorizontalNeo.getPIDController();
-//        horizontalExtensionPID.setFeedbackDevice(elevatorHorizontalNeo.getAlternateEncoder(8192));
-//        kP = 1;
-//        kI = 0;
-//        kD = 0;
-//        kIz = 0;
-//        kFF = 0;
-//        kMaxOutput = .1;
-//        kMinOutput = -.1;
-//        horizontalExtensionPID.setP(kP);
-//        horizontalExtensionPID.setI(kI);
-//        horizontalExtensionPID.setD(kD);
-//        horizontalExtensionPID.setIZone(kIz);
-//        horizontalExtensionPID.setFF(kFF);
-//        horizontalExtensionPID.setOutputRange(kMinOutput, kMaxOutput);
         clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Sensors
@@ -200,14 +150,14 @@ public class RobotContainer {
         clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
 //        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawColorSensor);
+//        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawColorSensor);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-                new Translation2d(Constants.Swerve.WHEEL_BASE/2, Constants.Swerve.TRACK_WIDTH/2), //front left //TODO: TUNE THESE
-                new Translation2d(-Constants.Swerve.WHEEL_BASE/2, Constants.Swerve.TRACK_WIDTH/2), // back left
-                new Translation2d(Constants.Swerve.WHEEL_BASE/2, -Constants.Swerve.TRACK_WIDTH/2), // front right
-                new Translation2d(-Constants.Swerve.WHEEL_BASE/2, -Constants.Swerve.TRACK_WIDTH/2)); //back right //in meters, swerve modules relative to the center of robot
+                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), //front left //TODO: TUNE THESE
+                new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), // back left
+                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2), // front right
+                new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2)); //back right //in meters, swerve modules relative to the center of robot
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
@@ -231,16 +181,16 @@ public class RobotContainer {
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
-        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
-        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain());
+//        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
+//        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain());
 //        elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxMain());
 //        dropGamePieceTeleop = new DropGamePieceTeleop(claw, elevator, candleController);
 
         //Buttons
-        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
+        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
         elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
-        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
+        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
 
         dropGamePieceBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_B);
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
@@ -251,8 +201,8 @@ public class RobotContainer {
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
-        profileChooser.setDefaultOption("Driver1", Profiler.Profiles.Driver1);
-        profileChooser.addOption("Driver2", Profiler.Profiles.Driver2);
+        profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.Driver1);
+        profileChooser.addOption("Driver2", Enums.DriverProfiles.Driver2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
         configureButtonBindings();
@@ -262,7 +212,7 @@ public class RobotContainer {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 
-        autoAlignBtn.onTrue(swerveAlignment);
+//        autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
 

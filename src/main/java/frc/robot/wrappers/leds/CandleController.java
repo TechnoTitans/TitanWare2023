@@ -10,8 +10,10 @@ public class CandleController {
 
     public CandleController(CANdle caNdle) {
         this.caNdle = caNdle;
+    }
 
-        caNdle.configFactoryDefault();
+    public Enums.CANdleState getState() {
+        return state;
     }
 
     public void setState(Enums.CANdleState state) {
@@ -27,9 +29,5 @@ public class CandleController {
                 caNdle.setLEDs(200, 0, 150);
                 break;
         }
-    }
-
-    public Enums.CANdleState getState() {
-        return state;
     }
 }

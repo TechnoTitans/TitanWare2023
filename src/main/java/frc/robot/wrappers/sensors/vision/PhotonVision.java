@@ -27,4 +27,8 @@ public class PhotonVision {
         lastPipelineResult = photonCamera.getLatestResult();
         return lastPipelineResult.hasTargets();
     }
+
+    public int targetId() {
+        return lastPipelineResult.getBestTarget().getFiducialId();
+    }
 }

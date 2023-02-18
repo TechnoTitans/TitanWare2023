@@ -30,6 +30,11 @@ public class Enums {
         CONE
     }
 
+    public enum DriverProfiles {
+        Driver1,
+        Driver2
+    }
+
     public enum LimeLightLEDState {
         LED_OFF, //Limelight LEDS off
         LED_CONFIG, //Limelight LEDS to how they were set in the config

@@ -18,10 +18,11 @@ public interface RobotMap {
     int CANIVORE_ID = 1;
     String CANIVORE_CAN_NAME = "CANivore";
 
+    //LEDS
     int CANdle_ID = 0;
 
     //Motors
-        //Swerve
+    //Swerve
     int frontLeftDrive = 1;
     int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
@@ -46,7 +47,7 @@ public interface RobotMap {
     boolean backLeftDriveR = true;
     boolean backLeftTurnR = false;
 
-        //Elevator
+    //Elevator
     int leftVerticalFalcon = 10;
     boolean leftElevatorMotorR = true;
 

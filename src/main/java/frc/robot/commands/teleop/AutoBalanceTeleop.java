@@ -21,12 +21,9 @@ public class AutoBalanceTeleop extends CommandBase {
 
     @Override
     public void execute() {
-        if (!MathMethods.withinBand(swerve.getHeading(), 5)) {
-            swerve.faceDirection(0, 0, 0, false);
-        }
         pitch = pigeon.getPitch().getValue();
         double val = pitch * Constants.Swerve.AUTO_BALANCE_PITCH_P;
-        swerve.drive(val, 0, 0, false);
+        swerve.faceDirection(val, 0, 0, false);
     }
 
     @Override

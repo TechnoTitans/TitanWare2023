@@ -7,19 +7,18 @@ import frc.robot.utils.MathMethods;
 @SuppressWarnings("unused")
 public class Limelight {
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-
-    // Debugging booleans
-    boolean targetFound = false;
-    boolean targetAligned = false;
-
     // Data grabbing
     private final IntegerSubscriber tv = table.getIntegerTopic("tv").subscribe(0); // has any targets (0 or 1)
     private final DoubleSubscriber tx = table.getDoubleTopic("tx").subscribe(0.0); // horizontal offset from crosshair to target
     private final DoubleSubscriber ty = table.getDoubleTopic("ty").subscribe(0.0); // vertical offset from crosshair to target
     private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
-
     private final DoublePublisher ledMode = table.getDoubleTopic("ledMode").publish();
-    public Limelight() {}
+    // Debugging booleans
+    boolean targetFound = false;
+    boolean targetAligned = false;
+
+    public Limelight() {
+    }
 
     public double calculateDistance() {
         // Hardware constants
@@ -27,7 +26,7 @@ public class Limelight {
         final double HEIGHT_FROM_FLOOR_GOAL = 24.0; //TODO:
         final double HEIGHT_FROM_FLOOR_CAMERA = 21;
         final double ANGLE_FROM_FLOOR = 20;
-        return Math.max((HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + ty.getAsDouble()))-7.9, 0);
+        return Math.max((HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + ty.getAsDouble())) - 7.9, 0);
     }
 
 

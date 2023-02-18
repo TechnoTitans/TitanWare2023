@@ -22,22 +22,22 @@ public class TestTraj {
     }
 
     public Command followPPTrajectory(PathPlannerTrajectory traj, boolean isFirstPath) {
-	return new SequentialCommandGroup(
-		new InstantCommand(() -> {
-		    if(isFirstPath){
-			   odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), traj.getInitialHolonomicPose());
-			}
-		}),
-		new PPSwerveControllerCommand(
-			traj,
-			odometry::getPoseMeters,
-            kinematics,
-			new PIDController(2.5, 0, 0),
-			new PIDController(2.5, 0, 0),
-			new PIDController(0, 0, 0),
-			swerve.getModuleStateConsumer(),
-			true),
-			new InstantCommand(swerve::stop)
-		);
- 	}
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    if (isFirstPath) {
+                        odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), traj.getInitialHolonomicPose());
+                    }
+                }),
+                new PPSwerveControllerCommand(
+                        traj,
+                        odometry::getPoseMeters,
+                        kinematics,
+                        new PIDController(2.5, 0, 0),
+                        new PIDController(2.5, 0, 0),
+                        new PIDController(0, 0, 0),
+                        swerve.getModuleStateConsumer(),
+                        true),
+                new InstantCommand(swerve::stop)
+        );
+    }
 }

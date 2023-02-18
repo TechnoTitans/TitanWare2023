@@ -30,15 +30,19 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
+        SmartDashboard.putNumber("sm frontleft", robotContainer.frontLeftEncoder.getAbsolutePosition().getValue());
+        SmartDashboard.putNumber("sm backleft", robotContainer.backLeftEncoder.getAbsolutePosition().getValue());
+        SmartDashboard.putNumber("sm frontright", robotContainer.frontRightEncoder.getAbsolutePosition().getValue());
+        SmartDashboard.putNumber("sm backright", robotContainer.backRightEncoder.getAbsolutePosition().getValue());
     }
 
     @Override
     public void disabledInit() {
+        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
     public void disabledPeriodic() {
-        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
@@ -66,25 +70,17 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        //CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
-//        CommandScheduler.getInstance().setDefaultCommand(robotContainer.elevator, robotContainer.elevatorTeleop);
-
+        CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
     }
 
     @Override
     public void teleopPeriodic() {
 //        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
 //        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
-//        robotContainer.horizontalExtensionPID.setReference(2,CANSparkMax.ControlType.kPosition);
-
-
-//        robotContainer.elevatorVerticalMotor.setInverted(RobotMap.leftElevatorMotorR);
-//
-//        PositionDutyCycle positionDutyCycle = new PositionDutyCycle(20, true, 0, 0, false);
-//        robotContainer.elevatorVerticalMotor.setControl(positionDutyCycle);
 
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void testInit() {
         // Cancels all running commands at the start of test mode.

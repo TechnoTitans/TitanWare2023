@@ -27,8 +27,8 @@ public class DriveController {
     /**
      * Constructs a PPHolonomicDriveController
      *
-     * @param xController A PID controller to respond to error in the field-relative X direction
-     * @param yController A PID controller to respond to error in the field-relative Y direction
+     * @param xController        A PID controller to respond to error in the field-relative X direction
+     * @param yController        A PID controller to respond to error in the field-relative Y direction
      * @param rotationController A PID controller to respond to error in rotation
      */
     public DriveController(
@@ -67,7 +67,7 @@ public class DriveController {
     /**
      * Calculates the next output of the holonomic drive controller
      *
-     * @param currentPose The current pose
+     * @param currentPose    The current pose
      * @param referenceState The desired trajectory state
      * @return The next output of the holonomic drive controller
      */

@@ -1,27 +1,13 @@
 package frc.robot.profiler;
 
+import frc.robot.utils.Enums;
+
 public class Profiler {
-    public enum Profiles {
-        Driver1,
-        Driver2
-    }
+    private static Enums.DriverProfiles profile;
+    private double ThrottleSensitivity = 1;
+    private double SpinningSensitivity = 1;
 
-    private static Profiles profile;
-    public double ThrottleSensitivity = 1;
-    public double SpinningSensitivity = 1;
-
-    private Profiler() {}
-
-    public double getThrottleSensitivity() {
-        return ThrottleSensitivity;
-    }
-
-    public double getSpinningSensitivity() {
-        return SpinningSensitivity;
-    }
-
-    public static void setProfile(Profiles profile) {
-        Profiler.profile = profile;
+    private Profiler() {
     }
 
     public static Profiler getProfile() {
@@ -41,5 +27,17 @@ public class Profiler {
                 break;
         }
         return newProfile;
+    }
+
+    public static void setProfile(Enums.DriverProfiles profile) {
+        Profiler.profile = profile;
+    }
+
+    public double getThrottleSensitivity() {
+        return ThrottleSensitivity;
+    }
+
+    public double getSpinningSensitivity() {
+        return SpinningSensitivity;
     }
 }

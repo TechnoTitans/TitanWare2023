@@ -25,15 +25,20 @@ public class SwerveModule extends SubsystemBase {
     private final double magnetOffset;
     private final VelocityDutyCycle velocityDutyCycle;
     private final PositionDutyCycle positionDutyCycle;
+    private final boolean driveInverted, turnInverted;
 
-    public SwerveModule(TalonFX driveMotor, TalonFX turnMotor, CANcoder turnEncoder, double magnetOffset) {
+    public SwerveModule(TalonFX driveMotor, TalonFX turnMotor, CANcoder turnEncoder, double magnetOffset,
+                        boolean driveInverted, boolean turnInverted) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
 
-        velocityDutyCycle = new VelocityDutyCycle(0, true, 0, 0, false);
-        positionDutyCycle = new PositionDutyCycle(0, true, 0, 0, false);
+        this.driveInverted = driveInverted;
+        this.turnInverted = turnInverted;
+
+        this.velocityDutyCycle = new VelocityDutyCycle(0, true, 0, 0, false);
+        this.positionDutyCycle = new PositionDutyCycle(0, true, 0, 0, false);
 
         config();
     }
@@ -56,25 +61,25 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.Slot0.kD = 0;
 //        driverConfig.Slot0.kS = 0.045;
         driverConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.2;
-        driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
+        driverConfig.Feedback.RotorToSensorRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveMotor.getConfigurator().apply(driverConfig);
+        driveMotor.setInverted(driveInverted);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0.kP = 0.1; //need
+        turnerConfig.Slot0.kP = 0.47; //need
         turnerConfig.Slot0.kI = 0; //need
         turnerConfig.Slot0.kD = 0; //need
-//        turnerConfig.closedloopRamp = 0.1;
-//        turnerConfig.neutralDeadband = 0.07;
-        turnerConfig.MotorOutput.DutyCycleNeutralDeadband = 0.07;
-        turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
-        turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
+//        turnerConfig.MotorOutput.DutyCycleNeutralDeadband = 0.08;
+//        turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
+//        turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true; //need
-        turnerConfig.Feedback.SensorToMechanismRatio = Constants.Modules.TURNER_GEAR_RATIO; //need / correct
+        turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO; //need
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID(); //need
         turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder; //need
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; //need
         turnMotor.getConfigurator().apply(turnerConfig);
+        turnMotor.setInverted(turnInverted);
     }
 
     public double getAngle() {
@@ -82,24 +87,23 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getVelocity().getValue() * (2*Constants.Modules.WHEEL_RADIUS*Math.PI), Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModuleState(driveMotor.getVelocity().getValue() * (2 * Constants.Modules.WHEEL_RADIUS * Math.PI), Rotation2d.fromDegrees(getAngle()));
 //        return new SwerveModuleState(driveMotor.getVelocity().getValue() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS * 10, Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getPosition().getValue() * (2*Constants.Modules.WHEEL_RADIUS*Math.PI), Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModulePosition(driveMotor.getPosition().getValue() * (2 * Constants.Modules.WHEEL_RADIUS * Math.PI), Rotation2d.fromDegrees(getAngle()));
 //        return new SwerveModulePosition(driveMotor.getPosition().getValue() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / (8.14 * 2048.0)), Rotation2d.fromDegrees(getAngle()));
     }
 
     public void setDesiredState(SwerveModuleState state) {
-        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle());
+        Rotation2d currentWheelRotation = Rotation2d.fromRotations(getAngle());
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         double desired_driver_velocity_rps = wantedState.speedMetersPerSecond / (2 * Math.PI * Constants.Modules.WHEEL_RADIUS);
-
-        Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
+        double desired_turner_rotations = wantedState.angle.getRotations();
 
         driveMotor.setControl(velocityDutyCycle.withVelocity(desired_driver_velocity_rps));
-        turnMotor.setControl(positionDutyCycle.withPosition(delta_rotation.getRotations()));
+//        turnMotor.setControl(positionDutyCycle.withPosition(desired_turner_rotations));
     }
 
     public void percentOutputControl(double output) {

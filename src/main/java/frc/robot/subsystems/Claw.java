@@ -19,10 +19,10 @@ public class Claw extends SubsystemBase {
     private final TitanSRX clawOpenCloseMotor;
     private final CANCoder clawOpenCloseEncoder;
     private final TitanMAX clawTiltNeo;
-    private Enums.ClawState currentState;
     private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
+    private Enums.ClawState currentState = Enums.ClawState.CLAW_HOLDING;
 
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
@@ -38,12 +38,10 @@ public class Claw extends SubsystemBase {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.colorSensor = colorSensor;
 
+        configMotor();
+
         clawControl = new ClawControl(this);
         CommandScheduler.getInstance().setDefaultCommand(this, clawControl);
-
-        this.currentState = Enums.ClawState.CLAW_HOLDING;
-
-        configMotor();
     }
 
     private void configMotor() {
@@ -55,13 +53,11 @@ public class Claw extends SubsystemBase {
         CCConfig.slot0.kP = 0.2; //TODO: TUNE ALL OF THESE
         CCConfig.slot0.kI = 0.002;
         CCConfig.slot0.kD = 10;
-        CCConfig.motionCruiseVelocity = 4096 * 5;
-        CCConfig.motionAcceleration = 4096 * 5;
-        CCConfig.motionCurveStrength = 3; // S-curve
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         clawOpenCloseMotor.configAllSettings(CCConfig);
+        clawOpenCloseMotor.brake();
 
         SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
         clawTiltPID.setP(0.1);
@@ -69,18 +65,18 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setD(10);
         clawTiltPID.setOutputRange(-0.1, 0.1);
         clawTiltPID.setFeedbackDevice(clawTiltNeo.getABSRevBoreThroughEncoder());
-        clawTiltPID.setSmartMotionAccelStrategy(SparkMaxPIDController.AccelStrategy.kSCurve, 0);
-        clawTiltPID.setSmartMotionMaxAccel(25, 0);
-        clawTiltPID.setSmartMotionMaxVelocity(50, 0);
-        clawTiltPID.setSmartMotionAllowedClosedLoopError(2, 0);
         clawTiltNeo.setClosedLoopRampRate(0.2);
-        clawTiltNeo.currentLimit(40, 20);
+        clawTiltNeo.currentLimit(50, 30);
         clawTiltNeo.brake();
+
     }
 
     public void setState(Enums.ClawState state) {
         currentState = state;
-        clawControl.setState(state);
+    }
+
+    public boolean isAtWantedState() {
+        return clawControl.isAtWantedState();
     }
 
     public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS

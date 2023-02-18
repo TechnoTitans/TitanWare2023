@@ -32,9 +32,8 @@ public class TrajectoryManager {
     private final SwerveDriveOdometry odometry;
     private final boolean reverseTrajectory = false;
     private final Field2d field;
-    private SendableChooser<Command> autoChooser;
-
     private final Claw claw;
+    private SendableChooser<Command> autoChooser;
 
     public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, Field2d field, Claw claw) {
         this.swerve = swerve;

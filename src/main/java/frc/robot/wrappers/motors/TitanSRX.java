@@ -47,10 +47,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         super.set(ControlMode.PercentOutput, speed);
     }
 
-    public void setEncoder(Encoder encoder) {
-        this.encoder = encoder;
-    }
-
     public void brake() {
         this.set(0);
         super.setNeutralMode(NeutralMode.Brake);
@@ -69,11 +65,13 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         return getEncoder() != null;
     }
 
-
     public Encoder getEncoder() {
         return encoder;
     }
 
+    public void setEncoder(Encoder encoder) {
+        this.encoder = encoder;
+    }
 
     public int getChannel() {
         return super.getDeviceID();
