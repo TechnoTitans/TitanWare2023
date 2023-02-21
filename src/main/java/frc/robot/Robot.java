@@ -4,8 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -32,7 +33,14 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("claw enc", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("HE Enc", robotContainer.elevatorHorizontalNeo.getAlternateEncoder(8192).getPosition());
+        SmartDashboard.putNumber("Claw Tilt Encoder", robotContainer.claw.getOpenCloseEncPosition());
+        robotContainer.elevator.telemetry();
+
+//        SmartDashboard.putNumber("prox", robotContainer.clawColorSensor.getProximity());
+//        SmartDashboard.putNumber("blue", robotContainer.clawColorSensor.getColor().blue);
+
+//        robotContainer.claw.getClawTiltNeo().set(CANSparkMax.ControlType.kPosition, 0);
     }
 
     @Override
@@ -71,12 +79,17 @@ public class Robot extends TimedRobot {
         }
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
         CommandScheduler.getInstance().schedule(robotContainer.elevatorTeleop);
+
+        CommandScheduler.getInstance().schedule(robotContainer.intakeTeleop);
     }
 
     @Override
     public void teleopPeriodic() {
+
 //        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
 //        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
+
+//        robotContainer.elevatorVerticalMotor.set(robotContainer.oi.getXboxCo().getLeftY());
 
 
     }
