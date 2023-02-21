@@ -16,6 +16,11 @@ public class ElevatorTeleop extends CommandBase {
     }
 
     @Override
+    public void initialize () {
+        elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+    }
+
+    @Override
     public void execute() {
         SmartDashboard.putNumber("pov", controller.getPOV());
         switch (controller.getPOV()) {
@@ -32,6 +37,7 @@ public class ElevatorTeleop extends CommandBase {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
                 break;
         }
+
     }
 
     @Override

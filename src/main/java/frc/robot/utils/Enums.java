@@ -13,8 +13,8 @@ public class Enums {
     public enum ClawState {
         CLAW_OUTTAKE, //Claw shoot cube
         CLAW_HOLDING, //Claw tilted down and closed
-        CLAW_DROP_CONE, //Claw tilted down and open
-        CLAW_INTAKING, //Claw tilted down and intake wheel speed
+        CLAW_INTAKE_CUBE, //Claw tilted down and open
+        CLAW_INTAKE_CONE, //Claw tilted down and intake wheel speed
         CLAW_STANDBY //Claw tilted down and standby wheel speed
     }
 

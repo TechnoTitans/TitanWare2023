@@ -2,6 +2,7 @@ package frc.robot.commands.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Claw;
 import frc.robot.utils.Enums;
@@ -34,34 +35,29 @@ public class ClawControl extends CommandBase {
     private void setState(Enums.ClawState state) {
         switch (state) {
             case CLAW_HOLDING:
-                speed = 0.15;
-                tiltRotations = 0;
-                openCloseControlMode = ControlMode.PercentOutput;
-                openCloseControl = -0.2;
-                break;
-            case CLAW_OUTTAKE:
-                speed = -0.1;
-                tiltRotations = 500;
-                openCloseControlMode = ControlMode.PercentOutput;
-                openCloseControl = 0;
-                break;
-            case CLAW_INTAKING:
-                speed = 0.3;
-                tiltRotations = 500;
-                openCloseControlMode = ControlMode.Position;
-                openCloseControl = -0.1;
-                break;
-            case CLAW_DROP_CONE:
                 speed = 0.2;
-                tiltRotations = 500;
-                openCloseControlMode = ControlMode.PercentOutput;
-                openCloseControl = 0.2;
+                tiltRotations = 0;
+                openCloseControl = 15;
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
-                tiltRotations = 500;
-                openCloseControlMode = ControlMode.Position;
-                openCloseControl = 40;
+                tiltRotations = .02;
+                openCloseControl = 50;
+                break;
+            case CLAW_OUTTAKE:
+                speed = -0.2;
+                tiltRotations = .3;
+                openCloseControl = 65;
+                break;
+            case CLAW_INTAKE_CONE:
+                speed = 0.3;
+                tiltRotations = .3;
+                openCloseControl = 15;
+                break;
+            case CLAW_INTAKE_CUBE:
+                speed = 0.3;
+                tiltRotations = .3;
+                openCloseControl = 30;
                 break;
             default:
                 break;
@@ -86,18 +82,20 @@ public class ClawControl extends CommandBase {
             currentState = newState;
             setState(currentState);
         }
+        SmartDashboard.putString("Claw State", newState.toString());
 
         clawWheelMotor.set(
                 ControlMode.PercentOutput,
                 speed);
 
+        double error = openCloseControl - claw.getOpenCloseEncPosition();
         clawOpenCloseMotor.set(
-                openCloseControlMode,
-                openCloseControl);
+                ControlMode.PercentOutput,
+                error*.01);
 
-//        clawTiltNeo.set(
-//                CANSparkMax.ControlType.kPosition,
-//                tiltRotations);
+        clawTiltNeo.set(
+                CANSparkMax.ControlType.kPosition,
+                tiltRotations);
     }
 
     @Override

@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -18,9 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TestTraj;
-import frc.robot.commands.teleop.AutoBalanceTeleop;
-import frc.robot.commands.teleop.ElevatorTeleop;
-import frc.robot.commands.teleop.SwerveDriveTeleop;
+import frc.robot.commands.teleop.*;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
@@ -49,6 +48,7 @@ public class RobotContainer {
     //Elevator
     public final TitanFX elevatorVerticalMotor;
     public final TitanMAX elevatorHorizontalNeo;
+    public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
@@ -87,13 +87,13 @@ public class RobotContainer {
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
 //    public final SwerveAlignment swerveAlignment;
-//    public final IntakeTeleop intakeTeleop;
+    public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
-//    public final DropGamePieceTeleop dropGamePieceTeleop;
+    public final DropGamePieceTeleop dropGamePieceTeleop;
 
     //Buttons
     //Main Driver
-    public final TitanButton resetGyroBtn, autoBalanceBtn, elevatorControlBtn, autoAlignBtn;
+    public final TitanButton resetGyroBtn, autoBalanceBtn, autoAlignBtn;
     //Co Driver
     public final TitanButton dropGamePieceBtn, candleYellowBtn, candlePurpleBtn;
 
@@ -138,6 +138,8 @@ public class RobotContainer {
 
         //Elevator Motors
         elevatorVerticalMotor = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
+        elevatorVerticalLimitSwitch = new DigitalInput(6);
+        elevatorHorizontalLimitSwitch = new DigitalInput(8);
 
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
@@ -151,7 +153,7 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
         clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor);
+        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawColorSensor);
 
         //Swerve
@@ -184,15 +186,14 @@ public class RobotContainer {
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
 //        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
-//        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain());
+        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
-//        dropGamePieceTeleop = new DropGamePieceTeleop(claw, elevator, candleController);
+        dropGamePieceTeleop = new DropGamePieceTeleop(claw, elevator, candleController, oi.getXboxCo());
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-        elevatorControlBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
-        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BTN_SELECT);
+        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
 
         dropGamePieceBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_B);
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
@@ -218,11 +219,12 @@ public class RobotContainer {
 
         // Co Driver
 
-//        dropGamePieceBtn.onTrue(dropGamePieceTeleop);
+//        dropGamePieceTeleop
 
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
 
         candlePurpleBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.PURPLE)));
+
 
     }
 
