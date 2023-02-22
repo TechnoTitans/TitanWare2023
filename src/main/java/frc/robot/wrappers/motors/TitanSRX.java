@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
 /*
@@ -14,10 +13,6 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
  */
 @SuppressWarnings("unused")
 public class TitanSRX extends WPI_TalonSRX implements MotorController {
-
-    private TitanSRX brownoutFollower = null;
-    private Encoder encoder;
-    private boolean brownout = false;
 
     /**
      * Constructor for a TalonSRX motor
@@ -29,13 +24,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         super(channel);
         super.setInverted(reversed);
     }
-
-    public TitanSRX(int channel, boolean reversed, Encoder encoder) {
-        super(channel);
-        super.setInverted(reversed);
-        this.encoder = encoder;
-    }
-
     /**
      * Set the speed of the TalonSRX.
      *
@@ -60,23 +48,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
     public void limitCurrent(int amps) {
         super.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, amps, amps, 1));
     }
-
-    public boolean hasEncoder() {
-        return getEncoder() != null;
-    }
-
-    public Encoder getEncoder() {
-        return encoder;
-    }
-
-    public void setEncoder(Encoder encoder) {
-        this.encoder = encoder;
-    }
-
-    public int getChannel() {
-        return super.getDeviceID();
-    }
-
 
     public boolean isReversed() {
         return super.getInverted();
@@ -103,23 +74,7 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
     }
 
     public void follow(TitanSRX other) {
-        other.brownoutFollower = this;
-        this.set(ControlMode.Follower, other.getChannel());
-    }
-
-    public void enableBrownoutProtection() {
-        if (brownoutFollower != null) {
-            brownoutFollower.coast();
-        }
-        brownout = true;
-    }
-
-    public void disableBrownoutProtection() {
-        if (brownoutFollower != null && brownout) {
-            brownoutFollower.setNeutralMode(NeutralMode.Brake);
-            brownoutFollower.set(ControlMode.Follower, getChannel());
-        }
-        brownout = false;
+        this.set(ControlMode.Follower, other.getDeviceID());
     }
 
     public void setVoltage(double outputVolts) {

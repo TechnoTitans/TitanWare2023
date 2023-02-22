@@ -75,6 +75,11 @@ public class ClawControl extends CommandBase {
     }
 
     @Override
+    public void initialize() {
+        setState(Enums.ClawState.CLAW_STANDBY);
+    }
+
+    @Override
     public void execute() {
         Enums.ClawState newState = claw.getTargetState();
         if (newState != currentState) {
