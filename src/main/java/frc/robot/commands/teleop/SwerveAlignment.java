@@ -23,7 +23,7 @@ public class SwerveAlignment extends CommandBase {
     private final PIDController yPhotonPIDController = new PIDController(2, 0.1, 0);
     private final PIDController xLimelightPIDController = new PIDController(0.075, 0.1, 0);
     private final PIDController yLimelightPIDController = new PIDController(0.075, 0.1, 0);
-    private final double PHOTON_X_OFFSET = -0.46;
+    private final double DistanceOffset = -0.46;
     private final double LIMELIGHT_X_OFFSET = -0.5;
     private double targetErrorX, targetErrorY;
     private Enums.VisionMode visionMode;
@@ -71,7 +71,7 @@ public class SwerveAlignment extends CommandBase {
             final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
 
             targetErrorY = targetPose.getY();
-            targetErrorX = targetPose.getX() + PHOTON_X_OFFSET;
+            targetErrorX = targetPose.getX() + DistanceOffset;
 
             int tagID = photonVision.targetId();
 
@@ -90,7 +90,6 @@ public class SwerveAlignment extends CommandBase {
         } else if (visionMode == Enums.VisionMode.LIME_LIGHT) {
             targetErrorY = limelight.calculateDistance();
             targetErrorX = limelight.getX();
-
 
             swerve.faceDirection(
                     yLimelightPIDController.calculate(targetErrorY),

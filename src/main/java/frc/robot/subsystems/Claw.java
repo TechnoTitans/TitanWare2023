@@ -22,7 +22,7 @@ public class Claw extends SubsystemBase {
     private final TitanSRX clawOpenCloseMotor;
     private final CANCoder clawOpenCloseEncoder;
     private final TitanMAX clawTiltNeo;
-    private final ColorSensorV3 colorSensor;
+//    private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
     private Enums.ClawState targetState = Enums.ClawState.CLAW_STANDBY;
@@ -31,15 +31,15 @@ public class Claw extends SubsystemBase {
                 TitanSRX clawFollowerWheelBag,
                 TitanSRX clawOpenCloseMotor,
                 CANCoder clawOpenCloseEncoder,
-                TitanMAX clawTiltNeo,
-                ColorSensorV3 colorSensor
+                TitanMAX clawTiltNeo
+//                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
         this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
-        this.colorSensor = colorSensor;
+//        this.colorSensor = colorSensor;
 
         configMotor();
 
@@ -89,17 +89,17 @@ public class Claw extends SubsystemBase {
         return clawControl.isAtWantedState();
     }
 
-    public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS
-        if (colorSensor.getProximity() < 800) {
-            return Enums.CurrentGamePiece.NONE;
-        } else if (colorSensor.getColor().blue > 100) {
-            return Enums.CurrentGamePiece.CUBE;
-        } else if (colorSensor.getProximity() > 800) {
-            return Enums.CurrentGamePiece.CONE;
-        } else {
-            return Enums.CurrentGamePiece.NONE;
-        }
-    }
+//    public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS
+//        if (colorSensor.getProximity() < 800) {
+//            return Enums.CurrentGamePiece.NONE;
+//        } else if (colorSensor.getColor().blue > 100) {
+//            return Enums.CurrentGamePiece.CUBE;
+//        } else if (colorSensor.getProximity() > 800) {
+//            return Enums.CurrentGamePiece.CONE;
+//        } else {
+//            return Enums.CurrentGamePiece.NONE;
+//        }
+//    }
 
     public Enums.ClawState getTargetState() {
         return targetState;
@@ -116,12 +116,4 @@ public class Claw extends SubsystemBase {
     public TitanMAX getClawTiltNeo() {
         return clawTiltNeo;
     }
-
-//    public void resetEncoder() {
-//        clawOpenCloseEncoder.setPosition(0);
-//    }
-//
-//    public double getOpenCloseEncPosition() {
-//        return clawOpenCloseEncoder.getAbsolutePosition();
-//    }
 }
