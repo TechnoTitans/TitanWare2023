@@ -10,7 +10,6 @@ import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
-import frc.robot.wrappers.sensors.vision.Limelight;
 
 public class ElevatorControl extends CommandBase {
     private final Elevator elevator;
@@ -56,19 +55,14 @@ public class ElevatorControl extends CommandBase {
                 HETargetRotations = 1.35;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
-            case ELEVATOR_EXTENDED_GROUND:
-                VEPosition = 1;
-                HETargetRotations = 0;
-                HEControlMode = CANSparkMax.ControlType.kPosition;
-                break;
             case ELEVATOR_STANDBY:
                 VEPosition = 50;
                 HETargetRotations = -0.18;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
-                VEPosition = 50;
-                HETargetRotations = 15;
+                VEPosition = 15000;
+                HETargetRotations = 1.35;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             default:

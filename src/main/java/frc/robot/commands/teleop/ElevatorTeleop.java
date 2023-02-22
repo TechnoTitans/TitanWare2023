@@ -31,10 +31,10 @@ public class ElevatorTeleop extends CommandBase {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_EXTENDED_MID);
                 break;
             case 180:
-//                elevator.setState(Enums.ElevatorState.ELEVATOR_EXTENDED_GROUND);
+                elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
                 break;
             case 270:
-                elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+                elevator.setState(Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM);
                 break;
         }
 

@@ -4,7 +4,6 @@ public class Enums {
     public enum ElevatorState {
         ELEVATOR_EXTENDED_HIGH, //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_MID, //Elevator Mid and Horizontal extended
-        ELEVATOR_EXTENDED_GROUND, //Elevator Low and Horizontal extended
         ELEVATOR_EXTENDED_PLATFORM, //Elevator Platform and Horizontal extended
         ELEVATOR_STANDBY, //Elevator at pickup height
     }

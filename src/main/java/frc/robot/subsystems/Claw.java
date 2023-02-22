@@ -25,7 +25,7 @@ public class Claw extends SubsystemBase {
 //    private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
-    private Enums.ClawState targetState = Enums.ClawState.CLAW_STANDBY;
+    private Enums.ClawState targetState;
 
     public Claw(TitanSRX clawMainWheelBag,
                 TitanSRX clawFollowerWheelBag,
