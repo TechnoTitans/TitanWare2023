@@ -5,7 +5,7 @@ import frc.robot.utils.Enums;
 public class Profiler {
     private static Enums.DriverProfiles profile;
     private double ThrottleSensitivity = 1;
-    private double SpinningSensitivity = 1;
+    private double RotationalSensitivity = 1;
 
     private Profiler() {
     }
@@ -14,15 +14,15 @@ public class Profiler {
         Profiler newProfile = new Profiler();
         switch (profile) {
             case Driver1:
-                newProfile.SpinningSensitivity = 0.9;
-                newProfile.ThrottleSensitivity = 0.9;
+                newProfile.RotationalSensitivity = 1;
+                newProfile.ThrottleSensitivity = 1;
                 break;
             case Driver2:
-                newProfile.SpinningSensitivity = 1.1;
+                newProfile.RotationalSensitivity = 1.1;
                 newProfile.ThrottleSensitivity = 1.1;
                 break;
             default:
-                newProfile.SpinningSensitivity = 1;
+                newProfile.RotationalSensitivity = 1;
                 newProfile.ThrottleSensitivity = 1;
                 break;
         }
@@ -37,7 +37,7 @@ public class Profiler {
         return ThrottleSensitivity;
     }
 
-    public double getSpinningSensitivity() {
-        return SpinningSensitivity;
+    public double getRotationalSensitivity() {
+        return RotationalSensitivity;
     }
 }

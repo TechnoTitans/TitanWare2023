@@ -69,7 +69,7 @@ public class RobotContainer {
 
     //Sensors
     public final Pigeon2 pigeon;
-    public final ColorSensorV3 clawColorSensor;
+//    public final ColorSensorV3 clawColorSensor;
 
     //Vision
     public final Limelight limeLight;
@@ -152,10 +152,10 @@ public class RobotContainer {
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
-        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
+//        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
         elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawColorSensor);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(

@@ -9,7 +9,7 @@ public interface RobotMap {
 
     //Sensors
     int PIGEON_ID = 1;
-    I2C.Port CLAW_COLOR_SENSOR = I2C.Port.kOnboard;
+//    I2C.Port CLAW_COLOR_SENSOR = I2C.Port.kOnboard;
 
     //Vision
     String PhotonVision_AprilTag_Cam = "apriltag1";
