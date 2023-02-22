@@ -9,7 +9,6 @@ import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkMaxPIDController;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ClawControl;
@@ -53,26 +52,26 @@ public class Claw extends SubsystemBase {
         clawFollowerWheelBag.configFactoryDefault();
         clawFollowerWheelBag.follow(clawMainWheelBag);
 
+        clawOpenCloseEncoder.configFactoryDefault();
         CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
         canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         canCoderConfiguration.unitString = "deg";
-        canCoderConfiguration.magnetOffsetDegrees = -74;
-        canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         canCoderConfiguration.sensorDirection = false;
+        canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
+        canCoderConfiguration.magnetOffsetDegrees = -76;
         clawOpenCloseEncoder.configAllSettings(canCoderConfiguration);
 
-//        TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
-//        CCConfig.slot0.kP = 0.3; //TODO: TUNE ALL OF THESE
-//        CCConfig.slot0.kI = 0;
-//        CCConfig.slot0.kD = 0;
-//        CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
-//        CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
-//        CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-//        clawOpenCloseMotor.configAllSettings(CCConfig);
+        clawOpenCloseMotor.configFactoryDefault();
+        TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
+        CCConfig.slot0.kP = 1; //TODO: TUNE ALL OF THESE
+        CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
+        CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
+        CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
+        clawOpenCloseMotor.configAllSettings(CCConfig);
         clawOpenCloseMotor.brake();
 
         SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
-        clawTiltPID.setP(1.2);
+        clawTiltPID.setP(1.6);
         clawTiltPID.setI(0.0);
         clawTiltPID.setD(0);
         clawTiltPID.setOutputRange(-0.5, 0.5);
@@ -118,7 +117,11 @@ public class Claw extends SubsystemBase {
         return clawTiltNeo;
     }
 
-    public double getOpenCloseEncPosition() {
-        return clawOpenCloseEncoder.getAbsolutePosition();
-    }
+//    public void resetEncoder() {
+//        clawOpenCloseEncoder.setPosition(0);
+//    }
+//
+//    public double getOpenCloseEncPosition() {
+//        return clawOpenCloseEncoder.getAbsolutePosition();
+//    }
 }

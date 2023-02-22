@@ -19,8 +19,8 @@ public class SwerveAlignment extends CommandBase {
     private final PhotonVision photonVision;
     private final XboxController coController;
     private final Timer timer;
-    private final PIDController xPhotonPIDController = new PIDController(2, 0.1, 0);
-    private final PIDController yPhotonPIDController = new PIDController(3, 0.1, 0);
+    private final PIDController xPhotonPIDController = new PIDController(0.5, 0.1, 0);
+    private final PIDController yPhotonPIDController = new PIDController(2, 0.1, 0);
     private final PIDController xLimelightPIDController = new PIDController(0.075, 0.1, 0);
     private final PIDController yLimelightPIDController = new PIDController(0.075, 0.1, 0);
     private final double PHOTON_X_OFFSET = -0.46;
@@ -63,9 +63,9 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public void execute() {
-//        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
-//            end(true);
-//        }
+        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
+            end(true);
+        }
 
         if (visionMode == Enums.VisionMode.PHOTON_VISION) {
             final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
@@ -73,12 +73,15 @@ public class SwerveAlignment extends CommandBase {
             targetErrorY = targetPose.getY();
             targetErrorX = targetPose.getX() + PHOTON_X_OFFSET;
 
-            if (photonVision.targetId() == 6) { //Offset for substation
+            int tagID = photonVision.targetId();
+
+            if (tagID == 5 || tagID == 4) { //Offset for substation
                 targetErrorY += 0.5;
             }
 
-            swerve.faceDirection(
-                    xPhotonPIDController.calculate(targetErrorX),
+            swerve.drive(
+//                    xPhotonPIDController.calculate(targetErrorX),
+                    0,
                     yPhotonPIDController.calculate(targetErrorY),
                     0,
                     false

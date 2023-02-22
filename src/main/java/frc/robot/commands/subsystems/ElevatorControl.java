@@ -10,6 +10,7 @@ import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
+import frc.robot.wrappers.sensors.vision.Limelight;
 
 public class ElevatorControl extends CommandBase {
     private final Elevator elevator;
@@ -28,6 +29,8 @@ public class ElevatorControl extends CommandBase {
 
     private boolean VESwitchFlag = false;
 
+    int cnt = 0;
+
     public ElevatorControl(Elevator elevator) {
         this.elevator = elevator;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
@@ -45,12 +48,12 @@ public class ElevatorControl extends CommandBase {
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
                 VEPosition = 16000;
-                HETargetRotations = 2.4;
+                HETargetRotations = 2.5;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_EXTENDED_MID:
                 VEPosition = 13000;
-                HETargetRotations = 1.7;
+                HETargetRotations = 1.35;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_EXTENDED_GROUND:
@@ -60,18 +63,13 @@ public class ElevatorControl extends CommandBase {
                 break;
             case ELEVATOR_STANDBY:
                 VEPosition = 50;
-                HETargetRotations = -0.2;
+                HETargetRotations = -0.18;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
                 VEPosition = 50;
                 HETargetRotations = 15;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
-                break;
-            case ELEVATOR_PREGAME:
-                VEPosition = 0;
-                HETargetRotations = -0.2;
-                HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
             default:
                 break;
@@ -119,6 +117,11 @@ public class ElevatorControl extends CommandBase {
         horizontalElevatorMotor.set(
                 HEControlMode,
                 HETargetRotations);
+
+        if (horizontalElevatorLimitSwitch.get()) {
+            SmartDashboard.putNumber("shriya1", cnt);
+            cnt++;
+        }
     }
     @Override
     public boolean isFinished() {
