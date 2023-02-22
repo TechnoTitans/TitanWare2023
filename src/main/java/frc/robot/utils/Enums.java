@@ -7,14 +7,12 @@ public class Enums {
         ELEVATOR_EXTENDED_GROUND, //Elevator Low and Horizontal extended
         ELEVATOR_EXTENDED_PLATFORM, //Elevator Platform and Horizontal extended
         ELEVATOR_STANDBY, //Elevator at pickup height
-        ELEVATOR_PREGAME //Elevator at 0
     }
 
     public enum ClawState {
         CLAW_OUTTAKE, //Claw shoot cube
         CLAW_HOLDING, //Claw tilted down and closed
-        CLAW_INTAKE_CUBE, //Claw tilted down and open
-        CLAW_INTAKE_CONE, //Claw tilted down and intake wheel speed
+        CLAW_INTAKEING, //Claw tilted down and open
         CLAW_STANDBY //Claw tilted down and standby wheel speed
     }
 

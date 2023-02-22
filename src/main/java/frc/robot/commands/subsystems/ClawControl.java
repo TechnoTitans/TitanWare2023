@@ -37,27 +37,26 @@ public class ClawControl extends CommandBase {
             case CLAW_HOLDING:
                 speed = 0.2;
                 tiltRotations = 0;
-                openCloseControl = 15;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = -0.2;
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
                 tiltRotations = .02;
-                openCloseControl = 50;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = 260;
                 break;
             case CLAW_OUTTAKE:
                 speed = -0.2;
                 tiltRotations = .3;
-                openCloseControl = 65;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = 0.2;
                 break;
-            case CLAW_INTAKE_CONE:
+            case CLAW_INTAKEING:
                 speed = 0.3;
                 tiltRotations = .3;
-                openCloseControl = 15;
-                break;
-            case CLAW_INTAKE_CUBE:
-                speed = 0.3;
-                tiltRotations = .3;
-                openCloseControl = 30;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = 260;
                 break;
             default:
                 break;
@@ -82,16 +81,14 @@ public class ClawControl extends CommandBase {
             currentState = newState;
             setState(currentState);
         }
-        SmartDashboard.putString("Claw State", newState.toString());
 
         clawWheelMotor.set(
                 ControlMode.PercentOutput,
                 speed);
 
-        double error = openCloseControl - claw.getOpenCloseEncPosition();
         clawOpenCloseMotor.set(
-                ControlMode.PercentOutput,
-                error*.01);
+                openCloseControlMode,
+                openCloseControl);
 
         clawTiltNeo.set(
                 CANSparkMax.ControlType.kPosition,

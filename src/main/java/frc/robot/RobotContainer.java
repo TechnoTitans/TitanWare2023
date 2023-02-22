@@ -86,10 +86,9 @@ public class RobotContainer {
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoBalanceTeleop autoBalanceTeleop;
-//    public final SwerveAlignment swerveAlignment;
+    public final SwerveAlignment swerveAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
-    public final DropGamePieceTeleop dropGamePieceTeleop;
 
     //Buttons
     //Main Driver
@@ -185,15 +184,14 @@ public class RobotContainer {
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
-//        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
-        intakeTeleop = new IntakeTeleop(claw, oi.getXboxMain(), oi.getXboxCo());
+        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
+        intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
-        dropGamePieceTeleop = new DropGamePieceTeleop(claw, elevator, candleController, oi.getXboxCo());
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
         autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
-        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_A);
+        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
 
         dropGamePieceBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_B);
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
@@ -215,7 +213,7 @@ public class RobotContainer {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 
-//        autoAlignBtn.onTrue(swerveAlignment);
+        autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
 

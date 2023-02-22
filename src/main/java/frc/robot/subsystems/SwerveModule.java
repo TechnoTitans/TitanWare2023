@@ -47,7 +47,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.slot0.integralZone = 200;
         driverConfig.slot0.kD = 5;
         driverConfig.slot0.kF = 0.045;
-        driverConfig.closedloopRamp = 0.2;
+        driverConfig.closedloopRamp = 0.4;
         driveMotor.configAllSettings(driverConfig);
         driveMotor.setNeutralMode(NeutralMode.Coast);
 

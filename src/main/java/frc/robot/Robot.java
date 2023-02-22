@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -34,7 +31,9 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("HE Enc", robotContainer.elevatorHorizontalNeo.getAlternateEncoder(8192).getPosition());
-        SmartDashboard.putNumber("Claw Tilt Encoder", robotContainer.claw.getOpenCloseEncPosition());
+//        SmartDashboard.putNumber("Claw open close Encoder", robotContainer.claw.getOpenCloseEncPosition());
+        SmartDashboard.putBoolean("button", robotContainer.elevatorHorizontalLimitSwitch.get());
+        SmartDashboard.putNumber("Claw enc", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
         robotContainer.elevator.telemetry();
 
 //        SmartDashboard.putNumber("prox", robotContainer.clawColorSensor.getProximity());
