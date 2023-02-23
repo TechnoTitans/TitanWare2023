@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.I2C;
-
 @SuppressWarnings("unused")
 public interface RobotMap {
     //PDP

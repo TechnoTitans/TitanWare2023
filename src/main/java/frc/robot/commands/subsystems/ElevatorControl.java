@@ -3,7 +3,6 @@ package frc.robot.commands.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
@@ -28,8 +27,6 @@ public class ElevatorControl extends CommandBase {
 
     private boolean VESwitchFlag = false;
 
-    int cnt = 0;
-
     public ElevatorControl(Elevator elevator) {
         this.elevator = elevator;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
@@ -47,12 +44,12 @@ public class ElevatorControl extends CommandBase {
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
                 VEPosition = 16000;
-                HETargetRotations = 2.5;
+                HETargetRotations = 2.4;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_EXTENDED_MID:
-                VEPosition = 13000;
-                HETargetRotations = 1.35;
+                VEPosition = 12000;
+                HETargetRotations = 1.2;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_STANDBY:
@@ -61,9 +58,9 @@ public class ElevatorControl extends CommandBase {
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
-                VEPosition = 15000;
-                HETargetRotations = 1.35;
-                HEControlMode = CANSparkMax.ControlType.kPosition;
+                VEPosition = 13000;
+                HETargetRotations = -0.18;
+                HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
             default:
                 break;
@@ -111,11 +108,6 @@ public class ElevatorControl extends CommandBase {
         horizontalElevatorMotor.set(
                 HEControlMode,
                 HETargetRotations);
-
-        if (horizontalElevatorLimitSwitch.get()) {
-            SmartDashboard.putNumber("shriya1", cnt);
-            cnt++;
-        }
     }
     @Override
     public boolean isFinished() {

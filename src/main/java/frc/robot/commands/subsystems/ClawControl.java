@@ -2,7 +2,6 @@ package frc.robot.commands.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Claw;
 import frc.robot.utils.Enums;
@@ -38,7 +37,7 @@ public class ClawControl extends CommandBase {
                 speed = 0.2;
                 tiltRotations = 0;
                 openCloseControlMode = ControlMode.PercentOutput;
-                openCloseControl = -0.2;
+                openCloseControl = -0.37;
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
@@ -47,7 +46,7 @@ public class ClawControl extends CommandBase {
                 openCloseControl = 260;
                 break;
             case CLAW_OUTTAKE:
-                speed = -0.2;
+                speed = -0.1;
                 tiltRotations = .3;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = 0.2;
@@ -56,7 +55,13 @@ public class ClawControl extends CommandBase {
                 speed = 0.3;
                 tiltRotations = .3;
                 openCloseControlMode = ControlMode.Position;
-                openCloseControl = 260;
+                openCloseControl = 200;
+                break;
+            case CLAW_DROP:
+                speed = 0.3;
+                tiltRotations = .2;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = 200;
                 break;
             default:
                 break;
@@ -67,11 +72,11 @@ public class ClawControl extends CommandBase {
         return MathMethods.withinRange(
                 clawOpenCloseMotor.getSelectedSensorPosition(),
                 openCloseControl,
-                0.1) &&
+                5) &&
                 MathMethods.withinRange(
                         clawTiltNeo.getABSRevBoreThroughEncoder().getPosition(),
                         tiltRotations,
-                        0.1);
+                        5);
     }
 
     @Override
