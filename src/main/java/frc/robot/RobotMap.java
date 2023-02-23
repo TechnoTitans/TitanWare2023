@@ -48,15 +48,16 @@ public interface RobotMap {
     //Elevator
     int mainVerticalFalcon = 10;
     boolean mainVerticalFalconR = true;
-
     int horizontalElevatorNeo = 2;
-
-    int clawTiltNeo = 3;
+    int verticalLimitSwitch = 6;
+    int horizontalLimitSwitch = 8;
 
     //Claw Motors
+    int clawTiltNeo = 3;
     int clawOpenCloseMotor = 6;
     boolean clawOpenCloseMotorR = false;
     int clawOpenCloseEncoder = 9;
+    int clawLimitSwitch = 7;
 
     int clawMainWheelsMotor = 7;
     boolean clawMainWheelsMotorR = false;

@@ -53,6 +53,7 @@ public class RobotContainer {
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     public final CANCoder clawOpenCloseEncoder;
     public final TitanMAX clawTiltNeo;
+    public final DigitalInput clawOpenCloseLimitSwitch;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -136,8 +137,8 @@ public class RobotContainer {
 
         //Elevator Motors
         elevatorVerticalMotor = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
-        elevatorVerticalLimitSwitch = new DigitalInput(6);
-        elevatorHorizontalLimitSwitch = new DigitalInput(8);
+        elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
+        elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
 
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
@@ -146,13 +147,14 @@ public class RobotContainer {
 
         elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
         clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawOpenCloseLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 //        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
         elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawOpenCloseLimitSwitch);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
