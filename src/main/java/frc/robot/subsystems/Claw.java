@@ -8,6 +8,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ClawControl;
@@ -21,6 +22,7 @@ public class Claw extends SubsystemBase {
     private final TitanSRX clawOpenCloseMotor;
     private final CANCoder clawOpenCloseEncoder;
     private final TitanMAX clawTiltNeo;
+    private final DigitalInput clawOpenCloseLimitSwitch;
 //    private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
@@ -30,7 +32,8 @@ public class Claw extends SubsystemBase {
                 TitanSRX clawFollowerWheelBag,
                 TitanSRX clawOpenCloseMotor,
                 CANCoder clawOpenCloseEncoder,
-                TitanMAX clawTiltNeo
+                TitanMAX clawTiltNeo,
+                DigitalInput clawOpenCloseLimitSwitch
 //                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
@@ -38,6 +41,7 @@ public class Claw extends SubsystemBase {
         this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
+        this.clawOpenCloseLimitSwitch = clawOpenCloseLimitSwitch;
 //        this.colorSensor = colorSensor;
 
         configMotor();
@@ -74,10 +78,11 @@ public class Claw extends SubsystemBase {
         clawTiltPID.setI(0.0);
         clawTiltPID.setD(0);
         clawTiltPID.setOutputRange(-0.5, 0.5);
-        clawTiltPID.setFeedbackDevice(clawTiltNeo.getAlternateEncoder(8192));
+        clawTiltPID.setFeedbackDevice(clawTiltNeo.getRevBoreThroughEncoder());
 //        clawTiltNeo.setClosedLoopRampRate(0.2);
 //        clawTiltNeo.currentLimit(50, 30);
         clawTiltNeo.brake();
+        clawTiltNeo.getRevBoreThroughEncoder().setPosition(clawTiltNeo.getABSRevBoreThroughEncoder().getPosition());
     }
 
     public void setState(Enums.ClawState state) {
@@ -114,5 +119,9 @@ public class Claw extends SubsystemBase {
 
     public TitanMAX getClawTiltNeo() {
         return clawTiltNeo;
+    }
+
+    public DigitalInput getClawOpenCloseLimitSwitch() {
+        return clawOpenCloseLimitSwitch;
     }
 }

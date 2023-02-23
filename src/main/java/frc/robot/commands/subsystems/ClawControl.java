@@ -74,7 +74,7 @@ public class ClawControl extends CommandBase {
                 openCloseControl,
                 5) &&
                 MathMethods.withinRange(
-                        clawTiltNeo.getABSRevBoreThroughEncoder().getPosition(),
+                        clawTiltNeo.getRevBoreThroughEncoder().getPosition(),
                         tiltRotations,
                         5);
     }
@@ -90,6 +90,11 @@ public class ClawControl extends CommandBase {
         if (newState != currentState) {
             currentState = newState;
             setState(currentState);
+        }
+
+        if (claw.getClawOpenCloseLimitSwitch().get()) {
+            clawTiltNeo.set(0);
+            clawTiltNeo.getRevBoreThroughEncoder().setPosition(0);
         }
 
         clawWheelMotor.set(
