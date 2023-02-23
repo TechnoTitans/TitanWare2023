@@ -60,11 +60,12 @@ public class Elevator extends SubsystemBase {
         verticalElevatorMotor.brake();
 
         SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
-        HEConfig.setP(0.16);
+        HEConfig.setP(0.18);
 //        HEConfig.setI(0.002);
 //        HEConfig.setIZone(200);
 //        HEConfig.setD(10);
         HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
+//        horizontalElevatorMotor.setOpenLoopRampRate(0.3);
         horizontalElevatorMotor.brake();
     }
 

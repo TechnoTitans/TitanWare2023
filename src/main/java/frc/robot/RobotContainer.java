@@ -214,7 +214,7 @@ public class RobotContainer {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 
-        autoAlignBtn.onTrue(swerveAlignment);
+//        autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
 

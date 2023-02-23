@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -23,7 +24,6 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         robotContainer = new RobotContainer();
-        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
@@ -34,7 +34,10 @@ public class Robot extends TimedRobot {
 //        SmartDashboard.putNumber("Claw open close Encoder", robotContainer.claw.getOpenCloseEncPosition());
         SmartDashboard.putBoolean("button", robotContainer.elevatorHorizontalLimitSwitch.get());
         SmartDashboard.putNumber("Claw enc", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("Tilt enc", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
         robotContainer.elevator.telemetry();
+
+//        robotContainer.clawTiltNeo.coast();
 
 //        SmartDashboard.putNumber("prox", robotContainer.clawColorSensor.getProximity());
 //        SmartDashboard.putNumber("blue", robotContainer.clawColorSensor.getColor().blue);
@@ -110,6 +113,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testPeriodic() {
+        SmartDashboard.putNumber("Tilt enc", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
     }
 
     @Override

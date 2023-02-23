@@ -12,7 +12,8 @@ public class Enums {
         CLAW_OUTTAKE, //Claw shoot cube
         CLAW_HOLDING, //Claw tilted down and closed
         CLAW_INTAKEING, //Claw tilted down and open
-        CLAW_STANDBY //Claw tilted down and standby wheel speed
+        CLAW_STANDBY, //Claw tilted down and standby wheel speed
+        CLAW_DROP
     }
 
     public enum CANdleState {

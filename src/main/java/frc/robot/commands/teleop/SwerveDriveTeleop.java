@@ -30,9 +30,18 @@ public class SwerveDriveTeleop extends CommandBase {
         double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
         double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
 
-        boolean fastMode = controller.getRightTriggerAxis() > 0.5;
-        double throttleWeight = fastMode ? 1 : 0.5;
-        double turnWeight = fastMode ? 1 : 0.5;
+        double throttleWeight;
+        double turnWeight;
+        if (controller.getLeftTriggerAxis() > 0.5) {
+            throttleWeight = 0.3;
+            turnWeight = 0.5;
+        } else if (controller.getRightTriggerAxis() > 0.5) {
+            throttleWeight = 1;
+            turnWeight = 1;
+        } else {
+            throttleWeight = 0.5;
+            turnWeight = 0.7;
+        }
 
         if (controller.getLeftBumper()) {
             swerve.faceDirection(frontBack, leftRight, 0, fieldRelative);

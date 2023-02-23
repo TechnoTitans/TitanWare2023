@@ -7,7 +7,6 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -63,7 +62,7 @@ public class Claw extends SubsystemBase {
 
         clawOpenCloseMotor.configFactoryDefault();
         TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
-        CCConfig.slot0.kP = 1; //TODO: TUNE ALL OF THESE
+        CCConfig.slot0.kP = 1.3; //TODO: TUNE ALL OF THESE
         CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
@@ -71,7 +70,7 @@ public class Claw extends SubsystemBase {
         clawOpenCloseMotor.brake();
 
         SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
-        clawTiltPID.setP(1.6);
+        clawTiltPID.setP(2.6);
         clawTiltPID.setI(0.0);
         clawTiltPID.setD(0);
         clawTiltPID.setOutputRange(-0.5, 0.5);
