@@ -16,6 +16,7 @@ public class ClawControl extends CommandBase {
 
     private Enums.ClawState currentState;
     private ControlMode openCloseControlMode;
+    private CANSparkMax.ControlType tiltControlMode;
 
     private double
             speed = 0, //Claw Intake Wheel Speed
@@ -35,30 +36,35 @@ public class ClawControl extends CommandBase {
         switch (state) {
             case CLAW_HOLDING:
                 speed = 0.2;
-                tiltRotations = 0;
+                tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
+                tiltRotations = -0.3;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.37;
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .02;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 260;
                 break;
             case CLAW_OUTTAKE:
                 speed = -0.1;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .3;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = 0.2;
                 break;
             case CLAW_INTAKEING:
                 speed = 0.3;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .3;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 200;
                 break;
             case CLAW_DROP:
                 speed = 0.3;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .2;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 200;
@@ -106,7 +112,7 @@ public class ClawControl extends CommandBase {
                 openCloseControl);
 
         clawTiltNeo.set(
-                CANSparkMax.ControlType.kPosition,
+                tiltControlMode,
                 tiltRotations);
     }
 
