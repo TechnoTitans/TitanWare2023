@@ -186,7 +186,7 @@ public class RobotContainer {
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
         swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
-        intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
+        intakeTeleop = new IntakeTeleop(claw, elevator, candleController, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
         //Buttons
