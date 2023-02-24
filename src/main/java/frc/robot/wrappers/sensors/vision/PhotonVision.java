@@ -7,28 +7,29 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class PhotonVision {
     private final PhotonCamera photonCamera;
-    private PhotonPipelineResult lastPipelineResult;
 
     public PhotonVision(PhotonCamera photonCamera) {
         this.photonCamera = photonCamera;
     }
 
-    public Pose2d getRobotPoseRelativeToAprilTag() {
-        lastPipelineResult = photonCamera.getLatestResult();
-        if (lastPipelineResult.hasTargets()) {
-            PhotonTrackedTarget bestTarget = lastPipelineResult.getBestTarget();
+    public PhotonPipelineResult getLatestResult() {
+        return photonCamera.getLatestResult();
+    }
+
+    public Pose2d getRobotPoseRelativeToAprilTag(PhotonPipelineResult pipelineResult) {
+        if (hasTargets(pipelineResult)) {
+            PhotonTrackedTarget bestTarget = pipelineResult.getBestTarget();
             // Single best target
             return new Pose2d(bestTarget.getBestCameraToTarget().getTranslation().toTranslation2d(), bestTarget.getBestCameraToTarget().getRotation().toRotation2d());
         }
         return new Pose2d();
     }
 
-    public boolean hasTargets() {
-        lastPipelineResult = photonCamera.getLatestResult();
-        return lastPipelineResult.hasTargets();
+    public boolean hasTargets(PhotonPipelineResult pipelineResult) {
+        return pipelineResult.hasTargets();
     }
 
-    public int targetId() {
-        return lastPipelineResult.getBestTarget().getFiducialId();
+    public int targetId(PhotonPipelineResult pipelineResult) {
+        return pipelineResult.hasTargets() ? pipelineResult.getBestTarget().getFiducialId() : -1;
     }
 }
