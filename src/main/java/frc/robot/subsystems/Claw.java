@@ -82,7 +82,6 @@ public class Claw extends SubsystemBase {
 //        clawTiltNeo.setClosedLoopRampRate(0.2);
 //        clawTiltNeo.currentLimit(50, 30);
         clawTiltNeo.brake();
-        clawTiltNeo.getRevBoreThroughEncoder().setPosition(clawTiltNeo.getABSRevBoreThroughEncoder().getPosition());
     }
 
     public void setState(Enums.ClawState state) {
