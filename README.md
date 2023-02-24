@@ -18,8 +18,8 @@
 - [x] Switch to Phoenix Pro (https://api.ctr-electronics.com/phoenixpro/release/java/index.html)
 
 ## Drivetrain (Swerve):
-- [ ] Set Module Offsets
-- [ ] Config Odomety/Kinematics
+- [x] Set Module Offsets
+- [x] Config Odomety/Kinematics
 - [ ] Tune PID
 - [ ] Run path planning paths
 - [ ] Locking System
