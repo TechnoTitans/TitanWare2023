@@ -9,10 +9,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.leds.CandleController;
 
 public class IntakeTeleop extends CommandBase {
     private final Claw claw;
     private final Elevator elevator;
+    private final CandleController candleController;
     private final XboxController mainController;
     private final XboxController coController;
     private final Timer timer;
@@ -21,9 +23,10 @@ public class IntakeTeleop extends CommandBase {
     boolean flag = false;
     boolean flag2 = false;
 
-    public IntakeTeleop(Claw claw, Elevator elevator, XboxController mainController, XboxController coController) {
+    public IntakeTeleop(Claw claw, Elevator elevator, CandleController candleController, XboxController mainController, XboxController coController) {
         this.claw = claw;
         this.elevator = elevator;
+        this.candleController = candleController;
         this.mainController = mainController;
         this.coController = coController;
         this.timer = new Timer();
@@ -37,17 +40,6 @@ public class IntakeTeleop extends CommandBase {
 
     @Override
     public void execute() {
-
-//        if (controller.getBButton()) {
-//            claw.setState(Enums.ClawState.CLAW_INTAKING);
-//        } else {
-//            if (claw.getCurrentGamePiece() != Enums.CurrentGamePiece.NONE) {
-//                claw.setState(Enums.ClawState.CLAW_HOLDING);
-//            } else {
-//                claw.setState(Enums.ClawState.CLAW_STANDBY);
-//            }
-//        }
-
         if (mainController.getAButton()) {
             claw.setState(Enums.ClawState.CLAW_INTAKEING);
         } else if (mainController.getXButton()) {
@@ -60,9 +52,8 @@ public class IntakeTeleop extends CommandBase {
                 flag = true;
             }
 
+            candleController.setState(Enums.CANdleState.OFF);
             claw.setState(Enums.ClawState.CLAW_DROP);
-
-
         }
 
         if (flag) {

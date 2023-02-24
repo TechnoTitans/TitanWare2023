@@ -65,7 +65,7 @@ public class Elevator extends SubsystemBase {
 //        HEConfig.setIZone(200);
 //        HEConfig.setD(10);
         HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
-//        horizontalElevatorMotor.setOpenLoopRampRate(0.3);
+        horizontalElevatorMotor.setOpenLoopRampRate(0.5);
         horizontalElevatorMotor.brake();
     }
 
