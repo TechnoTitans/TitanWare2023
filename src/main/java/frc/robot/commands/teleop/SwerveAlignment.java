@@ -12,6 +12,7 @@ import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 public class SwerveAlignment extends CommandBase {
     private final Swerve swerve;
@@ -28,6 +29,8 @@ public class SwerveAlignment extends CommandBase {
     private double targetErrorX, targetErrorY;
     private Enums.VisionMode visionMode;
 
+    private PhotonPipelineResult lastPipelineResult;
+
     public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
         this.swerve = swerve;
         this.limelight = limelight;
@@ -43,18 +46,20 @@ public class SwerveAlignment extends CommandBase {
         timer.reset();
         timer.start();
 
+        lastPipelineResult = photonVision.getLatestResult();
+
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_CONFIG);
-        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
+        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
             end(true);
-        } else if (photonVision.hasTargets() && limelight.isTargetFound()) {
-            if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag().getY()) {
+        } else if (photonVision.hasTargets(lastPipelineResult) && limelight.isTargetFound()) {
+            if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult).getY()) {
                 visionMode = Enums.VisionMode.PHOTON_VISION;
             } else {
                 visionMode = Enums.VisionMode.LIME_LIGHT;
             }
         } else if (limelight.isTargetFound()) {
             visionMode = Enums.VisionMode.LIME_LIGHT;
-        } else if (photonVision.hasTargets()) {
+        } else if (photonVision.hasTargets(lastPipelineResult)) {
             visionMode = Enums.VisionMode.PHOTON_VISION;
         } else {
             end(true);
@@ -63,17 +68,18 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public void execute() {
-        if (!photonVision.hasTargets() && !limelight.isTargetFound()) {
+        lastPipelineResult = photonVision.getLatestResult();
+        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
             end(true);
         }
 
         if (visionMode == Enums.VisionMode.PHOTON_VISION) {
-            final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag();
+            final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult);
 
             targetErrorY = targetPose.getY();
             targetErrorX = targetPose.getX() + DistanceOffset;
 
-            int tagID = photonVision.targetId();
+            int tagID = photonVision.targetId(lastPipelineResult);
 
             if (tagID == 5 || tagID == 4) { //Offset for substation
                 targetErrorY += 0.5;

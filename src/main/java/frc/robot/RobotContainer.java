@@ -213,18 +213,11 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-
 //        autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
-
-//        dropGamePieceTeleop
-
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
-
         candlePurpleBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.PURPLE)));
-
-
     }
 
     public Command getAutonomousCommand() {
