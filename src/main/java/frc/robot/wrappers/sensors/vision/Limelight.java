@@ -23,10 +23,10 @@ public class Limelight {
     public double calculateDistance() {
         // Hardware constants
         // TODO: find these measurements, won't really need
-        final double HEIGHT_FROM_FLOOR_GOAL = 24.0; //TODO:
-        final double HEIGHT_FROM_FLOOR_CAMERA = 21;
-        final double ANGLE_FROM_FLOOR = 20;
-        return Math.max((HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + ty.getAsDouble())) - 7.9, 0);
+        final double HEIGHT_FROM_FLOOR_GOAL = 24.0;
+        final double HEIGHT_FROM_FLOOR_CAMERA = 26.0; // new
+        final double ANGLE_FROM_FLOOR = 10;
+        return Math.max((HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + ty.getAsDouble())) - 34, 0);
     }
 
 

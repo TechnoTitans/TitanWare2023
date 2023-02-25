@@ -43,14 +43,10 @@ public class SwerveDriveTeleop extends CommandBase {
             turnWeight = 0.7;
         }
 
-        if (controller.getLeftBumper()) {
-            swerve.faceDirection(frontBack, leftRight, 0, fieldRelative);
-        } else if (controller.getRightBumper()) {
-            swerve.faceDirection(frontBack, leftRight, 180, fieldRelative);
-        } else {
-            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
-            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * turnWeight, fieldRelative);
-        }
+
+        double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
+        swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * turnWeight, fieldRelative);
+
     }
 
     @Override

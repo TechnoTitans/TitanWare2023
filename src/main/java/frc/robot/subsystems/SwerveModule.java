@@ -42,24 +42,21 @@ public class SwerveModule extends SubsystemBase {
 
         driveMotor.configFactoryDefault();
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.slot0.kP = 0.1;
-        driverConfig.slot0.kI = 0.002;
-        driverConfig.slot0.integralZone = 200;
-        driverConfig.slot0.kD = 5;
-        driverConfig.slot0.kF = 0.045;
-        driverConfig.closedloopRamp = 0.4;
+        driverConfig.slot0.kP = 0.17725;
+//        driverConfig.slot0.kI = 0.002;
+//        driverConfig.slot0.integralZone = 200;
+        driverConfig.slot0.kD = 1;
+//        driverConfig.slot0.kF = 0.06414;
+        driverConfig.closedloopRamp = 0.2;
         driveMotor.configAllSettings(driverConfig);
         driveMotor.setNeutralMode(NeutralMode.Coast);
 
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.slot0.kP = 0.47;
-        turnerConfig.slot0.kI = 0;
-        turnerConfig.slot0.kD = 0;
-        turnerConfig.slot0.kF = 0;
-//        turnerConfig.closedloopRamp = 0.1;
+        turnerConfig.slot0.kP = 0.5;
+//        turnerConfig.closedloopRamp = 0.2;
 //        turnerConfig.neutralDeadband = 0.07;
-        turnerConfig.peakOutputForward = 0.5;
-        turnerConfig.peakOutputReverse = -0.5;
+//        turnerConfig.peakOutputForward = 0.5;
+//        turnerConfig.peakOutputReverse = -0.5;
         turnerConfig.remoteFilter0.remoteSensorDeviceID = turnEncoder.getDeviceID();
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;

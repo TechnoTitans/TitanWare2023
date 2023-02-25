@@ -3,13 +3,14 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenixpro.hardware.Pigeon2;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.commands.autonomous.TestTraj;
+import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.*;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -59,7 +60,7 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-    public final DriveController holonomicDriveController;
+    public final HolonomicDriveController holonomicDriveController;
     public final Field2d field;
 
     //PDH
@@ -97,7 +98,7 @@ public class RobotContainer {
     public final TitanButton dropGamePieceBtn, candleYellowBtn, candlePurpleBtn;
 
     //Autonomous Commands
-//    public final TrajectoryManager trajectoryManager;
+    public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
@@ -167,10 +168,10 @@ public class RobotContainer {
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
         field = new Field2d();
 
-        holonomicDriveController = new DriveController(
+        holonomicDriveController = new HolonomicDriveController(
                 new PIDController(0, 0, 0),
                 new PIDController(0, 0, 0),
-                new PIDController(0.12, 0, 0)
+                new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_ANGULAR_SPEED, Constants.Swerve.TRAJ_MAX_ANGULAR_ACCELERATION))
         );
 
         //Vision
@@ -199,7 +200,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-//        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -221,9 +222,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        TestTraj testTraj = new TestTraj(swerve, kinematics, odometry);
-        PathPlannerTrajectory path = PathPlanner.loadPath("auto1", Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, false);
-        return testTraj.followPPTrajectory(path, true);
-//        return trajectoryManager.getSelectedPath();
+        return trajectoryManager.getSelectedPath();
     }
 }

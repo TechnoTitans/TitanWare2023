@@ -43,7 +43,7 @@ public class ElevatorControl extends CommandBase {
         this.VEControlMode = ControlMode.Position;
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
-                VEPosition = 16000;
+                VEPosition = 15500;
                 HETargetRotations = 2.3;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
