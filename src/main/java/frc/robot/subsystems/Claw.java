@@ -22,7 +22,7 @@ public class Claw extends SubsystemBase {
     private final TitanSRX clawOpenCloseMotor;
     private final CANCoder clawOpenCloseEncoder;
     private final TitanMAX clawTiltNeo;
-    private final DigitalInput clawOpenCloseLimitSwitch;
+    private final DigitalInput clawTiltLimitSwitch;
 //    private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
@@ -33,7 +33,7 @@ public class Claw extends SubsystemBase {
                 TitanSRX clawOpenCloseMotor,
                 CANCoder clawOpenCloseEncoder,
                 TitanMAX clawTiltNeo,
-                DigitalInput clawOpenCloseLimitSwitch
+                DigitalInput clawTiltLimitSwitch
 //                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
@@ -41,7 +41,7 @@ public class Claw extends SubsystemBase {
         this.clawTiltNeo = clawTiltNeo;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
-        this.clawOpenCloseLimitSwitch = clawOpenCloseLimitSwitch;
+        this.clawTiltLimitSwitch = clawTiltLimitSwitch;
 //        this.colorSensor = colorSensor;
 
         configMotor();
@@ -120,7 +120,7 @@ public class Claw extends SubsystemBase {
         return clawTiltNeo;
     }
 
-    public DigitalInput getClawOpenCloseLimitSwitch() {
-        return clawOpenCloseLimitSwitch;
+    public DigitalInput getClawTiltLimitSwitch() {
+        return clawTiltLimitSwitch;
     }
 }

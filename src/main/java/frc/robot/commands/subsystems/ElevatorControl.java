@@ -44,12 +44,12 @@ public class ElevatorControl extends CommandBase {
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
                 VEPosition = 16000;
-                HETargetRotations = 2.4;
+                HETargetRotations = 2.3;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_EXTENDED_MID:
                 VEPosition = 12000;
-                HETargetRotations = 1.2;
+                HETargetRotations = 1.05;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_STANDBY:

@@ -57,7 +57,7 @@ public class IntakeTeleop extends CommandBase {
         }
 
         if (flag) {
-            if (timer2.hasElapsed(1) && flag2) {
+            if (timer2.hasElapsed(.5) && flag2) {
                 claw.setState(Enums.ClawState.CLAW_STANDBY);
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
                 flag = false;

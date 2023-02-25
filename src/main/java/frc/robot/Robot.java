@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.revrobotics.SparkMaxAbsoluteEncoder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -35,6 +34,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("button", robotContainer.elevatorHorizontalLimitSwitch.get());
         SmartDashboard.putNumber("Claw enc", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
         SmartDashboard.putNumber("Tilt enc", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
+        SmartDashboard.putBoolean("Claw LS", robotContainer.clawTiltLimitSwitch.get());
         robotContainer.elevator.telemetry();
 
 //        robotContainer.clawTiltNeo.coast();
@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
+        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
     }
 
     @Override
