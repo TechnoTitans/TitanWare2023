@@ -108,16 +108,14 @@ public class Swerve extends SubsystemBase {
 
         if (errorTheta < -180) errorTheta += 360;
         if (errorTheta > 180) errorTheta -= 360;
-        if (Math.abs(errorTheta) < 15) errorTheta *= 0.1;
-        if (Math.abs(errorTheta) < 3) errorTheta = 0;
 
+        double pRotation = errorTheta * 0.05;
 
-        double pRotation = errorTheta * Constants.Swerve.ROTATE_P;
-
-        if (Math.abs(pRotation) > Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED)
+        if (Math.abs(pRotation) > Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED) {
             pRotation = Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * ((pRotation > 0) ? 1 : -1);
+        }
 
-        drive(dx, dy, -pRotation, fieldRelative);
+        drive(dx, dy, pRotation, fieldRelative);
     }
 
 

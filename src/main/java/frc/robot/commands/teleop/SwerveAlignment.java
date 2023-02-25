@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Enums;
@@ -22,10 +24,10 @@ public class SwerveAlignment extends CommandBase {
     private final Timer timer;
     private final PIDController xPhotonPIDController = new PIDController(0.5, 0.1, 0);
     private final PIDController yPhotonPIDController = new PIDController(2, 0.1, 0);
-    private final PIDController xLimelightPIDController = new PIDController(0.075, 0.1, 0);
-    private final PIDController yLimelightPIDController = new PIDController(0.075, 0.1, 0);
+    private final PIDController xLimelightPIDController = new PIDController(0.075, 0, 0);
+    private final PIDController yLimelightPIDController = new PIDController(0.05, 0, 0);
     private final double DistanceOffset = -0.46;
-    private final double LIMELIGHT_X_OFFSET = -0.5;
+    private final double LIMELIGHT_X_OFFSET = -4.5;
     private double targetErrorX, targetErrorY;
     private Enums.VisionMode visionMode;
 
@@ -48,7 +50,7 @@ public class SwerveAlignment extends CommandBase {
 
 //        lastPipelineResult = photonVision.getLatestResult();
 //
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_CONFIG);
+        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
 //        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
 //            end(true);
 //        } else if (photonVision.hasTargets(lastPipelineResult) && limelight.isTargetFound()) {
@@ -77,7 +79,7 @@ public class SwerveAlignment extends CommandBase {
             final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult);
 
             targetErrorY = targetPose.getY();
-            targetErrorX = targetPose.getX() + DistanceOffset;
+            targetErrorX = targetPose.getX();
 
             int tagID = photonVision.targetId(lastPipelineResult);
 
@@ -95,12 +97,12 @@ public class SwerveAlignment extends CommandBase {
 
         } else if (visionMode == Enums.VisionMode.LIME_LIGHT) {
             targetErrorY = limelight.calculateDistance();
-            targetErrorX = limelight.getX();
+            targetErrorX = limelight.getX() + LIMELIGHT_X_OFFSET;
 
-            swerve.drive(
-                    yLimelightPIDController.calculate(-targetErrorY),
+            swerve.faceDirection(
+                    targetErrorY * 0.05,
                     xLimelightPIDController.calculate(targetErrorX),
-                    0,
+                    180,
                     true
             );
         }
@@ -112,9 +114,10 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
-//        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.1)) ||
-//                timer.hasElapsed(5);
+        SmartDashboard.putNumber("Y", targetErrorY);
+        SmartDashboard.putNumber("X", targetErrorX);
+        return (MathMethods.withinBand(targetErrorY, 0.3) && MathMethods.withinBand(targetErrorX, 0.55)) ||
+                timer.hasElapsed(5);
     }
 
     @Override
@@ -122,16 +125,10 @@ public class SwerveAlignment extends CommandBase {
         swerve.stop();
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
         timer.stop();
-        new WaitCommand(0.3) { //Rumble codriver control so they know that alignment has finished
-            @Override
-            public void initialize() {
-                coController.setRumble(XboxController.RumbleType.kBothRumble, 0.5);
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                coController.setRumble(XboxController.RumbleType.kBothRumble, 0);
-            }
-        }.schedule();
+        new SequentialCommandGroup(
+                new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0.5)),
+                new WaitCommand(0.3),
+                new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0))
+        ).schedule();
     }
 }

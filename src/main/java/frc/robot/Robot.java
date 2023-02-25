@@ -29,25 +29,13 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("HE Enc", robotContainer.elevatorHorizontalNeo.getAlternateEncoder(8192).getPosition());
-//        SmartDashboard.putNumber("Claw open close Encoder", robotContainer.claw.getOpenCloseEncPosition());
-        SmartDashboard.putBoolean("button", robotContainer.elevatorHorizontalLimitSwitch.get());
-        SmartDashboard.putNumber("Claw enc", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("Tilt enc", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
-        SmartDashboard.putBoolean("Claw LS", robotContainer.clawTiltLimitSwitch.get());
+        SmartDashboard.putNumber("Distance", robotContainer.limeLight.calculateDistance());
         robotContainer.elevator.telemetry();
-
-//        robotContainer.clawTiltNeo.coast();
-
-//        SmartDashboard.putNumber("prox", robotContainer.clawColorSensor.getProximity());
-//        SmartDashboard.putNumber("blue", robotContainer.clawColorSensor.getColor().blue);
-
-//        robotContainer.claw.getClawTiltNeo().set(CANSparkMax.ControlType.kPosition, 0);
     }
 
     @Override
     public void disabledInit() {
-        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
+        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
@@ -87,13 +75,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-
-//        robotContainer.odometry.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
-//        robotContainer.field.setRobotPose(robotContainer.odometry.getPoseMeters());
-
-//        robotContainer.elevatorVerticalMotor.set(robotContainer.oi.getXboxCo().getLeftY());
-
-
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

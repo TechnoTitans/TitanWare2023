@@ -2,6 +2,7 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -28,14 +29,14 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class TrajectoryManager {
     private final Swerve swerve;
-    private final DriveController controller;
+    private final HolonomicDriveController controller;
     private final SwerveDriveOdometry odometry;
     private final boolean reverseTrajectory = false;
     private final Field2d field;
     private final Claw claw;
     private SendableChooser<Command> autoChooser;
 
-    public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, Field2d field, Claw claw) {
+    public TrajectoryManager(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, Field2d field, Claw claw) {
         this.swerve = swerve;
         this.controller = controller;
         this.odometry = odometry;
@@ -88,12 +89,12 @@ class TrajectroyFollower extends CommandBase {
     private final PathPlannerTrajectory traj;
     private final Timer timer;
     private final Swerve swerve;
-    private final DriveController controller;
+    private final HolonomicDriveController controller;
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
     private final Claw claw;
 
-    public TrajectroyFollower(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field, Claw claw) {
+    public TrajectroyFollower(Swerve swerve, HolonomicDriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field, Claw claw) {
         this.swerve = swerve;
         this.timer = new Timer();
         this.controller = controller;
@@ -140,8 +141,13 @@ class TrajectroyFollower extends CommandBase {
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
-        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state, swerve.getRotation2d());
+        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state, state.holonomicRotation);
         swerve.drive(correction);
+//        swerve.drive(
+//                correction.vxMetersPerSecond,
+//                correction.vyMetersPerSecond,
+//                correction.omegaRadiansPerSecond,
+//                true);
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {
