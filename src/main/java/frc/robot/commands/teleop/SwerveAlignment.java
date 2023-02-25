@@ -46,34 +46,34 @@ public class SwerveAlignment extends CommandBase {
         timer.reset();
         timer.start();
 
-        lastPipelineResult = photonVision.getLatestResult();
-
+//        lastPipelineResult = photonVision.getLatestResult();
+//
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_CONFIG);
-        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
-            end(true);
-        } else if (photonVision.hasTargets(lastPipelineResult) && limelight.isTargetFound()) {
-            if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult).getY()) {
-                visionMode = Enums.VisionMode.PHOTON_VISION;
-            } else {
-                visionMode = Enums.VisionMode.LIME_LIGHT;
-            }
-        } else if (limelight.isTargetFound()) {
+//        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
+//            end(true);
+//        } else if (photonVision.hasTargets(lastPipelineResult) && limelight.isTargetFound()) {
+//            if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult).getY()) {
+//                visionMode = Enums.VisionMode.PHOTON_VISION;
+//            } else {
+//                visionMode = Enums.VisionMode.LIME_LIGHT;
+//            }
+//        } else if (limelight.isTargetFound()) {
             visionMode = Enums.VisionMode.LIME_LIGHT;
-        } else if (photonVision.hasTargets(lastPipelineResult)) {
-            visionMode = Enums.VisionMode.PHOTON_VISION;
-        } else {
-            end(true);
-        }
+//        } else if (photonVision.hasTargets(lastPipelineResult)) {
+//            visionMode = Enums.VisionMode.PHOTON_VISION;
+//        } else {
+//            end(true);
+//        }
     }
 
     @Override
     public void execute() {
-        lastPipelineResult = photonVision.getLatestResult();
-        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
-            end(true);
-        }
+//        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
+//            end(true);
+//        }
 
         if (visionMode == Enums.VisionMode.PHOTON_VISION) {
+            lastPipelineResult = photonVision.getLatestResult();
             final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult);
 
             targetErrorY = targetPose.getY();
@@ -97,11 +97,11 @@ public class SwerveAlignment extends CommandBase {
             targetErrorY = limelight.calculateDistance();
             targetErrorX = limelight.getX();
 
-            swerve.faceDirection(
-                    yLimelightPIDController.calculate(targetErrorY),
-                    xLimelightPIDController.calculate(-targetErrorX),
+            swerve.drive(
+                    yLimelightPIDController.calculate(-targetErrorY),
+                    xLimelightPIDController.calculate(targetErrorX),
                     0,
-                    false
+                    true
             );
         }
 
@@ -112,8 +112,9 @@ public class SwerveAlignment extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.1)) ||
-                timer.hasElapsed(5);
+        return false;
+//        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.1)) ||
+//                timer.hasElapsed(5);
     }
 
     @Override

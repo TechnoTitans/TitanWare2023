@@ -55,7 +55,7 @@ public class RobotContainer {
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     public final CANCoder clawOpenCloseEncoder;
     public final TitanMAX clawTiltNeo;
-    public final DigitalInput clawOpenCloseLimitSwitch;
+    public final DigitalInput clawTiltLimitSwitch;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -149,14 +149,14 @@ public class RobotContainer {
 
         elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
         clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawOpenCloseLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
+        clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 //        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
         elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawOpenCloseLimitSwitch);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltLimitSwitch);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
@@ -215,7 +215,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-//        autoAlignBtn.onTrue(swerveAlignment);
+        autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));

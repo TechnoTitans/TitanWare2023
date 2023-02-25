@@ -43,8 +43,8 @@ public class ClawControl extends CommandBase {
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
-                tiltControlMode = CANSparkMax.ControlType.kPosition;
-                tiltRotations = .02;
+                tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
+                tiltRotations = -0.3;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 260;
                 break;
@@ -98,9 +98,9 @@ public class ClawControl extends CommandBase {
             setState(currentState);
         }
 
-        if (claw.getClawOpenCloseLimitSwitch().get()) {
-            clawTiltNeo.set(0);
+        if (claw.getClawTiltLimitSwitch().get() && tiltControlMode == CANSparkMax.ControlType.kDutyCycle) {
             clawTiltNeo.getRevBoreThroughEncoder().setPosition(0);
+            tiltRotations = 0;
         }
 
         clawWheelMotor.set(
