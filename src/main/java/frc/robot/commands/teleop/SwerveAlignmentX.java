@@ -16,7 +16,7 @@ import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-public class SwerveAlignmentX extends CommandBase {
+public class SwerveAlignment extends CommandBase {
     private final Swerve swerve;
     private final Limelight limelight;
     private final PhotonVision photonVision;
@@ -36,7 +36,7 @@ public class SwerveAlignmentX extends CommandBase {
 
     private PhotonPipelineResult lastPipelineResult;
 
-    public SwerveAlignmentX(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
+    public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
         this.swerve = swerve;
         this.limelight = limelight;
         this.photonVision = photonVision;
@@ -105,9 +105,12 @@ public class SwerveAlignmentX extends CommandBase {
             targetErrorX = limelight.getX() + LIMELIGHT_X_OFFSET;
 
 
-            SmartDashboard.putBoolean("band", !MathMethods.withinBand(targetErrorX, .55));
+        SmartDashboard.putBoolean("band", !MathMethods.withinBand(targetErrorX, .55));
         SmartDashboard.putBoolean("flag SA", !flag);
         SmartDashboard.putBoolean("timer SA", !timer.hasElapsed(1));
+
+
+        if (!MathMethods.withinBand(targetErrorX, 0.55) && !timer.hasElapsed(1) && !flag){
             swerve.faceDirection(
 //                    yLimelightPIDController.calculate(-targetErrorY),
                     0,
@@ -115,9 +118,24 @@ public class SwerveAlignmentX extends CommandBase {
                     180,
                     true
             );
+        } else if (!flag){
+            flag = true;
+            swerve.faceDirection(
+                    .7,
+                    0,
+//                    xLimelightPIDController.calculate(targetErrorX),
+                    180,
+                    true
+            );
+        }
+
+        if (!flag) {
+            time = timer.get();
+        }
 
 
         }
+
         SmartDashboard.putNumber("LL X", targetErrorX);
         SmartDashboard.putNumber("LL Y", targetErrorY);
 
@@ -131,7 +149,7 @@ public class SwerveAlignmentX extends CommandBase {
         SmartDashboard.putNumber("DT Amps", swerve.getAvgCurrent());
 //        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.55) && timer.hasElapsed(0.7)) ||
 //                timer.hasElapsed(5);
-        return MathMethods.withinBand(targetErrorX, .55);
+        return flag && swerve.getAvgCurrent() > 60 && timer.hasElapsed(.5+time);
     }
 
     @Override
