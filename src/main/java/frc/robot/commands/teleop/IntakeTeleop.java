@@ -14,7 +14,6 @@ import frc.robot.wrappers.leds.CandleController;
 public class IntakeTeleop extends CommandBase {
     private final Claw claw;
     private final Elevator elevator;
-    private final CandleController candleController;
     private final XboxController mainController;
     private final XboxController coController;
     private final Timer timer;
@@ -23,10 +22,9 @@ public class IntakeTeleop extends CommandBase {
     boolean flag = false;
     boolean flag2 = false;
 
-    public IntakeTeleop(Claw claw, Elevator elevator, CandleController candleController, XboxController mainController, XboxController coController) {
+    public IntakeTeleop(Claw claw, Elevator elevator, XboxController mainController, XboxController coController) {
         this.claw = claw;
         this.elevator = elevator;
-        this.candleController = candleController;
         this.mainController = mainController;
         this.coController = coController;
         this.timer = new Timer();
@@ -51,8 +49,6 @@ public class IntakeTeleop extends CommandBase {
                 timer.start();
                 flag = true;
             }
-
-            candleController.setState(Enums.CANdleState.OFF);
             claw.setState(Enums.ClawState.CLAW_DROP);
         }
 
@@ -66,6 +62,7 @@ public class IntakeTeleop extends CommandBase {
                 timer2.stop();
             } else if (coController.getAButton() && timer.hasElapsed(1)) {
                 claw.setState(Enums.ClawState.CLAW_OUTTAKE);
+
                 flag2 = true;
                 timer2.reset();
                 timer2.start();

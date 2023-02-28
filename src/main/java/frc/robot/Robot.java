@@ -30,6 +30,9 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("Distance", robotContainer.limeLight.calculateDistance());
+        SmartDashboard.putNumber("Swerve encoders", robotContainer.swerve.getAvgEncoderValue());
+        SmartDashboard.putNumber("Auto balance yaw", robotContainer.swerve.getPigeon().getYaw().getValue());
+        SmartDashboard.putNumber("Auto balance pitch", robotContainer.swerve.getPigeon().getPitch().getValue());
         robotContainer.elevator.telemetry();
     }
 
@@ -47,6 +50,7 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.zeroRotation();
         robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
+        robotContainer.swerve.resetDriveEncoders();
 
 //         //schedule the autonomous command (example)
         if (autonomousCommand != null) {

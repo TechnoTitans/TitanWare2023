@@ -4,13 +4,10 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenixpro.hardware.Pigeon2;
 import com.revrobotics.CANSparkMaxLowLevel;
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -18,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.autonomous.PreloadDrop;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.*;
 import frc.robot.subsystems.Claw;
@@ -60,7 +58,7 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final SwerveDriveOdometry odometry;
-    public final HolonomicDriveController holonomicDriveController;
+    public final DriveController holonomicDriveController;
     public final Field2d field;
 
     //PDH
@@ -86,7 +84,6 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final AutoBalanceTeleop autoBalanceTeleop;
     public final SwerveAlignment swerveAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
@@ -99,6 +96,7 @@ public class RobotContainer {
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
+    public final PreloadDrop preloadDropAuto;
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
@@ -168,10 +166,10 @@ public class RobotContainer {
         odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
         field = new Field2d();
 
-        holonomicDriveController = new HolonomicDriveController(
+        holonomicDriveController = new DriveController(
                 new PIDController(0, 0, 0),
                 new PIDController(0, 0, 0),
-                new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(Constants.Swerve.TRAJ_MAX_ANGULAR_SPEED, Constants.Swerve.TRAJ_MAX_ANGULAR_ACCELERATION))
+                new PIDController(0.12, 0, 0)
         );
 
         //Vision
@@ -185,9 +183,8 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        autoBalanceTeleop = new AutoBalanceTeleop(swerve, pigeon);
         swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
-        intakeTeleop = new IntakeTeleop(claw, elevator, candleController, oi.getXboxMain(), oi.getXboxCo());
+        intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
         //Buttons
@@ -200,7 +197,8 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw, elevator);
+        preloadDropAuto = new PreloadDrop(swerve, claw, elevator);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -222,6 +220,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return trajectoryManager.getSelectedPath();
+        return preloadDropAuto;
+//        return trajectoryManager.getSelectedPath();
     }
 }
