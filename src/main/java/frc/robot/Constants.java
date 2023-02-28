@@ -20,7 +20,7 @@ public interface Constants {
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
-        double ROBOT_MAX_SPEED = 5; //TODO: tune this
+        double ROBOT_MAX_SPEED = 5;
         double MODULE_MAX_SPEED = 13.5;
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;

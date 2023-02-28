@@ -16,7 +16,7 @@ import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-public class SwerveAlignmentX extends CommandBase {
+public class SwerveAlignmentY extends CommandBase {
     private final Swerve swerve;
     private final Limelight limelight;
     private final PhotonVision photonVision;
@@ -36,7 +36,7 @@ public class SwerveAlignmentX extends CommandBase {
 
     private PhotonPipelineResult lastPipelineResult;
 
-    public SwerveAlignmentX(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
+    public SwerveAlignmentY(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
         this.swerve = swerve;
         this.limelight = limelight;
         this.photonVision = photonVision;
@@ -93,7 +93,6 @@ public class SwerveAlignmentX extends CommandBase {
             }
 
             swerve.drive(
-//                    xPhotonPIDController.calculate(targetErrorX),
                     0,
                     yPhotonPIDController.calculate(targetErrorY),
                     0,
@@ -110,8 +109,9 @@ public class SwerveAlignmentX extends CommandBase {
         SmartDashboard.putBoolean("timer SA", !timer.hasElapsed(1));
             swerve.faceDirection(
 //                    yLimelightPIDController.calculate(-targetErrorY),
+                    .7,
                     0,
-                    xLimelightPIDController.calculate(targetErrorX),
+//                    xLimelightPIDController.calculate(targetErrorX),
                     180,
                     true
             );
@@ -131,7 +131,7 @@ public class SwerveAlignmentX extends CommandBase {
         SmartDashboard.putNumber("DT Amps", swerve.getAvgCurrent());
 //        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.55) && timer.hasElapsed(0.7)) ||
 //                timer.hasElapsed(5);
-        return MathMethods.withinBand(targetErrorX, .55);
+        return swerve.getAvgCurrent() > 60 && timer.hasElapsed(.5);
     }
 
     @Override

@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -21,6 +19,7 @@ public class SwerveModule extends SubsystemBase {
     private final TitanFX driveMotor, turnMotor;
     private final CANCoder turnEncoder;
     private final double magnetOffset;
+//    private SimpleMotorFeedforward feedforward;
 
     public SwerveModule(TitanFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, double magnetOffset) {
         this.driveMotor = driveMotor;
@@ -40,23 +39,29 @@ public class SwerveModule extends SubsystemBase {
         canCoderConfiguration.magnetOffsetDegrees = -magnetOffset;
         turnEncoder.configAllSettings(canCoderConfiguration);
 
+//        feedforward = new SimpleMotorFeedforward(0.148, 2.7924, 0.57268);
+
         driveMotor.configFactoryDefault();
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.slot0.kP = 0.17725;
-//        driverConfig.slot0.kI = 0.002;
-//        driverConfig.slot0.integralZone = 200;
-        driverConfig.slot0.kD = 1;
-//        driverConfig.slot0.kF = 0.06414;
-        driverConfig.closedloopRamp = 0.2;
+        driverConfig.slot0.kP = 0.1;
+        driverConfig.slot0.kI = 0.002;
+        driverConfig.slot0.integralZone = 200;
+        driverConfig.slot0.kD = 5;
+        driverConfig.slot0.kF = 0.045;
+        driverConfig.closedloopRamp = 0.4;
         driveMotor.configAllSettings(driverConfig);
         driveMotor.setNeutralMode(NeutralMode.Coast);
 
+        turnMotor.configFactoryDefault();
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.slot0.kP = 0.5;
-//        turnerConfig.closedloopRamp = 0.2;
+        turnerConfig.slot0.kP = 0.47;
+        turnerConfig.slot0.kI = 0;
+        turnerConfig.slot0.kD = 0;
+        turnerConfig.slot0.kF = 0;
+//        turnerConfig.closedloopRamp = 0.1;
 //        turnerConfig.neutralDeadband = 0.07;
-//        turnerConfig.peakOutputForward = 0.5;
-//        turnerConfig.peakOutputReverse = -0.5;
+        turnerConfig.peakOutputForward = 0.5;
+        turnerConfig.peakOutputReverse = -0.5;
         turnerConfig.remoteFilter0.remoteSensorDeviceID = turnEncoder.getDeviceID();
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
@@ -111,4 +116,18 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.set(TalonFXControlMode.Velocity, 0);
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
+
+    public double getDriveCurrent() {
+        return driveMotor.getCurrent();
+    }
+
+    public double getDriveEncoderValue() {
+        return Math.abs(driveMotor.getSelectedSensorPosition());
+    }
+
+    public void resetDriveEncoder() {
+        driveMotor.setSelectedSensorPosition(0);
+    }
+
+
 }

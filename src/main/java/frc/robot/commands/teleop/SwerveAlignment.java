@@ -16,12 +16,12 @@ import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-public class SwerveAlignmentX extends CommandBase {
-    private final Swerve swerve;
-    private final Limelight limelight;
-    private final PhotonVision photonVision;
-    private final XboxController coController;
-    private final Timer timer;
+public class SwerveAlignment extends SequentialCommandGroup {
+    private Swerve swerve;
+    private Limelight limelight;
+    private PhotonVision photonVision;
+    private XboxController coController;
+    private Timer timer;
     private final PIDController xPhotonPIDController = new PIDController(0.5, 0.1, 0);
     private final PIDController yPhotonPIDController = new PIDController(2, 0.1, 0);
     private final PIDController xLimelightPIDController = new PIDController(0.1, 0, 0);
@@ -36,7 +36,7 @@ public class SwerveAlignmentX extends CommandBase {
 
     private PhotonPipelineResult lastPipelineResult;
 
-    public SwerveAlignmentX(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
+    public SwerveAlignment(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
         this.swerve = swerve;
         this.limelight = limelight;
         this.photonVision = photonVision;
@@ -44,105 +44,16 @@ public class SwerveAlignmentX extends CommandBase {
         this.timer = new Timer();
 
         addRequirements(swerve);
+
+
+        addCommands(
+                new SwerveAlignmentX(swerve, limelight, photonVision, coController),
+                new SwerveAlignmentY(swerve, limelight, photonVision, coController)
+        );
     }
 
-    @Override
-    public void initialize() {
-        timer.reset();
-        timer.start();
-        flag = false;
-        time = 0;
-
-//        lastPipelineResult = photonVision.getLatestResult();
-//
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
-//        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
-//            end(true);
-//        } else if (photonVision.hasTargets(lastPipelineResult) && limelight.isTargetFound()) {
-//            if (limelight.getY() > photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult).getY()) {
-//                visionMode = Enums.VisionMode.PHOTON_VISION;
-//            } else {
-//                visionMode = Enums.VisionMode.LIME_LIGHT;
-//            }
-//        } else if (limelight.isTargetFound()) {
-            visionMode = Enums.VisionMode.LIME_LIGHT;
-//        } else if (photonVision.hasTargets(lastPipelineResult)) {
-//            visionMode = Enums.VisionMode.PHOTON_VISION;
-//        } else {
-//            end(true);
-//        }
-    }
-
-    @Override
-    public void execute() {
-//        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
-//            end(true);
-//        }
-
-        if (visionMode == Enums.VisionMode.PHOTON_VISION) {
-            lastPipelineResult = photonVision.getLatestResult();
-            final Pose2d targetPose = photonVision.getRobotPoseRelativeToAprilTag(lastPipelineResult);
-
-            targetErrorY = targetPose.getY();
-            targetErrorX = targetPose.getX();
-
-            int tagID = photonVision.targetId(lastPipelineResult);
-
-            if (tagID == 5 || tagID == 4) { //Offset for substation
-                targetErrorY += 0.5;
-            }
-
-            swerve.drive(
-//                    xPhotonPIDController.calculate(targetErrorX),
-                    0,
-                    yPhotonPIDController.calculate(targetErrorY),
-                    0,
-                    false
-            );
-
-        } else if (visionMode == Enums.VisionMode.LIME_LIGHT) {
-            targetErrorY = limelight.calculateDistance();
-            targetErrorX = limelight.getX() + LIMELIGHT_X_OFFSET;
 
 
-            SmartDashboard.putBoolean("band", !MathMethods.withinBand(targetErrorX, .55));
-        SmartDashboard.putBoolean("flag SA", !flag);
-        SmartDashboard.putBoolean("timer SA", !timer.hasElapsed(1));
-            swerve.faceDirection(
-//                    yLimelightPIDController.calculate(-targetErrorY),
-                    0,
-                    xLimelightPIDController.calculate(targetErrorX),
-                    180,
-                    true
-            );
 
 
-        }
-        SmartDashboard.putNumber("LL X", targetErrorX);
-        SmartDashboard.putNumber("LL Y", targetErrorY);
-
-    }
-
-    @Override
-    public boolean isFinished() {
-        SmartDashboard.putNumber("Y", targetErrorY);
-        SmartDashboard.putNumber("X", targetErrorX);
-        SmartDashboard.putNumber("timer", timer.get());
-        SmartDashboard.putNumber("DT Amps", swerve.getAvgCurrent());
-//        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.55) && timer.hasElapsed(0.7)) ||
-//                timer.hasElapsed(5);
-        return MathMethods.withinBand(targetErrorX, .55);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        swerve.stop();
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
-        timer.stop();
-        new SequentialCommandGroup(
-                new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0.5)),
-                new WaitCommand(0.3),
-                new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0))
-        ).schedule();
-    }
 }
