@@ -129,7 +129,6 @@ class TrajectroyFollower extends CommandBase {
         addRequirements(swerve);
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
-//        swerve.zeroRotation();
         swerve.setAngle(initialState.holonomicRotation.getDegrees());
         odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), initialPose);
         field.getObject("Traj").setPose(initialPose);
@@ -139,12 +138,13 @@ class TrajectroyFollower extends CommandBase {
 
     @Override
     public void execute() {
-        if (waitTime != 0 && waitTimer.hasElapsed(waitTime)) {
-            if (waitTimer.get() > 0) {
-                waitTime = 0;
-                waitTimer.stop();
-                timer.start();
-            }
+        if (waitTime > 0 && waitTimer.hasElapsed(waitTime)) {
+            waitTime = 0;
+            waitTimer.stop();
+            waitTimer.reset();
+            timer.start();
+        }
+        if (waitTime == 0) {
             double currentTime = timer.get();
             PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
             commander(sample);
@@ -189,9 +189,6 @@ class TrajectroyFollower extends CommandBase {
                 String[] args = x.split(":");
                 try {
                     switch (args[0].toLowerCase()) {
-                        case "testing":
-                            SmartDashboard.putString("Testing", args[1]);
-                            break;
                         case "claw":
                             claw.setState(Enums.ClawState.valueOf(args[1].toUpperCase()));
                             break;
@@ -206,6 +203,7 @@ class TrajectroyFollower extends CommandBase {
                             timer.stop();
                             waitTimer.reset();
                             waitTimer.start();
+                            break;
                     }
                 } catch (Exception e) {
 //                    throw new Exception(e); //or this
