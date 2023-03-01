@@ -40,7 +40,7 @@ public class PreloadDrop extends SequentialCommandGroup {
                 new DriveStraight(swerve, 225000, -1),
                 new DriveStrafe(swerve, 100000, 1),
 //                new DriveStraight(swerve, 60000, 1)
-                new AutoBalance(swerve)
+                new AutoBalance(swerve, 180)
 
 //                new DriveStraight(swerve, 20000, -1)
         );

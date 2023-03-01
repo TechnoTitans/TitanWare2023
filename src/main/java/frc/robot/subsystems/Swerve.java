@@ -30,6 +30,10 @@ public class Swerve extends SubsystemBase {
         return pigeon.getAngle();
     }
 
+    public double getPitch() {
+        return pigeon.getPitch().getValue();
+    }
+
     public Rotation2d getRotation2d() {
         return pigeon.getRotation2d();
     }
@@ -165,9 +169,4 @@ public class Swerve extends SubsystemBase {
         backLeft.resetDriveEncoder();
         backRight.resetDriveEncoder();
     }
-
-    public Pigeon2 getPigeon() {
-        return pigeon;
-    }
-
 }
