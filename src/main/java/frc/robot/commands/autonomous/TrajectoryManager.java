@@ -167,14 +167,15 @@ class TrajectoryFollower extends CommandBase {
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {
-        if (eventMarkers != null && eventMarkers.size() == 0) {
-            return;
-        } else if (eventMarkers == null) {
+        if (eventMarkers == null) {
             eventMarkers = traj.getMarkers();
+        }
+        if (eventMarkers == null || eventMarkers.size() == 0) {
+            return;
         }
         PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
         double distError = 0.05;
-        if (MathMethods.withinBand(marker.positionMeters.getDistance(odometry.getPoseMeters().getTranslation()), distError)) {
+        if (MathMethods.withinBand(marker.positionMeters.getDistance(sample.poseMeters.getTranslation()), distError)) {
             eventMarkers.remove(0);
             String[] commands = marker.names.get(0).trim().split(";");
             List<Command> sequentialCommands = new ArrayList<>();
@@ -188,6 +189,7 @@ class TrajectoryFollower extends CommandBase {
                         sequentialCommands.add(new InstantCommand(() -> elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()))));
                         break;
                     case "autobalance":
+                        SmartDashboard.putBoolean("testing23", true);
                         sequentialCommands.add(new AutoBalance(swerve, sample.holonomicRotation.getDegrees()));
                         break;
                     case "wait":
@@ -206,6 +208,7 @@ class TrajectoryFollower extends CommandBase {
                         break;
                 }
             }
+//            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:1;dtpause:false;
             new SequentialCommandGroup(sequentialCommands.toArray(new Command[0])).schedule();
         }
 

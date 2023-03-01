@@ -172,7 +172,7 @@ public class RobotContainer {
         holonomicDriveController = new DriveController(
                 new PIDController(0, 0, 0),
                 new PIDController(0, 0, 0),
-                new PIDController(0.12, 0, 0)
+                new PIDController(1, 0, 0)
         );
 
         //Vision

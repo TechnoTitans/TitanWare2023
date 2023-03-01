@@ -55,7 +55,7 @@ public class ClawControl extends CommandBase {
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = .2;
                 break;
-            case CLAW_INTAKEING:
+            case CLAW_INTAKING:
                 speed = 0.3;
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .3;
