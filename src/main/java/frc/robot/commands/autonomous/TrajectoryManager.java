@@ -2,12 +2,7 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,10 +21,8 @@ import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -73,32 +66,31 @@ public class TrajectoryManager {
 
     public void follow(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field, claw, elevator);
+        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, odometry, traj, field, claw, elevator);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajectroyFollower trajFollower = new TrajectroyFollower(swerve, controller, odometry, traj, field, claw, elevator);
+        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, odometry, traj, field, claw, elevator);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
-    public TrajectroyFollower getCommand(String trajDir) {
+    public TrajectoryFollower getCommand(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        return new TrajectroyFollower(swerve, controller, odometry, traj, field, claw, elevator);
+        return new TrajectoryFollower(swerve, controller, odometry, traj, field, claw, elevator);
     }
 
-    public TrajectroyFollower getCommand(String trajDir, double maxVel, double maxAccl) {
+    public TrajectoryFollower getCommand(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        return new TrajectroyFollower(swerve, controller, odometry, traj, field, claw, elevator);
+        return new TrajectoryFollower(swerve, controller, odometry, traj, field, claw, elevator);
     }
 }
 
 @SuppressWarnings("unused")
-class TrajectroyFollower extends CommandBase {
+class TrajectoryFollower extends CommandBase {
     private final PathPlannerTrajectory traj;
     private final Timer timer;
-    private final Timer waitTimer;
 
     private final Swerve swerve;
     private final DriveController controller;
@@ -107,12 +99,12 @@ class TrajectroyFollower extends CommandBase {
 
     private final Claw claw;
     private final Elevator elevator;
-    private double waitTime = 0;
 
-    public TrajectroyFollower(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field, Claw claw, Elevator elevator) {
+    private boolean paused = false;
+
+    public TrajectoryFollower(Swerve swerve, DriveController controller, SwerveDriveOdometry odometry, PathPlannerTrajectory traj, Field2d field, Claw claw, Elevator elevator) {
         this.swerve = swerve;
         this.timer = new Timer();
-        this.waitTimer = new Timer();
         this.controller = controller;
         this.odometry = odometry;
         this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
@@ -138,13 +130,7 @@ class TrajectroyFollower extends CommandBase {
 
     @Override
     public void execute() {
-        if (waitTime > 0 && waitTimer.hasElapsed(waitTime)) {
-            waitTime = 0;
-            waitTimer.stop();
-            waitTimer.reset();
-            timer.start();
-        }
-        if (waitTime == 0) {
+        if (!paused) {
             double currentTime = timer.get();
             PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
             commander(sample);
@@ -163,7 +149,9 @@ class TrajectroyFollower extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return !RobotState.isAutonomous() || timer.get() >= traj.getTotalTimeSeconds();
+        return !RobotState.isAutonomous()
+//                || timer.get() >= traj.getTotalTimeSeconds()
+                ;
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
@@ -182,33 +170,40 @@ class TrajectroyFollower extends CommandBase {
         if (eventMarkers.size() == 0) return;
         PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
         double distError = 0.05; //TODO: tune this
-        if (MathMethods.withinBand(marker.positionMeters.getDistance(sample.poseMeters.getTranslation()), distError)) {
+        if (MathMethods.withinBand(marker.positionMeters.getDistance(odometry.getPoseMeters().getTranslation()), distError)) {
             eventMarkers.remove(0);
-            List<String> commands = marker.names;
+            String[] commands = marker.names.get(0).split(";");
+            ArrayList<Command> sequentialCommands = new ArrayList<>();
             for (String x : commands) {
                 String[] args = x.split(":");
-                try {
-                    switch (args[0].toLowerCase()) {
-                        case "claw":
-                            claw.setState(Enums.ClawState.valueOf(args[1].toUpperCase()));
-                            break;
-                        case "elevator":
-                            elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()));
-                            break;
-                        case "autobalance":
-                            new AutoBalance(swerve).schedule();
-                            break;
-                        case "wait":
-                            waitTime = Integer.parseInt(args[1]);
-                            timer.stop();
-                            waitTimer.reset();
-                            waitTimer.start();
-                            break;
-                    }
-                } catch (Exception e) {
-//                    throw new Exception(e); //or this
+                switch (args[0].toLowerCase()) {
+                    case "claw":
+                        sequentialCommands.add(new InstantCommand(() -> claw.setState(Enums.ClawState.valueOf(args[1].toUpperCase()))));
+                        break;
+                    case "elevator":
+                        sequentialCommands.add(new InstantCommand(() -> elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()))));
+                        break;
+                    case "autobalance":
+                        sequentialCommands.add(new AutoBalance(swerve));
+                        break;
+                    case "wait":
+                        sequentialCommands.add(new WaitCommand(Double.parseDouble(args[1])));
+                        break;
+                    case "dtpause":
+                        sequentialCommands.add(new InstantCommand(() -> {
+                            paused = Boolean.parseBoolean(args[1]);
+                            if (paused) {
+                                timer.stop();
+                                swerve.stop();
+                            } else {
+                                timer.start();
+                            }
+                        }));
+                        break;
                 }
             }
+            new SequentialCommandGroup(sequentialCommands.toArray(new Command[0])).schedule();
         }
+
     }
 }
