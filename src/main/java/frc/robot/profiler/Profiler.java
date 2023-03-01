@@ -13,11 +13,11 @@ public class Profiler {
     public static Profiler getProfile() {
         Profiler newProfile = new Profiler();
         switch (profile) {
-            case Driver1:
+            case DRIVER1:
                 newProfile.RotationalSensitivity = 1;
                 newProfile.ThrottleSensitivity = 1;
                 break;
-            case Driver2:
+            case DRIVER2:
                 newProfile.RotationalSensitivity = 1.1;
                 newProfile.ThrottleSensitivity = 1.1;
                 break;

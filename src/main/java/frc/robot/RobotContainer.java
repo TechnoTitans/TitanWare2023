@@ -202,8 +202,8 @@ public class RobotContainer {
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
-        profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.Driver1);
-        profileChooser.addOption("Driver2", Enums.DriverProfiles.Driver2);
+        profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.DRIVER1);
+        profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
         configureButtonBindings();
