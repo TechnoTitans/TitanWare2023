@@ -1,10 +1,8 @@
 package frc.robot.commands.autonomous;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
-import frc.robot.utils.MathMethods;
 
 public class AutoBalance extends CommandBase {
 

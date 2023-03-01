@@ -4,14 +4,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -55,7 +53,7 @@ public class SwerveAlignmentY extends CommandBase {
 
 //        lastPipelineResult = photonVision.getLatestResult();
 //
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
+        //limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
 //        if (!photonVision.hasTargets(lastPipelineResult) && !limelight.isTargetFound()) {
 //            end(true);
 //        } else if (photonVision.hasTargets(lastPipelineResult) && limelight.isTargetFound()) {
@@ -103,10 +101,6 @@ public class SwerveAlignmentY extends CommandBase {
             targetErrorY = limelight.calculateDistance();
             targetErrorX = limelight.getX() + LIMELIGHT_X_OFFSET;
 
-
-            SmartDashboard.putBoolean("band", !MathMethods.withinBand(targetErrorX, .55));
-        SmartDashboard.putBoolean("flag SA", !flag);
-        SmartDashboard.putBoolean("timer SA", !timer.hasElapsed(1));
             swerve.faceDirection(
 //                    yLimelightPIDController.calculate(-targetErrorY),
                     .7,
@@ -118,17 +112,10 @@ public class SwerveAlignmentY extends CommandBase {
 
 
         }
-        SmartDashboard.putNumber("LL X", targetErrorX);
-        SmartDashboard.putNumber("LL Y", targetErrorY);
-
     }
 
     @Override
     public boolean isFinished() {
-        SmartDashboard.putNumber("Y", targetErrorY);
-        SmartDashboard.putNumber("X", targetErrorX);
-        SmartDashboard.putNumber("timer", timer.get());
-        SmartDashboard.putNumber("DT Amps", swerve.getAvgCurrent());
 //        return (MathMethods.withinBand(targetErrorY, 0.05) && MathMethods.withinBand(targetErrorX, 0.55) && timer.hasElapsed(0.7)) ||
 //                timer.hasElapsed(5);
         return swerve.getAvgCurrent() > 60 && timer.hasElapsed(.5);
@@ -137,7 +124,7 @@ public class SwerveAlignmentY extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.stop();
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
+        //limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
         timer.stop();
         new SequentialCommandGroup(
                 new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0.5)),

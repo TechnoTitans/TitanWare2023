@@ -118,7 +118,7 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
-        addRequirements(swerve);
+        // addRequirements(swerve); TODO IF AUTO DOESNT WORK TMR UNCOMMENT THIS
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialState.holonomicRotation.getDegrees());
@@ -169,7 +169,7 @@ class TrajectoryFollower extends CommandBase {
         List<PathPlannerTrajectory.EventMarker> eventMarkers = traj.getMarkers();
         if (eventMarkers.size() == 0) return;
         PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
-        double distError = 0.05; //TODO: tune this
+        double distError = 0.05;
         if (MathMethods.withinBand(marker.positionMeters.getDistance(odometry.getPoseMeters().getTranslation()), distError)) {
             eventMarkers.remove(0);
             String[] commands = marker.names.get(0).split(";");

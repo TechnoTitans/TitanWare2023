@@ -43,10 +43,8 @@ public class SwerveDriveTeleop extends CommandBase {
             turnWeight = 0.7;
         }
 
-
         double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
         swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * turnWeight, fieldRelative);
-
     }
 
     @Override

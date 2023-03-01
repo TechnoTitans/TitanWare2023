@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 
@@ -85,11 +84,9 @@ public class ElevatorControl extends CommandBase {
             verticalElevatorMotor.setSelectedSensorPosition(0);
             VEControlMode = ControlMode.PercentOutput;
             VEPosition = 0;
-//            VEPosition = 240;
         } else if (verticalElevatorLimitSwitch.get() && VESwitchFlag && verticalElevatorMotor.getSelectedSensorPosition() > 300) {
             VESwitchFlag = false;
         }
-
 
         verticalElevatorMotor.set(
                 VEControlMode,

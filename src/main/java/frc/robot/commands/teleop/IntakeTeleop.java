@@ -4,12 +4,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
-import frc.robot.wrappers.leds.CandleController;
 
 public class IntakeTeleop extends CommandBase {
     private final Claw claw;
@@ -66,7 +63,7 @@ public class IntakeTeleop extends CommandBase {
         }
 
         if (flag) {
-            if (timer2.hasElapsed(.5) && flag2) {
+            if (timer2.hasElapsed(0.5) && flag2) {
                 claw.setState(Enums.ClawState.CLAW_STANDBY);
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
                 flag = false;
@@ -75,7 +72,6 @@ public class IntakeTeleop extends CommandBase {
                 timer2.stop();
             } else if (coController.getAButton() && timer.hasElapsed(1)) {
                 claw.setState(Enums.ClawState.CLAW_OUTTAKE);
-
                 flag2 = true;
                 timer2.reset();
                 timer2.start();
