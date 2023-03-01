@@ -98,7 +98,6 @@ class TrajectoryFollower extends CommandBase {
     private final Field2d field;
     private List<PathPlannerTrajectory.EventMarker> eventMarkers;
 
-
     private final Claw claw;
     private final Elevator elevator;
 
