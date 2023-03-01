@@ -6,39 +6,38 @@ import frc.robot.subsystems.Swerve;
 
 public class AutoBalance extends CommandBase {
 
-    Swerve swerve;
-    double distance;
-    int reverse;
-    boolean flag = false;
+    private final Swerve swerve;
+    private boolean flag = false;
+    private double flatLevel = 0;
+    private final double holonomicRotation;
 
-    PIDController drivePID = new PIDController(.00009, 0, 0);
-    double error;
+//    PIDController drivePID = new PIDController(.00009, 0, 0);
 
-    public AutoBalance(Swerve swerve) {
+    public AutoBalance(Swerve swerve, double holonomicRotation) {
         this.swerve = swerve;
-
+        this.holonomicRotation = holonomicRotation;
         addRequirements(swerve);
     }
 
     @Override
     public void initialize() {
         addRequirements(swerve);
-        swerve.resetDriveEncoders();
         flag = false;
+        flatLevel = swerve.getPitch();
 //        swerve.getPigeon().reset();
     }
 
     @Override
     public void execute() {
-        swerve.faceDirection(.5,  0, 180, true);
-        if (swerve.getPigeon().getPitch().getValue() < -6) {
+        swerve.faceDirection(.5,  0, holonomicRotation, true);
+        if (swerve.getPitch() < (flatLevel - 6)) {
             flag = true;
         }
     }
 
     @Override
     public boolean isFinished() {
-        return (swerve.getPigeon().getPitch().getValue() > -6) && flag;
+        return (swerve.getPitch() > (flatLevel - 6)) && flag;
     }
 
     @Override
