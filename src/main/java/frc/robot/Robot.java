@@ -21,13 +21,13 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         robotContainer = new RobotContainer();
+        robotContainer.swerve.zeroRotation();
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        //robotContainer.elevator.telemetry();
     }
 
     @Override
