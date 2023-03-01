@@ -19,7 +19,6 @@ import frc.robot.commands.autonomous.PreloadDrop;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
-import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -87,13 +86,13 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final SwerveAlignment swerveAlignment;
+//    public final SwerveAlignment swerveAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
     //Buttons
     //Main Driver
-    public final TitanButton resetGyroBtn, autoAlignBtn;
+    public final TitanButton resetGyroBtn;
     //Co Driver
     public final TitanButton candleYellowBtn, candlePurpleBtn;
 
@@ -186,13 +185,13 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
+//        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
+//        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
@@ -212,7 +211,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        autoAlignBtn.onTrue(swerveAlignment);
+//        autoAlignBtn.onTrue(swerveAlignment);
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
