@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.8091186182372365,
-        "y": 5.017296225068641
+        "x": 1.8153615404617995,
+        "y": 4.941136438092355
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.172049058383831,
-        "y": 4.537325979413864
+        "x": 5.994858450524504,
+        "y": 4.760247050185312
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,37 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 6.350375557893973,
-        "y": 4.451177473783519
+        "x": 5.880612521320056,
+        "y": 2.6562178540034043
       },
       "prevControl": {
-        "x": 6.091930041002939,
-        "y": 4.9434546488140585
-      },
-      "nextControl": {
-        "x": 6.565339119524693,
-        "y": 4.041723070677387
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.6981083009785065,
-        "y": 2.9743459486918975
-      },
-      "prevControl": {
-        "x": 6.09193004100294,
-        "y": 3.3558607593405663
+        "x": 6.289993767635992,
+        "y": 4.998259402694577
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -72,15 +47,15 @@
   ],
   "markers": [
     {
-      "position": 2.0,
+      "position": 1.0,
       "names": [
-        "autobalance:"
+        "autobalance:true;"
       ]
     },
     {
       "position": 0.0,
       "names": [
-        "dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:3.0;claw:CLAW_DROP;wait:1;claw:CLAW_OUTTAKE;wait:1;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:1;dtpause:false"
+        "dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:1;dtpause:false;"
       ]
     }
   ]

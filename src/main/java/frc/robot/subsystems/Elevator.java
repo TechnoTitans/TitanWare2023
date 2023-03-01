@@ -49,6 +49,7 @@ public class Elevator extends SubsystemBase {
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.slot0.kP = 0.53;
         VEConfig.slot0.kD = 0.03;
+        VEConfig.slot0.kF = 0.2;
         VEConfig.closedloopRamp = 0.2;
         VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
         VEConfig.remoteFilter0.remoteSensorDeviceID = encoderSRX.getDeviceID();
