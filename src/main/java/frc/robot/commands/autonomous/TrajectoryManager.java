@@ -177,7 +177,7 @@ class TrajectoryFollower extends CommandBase {
         double distError = 0.05;
         if (MathMethods.withinBand(marker.positionMeters.getDistance(odometry.getPoseMeters().getTranslation()), distError)) {
             eventMarkers.remove(0);
-            String[] commands = marker.names.get(0).split(";");
+            String[] commands = marker.names.get(0).trim().split(";");
             List<Command> sequentialCommands = new ArrayList<>();
             for (String x : commands) {
                 String[] args = x.split(":");
