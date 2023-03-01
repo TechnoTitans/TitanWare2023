@@ -104,17 +104,17 @@ public class SwerveModule extends SubsystemBase {
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
+    public void stop() {
+        driveMotor.set(TalonFXControlMode.PercentOutput, 0);
+        turnMotor.set(TalonFXControlMode.PercentOutput, 0);
+    }
+
     public void brake() {
         driveMotor.brake();
     }
 
     public void coast() {
         driveMotor.coast();
-    }
-
-    public void stop() {
-        driveMotor.set(TalonFXControlMode.Velocity, 0);
-        turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
     public double getDriveCurrent() {

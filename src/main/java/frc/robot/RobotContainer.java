@@ -90,9 +90,9 @@ public class RobotContainer {
 
     //Buttons
     //Main Driver
-    public final TitanButton resetGyroBtn, autoBalanceBtn, autoAlignBtn;
+    public final TitanButton resetGyroBtn, autoAlignBtn;
     //Co Driver
-    public final TitanButton dropGamePieceBtn, candleYellowBtn, candlePurpleBtn;
+    public final TitanButton candleYellowBtn, candlePurpleBtn;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -189,10 +189,7 @@ public class RobotContainer {
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-        autoBalanceBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_X);
         autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
-
-        dropGamePieceBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_B);
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
@@ -220,7 +217,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return preloadDropAuto;
-//        return trajectoryManager.getSelectedPath();
+//        return preloadDropAuto;
+        return trajectoryManager.getSelectedPath();
     }
 }

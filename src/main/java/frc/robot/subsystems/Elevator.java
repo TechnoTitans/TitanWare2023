@@ -50,20 +50,17 @@ public class Elevator extends SubsystemBase {
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.slot0.kP = 0.53;
         VEConfig.slot0.kD = 0.03;
-        VEConfig.slot0.kF = 0.2;
         VEConfig.closedloopRamp = 0.2;
         VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
         VEConfig.remoteFilter0.remoteSensorDeviceID = encoderSRX.getDeviceID();
         VEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
+//        verticalElevatorMotor.limitCurrent(60);
 
         verticalElevatorMotor.configAllSettings(VEConfig);
         verticalElevatorMotor.brake();
 
         SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
         HEConfig.setP(0.18);
-//        HEConfig.setI(0.002);
-//        HEConfig.setIZone(200);
-//        HEConfig.setD(10);
         HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
         horizontalElevatorMotor.setOpenLoopRampRate(1);
         horizontalElevatorMotor.brake();
@@ -73,9 +70,9 @@ public class Elevator extends SubsystemBase {
         currentState = targetState;
     }
 
-    public boolean isAtWantedState() {
-        return elevatorControl.isAtWantedState();
-    }
+//    public boolean isAtWantedState() {
+//        return elevatorControl.isAtWantedState();
+//    }
 
     public Enums.ElevatorState getTargetState() {
         return currentState;

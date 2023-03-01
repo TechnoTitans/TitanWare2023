@@ -43,7 +43,7 @@ public class ElevatorControl extends CommandBase {
         this.VEControlMode = ControlMode.Position;
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
-                VEPosition = 15500;
+                VEPosition = 14000; //15500
                 HETargetRotations = 2.3;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
@@ -65,17 +65,6 @@ public class ElevatorControl extends CommandBase {
             default:
                 break;
         }
-    }
-
-    public boolean isAtWantedState() {
-        return MathMethods.withinRange(
-                verticalElevatorMotor.getSelectedSensorPosition(),
-                VEPosition,
-                0.1) &&
-                MathMethods.withinRange(
-                        horizontalElevatorMotor.getAlternateEncoder(8192).getPosition(),
-                        HETargetRotations,
-                        0.1);
     }
 
     @Override
@@ -100,6 +89,7 @@ public class ElevatorControl extends CommandBase {
         } else if (verticalElevatorLimitSwitch.get() && VESwitchFlag && verticalElevatorMotor.getSelectedSensorPosition() > 300) {
             VESwitchFlag = false;
         }
+
 
         verticalElevatorMotor.set(
                 VEControlMode,

@@ -13,19 +13,13 @@ public class Enums {
         CLAW_HOLDING, //Claw tilted down and closed
         CLAW_INTAKEING, //Claw tilted down and open
         CLAW_STANDBY, //Claw tilted down and standby wheel speed
-        CLAW_DROP
+        CLAW_DROP //Drop claw to outtake height
     }
 
     public enum CANdleState {
         OFF,
         YELLOW,
         PURPLE
-    }
-
-    public enum CurrentGamePiece {
-        NONE,
-        CUBE,
-        CONE
     }
 
     public enum DriverProfiles {

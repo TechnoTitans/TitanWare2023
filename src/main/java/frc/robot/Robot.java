@@ -30,9 +30,6 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("Distance", robotContainer.limeLight.calculateDistance());
-        SmartDashboard.putNumber("Swerve encoders", robotContainer.swerve.getAvgEncoderValue());
-        SmartDashboard.putNumber("Auto balance yaw", robotContainer.swerve.getPigeon().getYaw().getValue());
-        SmartDashboard.putNumber("Auto balance pitch", robotContainer.swerve.getPigeon().getPitch().getValue());
         robotContainer.elevator.telemetry();
     }
 
@@ -50,7 +47,7 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.zeroRotation();
         robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
-        robotContainer.swerve.resetDriveEncoders();
+//        robotContainer.swerve.resetDriveEncoders();
 
 //         //schedule the autonomous command (example)
         if (autonomousCommand != null) {
@@ -73,32 +70,31 @@ public class Robot extends TimedRobot {
         }
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
         CommandScheduler.getInstance().schedule(robotContainer.elevatorTeleop);
-
         CommandScheduler.getInstance().schedule(robotContainer.intakeTeleop);
     }
 
     @Override
     public void teleopPeriodic() {
+
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
-        robotContainer.odometry.resetPosition(Rotation2d.fromDegrees(0), robotContainer.swerve.getModulePositions(), new Pose2d());
-        if (robotContainer.oi.getXboxMain().getXButton()) {
-            File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
-            if (paths == null) return;
-            for (File path : paths) {
-                path.delete();
-            }
-        }
+//        robotContainer.odometry.resetPosition(Rotation2d.fromDegrees(0), robotContainer.swerve.getModulePositions(), new Pose2d());
+//        if (robotContainer.oi.getXboxMain().getXButton()) {
+//            File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
+//            if (paths == null) return;
+//            for (File path : paths) {
+//                path.delete();
+//            }
+//        }
+
     }
 
     @Override
     public void testPeriodic() {
-        SmartDashboard.putNumber("Tilt enc", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
     }
 
     @Override

@@ -74,7 +74,13 @@
     {
       "position": 2.0,
       "names": [
-        "autobalance"
+        "autobalance:"
+      ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:3.0;claw:CLAW_DROP;wait:1;claw:CLAW_OUTTAKE;wait:1;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:1;dtpause:false"
       ]
     }
   ]

@@ -21,6 +21,7 @@ public class IntakeTeleop extends CommandBase {
 
     boolean flag = false;
     boolean flag2 = false;
+    boolean flag3 = false;
 
     public IntakeTeleop(Claw claw, Elevator elevator, XboxController mainController, XboxController coController) {
         this.claw = claw;
@@ -42,7 +43,19 @@ public class IntakeTeleop extends CommandBase {
             claw.setState(Enums.ClawState.CLAW_INTAKEING);
         } else if (mainController.getXButton()) {
             claw.setState(Enums.ClawState.CLAW_HOLDING);
-        } else if (coController.getAButton()) {
+        }
+//        } else if (coController.getBButton()){
+//            claw.setState(Enums.ClawState.CLAW_OUTTAKE);
+//            timer.reset();
+//            timer.start();
+//            flag3 = true;
+//        } else if (flag3 && timer.hasElapsed(0.5)){
+//            claw.setState(Enums.ClawState.CLAW_STANDBY);
+//            elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+//            flag3 = false;
+//            timer.stop();
+//        }
+        else if (coController.getAButton()) {
             if (!flag) {
                 timer.reset();
                 timer2.reset();
@@ -68,6 +81,7 @@ public class IntakeTeleop extends CommandBase {
                 timer2.start();
             }
         }
+
     }
 
     @Override
