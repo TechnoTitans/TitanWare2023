@@ -96,6 +96,8 @@ class TrajectoryFollower extends CommandBase {
     private final DriveController controller;
     private final SwerveDriveOdometry odometry;
     private final Field2d field;
+    private List<PathPlannerTrajectory.EventMarker> eventMarkers;
+
 
     private final Claw claw;
     private final Elevator elevator;
@@ -166,14 +168,17 @@ class TrajectoryFollower extends CommandBase {
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {
-        List<PathPlannerTrajectory.EventMarker> eventMarkers = traj.getMarkers();
-        if (eventMarkers.size() == 0) return;
+        if (eventMarkers != null && eventMarkers.size() == 0) {
+            return;
+        } else if (eventMarkers == null) {
+            eventMarkers = traj.getMarkers();
+        }
         PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
         double distError = 0.05;
         if (MathMethods.withinBand(marker.positionMeters.getDistance(odometry.getPoseMeters().getTranslation()), distError)) {
             eventMarkers.remove(0);
             String[] commands = marker.names.get(0).split(";");
-            ArrayList<Command> sequentialCommands = new ArrayList<>();
+            List<Command> sequentialCommands = new ArrayList<>();
             for (String x : commands) {
                 String[] args = x.split(":");
                 switch (args[0].toLowerCase()) {

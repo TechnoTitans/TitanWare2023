@@ -23,8 +23,8 @@ public class Enums {
     }
 
     public enum DriverProfiles {
-        Driver1,
-        Driver2
+        DRIVER1,
+        DRIVER2
     }
 
     public enum LimeLightLEDState {
