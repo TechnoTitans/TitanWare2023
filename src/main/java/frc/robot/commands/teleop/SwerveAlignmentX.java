@@ -4,7 +4,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -20,7 +19,6 @@ public class SwerveAlignmentX extends CommandBase {
     private final Swerve swerve;
     private final Limelight limelight;
     private final PhotonVision photonVision;
-    private final XboxController coController;
     private final Timer timer;
     private final PIDController xPhotonPIDController = new PIDController(0.5, 0.1, 0);
     private final PIDController yPhotonPIDController = new PIDController(2, 0.1, 0);
@@ -36,11 +34,10 @@ public class SwerveAlignmentX extends CommandBase {
 
     private PhotonPipelineResult lastPipelineResult;
 
-    public SwerveAlignmentX(Swerve swerve, Limelight limelight, PhotonVision photonVision, XboxController coController) {
+    public SwerveAlignmentX(Swerve swerve, Limelight limelight, PhotonVision photonVision) {
         this.swerve = swerve;
         this.limelight = limelight;
         this.photonVision = photonVision;
-        this.coController = coController;
         this.timer = new Timer();
 
         addRequirements(swerve);
@@ -102,11 +99,6 @@ public class SwerveAlignmentX extends CommandBase {
 
         } else if (visionMode == Enums.VisionMode.LIME_LIGHT) {
             targetErrorX = limelight.getX() + LIMELIGHT_X_OFFSET;
-
-
-            SmartDashboard.putBoolean("band", !MathMethods.withinBand(targetErrorX, .55));
-        SmartDashboard.putBoolean("flag SA", !flag);
-        SmartDashboard.putBoolean("timer SA", !timer.hasElapsed(1));
             swerve.faceDirection(
                     0,
                     xLimelightPIDController.calculate(targetErrorX),
@@ -116,17 +108,10 @@ public class SwerveAlignmentX extends CommandBase {
 
 
         }
-        SmartDashboard.putNumber("LL X", targetErrorX);
-        SmartDashboard.putNumber("LL Y", targetErrorY);
-
     }
 
     @Override
     public boolean isFinished() {
-        SmartDashboard.putNumber("Y", targetErrorY);
-        SmartDashboard.putNumber("X", targetErrorX);
-        SmartDashboard.putNumber("timer", timer.get());
-        SmartDashboard.putNumber("DT Amps", swerve.getAvgCurrent());
         return MathMethods.withinBand(targetErrorX, .55) && timer.hasElapsed(0.5);
     }
 
@@ -135,10 +120,5 @@ public class SwerveAlignmentX extends CommandBase {
         swerve.stop();
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
         timer.stop();
-        new SequentialCommandGroup(
-                new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0.5)),
-                new WaitCommand(0.3),
-                new InstantCommand(() -> coController.setRumble(XboxController.RumbleType.kBothRumble, 0))
-        ).schedule();
     }
 }

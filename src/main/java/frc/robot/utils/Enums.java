@@ -5,7 +5,7 @@ public class Enums {
         ELEVATOR_EXTENDED_HIGH, //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_MID, //Elevator Mid and Horizontal extended
         ELEVATOR_EXTENDED_PLATFORM, //Elevator Platform and Horizontal extended
-        ELEVATOR_STANDBY, //Elevator at pickup height
+        ELEVATOR_STANDBY, //Elevator at normal height
     }
 
     public enum ClawState {

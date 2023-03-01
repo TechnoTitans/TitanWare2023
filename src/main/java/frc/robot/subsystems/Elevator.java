@@ -21,7 +21,6 @@ public class Elevator extends SubsystemBase {
     private final TitanSRX encoderSRX;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
 
-    private final ElevatorControl elevatorControl;
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
 
     public Elevator(TitanFX verticalElevatorMotor,
@@ -37,7 +36,7 @@ public class Elevator extends SubsystemBase {
 
         configMotor();
 
-        this.elevatorControl = new ElevatorControl(this);
+        ElevatorControl elevatorControl = new ElevatorControl(this);
         CommandScheduler.getInstance().setDefaultCommand(this, elevatorControl);
     }
 
