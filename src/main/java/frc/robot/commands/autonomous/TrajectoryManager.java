@@ -3,8 +3,10 @@ package frc.robot.commands.autonomous;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
@@ -89,7 +91,7 @@ public class TrajectoryManager {
 
 @SuppressWarnings("unused")
 class TrajectoryFollower extends CommandBase {
-    private final PathPlannerTrajectory traj;
+    private PathPlannerTrajectory traj;
     private final Timer timer;
 
     private final Swerve swerve;
@@ -134,6 +136,7 @@ class TrajectoryFollower extends CommandBase {
         if (!paused) {
             double currentTime = timer.get();
             PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
+            sample = PathPlannerTrajectory.transformStateForAlliance(sample, DriverStation.getAlliance());
             commander(sample);
             driveToState(sample);
             field.getObject("Traj").setPose(sample.poseMeters);
@@ -205,6 +208,15 @@ class TrajectoryFollower extends CommandBase {
                                 timer.start();
                             }
                         }));
+                        break;
+                    case "wheelx":
+                        sequentialCommands.add(new InstantCommand(() ->
+                            swerve.drive(new SwerveModuleState[]{
+                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45))
+                                    })));
                         break;
                 }
             }
