@@ -15,10 +15,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.autonomous.AutoBalance;
 import frc.robot.commands.autonomous.PreloadDrop;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
+import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -192,6 +194,7 @@ public class RobotContainer {
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
 //        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
+
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
@@ -219,7 +222,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return preloadDropAuto;
-        return trajectoryManager.getSelectedPath();
+        return trajectoryManager.getCommand("DropAndMobility");
+//        return trajectoryManager.getCommand("DropAndCharge");
+//        return new AutoBalance(swerve, 180);
+//        return trajectoryManager.getSelectedPath();
     }
 }

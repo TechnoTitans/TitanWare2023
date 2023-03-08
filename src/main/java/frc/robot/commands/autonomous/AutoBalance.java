@@ -28,15 +28,13 @@ public class AutoBalance extends CommandBase {
 
     @Override
     public void execute() {
-        swerve.faceDirection(.5,  0, holonomicRotation, true);
-        if (swerve.getPitch() < (flatLevel - 6)) {
-            flag = true;
-        }
+        swerve.faceDirection(.6,  0, holonomicRotation, true);
+
     }
 
     @Override
     public boolean isFinished() {
-        return (swerve.getPitch() > (flatLevel - 6)) && flag;
+        return swerve.getPitch() <= -16;
     }
 
     @Override
