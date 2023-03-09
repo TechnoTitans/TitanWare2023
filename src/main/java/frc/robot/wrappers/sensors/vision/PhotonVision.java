@@ -10,6 +10,7 @@ public class PhotonVision {
 
     public PhotonVision(PhotonCamera photonCamera) {
         this.photonCamera = photonCamera;
+        photonCamera.setDriverMode(true);
     }
 
     public PhotonPipelineResult getLatestResult() {
