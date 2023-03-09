@@ -60,6 +60,7 @@ public class SwerveModule extends SubsystemBase {
 //        driverConfig.Slot0.kF = 0.045;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         driverConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.4;
+        driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driveMotor.getConfigurator().apply(driverConfig);
 //        driveMotor.setNeutralMode(NeutralMode.Coast);
 
@@ -77,7 +78,7 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         turnMotor.configAllSettings(turnerConfig);
-        turnMotor.setNeutralMode(NeutralMode.Coast);
+        turnMotor.setNeutralMode(NeutralMode.Brake);
     }
 
     public double getAngle() {
