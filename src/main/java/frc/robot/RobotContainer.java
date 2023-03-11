@@ -191,7 +191,7 @@ public class RobotContainer {
         candleController = new CandleController(cANdle);
 
         //Teleop Commands
-        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
+        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain(), limeLight);
 //        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());

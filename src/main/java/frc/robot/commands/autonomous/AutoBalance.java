@@ -34,7 +34,7 @@ public class AutoBalance extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return swerve.getPitch() <= -16;
+        return swerve.getPitch() <= -16 + flatLevel;
     }
 
     @Override

@@ -29,6 +29,8 @@ public class ClawControl extends CommandBase {
         this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
         this.clawTiltNeo = claw.getClawTiltNeo();
 
+//        claw.getClawFollowerWheelBag().follow(clawWheelMotor);
+
         addRequirements(claw);
     }
 
@@ -113,6 +115,12 @@ public class ClawControl extends CommandBase {
         clawWheelMotor.set(
                 ControlMode.PercentOutput,
                 speed);
+
+        //TODO: remove this when bag fixed
+//        claw.getClawFollowerWheelBag().set(
+//                ControlMode.PercentOutput,
+//                speed
+//        );
 
         clawOpenCloseMotor.set(
                 openCloseControlMode,
