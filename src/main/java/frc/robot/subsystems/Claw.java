@@ -112,6 +112,10 @@ public class Claw extends SubsystemBase {
         return clawMainWheelBag;
     }
 
+    public TitanSRX getClawFollowerWheelBag() {
+        return clawFollowerWheelBag;
+    }
+
     public TitanSRX getClawOpenCloseMotor() {
         return clawOpenCloseMotor;
     }

@@ -110,7 +110,7 @@ class TrajectoryFollower extends CommandBase {
         this.timer = new Timer();
         this.controller = controller;
         this.odometry = odometry;
-        this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
+        this.traj = traj;
         this.field = field;
 
         this.claw = claw;
@@ -121,6 +121,8 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
+        this.traj =  PathPlannerTrajectory.transformTrajectoryForAlliance(this.traj, DriverStation.getAlliance());
+
         // addRequirements(swerve); TODO IF AUTO DOESNT WORK TMR UNCOMMENT THIS
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;

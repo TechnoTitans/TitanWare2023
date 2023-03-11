@@ -29,6 +29,8 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
+        SmartDashboard.putNumber("VE motor", robotContainer.elevatorVerticalMotor.getSelectedSensorVelocity()/10);
+        robotContainer.elevator.telemetry();
     }
 
     @Override
@@ -81,19 +83,35 @@ public class Robot extends TimedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
+        robotContainer.elevatorVerticalMotor.set(1);
 //        robotContainer.odometry.resetPosition(Rotation2d.fromDegrees(0), robotContainer.swerve.getModulePositions(), new Pose2d());
 //        if (robotContainer.oi.getXboxMain().getXButton()) {
-            File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
-            if (paths == null) return;
-            for (File path : paths) {
-                path.delete();
-            }
+//            File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
+//            if (paths == null) return;
+//            for (File path : paths) {
+//                path.delete();
+//            }
 //        }
 
     }
 
+    //TODO: remove this field
+    double integratedMax = 0;
+
     @Override
     public void testPeriodic() {
+        final double integratedRpm = Math.abs(
+                (robotContainer.elevatorVerticalMotor.getSensorCollection().getIntegratedSensorVelocity()/2048)*10
+        );
+
+        if (integratedRpm > integratedMax)
+            integratedMax = integratedRpm;
+
+
+        SmartDashboard.putNumber("VE MOTOR MAX", integratedMax);
+        SmartDashboard.putNumber("VE MOTOR CURR", integratedRpm);
+        SmartDashboard.putNumber("VE MOTOR V", robotContainer.elevatorVerticalMotor.getMotorOutputVoltage());
+        SmartDashboard.putNumber("VE MOTOR C", robotContainer.elevatorVerticalMotor.getCurrent());
     }
 
     @Override

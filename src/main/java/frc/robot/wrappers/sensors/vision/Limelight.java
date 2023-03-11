@@ -13,6 +13,7 @@ public class Limelight {
     private final DoubleSubscriber ty = table.getDoubleTopic("ty").subscribe(0.0); // vertical offset from crosshair to target
     private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
     private final DoublePublisher ledMode = table.getDoubleTopic("ledMode").publish();
+
     // Debugging booleans
     boolean targetFound = false;
     boolean targetAligned = false;
@@ -55,6 +56,10 @@ public class Limelight {
 
     public boolean isTargetFound() {
         return tv.getAsLong() > 0;
+    }
+
+    public void changePipeline(Double pipeline){
+        table.getEntry("pipeline").setNumber(pipeline);
     }
 
     public void setLEDMode(Enums.LimeLightLEDState limeLightLEDState) {
