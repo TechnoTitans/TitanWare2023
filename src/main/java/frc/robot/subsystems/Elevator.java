@@ -54,7 +54,6 @@ public class Elevator extends SubsystemBase {
         VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
         VEConfig.remoteFilter0.remoteSensorDeviceID = encoderSRX.getDeviceID();
         VEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-
         verticalElevatorMotor.configAllSettings(VEConfig);
         verticalElevatorMotor.brake();
 
