@@ -1,40 +1,48 @@
 package frc.robot.commands.autonomous;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
+import frc.robot.utils.MathMethods;
 
 public class AutoBalance extends CommandBase {
-
     private final Swerve swerve;
-    private boolean flag = false;
-    private double flatLevel = 0;
     private final double holonomicRotation;
+    private final PIDController pitchPIDController;
 
-//    PIDController drivePID = new PIDController(.00009, 0, 0);
+    private boolean hasLifted = false;
+    private double flatLevel = 0;
 
     public AutoBalance(Swerve swerve, double holonomicRotation) {
         this.swerve = swerve;
         this.holonomicRotation = holonomicRotation;
+        this.pitchPIDController = new PIDController(0.1, 0, 0);
+
         addRequirements(swerve);
     }
 
     @Override
     public void initialize() {
-        addRequirements(swerve);
-        flag = false;
-        flatLevel = swerve.getPitch();
-//        swerve.getPigeon().reset();
+        hasLifted = false;
+        flatLevel = swerve.getABSPitch();
     }
 
     @Override
     public void execute() {
-        swerve.faceDirection(.6,  0, holonomicRotation, true);
+        swerve.faceDirection(
+                pitchPIDController.calculate(16 - (swerve.getABSPitch(flatLevel))),
+                0,
+                holonomicRotation,
+                true);
 
+        if (!hasLifted && swerve.getABSPitch(flatLevel) > 5) {
+            hasLifted = true;
+        }
     }
 
     @Override
     public boolean isFinished() {
-        return swerve.getPitch() <= -16 + flatLevel;
+        return hasLifted && MathMethods.withinRange(swerve.getABSPitch(flatLevel), 0, 1);
     }
 
     @Override

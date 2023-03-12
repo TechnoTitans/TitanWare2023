@@ -194,7 +194,6 @@ class TrajectoryFollower extends CommandBase {
                         sequentialCommands.add(new InstantCommand(() -> elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()))));
                         break;
                     case "autobalance":
-                        SmartDashboard.putBoolean("testing23", true);
                         sequentialCommands.add(new AutoBalance(swerve, sample.holonomicRotation.getDegrees()));
                         break;
                     case "wait":
@@ -210,15 +209,6 @@ class TrajectoryFollower extends CommandBase {
                                 timer.start();
                             }
                         }));
-                        break;
-                    case "wheelx":
-                        sequentialCommands.add(new InstantCommand(() ->
-                            swerve.drive(new SwerveModuleState[]{
-                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                                            new SwerveModuleState(0, Rotation2d.fromDegrees(45))
-                                    })));
                         break;
                 }
             }
