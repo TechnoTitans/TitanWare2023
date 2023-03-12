@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.commands.autonomous.AutoBalance;
-import frc.robot.commands.autonomous.PreloadDrop;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
@@ -89,19 +87,18 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-//    public final SwerveAlignment swerveAlignment;
+    public final SwerveAlignment swerveAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
     //Buttons
     //Main Driver
-    public final TitanButton resetGyroBtn;
+    public final TitanButton resetGyroBtn, alignLeftBtn, alignRightBtn;
     //Co Driver
     public final TitanButton candleYellowBtn, candlePurpleBtn;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
-    public final PreloadDrop preloadDropAuto;
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
@@ -191,21 +188,21 @@ public class RobotContainer {
         candleController = new CandleController(cANdle);
 
         //Teleop Commands
-        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain(), limeLight);
-//        swerveAlignment = new SwerveAlignment(swerve, limeLight, photonVision, oi.getXboxCo());
+        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
+        swerveAlignment = new SwerveAlignment(swerve, limeLight, oi.getXboxCo());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-//        autoAlignBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_B);
+        alignLeftBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_LEFT);
+        alignRightBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_RIGHT);
 
         candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw, elevator);
-        preloadDropAuto = new PreloadDrop(swerve, claw, elevator);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -219,7 +216,8 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-//        autoAlignBtn.onTrue(swerveAlignment);
+        alignLeftBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
+        alignRightBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
@@ -229,7 +227,5 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return trajectoryManager.getCommand("DropAndMobility");
 //        return trajectoryManager.getCommand("DropAndCharge");
-//        return new AutoBalance(swerve, 180);
-//        return trajectoryManager.getSelectedPath();
     }
 }

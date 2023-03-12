@@ -34,8 +34,8 @@ public class Enums {
         LED_ON //Limelight LEDS on
     }
 
-    public enum VisionMode {
-        PHOTON_VISION,
-        LIME_LIGHT
+    public enum LimelightPipelines {
+        LEFT, //Set limelight pipeline to want leftmost
+        RIGHT, //Set limelight pipeline to want rightmost
     }
 }
