@@ -92,6 +92,7 @@ public class TrajectoryManager {
 @SuppressWarnings("unused")
 class TrajectoryFollower extends CommandBase {
     private PathPlannerTrajectory traj;
+    private PathPlannerTrajectory transformedTraj;
     private final Timer timer;
 
     private final Swerve swerve;
@@ -111,6 +112,7 @@ class TrajectoryFollower extends CommandBase {
         this.controller = controller;
         this.odometry = odometry;
         this.traj = traj;
+        this.transformedTraj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
         this.field = field;
 
         this.claw = claw;
@@ -121,10 +123,8 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
-        this.traj =  PathPlannerTrajectory.transformTrajectoryForAlliance(this.traj, DriverStation.getAlliance());
-
         // addRequirements(swerve); TODO IF AUTO DOESNT WORK TMR UNCOMMENT THIS
-        PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
+        PathPlannerTrajectory.PathPlannerState initialState = transformedTraj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialState.holonomicRotation.getDegrees());
         odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), initialPose);
@@ -137,7 +137,7 @@ class TrajectoryFollower extends CommandBase {
     public void execute() {
         if (!paused) {
             double currentTime = timer.get();
-            PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
+            PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) transformedTraj.sample(currentTime);
             sample = PathPlannerTrajectory.transformStateForAlliance(sample, DriverStation.getAlliance());
             commander(sample);
             driveToState(sample);
@@ -150,13 +150,13 @@ class TrajectoryFollower extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         timer.stop();
-        swerve.setAngle(traj.getEndState().holonomicRotation.getDegrees());
+        swerve.setAngle(transformedTraj.getEndState().holonomicRotation.getDegrees());
     }
 
     @Override
     public boolean isFinished() {
         return !RobotState.isAutonomous()
-//                || timer.get() >= traj.getTotalTimeSeconds()
+//                || timer.get() >= transformedTraj.getTotalTimeSeconds()
                 ;
     }
 
