@@ -3,7 +3,7 @@ package frc.robot.profiler;
 import frc.robot.utils.Enums;
 
 public class Profiler {
-    private static Enums.DriverProfiles profile;
+    private static Enums.DriverProfiles profile = Enums.DriverProfiles.DRIVER1;
     private double ThrottleSensitivity = 1;
     private double RotationalSensitivity = 1;
 
@@ -16,8 +16,7 @@ public class Profiler {
     private double ThrottleSlowWeight = 0.214;
     private double RotateSlowWeight = 0.357;
 
-    private Profiler() {
-    }
+    private Profiler() {}
 
     public static Profiler getProfile() {
         Profiler newProfile = new Profiler();

@@ -119,8 +119,7 @@ public class ClawControl extends CommandBase {
         //TODO: remove this when bag fixed
 //        claw.getClawFollowerWheelBag().set(
 //                ControlMode.PercentOutput,
-//                speed
-//        );
+//                speed);
 
         clawOpenCloseMotor.set(
                 openCloseControlMode,

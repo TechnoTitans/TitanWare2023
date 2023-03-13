@@ -46,8 +46,8 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
 //        robotContainer.swerve.resetDriveEncoders();
-
-//         //schedule the autonomous command (example)
+//
+//         schedule the autonomous command (example)
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
@@ -55,6 +55,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
+//        robotContainer.swerve.faceDirection(0, 0, 60, true);
     }
 
     @Override

@@ -2,15 +2,15 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -123,7 +123,7 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
-        // addRequirements(swerve); TODO IF AUTO DOESNT WORK TMR UNCOMMENT THIS
+
         PathPlannerTrajectory.PathPlannerState initialState = transformedTraj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialState.holonomicRotation.getDegrees());
@@ -138,7 +138,6 @@ class TrajectoryFollower extends CommandBase {
         if (!paused) {
             double currentTime = timer.get();
             PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) transformedTraj.sample(currentTime);
-            sample = PathPlannerTrajectory.transformStateForAlliance(sample, DriverStation.getAlliance());
             commander(sample);
             driveToState(sample);
             field.getObject("Traj").setPose(sample.poseMeters);
@@ -161,14 +160,12 @@ class TrajectoryFollower extends CommandBase {
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
-        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state, swerve.getRotation2d());
-        swerve.faceDirection(
-                correction.vxMetersPerSecond,
-                correction.vyMetersPerSecond,
-                state.holonomicRotation.getDegrees(),
-                true
-        );
-//        swerve.drive(correction);
+        ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state);
+        swerve.drive(
+                -correction.vxMetersPerSecond,
+                -correction.vyMetersPerSecond,
+                correction.omegaRadiansPerSecond,
+                true);
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {
@@ -179,8 +176,9 @@ class TrajectoryFollower extends CommandBase {
             return;
         }
         PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
-        double distError = 0.05;
-        if (MathMethods.withinBand(marker.positionMeters.getDistance(sample.poseMeters.getTranslation()), distError)) {
+        double distError = 0.1;
+//        if (MathMethods.withinBand(marker.positionMeters.getDistance(sample.poseMeters.getTranslation()), distError)) {
+        if (MathMethods.withinRange(marker.timeSeconds, timer.get(), distError)) {
             eventMarkers.remove(0);
             String[] commands = marker.names.get(0).trim().split(";");
             List<Command> sequentialCommands = new ArrayList<>();
@@ -210,9 +208,11 @@ class TrajectoryFollower extends CommandBase {
                             }
                         }));
                         break;
+                    default:
+                        break;
                 }
             }
-//            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:1;dtpause:false;
+//            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
             new SequentialCommandGroup(sequentialCommands.toArray(new Command[0])).schedule();
         }
 
