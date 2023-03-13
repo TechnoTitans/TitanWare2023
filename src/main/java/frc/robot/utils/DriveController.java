@@ -71,7 +71,7 @@ public class DriveController {
      * @param referenceState The desired trajectory state
      * @return The next output of the holonomic drive controller
      */
-    public ChassisSpeeds calculate(Pose2d currentPose, PathPlannerState referenceState, Rotation2d rotation2d) {
+    public ChassisSpeeds calculate(Pose2d currentPose, PathPlannerState referenceState) {
         double xFF = referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getCos();
         double yFF = referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getSin();
         double rotationFF = referenceState.holonomicAngularVelocityRadPerSec;
@@ -84,7 +84,7 @@ public class DriveController {
         double rotationFeedback = this.rotationController.calculate(
                 currentPose.getRotation().getRadians(), referenceState.holonomicRotation.getRadians());
 
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
-                xFF + xFeedback, yFF + yFeedback, rotationFF + rotationFeedback, rotation2d);
+        return new ChassisSpeeds(
+                xFF + xFeedback, yFF + yFeedback, rotationFF + rotationFeedback);
     }
 }

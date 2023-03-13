@@ -9,10 +9,6 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenixpro.configs.MotorOutputConfigs;
-import com.ctre.phoenixpro.controls.VelocityDutyCycle;
-import com.ctre.phoenixpro.hardware.TalonFX;
-import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -22,21 +18,17 @@ import frc.robot.wrappers.motors.TitanFX;
 
 @SuppressWarnings("unused")
 public class SwerveModule extends SubsystemBase {
-    private final TalonFX driveMotor;
-    private final TitanFX turnMotor;
+    private final TitanFX driveMotor, turnMotor;
     private final CANCoder turnEncoder;
     private final double magnetOffset;
-    private final VelocityDutyCycle velocityDutyCycle;
+//    private SimpleMotorFeedforward feedforward;
 
-    public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, double magnetOffset) {
+    public SwerveModule(TitanFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
-
         config();
-
-        this.velocityDutyCycle = new VelocityDutyCycle(0, true, 0, 0, false);
     }
 
     private void config() {
@@ -51,18 +43,16 @@ public class SwerveModule extends SubsystemBase {
 
 //        feedforward = new SimpleMotorFeedforward(0.148, 2.7924, 0.57268);
 
-//        driveMotor.configFactoryDefault();
-        com.ctre.phoenixpro.configs.TalonFXConfiguration driverConfig = new com.ctre.phoenixpro.configs.TalonFXConfiguration();
-        driverConfig.Slot0.kP = 0.1;
-        driverConfig.Slot0.kI = 0.002;
-//        driverConfig.Slot0.integralZone = 200;
-        driverConfig.Slot0.kD = 5;
-//        driverConfig.Slot0.kF = 0.045;
-        driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        driverConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.4;
-        driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
-        driveMotor.getConfigurator().apply(driverConfig);
-//        driveMotor.setNeutralMode(NeutralMode.Coast);
+        driveMotor.configFactoryDefault();
+        TalonFXConfiguration driverConfig = new TalonFXConfiguration();
+        driverConfig.slot0.kP = 0.1;
+        driverConfig.slot0.kI = 0.002;
+        driverConfig.slot0.integralZone = 200;
+        driverConfig.slot0.kD = 5;
+        driverConfig.slot0.kF = 0.045;
+        driverConfig.closedloopRamp = 0.4;
+        driveMotor.configAllSettings(driverConfig);
+        driveMotor.setNeutralMode(NeutralMode.Coast);
 
         turnMotor.configFactoryDefault();
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
@@ -78,7 +68,7 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         turnMotor.configAllSettings(turnerConfig);
-        turnMotor.setNeutralMode(NeutralMode.Brake);
+        turnMotor.setNeutralMode(NeutralMode.Coast);
     }
 
     public double getAngle() {
@@ -86,64 +76,59 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(driveMotor.getVelocity().getValue() * (2*Math.PI*Constants.Modules.WHEEL_RADIUS), Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModuleState(driveMotor.getSelectedSensorVelocity() / Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.WHEEL_RADIUS * 10, Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getPosition().getValue() * (2*Math.PI*Constants.Modules.WHEEL_RADIUS), Rotation2d.fromDegrees(getAngle()));
+        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() * ((Constants.Modules.WHEEL_RADIUS*2*Math.PI) / (8.14 * 2048.0)), Rotation2d.fromDegrees(getAngle()));
     }
 
     public void setDesiredState(SwerveModuleState state) {
         Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle()); // TODO: CHECK THIS
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
-        double desired_driver_velocity = wantedState.speedMetersPerSecond / (2*Math.PI*Constants.Modules.WHEEL_RADIUS);
-
+        double desired_driver_velocity_ticks = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_RADIUS * Constants.Modules.DRIVER_TICKS_PER_WHEEL_RADIAN * Constants.Modules.ONESECOND_TO_100_MILLISECONDS;
         Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
         double delta_ticks = delta_rotation.getDegrees() * Constants.Modules.TICKS_PER_CANCODER_DEGREE;
         double current_ticks = turnMotor.getSelectedSensorPosition();
         double desired_turner_ticks = current_ticks + delta_ticks;
 
-        driveMotor.setControl(velocityDutyCycle.withVelocity(desired_driver_velocity));
+        driveMotor.set(TalonFXControlMode.Velocity, desired_driver_velocity_ticks);
         turnMotor.set(TalonFXControlMode.Position, desired_turner_ticks);
     }
 
     public void percentOutputControl(double output) {
-        driveMotor.set(output);
+        driveMotor.set(TalonFXControlMode.PercentOutput, output);
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
-    public void manualVelocityControl(double rps) {
-        driveMotor.setControl(velocityDutyCycle.withVelocity(rps));
+    public void manualVelocityControl(double velocity_ticks_per_100ms) {
+        driveMotor.set(TalonFXControlMode.Velocity, velocity_ticks_per_100ms);
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
     public void stop() {
-        driveMotor.set(0);
+        driveMotor.set(TalonFXControlMode.PercentOutput, 0);
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
     public void brake() {
-        MotorOutputConfigs neutralMode = new MotorOutputConfigs();
-        neutralMode.NeutralMode = NeutralModeValue.Brake;
-        driveMotor.getConfigurator().apply(neutralMode);
+        driveMotor.brake();
     }
 
     public void coast() {
-        MotorOutputConfigs neutralMode = new MotorOutputConfigs();
-        neutralMode.NeutralMode = NeutralModeValue.Coast;
-        driveMotor.getConfigurator().apply(neutralMode);
+        driveMotor.coast();
     }
 
     public double getDriveCurrent() {
-        return driveMotor.getStatorCurrent().getValue();
+        return driveMotor.getCurrent();
     }
 
     public double getDriveEncoderValue() {
-        return Math.abs(driveMotor.getPosition().getValue());
+        return Math.abs(driveMotor.getSelectedSensorPosition());
     }
 
     public void resetDriveEncoder() {
-        driveMotor.setRotorPosition(0);
+        driveMotor.setSelectedSensorPosition(0);
     }
 
 

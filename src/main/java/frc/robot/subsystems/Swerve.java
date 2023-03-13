@@ -1,11 +1,12 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenixpro.hardware.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -27,19 +28,19 @@ public class Swerve extends SubsystemBase {
     }
 
     public double getHeading() {
-        return pigeon.getAngle();
+        return pigeon.getYaw();
     }
 
     public double getABSPitch() {
-        return Math.abs(pigeon.getPitch().getValue());
+        return Math.abs(pigeon.getPitch());
     }
 
     public double getABSPitch(double offset) {
-        return Math.abs(pigeon.getPitch().getValue() - offset);
+        return Math.abs(pigeon.getPitch() - offset);
     }
 
     public Rotation2d getRotation2d() {
-        return pigeon.getRotation2d();
+        return Rotation2d.fromDegrees(getHeading());
     }
 
     public void setAngle(double angle) {
@@ -85,8 +86,8 @@ public class Swerve extends SubsystemBase {
     public void drive(SwerveModuleState[] states) {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.Swerve.MODULE_MAX_SPEED);
         frontLeft.setDesiredState(states[0]);
-        backLeft.setDesiredState(states[1]);
-        frontRight.setDesiredState(states[2]);
+        frontRight.setDesiredState(states[1]);
+        backLeft.setDesiredState(states[2]);
         backRight.setDesiredState(states[3]);
     }
 
@@ -112,18 +113,8 @@ public class Swerve extends SubsystemBase {
     }
 
     public void faceDirection(double dx, double dy, double theta, boolean fieldRelative) {
-        double errorTheta = (theta - (int) getHeading() % 360);
-
-        if (errorTheta < -180) errorTheta += 360;
-        if (errorTheta > 180) errorTheta -= 360;
-
-        double pRotation = errorTheta * 0.05;
-
-        if (Math.abs(pRotation) > Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED) {
-            pRotation = Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * ((pRotation > 0) ? 1 : -1);
-        }
-
-        drive(dx, dy, pRotation, fieldRelative);
+        Rotation2d error = Rotation2d.fromDegrees(theta).minus(Rotation2d.fromDegrees(-getHeading()));
+        drive(dx, dy, error.getRadians(), fieldRelative);
     }
 
 
