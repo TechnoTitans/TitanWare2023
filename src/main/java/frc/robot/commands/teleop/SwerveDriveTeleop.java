@@ -33,14 +33,14 @@ public class SwerveDriveTeleop extends CommandBase {
         double throttleWeight;
         double turnWeight;
         if (controller.getLeftTriggerAxis() > 0.5) {
-            throttleWeight = 0.214; //0.3
-            turnWeight = 0.357; //0.5
+            throttleWeight = driverProfile.getThrottleSlowWeight(); //0.3
+            turnWeight = driverProfile.getRotateSlowWeight(); //0.5
         } else if (controller.getRightTriggerAxis() > 0.5) {
-            throttleWeight = 1;
-            turnWeight = 1;
+            throttleWeight = driverProfile.getThrottleFastWeight();
+            turnWeight = driverProfile.getRotateFastWeight();
         } else {
-            throttleWeight = 0.357; //0.5
-            turnWeight = 0.7; //0.7
+            throttleWeight = driverProfile.getThrottleNormalWeight(); //0.5
+            turnWeight = driverProfile.getRotateNormalWeight(); //0.7
         }
 
         double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();

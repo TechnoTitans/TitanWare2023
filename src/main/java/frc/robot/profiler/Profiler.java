@@ -7,6 +7,15 @@ public class Profiler {
     private double ThrottleSensitivity = 1;
     private double RotationalSensitivity = 1;
 
+    private double ThrottleFastWeight = 1;
+    private double RotateFastWeight = 1;
+
+    private double ThrottleNormalWeight = 0.357;
+    private double RotateNormalWeight = 0.7;
+
+    private double ThrottleSlowWeight = 0.214;
+    private double RotateSlowWeight = 0.357;
+
     private Profiler() {
     }
 
@@ -39,5 +48,29 @@ public class Profiler {
 
     public double getRotationalSensitivity() {
         return RotationalSensitivity;
+    }
+
+    public double getThrottleFastWeight() {
+        return ThrottleFastWeight;
+    }
+
+    public double getRotateFastWeight() {
+        return RotateFastWeight;
+    }
+
+    public double getThrottleNormalWeight() {
+        return ThrottleNormalWeight;
+    }
+
+    public double getRotateNormalWeight() {
+        return RotateNormalWeight;
+    }
+
+    public double getThrottleSlowWeight() {
+        return ThrottleSlowWeight;
+    }
+
+    public double getRotateSlowWeight() {
+        return RotateSlowWeight;
     }
 }
