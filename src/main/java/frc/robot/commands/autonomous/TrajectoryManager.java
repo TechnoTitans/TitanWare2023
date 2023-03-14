@@ -2,7 +2,6 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -10,7 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -92,7 +90,6 @@ public class TrajectoryManager {
 @SuppressWarnings("unused")
 class TrajectoryFollower extends CommandBase {
     private PathPlannerTrajectory traj;
-    private PathPlannerTrajectory transformedTraj;
     private final Timer timer;
 
     private final Swerve swerve;
@@ -111,8 +108,7 @@ class TrajectoryFollower extends CommandBase {
         this.timer = new Timer();
         this.controller = controller;
         this.odometry = odometry;
-        this.traj = traj;
-        this.transformedTraj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
+        this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
         this.field = field;
 
         this.claw = claw;
@@ -124,7 +120,7 @@ class TrajectoryFollower extends CommandBase {
     @Override
     public void initialize() {
 
-        PathPlannerTrajectory.PathPlannerState initialState = transformedTraj.getInitialState();
+        PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialState.holonomicRotation.getDegrees());
         odometry.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), initialPose);
@@ -137,7 +133,7 @@ class TrajectoryFollower extends CommandBase {
     public void execute() {
         if (!paused) {
             double currentTime = timer.get();
-            PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) transformedTraj.sample(currentTime);
+            PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
             commander(sample);
             driveToState(sample);
             field.getObject("Traj").setPose(sample.poseMeters);
@@ -149,14 +145,12 @@ class TrajectoryFollower extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         timer.stop();
-        swerve.setAngle(transformedTraj.getEndState().holonomicRotation.getDegrees());
+        swerve.setAngle(traj.getEndState().holonomicRotation.getDegrees());
     }
 
     @Override
     public boolean isFinished() {
-        return !RobotState.isAutonomous()
-//                || timer.get() >= transformedTraj.getTotalTimeSeconds()
-                ;
+        return !RobotState.isAutonomous();
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
