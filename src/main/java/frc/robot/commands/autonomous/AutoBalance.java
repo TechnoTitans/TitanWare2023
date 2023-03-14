@@ -7,7 +7,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
-import frc.robot.utils.MathMethods;
 
 public class AutoBalance extends CommandBase {
     private final Swerve swerve;
