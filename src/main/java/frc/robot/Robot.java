@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        robotContainer.swerve.coast();
+        robotContainer.swerve.brake();
         //Set Profile
         Profiler.setProfile(robotContainer.profileChooser.getSelected());
 
