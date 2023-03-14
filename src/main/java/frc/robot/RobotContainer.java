@@ -212,9 +212,8 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-//        alignLeftBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-        alignRightBtn.onTrue(new AutoBalance(swerve, 180));
-//        alignRightBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
+        alignLeftBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
+        alignRightBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
