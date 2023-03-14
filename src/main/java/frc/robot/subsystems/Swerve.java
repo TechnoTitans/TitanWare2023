@@ -32,11 +32,12 @@ public class Swerve extends SubsystemBase {
     }
 
     public double getABSPitch() {
-        return Math.abs(pigeon.getPitch());
+        return pigeon.getPitch();
     }
 
+
     public double getABSPitch(double offset) {
-        return Math.abs(pigeon.getPitch() - offset);
+        return Math.abs(pigeon.getRoll() - offset);
     }
 
     public Rotation2d getRotation2d() {
