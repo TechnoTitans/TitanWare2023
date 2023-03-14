@@ -26,8 +26,6 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getABSPitch());
-        SmartDashboard.putNumber("VE motor", robotContainer.elevatorVerticalMotor.getSelectedSensorVelocity()/10);
-        robotContainer.elevator.telemetry();
     }
 
     @Override
@@ -104,12 +102,6 @@ public class Robot extends TimedRobot {
 
         if (integratedRpm > integratedMax)
             integratedMax = integratedRpm;
-
-
-        SmartDashboard.putNumber("VE MOTOR MAX", integratedMax);
-        SmartDashboard.putNumber("VE MOTOR CURR", integratedRpm);
-        SmartDashboard.putNumber("VE MOTOR V", robotContainer.elevatorVerticalMotor.getMotorOutputVoltage());
-        SmartDashboard.putNumber("VE MOTOR C", robotContainer.elevatorVerticalMotor.getCurrent());
     }
 
     @Override
