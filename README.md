@@ -7,28 +7,28 @@
 - [x] Upgrade vendor libraries
 - [x] Change GYRO to pigeon
 - [x] Add Swerve Code
-- [ ] Config RobotMap.java
+- [x] Config RobotMap.java
 - [x] Add Elevator
 - [x] Add AutoBalance
 - [x] Fix Auto !!!
-- [x] Limelight assisted lineup
-- [ ] Auto Paths
+- [ ] Limelight assisted lineup
+- [x] Auto Paths
 - [x] Add Candle
-- [ ] Figure out controls
+- [x] Figure out controls
 - [x] Switch to Phoenix Pro (https://api.ctr-electronics.com/phoenixpro/release/java/index.html)
 
 ## Drivetrain (Swerve):
 - [x] Set Module Offsets
 - [x] Config Odomety/Kinematics
-- [ ] Tune PID
-- [ ] Run path planning paths
-- [ ] Locking System
+- [x] Tune PID
+- [x] Run path planning paths
+- [x] Locking System
 - [ ] Vison alignment 
 
 ## Elevator:
-- [ ] Tune PID
-- [ ] Config Preset Ticks
+- [x] Tune PID
+- [x] Config Preset Ticks
 
 ## Claw:
-- [ ] Tune PID
-- [ ] Config Preset Ticks
+- [x] Tune PID
+- [x] Config Preset Ticks
