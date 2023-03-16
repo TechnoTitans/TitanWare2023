@@ -14,7 +14,9 @@ public class Enums {
         CLAW_INTAKING_CONE, //Claw tilted down and open cone
         CLAW_INTAKING_CUBE, //Claw tilted down and open cube
         CLAW_STANDBY, //Claw tilted down and standby wheel speed
-        CLAW_DROP //Drop claw to outtake height
+        CLAW_DROP, //Drop claw to outtake height
+        CLAW_ANGLE_SHOOT,
+        CLAW_SHOOT
     }
 
     public enum CANdleState {

@@ -2,8 +2,7 @@ package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
@@ -54,6 +53,15 @@ public class IntakeTeleop extends CommandBase {
 //            flag3 = false;
 //            timer.stop();
 //        }
+        else if (mainController.getRightBumper()){
+            new SequentialCommandGroup(
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
+                    new WaitCommand(1),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT)),
+                    new WaitCommand(0.75),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
+            ).schedule();
+        }
         else if (coController.getAButton()) {
             if (!flag) {
                 timer.reset();

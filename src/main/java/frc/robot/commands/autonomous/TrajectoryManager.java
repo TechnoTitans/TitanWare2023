@@ -119,7 +119,6 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
-
         PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
         Pose2d initialPose = initialState.poseMeters;
         swerve.setAngle(initialState.holonomicRotation.getDegrees());
@@ -155,6 +154,7 @@ class TrajectoryFollower extends CommandBase {
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
         ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state);
+        SmartDashboard.putNumber("deg1", state.holonomicRotation.getDegrees());
         swerve.drive(
                 -correction.vxMetersPerSecond,
                 -correction.vyMetersPerSecond,
@@ -206,6 +206,8 @@ class TrajectoryFollower extends CommandBase {
                         break;
                 }
             }
+            //dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
+
 //            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
             new SequentialCommandGroup(sequentialCommands.toArray(new Command[0])).schedule();
         }

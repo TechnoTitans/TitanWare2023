@@ -52,7 +52,7 @@ public class SwerveAlignment extends CommandBase {
     public void execute() {
         double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
         swerve.faceDirection(
-                frontBack * driverProfile.getThrottleNormalWeight(),
+                -frontBack * driverProfile.getThrottleSlowWeight(),
                 xLimelightPIDController.calculate(limelight.getX()),
                 180,
                 true
