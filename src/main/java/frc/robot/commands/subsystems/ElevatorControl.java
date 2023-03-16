@@ -92,9 +92,9 @@ public class ElevatorControl extends CommandBase {
                 VEControlMode,
                 VEPosition);
 
-        horizontalElevatorMotor.set(
-                HEControlMode,
-                HETargetRotations);
+//        horizontalElevatorMotor.set(
+//                HEControlMode,
+//                HETargetRotations);
     }
     @Override
     public boolean isFinished() {

@@ -15,6 +15,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.autonomous.AutoBalance;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
@@ -211,8 +214,9 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        alignLeftBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-        alignRightBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
+//        alignLeftBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
+//        alignRightBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
+//        alignRightBtn.onTrue(new AutoBalance(swerve, 180));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
@@ -221,8 +225,10 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
 //        return trajectoryManager.getCommand("testing");
-        return trajectoryManager.getCommand("shriya");
+//        return trajectoryManager.getCommand("notime");
+
+//        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
 //        return trajectoryManager.getCommand("DropAndMobility");
-//        return trajectoryManager.getCommand("DropAndCharge");
+        return trajectoryManager.getCommand("DropAndCharge");
     }
 }

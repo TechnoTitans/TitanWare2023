@@ -1,6 +1,7 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
@@ -41,11 +42,6 @@ public class SwerveDriveTeleop extends CommandBase {
         } else {
             throttleWeight = driverProfile.getThrottleNormalWeight(); //0.5
             turnWeight = driverProfile.getRotateNormalWeight(); //0.7
-        }
-
-        if (controller.getLeftBumper()) {
-            swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, 180, true);
-            return;
         }
 
         double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();

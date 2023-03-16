@@ -69,12 +69,26 @@ public class ClawControl extends CommandBase {
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .3;
                 openCloseControlMode = ControlMode.Position;
-                openCloseControl = 400;
+                openCloseControl = 700;
                 break;
             case CLAW_DROP:
                 speed = 0.3;
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .2;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = -0.37;
+                break;
+            case CLAW_ANGLE_SHOOT:
+                speed = 0.2;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
+                tiltRotations = .12;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = -0.37;
+                break;
+            case CLAW_SHOOT:
+                speed = -0.9;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
+                tiltRotations = .12;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.37;
                 break;
@@ -115,11 +129,6 @@ public class ClawControl extends CommandBase {
         clawWheelMotor.set(
                 ControlMode.PercentOutput,
                 speed);
-
-        //TODO: remove this when bag fixed
-//        claw.getClawFollowerWheelBag().set(
-//                ControlMode.PercentOutput,
-//                speed);
 
         clawOpenCloseMotor.set(
                 openCloseControlMode,

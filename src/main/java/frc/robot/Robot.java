@@ -4,12 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
+
+import java.io.File;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
@@ -25,7 +28,9 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("pitch", robotContainer.swerve.getABSPitch());
+        SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
+        SmartDashboard.putBoolean("ls elevator", robotContainer.elevatorHorizontalLimitSwitch.get());
+        SmartDashboard.putNumber("HEENC", robotContainer.elevatorHorizontalNeo.getAlternateEncoder(8192).getPosition());
     }
 
     @Override
@@ -40,7 +45,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        robotContainer.swerve.zeroRotation();
         robotContainer.swerve.brake();
         autonomousCommand = robotContainer.getAutonomousCommand();
 //        robotContainer.swerve.resetDriveEncoders();
@@ -53,12 +57,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
-//        robotContainer.swerve.faceDirection(0, 0, 60, true);
     }
 
     @Override
     public void teleopInit() {
-        robotContainer.swerve.brake();
+        robotContainer.swerve.coast();
         //Set Profile
         Profiler.setProfile(robotContainer.profileChooser.getSelected());
 
@@ -79,29 +82,15 @@ public class Robot extends TimedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
-        robotContainer.elevatorVerticalMotor.set(1);
-//        robotContainer.odometry.resetPosition(Rotation2d.fromDegrees(0), robotContainer.swerve.getModulePositions(), new Pose2d());
-//        if (robotContainer.oi.getXboxMain().getXButton()) {
-//            File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
-//            if (paths == null) return;
-//            for (File path : paths) {
-//                path.delete();
-//            }
-//        }
-
+            File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
+            if (paths == null) return;
+            for (File path : paths) {
+                path.delete();
+            }
     }
-
-    //TODO: remove this field
-    double integratedMax = 0;
 
     @Override
     public void testPeriodic() {
-        final double integratedRpm = Math.abs(
-                (robotContainer.elevatorVerticalMotor.getSensorCollection().getIntegratedSensorVelocity()/2048)*10
-        );
-
-        if (integratedRpm > integratedMax)
-            integratedMax = integratedRpm;
     }
 
     @Override

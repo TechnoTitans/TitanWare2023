@@ -12,6 +12,7 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.wrappers.motors.TitanFX;
@@ -45,11 +46,11 @@ public class SwerveModule extends SubsystemBase {
 
         driveMotor.configFactoryDefault();
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.slot0.kP = 0.1;
+        driverConfig.slot0.kP = 0.0007198;
         driverConfig.slot0.kI = 0.002;
         driverConfig.slot0.integralZone = 200;
         driverConfig.slot0.kD = 5;
-        driverConfig.slot0.kF = 0.045;
+        driverConfig.slot0.kF = 0.049951171875;
         driverConfig.closedloopRamp = 0.4;
         driveMotor.configAllSettings(driverConfig);
         driveMotor.setNeutralMode(NeutralMode.Coast);
