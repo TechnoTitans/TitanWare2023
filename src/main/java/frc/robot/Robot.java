@@ -29,8 +29,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-        SmartDashboard.putBoolean("ls elevator", robotContainer.elevatorHorizontalLimitSwitch.get());
-        SmartDashboard.putNumber("HEENC", robotContainer.elevatorHorizontalNeo.getAlternateEncoder(8192).getPosition());
+        SmartDashboard.putNumber("CLAE ENC", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
     }
 
     @Override
