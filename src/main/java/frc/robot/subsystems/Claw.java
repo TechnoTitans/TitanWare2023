@@ -61,7 +61,7 @@ public class Claw extends SubsystemBase {
         canCoderConfiguration.unitString = "deg";
         canCoderConfiguration.sensorDirection = false;
         canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        canCoderConfiguration.magnetOffsetDegrees = -76;
+        canCoderConfiguration.magnetOffsetDegrees = -79.89;
         clawOpenCloseEncoder.configAllSettings(canCoderConfiguration);
 
         clawOpenCloseMotor.configFactoryDefault();
