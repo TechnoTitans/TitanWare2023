@@ -5,10 +5,10 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class PhotonVision {
+public class PhotonDriverCam {
     private final PhotonCamera photonCamera;
 
-    public PhotonVision(PhotonCamera photonCamera) {
+    public PhotonDriverCam(PhotonCamera photonCamera) {
         this.photonCamera = photonCamera;
         photonCamera.setDriverMode(true);
     }
