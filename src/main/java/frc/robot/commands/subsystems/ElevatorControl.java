@@ -61,6 +61,10 @@ public class ElevatorControl extends CommandBase {
                 HETargetRotations = -0.2;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
+            case ELEVATOR_CUBE:
+                VEPosition = 4000;
+                HETargetRotations = -0.2;
+                HEControlMode = CANSparkMax.ControlType.kDutyCycle;
             default:
                 break;
         }

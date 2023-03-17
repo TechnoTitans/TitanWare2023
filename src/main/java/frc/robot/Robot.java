@@ -29,7 +29,6 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-        SmartDashboard.putNumber("CLAE ENC", robotContainer.clawOpenCloseEncoder.getAbsolutePosition());
     }
 
     @Override
@@ -60,7 +59,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        robotContainer.swerve.coast();
+//        robotContainer.swerve.coast();
         //Set Profile
         Profiler.setProfile(robotContainer.profileChooser.getSelected());
 

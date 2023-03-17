@@ -114,7 +114,8 @@ public class Swerve extends SubsystemBase {
 
     public void faceDirection(double dx, double dy, double theta, boolean fieldRelative) {
         Rotation2d error = Rotation2d.fromDegrees(theta).minus(Rotation2d.fromDegrees(-getHeading()));
-        drive(dx, dy, error.getRadians(), fieldRelative);
+        double rotPower = error.getRadians() * 2;
+        drive(dx, dy, rotPower, fieldRelative);
     }
 
 

@@ -62,7 +62,7 @@ public class ClawControl extends CommandBase {
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .3;
                 openCloseControlMode = ControlMode.Position;
-                openCloseControl = -200;
+                openCloseControl = 200;
                 break;
             case CLAW_INTAKING_CUBE:
                 speed = 0.5;
@@ -86,12 +86,18 @@ public class ClawControl extends CommandBase {
                 openCloseControl = -0.37;
                 break;
             case CLAW_SHOOT:
-                speed = -0.9;
+                speed = -0.8;
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .12;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.37;
                 break;
+            case CLAW_ANGLE_CUBE:
+                speed = 0.5;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
+                tiltRotations = .4;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = 700;
             default:
                 break;
         }

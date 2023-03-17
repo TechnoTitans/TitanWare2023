@@ -154,11 +154,10 @@ class TrajectoryFollower extends CommandBase {
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
         ChassisSpeeds correction = controller.calculate(odometry.getPoseMeters(), state);
-        SmartDashboard.putNumber("deg1", state.holonomicRotation.getDegrees());
-        swerve.drive(
+        swerve.faceDirection(
                 -correction.vxMetersPerSecond,
                 -correction.vyMetersPerSecond,
-                correction.omegaRadiansPerSecond,
+                state.holonomicRotation.getDegrees(),
                 true);
     }
 
