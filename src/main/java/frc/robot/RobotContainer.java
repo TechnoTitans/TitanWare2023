@@ -5,9 +5,10 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -15,9 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.autonomous.AutoBalance;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
@@ -36,7 +34,8 @@ import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.Limelight;
-import frc.robot.wrappers.sensors.vision.PhotonVision;
+import frc.robot.wrappers.sensors.vision.PhotonCameraWrapper;
+import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
@@ -62,7 +61,7 @@ public class RobotContainer {
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
-    public final SwerveDriveOdometry odometry;
+    public final SwerveDrivePoseEstimator poseEstimator;
     public final DriveController holonomicDriveController;
     public final Field2d field;
 
@@ -75,8 +74,9 @@ public class RobotContainer {
 
     //Vision
     public final Limelight limeLight;
-    public final PhotonCamera camera;
-    public final PhotonVision photonVision;
+    public final PhotonCamera photonDriveCamera, photonApriltagCamera;
+    public final PhotonDriverCam photonDriverCam;
+    public final PhotonCameraWrapper photonApriltagCam;
 
     //Candle
     public final CANdle cANdle;
@@ -167,7 +167,7 @@ public class RobotContainer {
                 new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2)); //back right //in meters, swerve modules relative to the center of robot
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
-        odometry = new SwerveDriveOdometry(kinematics, swerve.getRotation2d(), swerve.getModulePositions());
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), new Pose2d());
         field = new Field2d();
 
         holonomicDriveController = new DriveController(
@@ -178,8 +178,10 @@ public class RobotContainer {
 
         //Vision
         limeLight = new Limelight();
-        camera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
-        photonVision = new PhotonVision(camera);
+        photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
+        photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
+        photonDriverCam = new PhotonDriverCam(photonDriveCamera);
+        photonApriltagCam = new PhotonCameraWrapper(photonApriltagCamera);
 
         //LEDS
         cANdle = new CANdle(RobotMap.CANdle_ID);
@@ -200,7 +202,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, odometry, field, claw, elevator);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, field, claw, elevator);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
