@@ -53,7 +53,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.slot0.kF = 0.049951171875;
         driverConfig.closedloopRamp = 0.4;
         driveMotor.configAllSettings(driverConfig);
-        driveMotor.setNeutralMode(NeutralMode.Coast);
+        driveMotor.setNeutralMode(NeutralMode.Brake);
 
         turnMotor.configFactoryDefault();
         TalonFXConfiguration turnerConfig = new TalonFXConfiguration();

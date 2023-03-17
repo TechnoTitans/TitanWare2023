@@ -25,8 +25,8 @@ public interface Constants {
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
-        double TRAJ_MAX_SPEED = ROBOT_MAX_SPEED / 2;
-        double TRAJ_MAX_ACCELERATION = TRAJ_MAX_SPEED / 2;
+        double TRAJ_MAX_SPEED = 3.5;
+        double TRAJ_MAX_ACCELERATION = 1;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 2; //TUNE THIS: (rotation pid) 2

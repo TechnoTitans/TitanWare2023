@@ -187,7 +187,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        swerveAlignment = new SwerveAlignment(swerve, limeLight, oi.getXboxCo());
+        swerveAlignment = new SwerveAlignment(swerve, limeLight, oi.getXboxMain());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
@@ -214,8 +214,8 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-//        alignLeftBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-//        alignRightBtn.onTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
+        alignLeftBtn.whileTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
+        alignRightBtn.whileTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
 //        alignRightBtn.onTrue(new AutoBalance(swerve, 180));
 
         // Co Driver
@@ -224,11 +224,12 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return trajectoryManager.getCommand("testing");
+        return trajectoryManager.getCommand("2PieceAuto");
+//        return trajectoryManager.getCommand("2PieceBump");
 //        return trajectoryManager.getCommand("notime");
-
 //        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
 //        return trajectoryManager.getCommand("DropAndMobility");
-        return trajectoryManager.getCommand("DropAndCharge");
+//        return trajectoryManager.getCommand("DropAndCharge");
+//        return trajectoryManager.getCommand("2PieceCharge");
     }
 }
