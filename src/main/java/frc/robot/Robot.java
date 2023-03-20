@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
         }
+        robotContainer.field.getObject("Traj").setPose(robotContainer.poseEstimator.getEstimatedPosition());
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
     }
