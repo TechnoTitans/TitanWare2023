@@ -12,6 +12,7 @@ public class Limelight {
     private final DoubleSubscriber tx = table.getDoubleTopic("tx").subscribe(0.0); // horizontal offset from crosshair to target
     private final DoubleSubscriber ty = table.getDoubleTopic("ty").subscribe(0.0); // vertical offset from crosshair to target
     private final DoubleSubscriber ta = table.getDoubleTopic("ta").subscribe(0.0); // Target area 0% to 100% of image
+    private final DoublePublisher pipelineMode = table.getDoubleTopic("pipeline").publish();
     private final DoublePublisher ledMode = table.getDoubleTopic("ledMode").publish();
 
     // Debugging booleans
@@ -27,7 +28,6 @@ public class Limelight {
         final double ANGLE_FROM_FLOOR = 10;
         return Math.max((HEIGHT_FROM_FLOOR_GOAL - HEIGHT_FROM_FLOOR_CAMERA) / Math.tan(Math.toRadians(ANGLE_FROM_FLOOR + ty.getAsDouble())) -19.5, 0);// + 10, 0);
     }
-
 
     public boolean withinDeadband(double error) {
         double ERROR_TOLERANCE = 1;
@@ -58,8 +58,8 @@ public class Limelight {
         return tv.getAsLong() > 0;
     }
 
-    public void changePipeline(Double pipeline){
-        table.getEntry("pipeline").setNumber(pipeline);
+    public void changePipeline(double pipeline){
+        pipelineMode.set(pipeline);
     }
 
     public void setLEDMode(Enums.LimeLightLEDState limeLightLEDState) {
