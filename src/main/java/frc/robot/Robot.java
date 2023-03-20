@@ -26,9 +26,7 @@ public class Robot extends TimedRobot {
 //        robotContainer.swerve.zeroRotation();
     }
 
-    @Override
-    public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
+    private void updatePose() {
         robotContainer.poseEstimator.update(robotContainer.swerve.getRotation2d(), robotContainer.swerve.getModulePositions());
         Optional<EstimatedRobotPose> result =
                 robotContainer.photonApriltagCam.getEstimatedGlobalPose(robotContainer.poseEstimator.getEstimatedPosition());
@@ -37,7 +35,13 @@ public class Robot extends TimedRobot {
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
         }
-        robotContainer.field.getObject("Traj").setPose(robotContainer.poseEstimator.getEstimatedPosition());
+        robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
+    }
+
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+        updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
     }
