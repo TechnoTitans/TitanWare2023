@@ -202,7 +202,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, field, claw, elevator);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
