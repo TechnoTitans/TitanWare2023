@@ -58,7 +58,18 @@ public class Limelight {
         return tv.getAsLong() > 0;
     }
 
-    public void changePipeline(Double pipeline){
+    public void setPipeline(Enums.LimelightPipelines pipeline) {
+        switch (pipeline) {
+            case LEFT:
+                changePipeline(1d);
+                break;
+            case RIGHT:
+                changePipeline(0d);
+                break;
+        }
+    }
+
+    private void changePipeline(Double pipeline){
         table.getEntry("pipeline").setNumber(pipeline);
     }
 

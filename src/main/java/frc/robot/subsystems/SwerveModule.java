@@ -69,7 +69,7 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         turnerConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         turnMotor.configAllSettings(turnerConfig);
-        turnMotor.setNeutralMode(NeutralMode.Coast);
+        turnMotor.setNeutralMode(NeutralMode.Brake);
     }
 
     public double getAngle() {

@@ -95,5 +95,24 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.0,
+      "names": [
+        "dtpause:true;claw:CLAW_ANGLE_SHOOT;wait:1.25;claw:CLAW_SHOOT;wait:0.5;dtpause:false;claw:CLAW_STANDBY;"
+      ]
+    },
+    {
+      "position": 0.5236363636363648,
+      "names": [
+        "claw:CLAW_INTAKING_CUBE;"
+      ]
+    },
+    {
+      "position": 2.0072727272726505,
+      "names": [
+        "event"
+      ]
+    }
+  ]
 }

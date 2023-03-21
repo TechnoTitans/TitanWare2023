@@ -27,8 +27,8 @@ public interface RobotMap {
     boolean frontLeftDriveR = true;
     boolean frontLeftTurnR = false;
 
-    int frontRightDrive = 3;
-    int frontRightTurn = 4;
+    int frontRightDrive = 3; // 3
+    int frontRightTurn = 4; // 4
     int frontRightEncoder = 2;
     boolean frontRightDriveR = false;
     boolean frontRightTurnR = false;
