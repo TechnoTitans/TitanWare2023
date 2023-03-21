@@ -12,7 +12,7 @@ public class AutoBalance extends CommandBase {
     private final Swerve swerve;
     private final double holonomicRotation;
     private final PIDController pitchPIDController;
-    private final double p = 0.06;
+    private final double p = 0.03;
     private boolean flag = false;
 
     public AutoBalance(Swerve swerve, double holonomicRotation) {
@@ -33,7 +33,7 @@ public class AutoBalance extends CommandBase {
     @Override
     public void execute() {
         if ((swerve.getPitch() + swerve.getRoll()) >= 7.3) {
-            pitchPIDController.setP(0.04/2);
+            pitchPIDController.setP(0.024);
             flag = true;
         }
         double pidOutput = MathUtil.clamp(pitchPIDController.calculate(swerve.getPitch() + swerve.getRoll()), -1, 1);

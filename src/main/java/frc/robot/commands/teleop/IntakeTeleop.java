@@ -43,7 +43,9 @@ public class IntakeTeleop extends CommandBase {
             claw.setState(Enums.ClawState.CLAW_ANGLE_CUBE);
         } else if (mainController.getXButton()) {
             claw.setState(Enums.ClawState.CLAW_HOLDING);
-            elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+            if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_CUBE) {
+                elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+            }
         }
         //TODO: THIS IS SHOOT CUBE \/
         else if (coController.getBButton()){
@@ -73,7 +75,7 @@ public class IntakeTeleop extends CommandBase {
                 flag2 = false;
                 timer2.reset();
                 timer2.stop();
-            } else if (coController.getAButton() && timer.hasElapsed(1)) {
+            } else if (coController.getAButton() && timer.hasElapsed(.5)) {
                 claw.setState(Enums.ClawState.CLAW_OUTTAKE);
                 flag2 = true;
                 timer2.reset();
