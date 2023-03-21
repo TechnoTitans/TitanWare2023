@@ -137,6 +137,15 @@ public class Swerve extends SubsystemBase {
         backRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
     }
 
+    public void zeroWheels() {
+        drive(new SwerveModuleState[] {
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0))
+        });
+    }
+
     public void manualPercentOutput(double percentOutput) {
         frontLeft.percentOutputControl(percentOutput);
         frontRight.percentOutputControl(percentOutput);
