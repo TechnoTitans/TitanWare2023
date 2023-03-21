@@ -25,7 +25,10 @@ public class PhotonCameraWrapper {
                             AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide
             );
             photonPoseEstimator = new PhotonPoseEstimator(
-                            fieldLayout, PoseStrategy.MULTI_TAG_PNP, apriltagCamera, RobotMap.robotToCam);
+                    fieldLayout,
+                    PoseStrategy.MULTI_TAG_PNP,
+                    apriltagCamera,
+                    RobotMap.robotToCam);
             photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         } catch (IOException e) {
             DriverStation.reportError("Failed to load AprilTagFieldLayout", e.getStackTrace());
