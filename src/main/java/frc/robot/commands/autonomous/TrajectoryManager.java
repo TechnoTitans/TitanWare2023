@@ -2,6 +2,7 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
+import frc.robot.wrappers.sensors.vision.Limelight;
 import org.photonvision.EstimatedRobotPose;
 
 import java.io.File;
@@ -37,14 +39,16 @@ public class TrajectoryManager {
 
     private final Claw claw;
     private final Elevator elevator;
+    private final Limelight limelight;
 
-    public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, Claw claw, Elevator elevator) {
+    public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, Claw claw, Elevator elevator, Limelight limelight) {
         this.swerve = swerve;
         this.controller = controller;
         this.poseEstimator = poseEstimator;
 
         this.claw = claw;
         this.elevator = elevator;
+        this.limelight = limelight;
 
         createChooser();
     }
@@ -66,24 +70,24 @@ public class TrajectoryManager {
 
     public void follow(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator);
+        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator);
+        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public TrajectoryFollower getCommand(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        return new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator);
+        return new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
     }
 
     public TrajectoryFollower getCommand(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        return new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator);
+        return new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
     }
 }
 
@@ -99,10 +103,13 @@ class TrajectoryFollower extends CommandBase {
 
     private final Claw claw;
     private final Elevator elevator;
+    private final Limelight limelight;
 
     private boolean paused = false;
+    private boolean usingVision = false;
+    private final PIDController xLimelightPIDController;
 
-    public TrajectoryFollower(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, PathPlannerTrajectory traj, Claw claw, Elevator elevator) {
+    public TrajectoryFollower(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, PathPlannerTrajectory traj, Claw claw, Elevator elevator, Limelight limelight) {
         this.swerve = swerve;
         this.timer = new Timer();
         this.controller = controller;
@@ -111,6 +118,9 @@ class TrajectoryFollower extends CommandBase {
 
         this.claw = claw;
         this.elevator = elevator;
+        this.limelight = limelight;
+
+        this.xLimelightPIDController = new PIDController(0.1, 0, 0);
 
         addRequirements(swerve);
     }
@@ -131,7 +141,11 @@ class TrajectoryFollower extends CommandBase {
             double currentTime = timer.get();
             PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
             commander(sample);
-            driveToState(sample);
+            if (usingVision) {
+                driveToStateAlignment(sample);
+            } else {
+                driveToState(sample);
+            }
         }
     }
 
@@ -140,6 +154,7 @@ class TrajectoryFollower extends CommandBase {
         swerve.stop();
         timer.stop();
         swerve.setAngle(traj.getEndState().holonomicRotation.getDegrees());
+        limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 
     @Override
@@ -148,10 +163,21 @@ class TrajectoryFollower extends CommandBase {
     }
 
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
+        limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
         ChassisSpeeds correction = controller.calculate(poseEstimator.getEstimatedPosition(), state);
         swerve.faceDirection(
                 -correction.vxMetersPerSecond,
                 -correction.vyMetersPerSecond,
+                state.holonomicRotation.getDegrees(),
+                true);
+    }
+
+    private void driveToStateAlignment(PathPlannerTrajectory.PathPlannerState state) {
+        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
+        ChassisSpeeds correction = controller.calculate(poseEstimator.getEstimatedPosition(), state);
+        swerve.faceDirection(
+                -correction.vxMetersPerSecond,
+                xLimelightPIDController.calculate(limelight.getX()),
                 state.holonomicRotation.getDegrees(),
                 true);
     }
@@ -184,6 +210,14 @@ class TrajectoryFollower extends CommandBase {
                         break;
                     case "wait":
                         sequentialCommands.add(new WaitCommand(Double.parseDouble(args[1])));
+                        break;
+                    case "vision":
+                        sequentialCommands.add(new InstantCommand(() -> {
+                            usingVision = Boolean.parseBoolean(args[1]);
+                            if (usingVision) {
+                                limelight.setPipeline(Enums.LimelightPipelines.valueOf(args[2].toUpperCase()));
+                            }
+                        }));
                         break;
                     case "dtpause":
                         sequentialCommands.add(new InstantCommand(() -> {
