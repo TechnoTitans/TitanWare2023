@@ -12,7 +12,6 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.wrappers.motors.TitanFX;
@@ -22,7 +21,6 @@ public class SwerveModule extends SubsystemBase {
     private final TitanFX driveMotor, turnMotor;
     private final CANCoder turnEncoder;
     private final double magnetOffset;
-//    private SimpleMotorFeedforward feedforward;
 
     public SwerveModule(TitanFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, double magnetOffset) {
         this.driveMotor = driveMotor;
@@ -41,8 +39,6 @@ public class SwerveModule extends SubsystemBase {
         canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         canCoderConfiguration.magnetOffsetDegrees = -magnetOffset;
         turnEncoder.configAllSettings(canCoderConfiguration);
-
-//        feedforward = new SimpleMotorFeedforward(0.148, 2.7924, 0.57268);
 
         driveMotor.configFactoryDefault();
         TalonFXConfiguration driverConfig = new TalonFXConfiguration();
