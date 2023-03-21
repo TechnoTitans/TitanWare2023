@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
+import frc.robot.commands.teleop.AutoAlignment;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
-import frc.robot.commands.teleop.SwerveAlignment;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -89,7 +89,7 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final SwerveAlignment swerveAlignment;
+    public final AutoAlignment autoAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
@@ -189,7 +189,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        swerveAlignment = new SwerveAlignment(swerve, limeLight, oi.getXboxMain());
+        autoAlignment = new AutoAlignment(swerve, limeLight, oi.getXboxMain());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
@@ -202,7 +202,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator, limeLight);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -216,8 +216,8 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        alignLeftBtn.whileTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-        alignRightBtn.whileTrue(new InstantCommand(() -> swerveAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
+        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
+        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
 //        alignRightBtn.onTrue(new AutoBalance(swerve, 180));
 
         // Co Driver
