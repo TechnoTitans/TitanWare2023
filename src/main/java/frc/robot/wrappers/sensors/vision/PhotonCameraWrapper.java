@@ -17,6 +17,7 @@ public class PhotonCameraWrapper {
     private PhotonPoseEstimator photonPoseEstimator;
 
     public PhotonCameraWrapper(PhotonCamera apriltagCamera) {
+        apriltagCamera.setDriverMode(false);
         try {
             AprilTagFieldLayout fieldLayout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
             fieldLayout.setOrigin(
