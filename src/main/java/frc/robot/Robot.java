@@ -24,6 +24,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         robotContainer = new RobotContainer();
         robotContainer.swerve.brake();
+        SmartDashboard.putData("Field", robotContainer.field);
     }
 
     private void updatePose() {
@@ -47,8 +48,6 @@ public class Robot extends TimedRobot {
         updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-        SmartDashboard.putNumber("elevator", robotContainer.elevatorHorizontalNeo.getAlternateEncoder(8192).getPosition());
-        SmartDashboard.putBoolean("ls", robotContainer.elevatorHorizontalLimitSwitch.get());
     }
 
     @Override

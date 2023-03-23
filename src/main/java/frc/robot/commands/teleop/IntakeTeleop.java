@@ -43,16 +43,25 @@ public class IntakeTeleop extends CommandBase {
             claw.setState(Enums.ClawState.CLAW_ANGLE_CUBE);
         } else if (mainController.getXButton()) {
             claw.setState(Enums.ClawState.CLAW_HOLDING);
-            if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_CUBE) {
+            if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_CUBE || elevator.getTargetState() == Enums.ElevatorState.SINGLE_SUB) {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
             }
         }
         //TODO: THIS IS SHOOT CUBE \/
-        else if (coController.getBButton()){
+        else if (coController.getRightBumper()){
             new SequentialCommandGroup(
                     new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
-                    new WaitCommand(1),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT)),
+                    new WaitCommand(0.75),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH)),
+                    new WaitCommand(0.75),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
+            ).schedule();
+        }
+        else if (coController.getLeftBumper()){
+            new SequentialCommandGroup(
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
+                    new WaitCommand(0.75),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_LOW)),
                     new WaitCommand(0.75),
                     new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
             ).schedule();
@@ -65,6 +74,10 @@ public class IntakeTeleop extends CommandBase {
                 flag = true;
             }
             claw.setState(Enums.ClawState.CLAW_DROP);
+        }
+        else if (coController.getBButton()) {
+            elevator.setState(Enums.ElevatorState.SINGLE_SUB);
+            claw.setState(Enums.ClawState.SINGLE_SUB);
         }
 
         if (flag) {
