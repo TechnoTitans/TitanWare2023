@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -43,7 +44,7 @@ public class RobotContainer {
     public final OI oi;
 
     //Motors
-    public final TitanFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
+    public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
@@ -114,10 +115,10 @@ public class RobotContainer {
         powerDistribution.clearStickyFaults();
 
         //Swerve Drive Motors
-        frontLeftDrive = new TitanFX(RobotMap.frontLeftDrive, RobotMap.frontLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
-        frontRightDrive = new TitanFX(RobotMap.frontRightDrive, RobotMap.frontRightDriveR, RobotMap.CANIVORE_CAN_NAME);
-        backLeftDrive = new TitanFX(RobotMap.backLeftDrive, RobotMap.backLeftDriveR, RobotMap.CANIVORE_CAN_NAME);
-        backRightDrive = new TitanFX(RobotMap.backRightDrive, RobotMap.backRightDriveR, RobotMap.CANIVORE_CAN_NAME);
+        frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+        frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
+        backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+        backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Turning Motors
         frontLeftTurn = new TitanFX(RobotMap.frontLeftTurn, RobotMap.frontLeftTurnR, RobotMap.CANIVORE_CAN_NAME);
@@ -133,10 +134,10 @@ public class RobotContainer {
 
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, 116.19);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, 3.516);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, 17.84);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, 282.92);
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 116.19);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR,3.516);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR,17.84);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR,282.92);
 
         //Elevator Motors
         elevatorVerticalMotor = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
