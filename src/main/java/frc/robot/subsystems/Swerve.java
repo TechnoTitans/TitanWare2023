@@ -159,19 +159,4 @@ public class Swerve extends SubsystemBase {
         backLeft.manualVelocityControl(velocityTicksPer100ms);
         backRight.manualVelocityControl(velocityTicksPer100ms);
     }
-
-    public double getAvgCurrent() {
-        return (frontLeft.getDriveCurrent() + frontRight.getDriveCurrent() + backLeft.getDriveCurrent() + backRight.getDriveCurrent())/ 4;
-    }
-
-    public double getAvgEncoderValue() {
-        return (frontLeft.getDriveEncoderValue() + frontRight.getDriveEncoderValue() + backLeft.getDriveEncoderValue() + backRight.getDriveEncoderValue()) / 4;
-    }
-
-    public void resetDriveEncoders() {
-        frontLeft.resetDriveEncoder();
-        frontRight.resetDriveEncoder();
-        backLeft.resetDriveEncoder();
-        backRight.resetDriveEncoder();
-    }
 }
