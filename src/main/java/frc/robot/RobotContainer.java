@@ -226,10 +226,10 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return trajectoryManager.getCommand("2PieceAuto");
+//        return trajectoryManager.getCommand("2PieceAuto");
 //        return trajectoryManager.getCommand("2PieceBump");
 //        return trajectoryManager.getCommand("notime");
-//        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
+        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
 //        return trajectoryManager.getCommand("DropAndMobility");
 //        return trajectoryManager.getCommand("DropAndCharge");
 //        return trajectoryManager.getCommand("2PieceCharge");

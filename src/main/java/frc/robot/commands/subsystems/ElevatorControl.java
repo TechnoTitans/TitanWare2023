@@ -43,7 +43,7 @@ public class ElevatorControl extends CommandBase {
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
                 VEPosition = 14500; //15500
-                HETargetRotations = 2.3;
+                HETargetRotations = 2.5;
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 break;
             case ELEVATOR_EXTENDED_MID:
@@ -57,7 +57,7 @@ public class ElevatorControl extends CommandBase {
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
-                VEPosition = 13000;
+                VEPosition = 12500;
                 HETargetRotations = -0.2;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 break;
@@ -65,6 +65,12 @@ public class ElevatorControl extends CommandBase {
                 VEPosition = 4000;
                 HETargetRotations = -0.2;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
+                break;
+            case SINGLE_SUB:
+                VEPosition = 5500;
+                HETargetRotations = -0.2;
+                HEControlMode = CANSparkMax.ControlType.kDutyCycle;
+                break;
             default:
                 break;
         }
