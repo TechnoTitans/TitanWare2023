@@ -83,13 +83,13 @@ public class ElevatorControl extends CommandBase {
             setState(targetState);
         }
 
-        if (horizontalElevatorLimitSwitch.get()) {
+        if (horizontalElevatorLimitSwitch.get() && targetState == Enums.ElevatorState.ELEVATOR_STANDBY) {
             horizontalElevatorMotor.getAlternateEncoder(8192).setPosition(0);
             HETargetRotations = 0.25;
             HEControlMode = CANSparkMax.ControlType.kPosition;
         }
 
-        if (verticalElevatorLimitSwitch.get() && !VESwitchFlag) {
+        if (verticalElevatorLimitSwitch.get() && !VESwitchFlag && targetState == Enums.ElevatorState.ELEVATOR_STANDBY) {
             VESwitchFlag = true;
             verticalElevatorMotor.setSelectedSensorPosition(0);
             VEControlMode = ControlMode.PercentOutput;
