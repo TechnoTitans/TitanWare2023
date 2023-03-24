@@ -94,7 +94,7 @@ public class ElevatorControl extends CommandBase {
             verticalElevatorMotor.setSelectedSensorPosition(0);
             VEControlMode = ControlMode.PercentOutput;
             VEPosition = 0;
-        } else if (verticalElevatorLimitSwitch.get() && VESwitchFlag && verticalElevatorMotor.getSelectedSensorPosition() > 300) {
+        } else if (verticalElevatorLimitSwitch.get() && VESwitchFlag && targetState != Enums.ElevatorState.ELEVATOR_STANDBY) {
             VESwitchFlag = false;
         }
 
