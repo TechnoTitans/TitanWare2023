@@ -4,14 +4,14 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import java.io.IOException;
-import java.util.Optional;
-
 import frc.robot.RobotMap;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+
+import java.io.IOException;
+import java.util.Optional;
 
 public class PhotonCameraWrapper {
     private PhotonPoseEstimator photonPoseEstimator;
@@ -21,7 +21,7 @@ public class PhotonCameraWrapper {
         try {
             AprilTagFieldLayout fieldLayout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
             fieldLayout.setOrigin(
-                    (DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)) ?
+                    (DriverStation.getAlliance() == DriverStation.Alliance.Blue) ?
                             AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide :
                             AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide
             );
@@ -44,4 +44,5 @@ public class PhotonCameraWrapper {
         photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return photonPoseEstimator.update();
     }
+
 }
