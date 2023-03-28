@@ -1,8 +1,12 @@
 package frc.robot;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 
 @SuppressWarnings("unused")
 public interface RobotMap {
@@ -17,9 +21,17 @@ public interface RobotMap {
     String PhotonVision_Driver_Cam = "drivercam1";
     String PhotonVision_AprilTag_Cam = "apriltag1";
     Transform3d robotToCam = new Transform3d(
-                    new Translation3d(0.5, 0.0, 0.5),
+                    new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(12.625), Units.inchesToMeters(25)),
                     new Rotation3d(0, 0, 0));
     // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+    // Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
+    // matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then meters.
+    Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1); // Units.degreesToRadians(5)
+    //Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
+    // less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
+    Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(0.9, 0.9, 0.9); // Units.degreesToRadians(10)
+
 
     //Canivore
     int CANIVORE_ID = 1;
