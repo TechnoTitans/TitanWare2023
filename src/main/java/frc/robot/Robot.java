@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
 
         Optional<EstimatedRobotPose> result = robotContainer.photonApriltagCam.getEstimatedGlobalPose(
                         robotContainer.poseEstimator.getEstimatedPosition());
-        if (false && result.isPresent()) {
+        if (result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(),
@@ -51,8 +51,6 @@ public class Robot extends TimedRobot {
         updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-        SmartDashboard.putNumber("amp", robotContainer.frontLeftDrive.getStatorCurrent().getValue());
-//        SmartDashboard.putNumber("dt current", robotContainer.swerve.);
     }
 
     @Override

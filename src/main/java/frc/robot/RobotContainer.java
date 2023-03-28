@@ -175,7 +175,9 @@ public class RobotContainer {
                 kinematics,
                 swerve.getRotation2d(),
                 swerve.getModulePositions(),
-                new Pose2d()
+                new Pose2d(),
+                RobotMap.stateStdDevs,
+                RobotMap.visionMeasurementStdDevs
         );
         field = new Field2d();
 
