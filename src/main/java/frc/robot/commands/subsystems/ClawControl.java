@@ -144,6 +144,7 @@ public class ClawControl extends CommandBase {
 
         if (claw.getClawTiltLimitSwitch().get() && tiltControlMode == CANSparkMax.ControlType.kDutyCycle) {
             clawTiltNeo.getRevBoreThroughEncoder().setPosition(0);
+            tiltControlMode = CANSparkMax.ControlType.kPosition;
             tiltRotations = 0;
         }
 

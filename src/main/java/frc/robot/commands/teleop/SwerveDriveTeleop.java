@@ -43,8 +43,13 @@ public class SwerveDriveTeleop extends CommandBase {
             turnWeight = driverProfile.getRotateNormalWeight(); //0.7
         }
 
-        double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
-        swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * turnWeight, fieldRelative);
+        if (controller.getRightStickButton()) {
+            double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
+            swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, fieldRelative, 1);
+        } else {
+            double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
+            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * turnWeight, fieldRelative);
+        }
     }
 
     @Override
