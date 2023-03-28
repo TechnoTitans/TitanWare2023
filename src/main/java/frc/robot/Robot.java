@@ -25,20 +25,23 @@ public class Robot extends TimedRobot {
         robotContainer = new RobotContainer();
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
+        robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
     }
 
     private void updatePose() {
         robotContainer.poseEstimator.update(
                 robotContainer.swerve.getRotation2d(),
                 robotContainer.swerve.getModulePositions());
+
         Optional<EstimatedRobotPose> result = robotContainer.photonApriltagCam.getEstimatedGlobalPose(
                         robotContainer.poseEstimator.getEstimatedPosition());
-        if (result.isPresent()) {
+        if (false && result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(),
                     camPose.timestampSeconds);
         }
+
         robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
     }
 
@@ -48,6 +51,8 @@ public class Robot extends TimedRobot {
         updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
+        SmartDashboard.putNumber("amp", robotContainer.frontLeftDrive.getStatorCurrent().getValue());
+//        SmartDashboard.putNumber("dt current", robotContainer.swerve.);
     }
 
     @Override
@@ -63,7 +68,6 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
-//        robotContainer.swerve.resetDriveEncoders();
 //
 //         schedule the autonomous command (example)
         if (autonomousCommand != null) {
@@ -90,7 +94,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-
     }
 
     @Override

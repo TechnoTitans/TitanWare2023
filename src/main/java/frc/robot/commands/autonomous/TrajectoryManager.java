@@ -6,7 +6,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
@@ -23,7 +22,6 @@ import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 import frc.robot.wrappers.sensors.vision.Limelight;
-import org.photonvision.EstimatedRobotPose;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,6 +30,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class TrajectoryManager {
     private final Swerve swerve;
+    private final Field2d field2d;
     private final DriveController controller;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final boolean reverseTrajectory = false;
@@ -41,8 +40,9 @@ public class TrajectoryManager {
     private final Elevator elevator;
     private final Limelight limelight;
 
-    public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, Claw claw, Elevator elevator, Limelight limelight) {
+    public TrajectoryManager(Swerve swerve, Field2d field2d, DriveController controller, SwerveDrivePoseEstimator poseEstimator, Claw claw, Elevator elevator, Limelight limelight) {
         this.swerve = swerve;
+        this.field2d = field2d;
         this.controller = controller;
         this.poseEstimator = poseEstimator;
 
@@ -70,33 +70,34 @@ public class TrajectoryManager {
 
     public void follow(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
+        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator, limelight);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
+        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator, limelight);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public TrajectoryFollower getCommand(String trajDir) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        return new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
+        return new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator, limelight);
     }
 
     public TrajectoryFollower getCommand(String trajDir, double maxVel, double maxAccl) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        return new TrajectoryFollower(swerve, controller, poseEstimator, traj, claw, elevator, limelight);
+        return new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator, limelight);
     }
 }
 
 @SuppressWarnings("unused")
 class TrajectoryFollower extends CommandBase {
-    private PathPlannerTrajectory traj;
+    private final PathPlannerTrajectory traj;
     private final Timer timer;
 
     private final Swerve swerve;
+    private final Field2d field2d;
     private final DriveController controller;
     private final SwerveDrivePoseEstimator poseEstimator;
     private List<PathPlannerTrajectory.EventMarker> eventMarkers;
@@ -109,9 +110,10 @@ class TrajectoryFollower extends CommandBase {
     private boolean usingVision = false;
     private final PIDController xLimelightPIDController;
 
-    public TrajectoryFollower(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, PathPlannerTrajectory traj, Claw claw, Elevator elevator, Limelight limelight) {
+    public TrajectoryFollower(Swerve swerve, Field2d field2d, DriveController controller, SwerveDrivePoseEstimator poseEstimator, PathPlannerTrajectory traj, Claw claw, Elevator elevator, Limelight limelight) {
         this.swerve = swerve;
         this.timer = new Timer();
+        this.field2d = field2d;
         this.controller = controller;
         this.poseEstimator = poseEstimator;
         this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
@@ -127,10 +129,9 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
-        PathPlannerTrajectory.PathPlannerState initialState = traj.getInitialState();
-        Pose2d initialPose = initialState.poseMeters;
-        swerve.setAngle(initialState.holonomicRotation.getDegrees());
-        poseEstimator.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), initialPose);
+        Pose2d initialPose = traj.getInitialHolonomicPose();
+        swerve.setAngle(initialPose.getRotation().getDegrees());
+        poseEstimator.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);
         timer.reset();
         timer.start();
     }
@@ -165,10 +166,13 @@ class TrajectoryFollower extends CommandBase {
     private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
         ChassisSpeeds correction = controller.calculate(poseEstimator.getEstimatedPosition(), state);
+
+        field2d.getObject("wantedState").setPose(new Pose2d(state.poseMeters.getX(), state.poseMeters.getY(), state.holonomicRotation));
+
         swerve.faceDirection(
                 -correction.vxMetersPerSecond,
                 -correction.vyMetersPerSecond,
-                state.holonomicRotation.getDegrees(),
+                -state.holonomicRotation.getDegrees(),
                 true);
     }
 

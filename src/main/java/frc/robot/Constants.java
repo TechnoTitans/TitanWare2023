@@ -1,6 +1,8 @@
 package frc.robot;
 
-@SuppressWarnings("unused")
+import edu.wpi.first.math.util.Units;
+
+//@SuppressWarnings("unused")
 public interface Constants {
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in
@@ -20,16 +22,16 @@ public interface Constants {
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
-        double ROBOT_MAX_SPEED = 9;
-        double MODULE_MAX_SPEED = 13.5;
+        double ROBOT_MAX_SPEED = Units.feetToMeters(9);
+        double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
-        double TRAJ_MAX_SPEED = 3.5;
-        double TRAJ_MAX_ACCELERATION = 1;
+        double TRAJ_MAX_SPEED = 4;
+        double TRAJ_MAX_ACCELERATION = 3;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
-        double ROTATE_P = 2; //TUNE THIS: (rotation pid) 2
+        double ROTATE_P = 1; //TUNE THIS: (rotation pid) 2
         double AUTO_BALANCE_PITCH_P = 0.005; // P value for auto balance
     }
 }
