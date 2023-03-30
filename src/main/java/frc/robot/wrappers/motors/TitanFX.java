@@ -77,16 +77,6 @@ public class TitanFX extends WPI_TalonFX implements MotorController {
         super.getSensorCollection().setIntegratedSensorPosition(0, 0);
     }
 
-
-    public double getSelectedSensorPosition() {
-        return super.getSelectedSensorPosition();
-    }
-
-    public double getSelectedSensorVelocity() {
-        return super.getSelectedSensorVelocity();
-    }
-
-
     public int getChannel() {
         return super.getDeviceID();
     }

@@ -12,7 +12,6 @@ public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
     private final XboxController controller;
     private Profiler driverProfile;
-    boolean fieldRelative = true;
 
 
     public SwerveDriveTeleop(Swerve swerve, XboxController controller) {
@@ -44,10 +43,10 @@ public class SwerveDriveTeleop extends CommandBase {
 
         if (controller.getRightStickButton()) {
             double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
-            swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, fieldRelative, 1);
+            swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, true, 1);
         } else {
             double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
-            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, fieldRelative);
+            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, true);
         }
     }
 
