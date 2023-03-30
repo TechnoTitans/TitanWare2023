@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
-import frc.robot.commands.teleop.AutoAlignment2;
+import frc.robot.commands.teleop.AutoAlignment;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
@@ -34,7 +34,6 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
-import frc.robot.wrappers.sensors.vision.Limelight;
 import frc.robot.wrappers.sensors.vision.PhotonCameraWrapper;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
@@ -76,7 +75,6 @@ public class RobotContainer {
 //    public final ColorSensorV3 clawColorSensor;
 
     //Vision
-    public final Limelight limeLight;
     public final PhotonCamera photonDriveCamera, photonApriltagCamera;
     public final PhotonDriverCam photonDriverCam;
     public final PhotonCameraWrapper photonApriltagCam;
@@ -92,7 +90,7 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final AutoAlignment2 autoAlignment;
+    public final AutoAlignment autoAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
@@ -187,10 +185,7 @@ public class RobotContainer {
                 new PIDController(0, 0, 0)
         );
 
-
-
         //Vision
-        limeLight = new Limelight();
         photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
         photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonDriverCam = new PhotonDriverCam(photonDriveCamera);
@@ -202,7 +197,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        autoAlignment = new AutoAlignment2(swerve, poseEstimator, oi.getXboxMain());
+        autoAlignment = new AutoAlignment(swerve, poseEstimator, oi.getXboxMain());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
@@ -215,7 +210,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator, limeLight);
+        trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -229,8 +224,6 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-//        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-//        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
         alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.LEFT)));
         alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.RIGHT)));
 

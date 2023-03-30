@@ -1,6 +1,9 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -8,43 +11,77 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
-import frc.robot.wrappers.sensors.vision.Limelight;
 
 public class AutoAlignment extends CommandBase {
     private final Swerve swerve;
-    private final Limelight limelight;
+    private final SwerveDrivePoseEstimator poseEstimator;
     private final XboxController mainController;
     private final Profiler driverProfile;
-    private final PIDController xLimelightPIDController;
+    private final PIDController alignPIDController;
+    private Pose2d targetPose;
 
-    public AutoAlignment(Swerve swerve, Limelight limelight, XboxController mainController) {
+    public AutoAlignment(Swerve swerve, SwerveDrivePoseEstimator poseEstimator, XboxController mainController) {
         this.swerve = swerve;
-        this.limelight = limelight;
         this.mainController = mainController;
+        this.poseEstimator = poseEstimator;
         this.driverProfile = Profiler.getProfile();
-        this.xLimelightPIDController = new PIDController(0.1, 0, 0);
+        this.alignPIDController = new PIDController(0.1, 0, 0);
 
         addRequirements(swerve);
     }
 
-    public void setTrackMode(Enums.LimelightPipelines pipeline) {
-        limelight.setPipeline(pipeline);
+    public void setState(Enums.GridPositions state) {
+        Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        Pose2d LEFT, CENTER, RIGHT;
+
+        if (MathMethods.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
+            LEFT = Constants.Grid.LEFT.LEFT;
+            CENTER = Constants.Grid.LEFT.CUBE;
+            RIGHT = Constants.Grid.LEFT.RIGHT;
+        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) { // CENTER OF GRID
+            LEFT = Constants.Grid.CENTER.LEFT;
+            CENTER = Constants.Grid.CENTER.CUBE;
+            RIGHT = Constants.Grid.CENTER.RIGHT;
+        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) { // RIGHT OF GRID
+            LEFT = Constants.Grid.RIGHT.LEFT;
+            CENTER = Constants.Grid.RIGHT.CUBE;
+            RIGHT = Constants.Grid.RIGHT.RIGHT;
+        } else {
+            return;
+        }
+
+        switch (state) {
+            case LEFT:
+                targetPose = LEFT; // LEFT CONE OF SELECTED GRID AREA
+                break;
+            case CENTER:
+                targetPose = CENTER; // CENTER CUBE OF SELECTED GRID AREA
+                break;
+            case RIGHT:
+                targetPose = RIGHT; // RIGHT CONE OF SELECTED GRID AREA
+                break;
+            default:
+                return;
+        }
         this.schedule();
     }
 
     @Override
     public void initialize() {
         addRequirements(swerve);
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
     }
 
     @Override
     public void execute() {
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
-        double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
+        Transform2d poseError = poseEstimator.getEstimatedPosition().minus(targetPose);
+
+        double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.1) *
+                Constants.Swerve.TELEOP_MAX_SPEED *
+                driverProfile.getThrottleSensitivity();
+
         swerve.faceDirection(
                 frontBack * driverProfile.getThrottleWeight(),
-                xLimelightPIDController.calculate(limelight.getX()),
+                alignPIDController.calculate(poseError.getX()),
                 180,
                 true
         );
@@ -58,6 +95,5 @@ public class AutoAlignment extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.stop();
-        limelight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
     }
 }
