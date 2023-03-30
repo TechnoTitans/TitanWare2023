@@ -52,6 +52,7 @@ public class Robot extends TimedRobot {
         updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
+        SmartDashboard.putBoolean("fff", robotContainer.elevatorVerticalLimitSwitch.get());
     }
 
     @Override
