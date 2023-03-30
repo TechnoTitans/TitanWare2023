@@ -20,8 +20,8 @@ public interface RobotMap {
     //Vision
     String PhotonVision_Driver_Cam = "drivercam1";
     String PhotonVision_AprilTag_Cam = "apriltag1";
-    Transform3d robotToCam = new Transform3d(
-                    new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(12.625), Units.inchesToMeters(25)),
+    Transform3d robotToCam = new Transform3d( //x, y, z
+                    new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(-12.625), Units.inchesToMeters(25)),
                     new Rotation3d(0, 0, 0));
     // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 

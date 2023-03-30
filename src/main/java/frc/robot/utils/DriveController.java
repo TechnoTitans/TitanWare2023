@@ -76,8 +76,8 @@ public class DriveController {
 //        double yFF = referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getSin();
 //        double rotationFF = referenceState.holonomicAngularVelocityRadPerSec;
 
-//        this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
-//        this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
+        this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
+        this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
 
         double xFeedback = this.xController.calculate(currentPose.getX(), referenceState.poseMeters.getX());
         double yFeedback = this.yController.calculate(currentPose.getY(), referenceState.poseMeters.getY());
