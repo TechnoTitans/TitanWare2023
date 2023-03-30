@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Swerve;
+import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
 public class SwerveDriveTeleop extends CommandBase {
@@ -30,25 +31,23 @@ public class SwerveDriveTeleop extends CommandBase {
         double frontBack = MathMethods.deadband(controller.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
         double leftRight = MathMethods.deadband(controller.getLeftX(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
 
-        double throttleWeight;
-        double turnWeight;
         if (controller.getLeftTriggerAxis() > 0.5) {
-            throttleWeight = driverProfile.getThrottleSlowWeight(); //0.3
-            turnWeight = driverProfile.getRotateSlowWeight(); //0.5
+            Profiler.setWeights(Enums.SwerveSpeeds.SLOW);
         } else if (controller.getRightTriggerAxis() > 0.5) {
-            throttleWeight = driverProfile.getThrottleFastWeight();
-            turnWeight = driverProfile.getRotateFastWeight();
+            Profiler.setWeights(Enums.SwerveSpeeds.FAST);
         } else {
-            throttleWeight = driverProfile.getThrottleNormalWeight(); //0.5
-            turnWeight = driverProfile.getRotateNormalWeight(); //0.7
+            Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
         }
+
+        double throttleWeight = driverProfile.getThrottleWeight();
+        double rotWeight = driverProfile.getRotateWeight();
 
         if (controller.getRightStickButton()) {
             double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
             swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, fieldRelative, 1);
         } else {
             double rot = MathMethods.deadband(controller.getRightX(), 0.1) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
-            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * turnWeight, fieldRelative);
+            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, fieldRelative);
         }
     }
 
@@ -60,5 +59,6 @@ public class SwerveDriveTeleop extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.stop();
+        Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
     }
 }

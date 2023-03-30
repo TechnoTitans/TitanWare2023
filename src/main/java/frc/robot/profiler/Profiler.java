@@ -7,14 +7,9 @@ public class Profiler {
     private double ThrottleSensitivity = 1;
     private double RotationalSensitivity = 1;
 
-    private double ThrottleFastWeight = 1;
-    private double RotateFastWeight = 0.6;
-
-    private double ThrottleNormalWeight = 0.357; //.357
-    private double RotateNormalWeight = 0.5; //.7
-
-    private double ThrottleSlowWeight = 0.214;
-    private double RotateSlowWeight = 0.357;
+    private static Enums.SwerveSpeeds currentState = Enums.SwerveSpeeds.NORMAL;
+    private static double ThrottleWeight = 0.357;
+    private static double RotateWeight = 0.5;
 
     private Profiler() {}
 
@@ -41,6 +36,28 @@ public class Profiler {
         Profiler.profile = profile;
     }
 
+    public static void setWeights(Enums.SwerveSpeeds state) {
+        if (currentState != state) {
+            currentState = state;
+            switch (state) {
+                case FAST:
+                    ThrottleWeight = 1;
+                    RotateWeight = 0.6;
+                    break;
+                case NORMAL:
+                    ThrottleWeight = 0.357;
+                    RotateWeight = 0.5;
+                    break;
+                case SLOW:
+                    ThrottleWeight = 0.214;
+                    RotateWeight = 0.357;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     public double getThrottleSensitivity() {
         return ThrottleSensitivity;
     }
@@ -49,27 +66,11 @@ public class Profiler {
         return RotationalSensitivity;
     }
 
-    public double getThrottleFastWeight() {
-        return ThrottleFastWeight;
+    public double getThrottleWeight() {
+        return ThrottleWeight;
     }
 
-    public double getRotateFastWeight() {
-        return RotateFastWeight;
-    }
-
-    public double getThrottleNormalWeight() {
-        return ThrottleNormalWeight;
-    }
-
-    public double getRotateNormalWeight() {
-        return RotateNormalWeight;
-    }
-
-    public double getThrottleSlowWeight() {
-        return ThrottleSlowWeight;
-    }
-
-    public double getRotateSlowWeight() {
-        return RotateSlowWeight;
+    public double getRotateWeight() {
+        return RotateWeight;
     }
 }

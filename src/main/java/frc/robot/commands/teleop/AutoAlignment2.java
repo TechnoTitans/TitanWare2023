@@ -36,28 +36,28 @@ public class AutoAlignment2 extends CommandBase {
                 CENTER = new Pose2d(),
                 RIGHT = new Pose2d();
 
-        if (MathMethods.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) {
+        if (MathMethods.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
             LEFT = Constants.Grid.LEFT.LEFT;
             CENTER = Constants.Grid.LEFT.CUBE;
             RIGHT = Constants.Grid.LEFT.RIGHT;
-        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) {
+        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) { // CENTER OF GRID
             LEFT = Constants.Grid.CENTER.LEFT;
             CENTER = Constants.Grid.CENTER.CUBE;
             RIGHT = Constants.Grid.CENTER.RIGHT;
-        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) {
+        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) { // RIGHT OF GRID
             LEFT = Constants.Grid.RIGHT.LEFT;
             CENTER = Constants.Grid.RIGHT.CUBE;
             RIGHT = Constants.Grid.RIGHT.RIGHT;
         }
         switch (state) {
             case LEFT:
-                targetPose = LEFT;
+                targetPose = LEFT; // LEFT CONE OF SELECTED GRID AREA
                 break;
             case CENTER:
-                targetPose = CENTER;
+                targetPose = CENTER; // CENTER CONE OF SELECTED GRID AREA
                 break;
             case RIGHT:
-                targetPose = RIGHT;
+                targetPose = RIGHT; // RIGHT CONE OF SELECTED GRID AREA
                 break;
             default:
                 break;
@@ -77,7 +77,7 @@ public class AutoAlignment2 extends CommandBase {
                 Constants.Swerve.TELEOP_MAX_SPEED *
                 driverProfile.getThrottleSensitivity();
         swerve.faceDirection(
-                frontBack * driverProfile.getThrottleNormalWeight(),
+                frontBack * driverProfile.getThrottleWeight(),
                 xLimelightPIDController.calculate(poseError.getX()),
                 180,
                 true

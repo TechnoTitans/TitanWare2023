@@ -46,6 +46,12 @@ public class Enums {
         RIGHT, //Set limelight pipeline to want rightmost
     }
 
+    public enum SwerveSpeeds {
+        FAST,
+        NORMAL,
+        SLOW,
+    }
+
     public enum GridPositions {
         LEFT,
         CENTER,
