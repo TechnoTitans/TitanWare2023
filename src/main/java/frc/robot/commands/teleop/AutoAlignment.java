@@ -43,7 +43,7 @@ public class AutoAlignment extends CommandBase {
         limelight.setLEDMode(Enums.LimeLightLEDState.LED_ON);
         double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.1) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
         swerve.faceDirection(
-                frontBack * driverProfile.getThrottleNormalWeight(),
+                frontBack * driverProfile.getThrottleWeight(),
                 xLimelightPIDController.calculate(limelight.getX()),
                 180,
                 true
