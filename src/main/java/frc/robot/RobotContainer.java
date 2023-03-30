@@ -92,7 +92,7 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final AutoAlignment2 autoAlignment2;
+    public final AutoAlignment2 autoAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
@@ -202,7 +202,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        autoAlignment2 = new AutoAlignment2(swerve, poseEstimator, oi.getXboxMain());
+        autoAlignment = new AutoAlignment2(swerve, poseEstimator, oi.getXboxMain());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
@@ -231,8 +231,8 @@ public class RobotContainer {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 //        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
 //        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
-        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setState(Enums.GridPositions.LEFT)));
-        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setState(Enums.GridPositions.RIGHT)));
+        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.LEFT)));
+        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.RIGHT)));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
