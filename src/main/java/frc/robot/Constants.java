@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
-//@SuppressWarnings("unused")
+@SuppressWarnings("unused")
 public interface Constants {
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in
@@ -14,11 +14,6 @@ public interface Constants {
         double DRIVER_GEAR_RATIO = 8.14;
         double TURNER_GEAR_RATIO = 150.0 / 7.0;
         double TICKS_PER_MOTOR_RADIAN = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / (2 * Math.PI);
-        double DRIVER_TICKS_PER_WHEEL_RADIAN = TICKS_PER_MOTOR_RADIAN * DRIVER_GEAR_RATIO;
-        double TICKS_PER_DRIVER_WHEEL_ROTATION = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS * DRIVER_GEAR_RATIO;
-        int HUNDREDMILLISECONDS_TO_1SECOND = 10;
-        double ONESECOND_TO_100_MILLISECONDS = .1;
-        double TICKS_PER_TALON_ENCODER_DEGREE = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / 360.0;
         double TICKS_PER_CANCODER_DEGREE = CANCODER_TICKS_PER_ROTATION / 360.0;
     }
 
@@ -34,8 +29,7 @@ public interface Constants {
         double TRAJ_MAX_ACCELERATION = 3;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
-        double ROTATE_P = 1; //TUNE THIS: (rotation pid) 2
-        double AUTO_BALANCE_PITCH_P = 0.005; // P value for auto balance
+        double ROTATE_P = 1;
     }
 
     interface Grid {
