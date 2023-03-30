@@ -30,7 +30,7 @@ public class AutoAlignment2 extends CommandBase {
         addRequirements(swerve);
     }
 
-    public void setTarget(Enums.GridPositions state) {
+    public void setState(Enums.GridPositions state) {
         Pose2d currentPose = poseEstimator.getEstimatedPosition();
         Pose2d LEFT = new Pose2d(),
                 CENTER = new Pose2d(),
