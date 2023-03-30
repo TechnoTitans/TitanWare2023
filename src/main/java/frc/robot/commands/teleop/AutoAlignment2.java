@@ -32,9 +32,7 @@ public class AutoAlignment2 extends CommandBase {
 
     public void setState(Enums.GridPositions state) {
         Pose2d currentPose = poseEstimator.getEstimatedPosition();
-        Pose2d LEFT = new Pose2d(),
-                CENTER = new Pose2d(),
-                RIGHT = new Pose2d();
+        Pose2d LEFT, CENTER, RIGHT;
 
         if (MathMethods.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
             LEFT = Constants.Grid.LEFT.LEFT;
@@ -48,6 +46,8 @@ public class AutoAlignment2 extends CommandBase {
             LEFT = Constants.Grid.RIGHT.LEFT;
             CENTER = Constants.Grid.RIGHT.CUBE;
             RIGHT = Constants.Grid.RIGHT.RIGHT;
+        } else {
+            return;
         }
         switch (state) {
             case LEFT:
@@ -60,7 +60,7 @@ public class AutoAlignment2 extends CommandBase {
                 targetPose = RIGHT; // RIGHT CONE OF SELECTED GRID AREA
                 break;
             default:
-                break;
+                return;
         }
         this.schedule();
     }
