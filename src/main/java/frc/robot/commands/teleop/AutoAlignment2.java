@@ -17,7 +17,7 @@ public class AutoAlignment2 extends CommandBase {
     private final SwerveDrivePoseEstimator poseEstimator;
     private final XboxController mainController;
     private final Profiler driverProfile;
-    private final PIDController xLimelightPIDController;
+    private final PIDController alignPIDController;
     private Pose2d targetPose;
 
     public AutoAlignment2(Swerve swerve, SwerveDrivePoseEstimator poseEstimator, XboxController mainController) {
@@ -25,7 +25,7 @@ public class AutoAlignment2 extends CommandBase {
         this.mainController = mainController;
         this.poseEstimator = poseEstimator;
         this.driverProfile = Profiler.getProfile();
-        this.xLimelightPIDController = new PIDController(0.1, 0, 0);
+        this.alignPIDController = new PIDController(0.1, 0, 0);
 
         addRequirements(swerve);
     }
@@ -78,7 +78,7 @@ public class AutoAlignment2 extends CommandBase {
                 driverProfile.getThrottleSensitivity();
         swerve.faceDirection(
                 frontBack * driverProfile.getThrottleWeight(),
-                xLimelightPIDController.calculate(poseError.getX()),
+                alignPIDController.calculate(poseError.getX()),
                 180,
                 true
         );
