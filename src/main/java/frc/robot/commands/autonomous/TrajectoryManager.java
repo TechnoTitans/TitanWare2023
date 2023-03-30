@@ -100,6 +100,7 @@ class TrajectoryFollower extends CommandBase {
         Pose2d initialPose = traj.getInitialHolonomicPose();
         swerve.setAngle(initialPose.getRotation().getDegrees());
         poseEstimator.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);
+        eventMarkers = null;
         timer.reset();
         timer.start();
     }
