@@ -1,11 +1,12 @@
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import org.opencv.core.Mat;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 
 @SuppressWarnings("unused")
 public interface RobotMap {
@@ -19,10 +20,18 @@ public interface RobotMap {
     //Vision
     String PhotonVision_Driver_Cam = "drivercam1";
     String PhotonVision_AprilTag_Cam = "apriltag1";
-    Transform3d robotToCam = new Transform3d(
-                    new Translation3d(0, 0.312, 0.6223),
-                    new Rotation3d(0, Math.toRadians(18), 0));
+    Transform3d robotToCam = new Transform3d( //x, y, z
+                    new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(-12.625), Units.inchesToMeters(25)),
+                    new Rotation3d(0, 0, 0));
     // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+    // Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
+    // matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then meters.
+    Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1); // Units.degreesToRadians(5)
+    //Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
+    // less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
+    Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(0.9, 0.9, 0.9); // Units.degreesToRadians(10)
+
 
     //Canivore
     int CANIVORE_ID = 1;
@@ -39,8 +48,8 @@ public interface RobotMap {
     boolean frontLeftDriveR = true;
     boolean frontLeftTurnR = false;
 
-    int frontRightDrive = 3; // 3
-    int frontRightTurn = 4; // 4
+    int frontRightDrive = 3;
+    int frontRightTurn = 4;
     int frontRightEncoder = 2;
     boolean frontRightDriveR = false;
     boolean frontRightTurnR = false;
@@ -58,7 +67,7 @@ public interface RobotMap {
     boolean backLeftTurnR = false;
 
     //Elevator
-    int mainVerticalFalcon = 100;
+    int mainVerticalFalcon = 10;
     boolean mainVerticalFalconR = true;
     int horizontalElevatorNeo = 2;
     int verticalLimitSwitch = 6;

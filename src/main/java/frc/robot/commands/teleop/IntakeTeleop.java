@@ -2,7 +2,8 @@ package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
@@ -31,6 +32,7 @@ public class IntakeTeleop extends CommandBase {
 
     @Override
     public void initialize() {
+        flag3 = false;
     }
 
     @Override
@@ -47,24 +49,9 @@ public class IntakeTeleop extends CommandBase {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
             }
         }
-        //TODO: THIS IS SHOOT CUBE \/
-        else if (coController.getRightBumper()){
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
-                    new WaitCommand(0.75),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH)),
-                    new WaitCommand(0.75),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
-            ).schedule();
-        }
-        else if (coController.getLeftBumper()){
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
-                    new WaitCommand(0.75),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_LOW)),
-                    new WaitCommand(0.75),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
-            ).schedule();
+        else if (coController.getBButton()) {
+            elevator.setState(Enums.ElevatorState.SINGLE_SUB);
+            claw.setState(Enums.ClawState.SINGLE_SUB);
         }
         else if (coController.getAButton()) {
             if (!flag) {
@@ -75,10 +62,38 @@ public class IntakeTeleop extends CommandBase {
             }
             claw.setState(Enums.ClawState.CLAW_DROP);
         }
-        else if (coController.getBButton()) {
-            elevator.setState(Enums.ElevatorState.SINGLE_SUB);
-            claw.setState(Enums.ClawState.SINGLE_SUB);
+        else if (coController.getLeftBumper() || coController.getRightBumper()) {
+            if (!flag3) {
+                timer.reset();
+                timer2.reset();
+                timer.start();
+                flag3 = true;
+            }
+            claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT);
         }
+
+        if (flag3) {
+            if (timer2.hasElapsed(0.5) && flag2) {
+                claw.setState(Enums.ClawState.CLAW_STANDBY);
+                flag3 = false;
+                flag2 = false;
+                timer2.reset();
+                timer2.stop();
+            }
+            else if (coController.getRightBumper() && timer.hasElapsed(.5)){
+                claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH);
+                flag2 = true;
+                timer2.reset();
+                timer2.start();
+            }
+            else if (coController.getLeftBumper() && timer.hasElapsed(.5)){
+                claw.setState(Enums.ClawState.CLAW_SHOOT_LOW);
+                flag2 = true;
+                timer2.reset();
+                timer2.start();
+            }
+        }
+
 
         if (flag) {
             if (timer2.hasElapsed(0.5) && flag2) {

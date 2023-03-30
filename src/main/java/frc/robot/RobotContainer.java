@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -18,10 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
-import frc.robot.commands.teleop.AutoAlignment;
-import frc.robot.commands.teleop.ElevatorTeleop;
-import frc.robot.commands.teleop.IntakeTeleop;
-import frc.robot.commands.teleop.SwerveDriveTeleop;
+import frc.robot.commands.teleop.*;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
@@ -59,10 +57,12 @@ public class RobotContainer {
     public final TitanMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
+    //PoseEstimation
+    public final SwerveDrivePoseEstimator poseEstimator;
+
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
-    public final SwerveDrivePoseEstimator poseEstimator;
     public final DriveController holonomicDriveController;
     public final Field2d field;
 
@@ -91,6 +91,7 @@ public class RobotContainer {
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
     public final AutoAlignment autoAlignment;
+    public final AutoAlignment2 autoAlignment2;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
@@ -105,6 +106,7 @@ public class RobotContainer {
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
+    public final SendableChooser<Enums.targets> targetChooser;
 
     public RobotContainer() {
         //OI
@@ -135,9 +137,9 @@ public class RobotContainer {
         //Swerve Modules
         //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
         frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 116.19);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR,3.516);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR,17.84);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR,282.92);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, 3.516);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, 17.84);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, 282.92);
 
         //Elevator Motors
         elevatorVerticalMotor = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
@@ -168,14 +170,24 @@ public class RobotContainer {
                 new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2)); //back right //in meters, swerve modules relative to the center of robot
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
-        poseEstimator = new SwerveDrivePoseEstimator(kinematics, swerve.getRotation2d(), swerve.getModulePositions(), new Pose2d());
+
+        poseEstimator = new SwerveDrivePoseEstimator(
+                kinematics,
+                swerve.getRotation2d(),
+                swerve.getModulePositions(),
+                new Pose2d(),
+                RobotMap.stateStdDevs,
+                RobotMap.visionMeasurementStdDevs
+        );
         field = new Field2d();
 
         holonomicDriveController = new DriveController(
-                new PIDController(0, 0, 0),
-                new PIDController(0, 0, 0),
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0),
                 new PIDController(0, 0, 0)
         );
+
+
 
         //Vision
         limeLight = new Limelight();
@@ -191,6 +203,7 @@ public class RobotContainer {
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
         autoAlignment = new AutoAlignment(swerve, limeLight, oi.getXboxMain());
+        autoAlignment2 = new AutoAlignment2(swerve, oi.getXboxMain(), poseEstimator);
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
@@ -203,7 +216,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator, limeLight);
+        trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator, limeLight);
 
         //SmartDashboard
         profileChooser = new SendableChooser<>();
@@ -211,15 +224,20 @@ public class RobotContainer {
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
+        targetChooser = new SendableChooser<>();
+        targetChooser.setDefaultOption("ONE", Enums.targets.one);
+        targetChooser.addOption("TWO", Enums.targets.two);
+        SmartDashboard.putData("Target Chooser", targetChooser);
+
         configureButtonBindings();
     }
 
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
-//        alignRightBtn.onTrue(new AutoBalance(swerve, 180));
+//        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
+//        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
+//        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setTarget(targetChooser.getSelected())));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
@@ -227,12 +245,14 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return trajectoryManager.getCommand("2PieceAuto");
+//        return trajectoryManager.getCommand("2PieceAuto", 0.5, 0.5);
+//        return trajectoryManager.getCommand("2PieceAuto", 4, 3);
+        return trajectoryManager.getCommand("2PieceAutoBal");
 //        return trajectoryManager.getCommand("2PieceBump");
 //        return trajectoryManager.getCommand("notime");
-        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
+//        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
 //        return trajectoryManager.getCommand("DropAndMobility");
-//        return trajectoryManager.getCommand("DropAndCharge");
+//        return trajectoryManager.getCommand("DropAndCharge", 5, 3);
 //        return trajectoryManager.getCommand("2PieceCharge");
     }
 }

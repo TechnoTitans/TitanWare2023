@@ -8,10 +8,10 @@ public class Profiler {
     private double RotationalSensitivity = 1;
 
     private double ThrottleFastWeight = 1;
-    private double RotateFastWeight = 1;
+    private double RotateFastWeight = 0.6;
 
-    private double ThrottleNormalWeight = 0.357;
-    private double RotateNormalWeight = 0.7;
+    private double ThrottleNormalWeight = 0.357; //.357
+    private double RotateNormalWeight = 0.5; //.7
 
     private double ThrottleSlowWeight = 0.214;
     private double RotateSlowWeight = 0.357;
