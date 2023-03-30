@@ -233,8 +233,8 @@ public class RobotContainer {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 //        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
 //        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
-        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setTarget(Enums.GridPositions.LEFT)));
-        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setTarget(Enums.GridPositions.RIGHT)));
+        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setState(Enums.GridPositions.LEFT)));
+        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setState(Enums.GridPositions.RIGHT)));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
