@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,7 +38,7 @@ public class Robot extends TimedRobot {
         Optional<EstimatedRobotPose> result = robotContainer.photonApriltagCam.getEstimatedGlobalPose(
                         robotContainer.poseEstimator.getEstimatedPosition());
 
-        if (false && result.isPresent()) {
+        if (!DriverStation.isAutonomous() && result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(),
