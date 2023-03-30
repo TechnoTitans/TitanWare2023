@@ -45,4 +45,9 @@ public class Enums {
         LEFT, //Set limelight pipeline to want leftmost
         RIGHT, //Set limelight pipeline to want rightmost
     }
+
+    public enum targets {
+        one,
+        two,
+    }
 }

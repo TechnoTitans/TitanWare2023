@@ -33,9 +33,11 @@ public class Robot extends TimedRobot {
                 robotContainer.swerve.getRotation2d(),
                 robotContainer.swerve.getModulePositions());
 
+
         Optional<EstimatedRobotPose> result = robotContainer.photonApriltagCam.getEstimatedGlobalPose(
                         robotContainer.poseEstimator.getEstimatedPosition());
-        if (result.isPresent()) {
+
+        if (false && result.isPresent()) {
             EstimatedRobotPose camPose = result.get();
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(),

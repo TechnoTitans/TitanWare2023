@@ -124,7 +124,7 @@
     {
       "position": 0.0,
       "names": [
-        "dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:0.5;dtpause:false;"
+        "dtpause:true;wait:0;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:0.5;dtpause:false;"
       ]
     },
     {
@@ -136,19 +136,19 @@
     {
       "position": 2.01,
       "names": [
-        "dtpause:true;claw:CLAW_INTAKING_CONE;wait:0.5;claw:CLAW_HOLDING;elevator:ELEVATOR_STANDBY;dtpause:false;"
+        "dtpause:true;claw:CLAW_HOLDING;elevator:ELEVATOR_STANDBY;dtpause:false;wait:0.5;claw:CLAW_ANGLE_SHOOT;"
       ]
     },
     {
-      "position": 3.1709090909091007,
+      "position": 3.12,
       "names": [
-        "dtpause:true;claw:CLAW_ANGLE_SHOOT;wait:0.5;claw:CLAW_SHOOT_HIGH;wait:0.75;claw:CLAW_STANDBY;dtpause:false;"
+        "dtpause:true;wait:0.3;claw:CLAW_SHOOT_HIGH;wait:0.75;claw:CLAW_STANDBY;dtpause:false;"
       ]
     },
     {
       "position": 4.0,
       "names": [
-        "autobalance:true;"
+        "dtpause:true;autobalance:true;"
       ]
     }
   ]
