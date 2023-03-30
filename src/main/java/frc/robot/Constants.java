@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
 //@SuppressWarnings("unused")
@@ -33,5 +36,32 @@ public interface Constants {
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 1; //TUNE THIS: (rotation pid) 2
         double AUTO_BALANCE_PITCH_P = 0.005; // P value for auto balance
+    }
+
+    interface Grid {
+        Translation2d LEFTBOTTOM = new Translation2d(1.81, 3.64);
+        Translation2d LEFTTOP = new Translation2d(3.15, 5.26);
+        Translation2d CENTERBOTTOM = new Translation2d(2.73, 3.45);
+        Translation2d CENTERTOP = new Translation2d(1.77, 1.92);
+        Translation2d RIGHTBOTTOM = new Translation2d(1.64, 0.15);
+        Translation2d RIGHTTOP = new Translation2d(2.73, 1.83);
+
+        double DISTANCE_FROM_GRID = 1.83;
+
+        interface LEFT {
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 4.93), new Rotation2d(180));
+            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 4.43), new Rotation2d(180));
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.94), new Rotation2d(180));
+        }
+        interface CENTER {
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.27), new Rotation2d(180));
+            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 2.74), new Rotation2d(180));
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 2.14), new Rotation2d(180));
+        }
+        interface RIGHT {
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 1.59), new Rotation2d(180));
+            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 1.06), new Rotation2d(180));
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 0.5), new Rotation2d(180));
+        }
     }
 }

@@ -8,7 +8,6 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -90,7 +89,6 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final AutoAlignment autoAlignment;
     public final AutoAlignment2 autoAlignment2;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
@@ -106,7 +104,6 @@ public class RobotContainer {
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
-    public final SendableChooser<Enums.targets> targetChooser;
 
     public RobotContainer() {
         //OI
@@ -202,8 +199,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        autoAlignment = new AutoAlignment(swerve, limeLight, oi.getXboxMain());
-        autoAlignment2 = new AutoAlignment2(swerve, oi.getXboxMain(), poseEstimator);
+        autoAlignment2 = new AutoAlignment2(swerve, poseEstimator, oi.getXboxMain());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
 
@@ -224,10 +220,10 @@ public class RobotContainer {
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
-        targetChooser = new SendableChooser<>();
-        targetChooser.setDefaultOption("ONE", Enums.targets.one);
-        targetChooser.addOption("TWO", Enums.targets.two);
-        SmartDashboard.putData("Target Chooser", targetChooser);
+//        targetChooser = new SendableChooser<>();
+//        targetChooser.setDefaultOption("ONE", Enums.GridPositions.ONE);
+//        targetChooser.addOption("TWO", Enums.GridPositions.TWO);
+//        SmartDashboard.putData("Target Chooser", targetChooser);
 
         configureButtonBindings();
     }
@@ -237,7 +233,8 @@ public class RobotContainer {
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
 //        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
 //        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
-//        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setTarget(targetChooser.getSelected())));
+        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setTarget(Enums.GridPositions.LEFT)));
+        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment2.setTarget(Enums.GridPositions.RIGHT)));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));

@@ -1,5 +1,8 @@
 package frc.robot.utils;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+
 @SuppressWarnings("unused")
 public class MathMethods {
 
@@ -30,4 +33,8 @@ public class MathMethods {
         return (Math.abs(input) <= band || Math.abs(input) <= -band) ? setPoint : input;
     }
 
+    public static boolean poseWithinArea(Pose2d currentPose, Translation2d point1, Translation2d point2) {
+        return currentPose.getTranslation().getX() > point1.getX() && currentPose.getTranslation().getX() < point2.getX() &&
+                currentPose.getTranslation().getY() > point1.getY() && currentPose.getTranslation().getY() < point2.getY();
+    }
 }
