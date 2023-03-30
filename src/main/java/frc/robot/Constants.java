@@ -39,12 +39,12 @@ public interface Constants {
     }
 
     interface Grid {
-        Translation2d LEFTBOTTOM = new Translation2d(1.81, 3.64);
-        Translation2d LEFTTOP = new Translation2d(3.15, 5.26);
-        Translation2d CENTERBOTTOM = new Translation2d(2.73, 3.45);
-        Translation2d CENTERTOP = new Translation2d(1.77, 1.92);
-        Translation2d RIGHTBOTTOM = new Translation2d(1.64, 0.15);
-        Translation2d RIGHTTOP = new Translation2d(2.73, 1.83);
+        Translation2d LEFTBOTTOM = new Translation2d(1, 3.6);
+        Translation2d LEFTTOP = new Translation2d(3.35, 5.26);
+        Translation2d CENTERBOTTOM = new Translation2d(1, 1.91);
+        Translation2d CENTERTOP = new Translation2d(3.35, 3.58);
+        Translation2d RIGHTBOTTOM = new Translation2d(1, 0);
+        Translation2d RIGHTTOP = new Translation2d(3.35, 1.89);
 
         double DISTANCE_FROM_GRID = 1.83;
 
