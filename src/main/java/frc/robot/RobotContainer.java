@@ -223,11 +223,6 @@ public class RobotContainer {
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
-//        targetChooser = new SendableChooser<>();
-//        targetChooser.setDefaultOption("ONE", Enums.GridPositions.ONE);
-//        targetChooser.addOption("TWO", Enums.GridPositions.TWO);
-//        SmartDashboard.putData("Target Chooser", targetChooser);
-
         configureButtonBindings();
     }
 

@@ -49,6 +49,7 @@ public class AutoAlignment2 extends CommandBase {
         } else {
             return;
         }
+
         switch (state) {
             case LEFT:
                 targetPose = LEFT; // LEFT CONE OF SELECTED GRID AREA
@@ -73,9 +74,11 @@ public class AutoAlignment2 extends CommandBase {
     @Override
     public void execute() {
         Transform2d poseError = poseEstimator.getEstimatedPosition().minus(targetPose);
+
         double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.1) *
                 Constants.Swerve.TELEOP_MAX_SPEED *
                 driverProfile.getThrottleSensitivity();
+
         swerve.faceDirection(
                 frontBack * driverProfile.getThrottleWeight(),
                 alignPIDController.calculate(poseError.getX()),
