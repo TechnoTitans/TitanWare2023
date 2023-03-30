@@ -54,7 +54,7 @@ public class AutoAlignment2 extends CommandBase {
                 targetPose = LEFT; // LEFT CONE OF SELECTED GRID AREA
                 break;
             case CENTER:
-                targetPose = CENTER; // CENTER CONE OF SELECTED GRID AREA
+                targetPose = CENTER; // CENTER CUBE OF SELECTED GRID AREA
                 break;
             case RIGHT:
                 targetPose = RIGHT; // RIGHT CONE OF SELECTED GRID AREA
