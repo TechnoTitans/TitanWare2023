@@ -56,7 +56,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        robotContainer.limeLight.setLEDMode(Enums.LimeLightLEDState.LED_OFF);
         robotContainer.candleController.setState(Enums.CANdleState.OFF);
     }
 

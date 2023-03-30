@@ -35,17 +35,6 @@ public class Enums {
         DRIVER2
     }
 
-    public enum LimeLightLEDState {
-        LED_OFF, //Limelight LEDS off
-        LED_CONFIG, //Limelight LEDS to how they were set in the config
-        LED_ON //Limelight LEDS on
-    }
-
-    public enum LimelightPipelines {
-        LEFT, //Set limelight pipeline to want leftmost
-        RIGHT, //Set limelight pipeline to want rightmost
-    }
-
     public enum SwerveSpeeds {
         FAST,
         NORMAL,
