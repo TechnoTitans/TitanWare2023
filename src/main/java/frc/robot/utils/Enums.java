@@ -46,8 +46,9 @@ public class Enums {
         RIGHT, //Set limelight pipeline to want rightmost
     }
 
-    public enum targets {
-        one,
-        two,
+    public enum GridPositions {
+        LEFT,
+        CENTER,
+        RIGHT,
     }
 }
