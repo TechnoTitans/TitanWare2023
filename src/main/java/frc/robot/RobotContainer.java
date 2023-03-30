@@ -105,6 +105,7 @@ public class RobotContainer {
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
+    public final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
         //OI
@@ -218,6 +219,14 @@ public class RobotContainer {
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
+        autoChooser = new SendableChooser<>();
+        autoChooser.setDefaultOption("DropAndMobility", trajectoryManager.getCommand("DropAndMobility"));
+        autoChooser.addOption("2PieceAuto", trajectoryManager.getCommand("2PieceAuto"));
+        autoChooser.addOption("2PieceAutoBalance", trajectoryManager.getCommand("2PieceAutoBal"));
+        autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack"));
+        autoChooser.addOption("DropAndCharge", trajectoryManager.getCommand("DropAndCharge"));
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
         configureButtonBindings();
     }
 
@@ -233,13 +242,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return trajectoryManager.getCommand("2PieceAuto");
-        return trajectoryManager.getCommand("2PieceAutoBal");
-//        return trajectoryManager.getCommand("2PieceBump");
-//        return trajectoryManager.getCommand("notime");
-//        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
-//        return trajectoryManager.getCommand("DropAndMobility");
-//        return trajectoryManager.getCommand("DropAndCharge");
-//        return trajectoryManager.getCommand("2PieceCharge");
+        return autoChooser.getSelected();
     }
 }

@@ -2,17 +2,13 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants;
 import frc.robot.subsystems.Claw;
@@ -22,7 +18,6 @@ import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +28,6 @@ public class TrajectoryManager {
     private final DriveController controller;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final boolean reverseTrajectory = false;
-    private SendableChooser<Command> autoChooser;
 
     private final Claw claw;
     private final Elevator elevator;
@@ -46,23 +40,6 @@ public class TrajectoryManager {
 
         this.claw = claw;
         this.elevator = elevator;
-
-        createChooser();
-    }
-
-    private void createChooser() {
-        autoChooser = new SendableChooser<>();
-        File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
-        if (paths == null) return;
-        for (File path : paths) {
-            String autoPath = path.getName().substring(0, path.getName().lastIndexOf("."));
-            autoChooser.addOption(autoPath, this.getCommand(autoPath));
-        }
-        SmartDashboard.putData("Auton Chooser", autoChooser);
-    }
-
-    public Command getSelectedPath() {
-        return autoChooser.getSelected();
     }
 
     public void follow(String trajDir, double maxVel, double maxAccl) {
