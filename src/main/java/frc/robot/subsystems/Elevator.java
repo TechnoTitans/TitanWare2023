@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,25 +15,24 @@ import frc.robot.commands.subsystems.ElevatorControl;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
-import frc.robot.wrappers.motors.TitanSRX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
     private final TitanFX verticalElevatorMotor;
     private final TitanMAX horizontalElevatorMotor;
-    private final TitanSRX encoderSRX;
+    private final CANCoder verticalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
 
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
 
     public Elevator(TitanFX verticalElevatorMotor,
+                    CANCoder verticalElevatorEncoder,
                     TitanMAX horizontalElevatorMotor,
-                    TitanSRX encoderSRX,
                     DigitalInput verticalElevatorLimitSwitch,
                     DigitalInput horizontalElevatorLimitSwitch) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
-        this.encoderSRX = encoderSRX;
+        this.verticalElevatorEncoder = verticalElevatorEncoder;
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
         this.horizontalElevatorLimitSwitch = horizontalElevatorLimitSwitch;
 
@@ -46,13 +48,17 @@ public class Elevator extends SubsystemBase {
     }
 
     private void configMotor() {
+        CANCoderConfiguration CVEConfig = new CANCoderConfiguration();
+        CVEConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        verticalElevatorEncoder.configAllSettings(CVEConfig);
+
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.slot0.kP = 0.53;
         VEConfig.slot0.kD = 0.03;
         VEConfig.slot0.kF = 0.2;
         VEConfig.closedloopRamp = 0.2;
-        VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonSRX_SelectedSensor;
-        VEConfig.remoteFilter0.remoteSensorDeviceID = encoderSRX.getDeviceID();
+        VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
+        VEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorEncoder.getDeviceID();
         VEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         verticalElevatorMotor.configAllSettings(VEConfig);
         verticalElevatorMotor.brake();
@@ -93,7 +99,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getPosition() {
-        return encoderSRX.getSelectedSensorPosition();
+        return verticalElevatorEncoder.getPosition();
     }
 
     public double getCurrent() {

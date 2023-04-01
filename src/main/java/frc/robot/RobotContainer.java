@@ -50,6 +50,7 @@ public class RobotContainer {
     //Elevator
     public final TitanFX elevatorVerticalMotorMain;
     public final TitanFX elevatorVerticalMotorFollower;
+    public final CANCoder elevatorVerticalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch;
 
@@ -145,6 +146,7 @@ public class RobotContainer {
         elevatorVerticalMotorMain = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
         elevatorVerticalMotorFollower = new TitanFX(RobotMap.followerVerticalFalcon, RobotMap.followerVerticalFalconR);
         elevatorVerticalMotorFollower.follow(elevatorVerticalMotorMain);
+        elevatorVerticalEncoder = new CANCoder(RobotMap.verticalElevatorEncoder);
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
 
@@ -161,7 +163,7 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 //        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-        elevator = new Elevator(elevatorVerticalMotorMain, elevatorHorizontalNeo, clawMainWheelsMotor, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
+        elevator = new Elevator(elevatorVerticalMotorMain, elevatorVerticalEncoder, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltLimitSwitch);
 
         //Swerve
