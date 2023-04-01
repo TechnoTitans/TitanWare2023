@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
@@ -48,9 +49,8 @@ public class RobotContainer {
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TitanFX elevatorVerticalMotorMain;
-    public final TitanFX elevatorVerticalMotorFollower;
-    public final CANCoder elevatorVerticalEncoder;
+    public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
+    public final CANcoder elevatorVerticalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch;
 
@@ -143,10 +143,9 @@ public class RobotContainer {
         backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, 282.92);
 
         //Elevator Motors
-        elevatorVerticalMotorMain = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
-        elevatorVerticalMotorFollower = new TitanFX(RobotMap.followerVerticalFalcon, RobotMap.followerVerticalFalconR);
-        elevatorVerticalMotorFollower.follow(elevatorVerticalMotorMain);
-        elevatorVerticalEncoder = new CANCoder(RobotMap.verticalElevatorEncoder);
+        elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
+        elevatorVerticalMotorFollower = new TalonFX(RobotMap.followerVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
+        elevatorVerticalEncoder = new CANcoder(RobotMap.verticalElevatorEncoder, RobotMap.CANIVORE_CAN_NAME);
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
 
@@ -163,7 +162,7 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 //        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-        elevator = new Elevator(elevatorVerticalMotorMain, elevatorVerticalEncoder, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
+        elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltLimitSwitch);
 
         //Swerve

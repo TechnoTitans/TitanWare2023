@@ -4,7 +4,9 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
@@ -80,6 +82,7 @@ class TrajectoryFollower extends CommandBase {
     private final Elevator elevator;
 
     private boolean paused = false;
+    private boolean wheelX = false;
 
     public TrajectoryFollower(Swerve swerve, Field2d field2d, DriveController controller, SwerveDrivePoseEstimator poseEstimator, PathPlannerTrajectory traj, Claw claw, Elevator elevator) {
         this.swerve = swerve;
@@ -111,7 +114,11 @@ class TrajectoryFollower extends CommandBase {
             double currentTime = timer.get();
             PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
             commander(sample);
-            driveToState(sample);
+            if (wheelX) {
+                wheelX();
+            } else {
+                driveToState(sample);
+            }
         }
     }
 
@@ -137,6 +144,15 @@ class TrajectoryFollower extends CommandBase {
                 -correction.vyMetersPerSecond,
                 -state.holonomicRotation.getDegrees(),
                 true);
+    }
+
+    private void wheelX() {
+        swerve.drive(new SwerveModuleState[]{
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45))
+        });
     }
 
     private void commander(PathPlannerTrajectory.PathPlannerState sample) {
@@ -167,6 +183,9 @@ class TrajectoryFollower extends CommandBase {
                         break;
                     case "wait":
                         sequentialCommands.add(new WaitCommand(Double.parseDouble(args[1])));
+                        break;
+                    case "wheelx":
+                        sequentialCommands.add(new InstantCommand(() -> wheelX = Boolean.parseBoolean(args[1])));
                         break;
                     case "dtpause":
                         sequentialCommands.add(new InstantCommand(() -> {

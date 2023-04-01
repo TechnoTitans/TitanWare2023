@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 5.423628804502266,
-        "y": 4.979218414493837
+        "x": 5.823489556717832,
+        "y": 5.160107802400878
       },
       "prevControl": {
-        "x": 4.900547293977849,
-        "y": 5.004943734683562
+        "x": 5.300408046193415,
+        "y": 5.185833122590603
       },
       "nextControl": {
-        "x": 6.0043789446248725,
-        "y": 4.950656932192725
+        "x": 6.404239696840439,
+        "y": 5.131546320099766
       },
-      "holonomicAngle": -52.59,
+      "holonomicAngle": -52.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,18 +49,18 @@
     },
     {
       "anchorPoint": {
-        "x": 6.965948848762308,
-        "y": 4.760247050185312
+        "x": 7.394371083278985,
+        "y": 5.0363413790960605
       },
       "prevControl": {
-        "x": 6.090063391528211,
-        "y": 4.903054461690871
+        "x": 6.518485626044889,
+        "y": 5.17914879060162
       },
       "nextControl": {
-        "x": 6.090063391528211,
-        "y": 4.903054461690871
+        "x": 6.518485626044889,
+        "y": 5.17914879060162
       },
-      "holonomicAngle": -52.5946433685915,
+      "holonomicAngle": -52.0,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -99,16 +99,16 @@
     },
     {
       "anchorPoint": {
-        "x": 7.0135513192641605,
-        "y": 2.856148230111187
+        "x": 7.146838236669349,
+        "y": 2.9418326770145233
       },
       "prevControl": {
-        "x": 6.09958388562858,
-        "y": 5.0839438495979135
+        "x": 6.0234199328256155,
+        "y": 5.855103871727933
       },
       "nextControl": {
-        "x": 7.238319650827787,
-        "y": 2.3082754219248476
+        "x": 7.293972657485783,
+        "y": 2.560280704388853
       },
       "holonomicAngle": -52.59,
       "isReversal": false,
@@ -124,15 +124,40 @@
     },
     {
       "anchorPoint": {
-        "x": 4.176444077353715,
-        "y": 2.74190230090674
+        "x": 5.575956710108196,
+        "y": 2.58005390120044
       },
       "prevControl": {
-        "x": 5.042809040487441,
-        "y": 2.9132711947134116
+        "x": 5.985780530873717,
+        "y": 2.58005390120044
+      },
+      "nextControl": {
+        "x": 5.204657440193741,
+        "y": 2.58005390120044
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.224394667316652,
+        "y": 2.58005390120044
+      },
+      "prevControl": {
+        "x": 4.147882595052603,
+        "y": 2.561012912999698
       },
       "nextControl": null,
-      "holonomicAngle": -52.59,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -145,11 +170,14 @@
       }
     }
   ],
+  "maxVelocity": null,
+  "maxAcceleration": 3.0,
+  "isReversed": null,
   "markers": [
     {
       "position": 0.0,
       "names": [
-        "dtpause:true;elevator:ELEVATOR_EXTENDED_HIGH;wait:1;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;wait:0.5;dtpause:false;"
+        "dtpause:true;elevator:ELEVATOR_EXTENDED_HIGH;wait:0.5;claw:CLAW_DROP;wait:0.5;claw:CLAW_OUTTAKE;wait:0.5;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;"
       ]
     },
     {
@@ -161,17 +189,17 @@
     {
       "position": 2.0,
       "names": [
-        "dtpause:true;wait:0.25;claw:CLAW_HOLDING;elevator:ELEVATOR_STANDBY;dtpause:false;wait:0.6;claw:CLAW_ANGLE_SHOOT;"
+        "dtpause:true;claw:CLAW_HOLDING;elevator:ELEVATOR_STANDBY;dtpause:false;wait:0.4;claw:CLAW_ANGLE_SHOOT;"
       ]
     },
     {
       "position": 3.0,
       "names": [
-        "dtpause:true;wait:0.25;claw:CLAW_SHOOT_HIGH;wait:0.6;claw:CLAW_STANDBY;dtpause:false;"
+        "dtpause:true;wait:0.25;claw:CLAW_SHOOT_HIGH;wait:0.3;dtpause:false;claw:CLAW_STANDBY;"
       ]
     },
     {
-      "position": 3.4545454545453236,
+      "position": 3.6363636363636163,
       "names": [
         "claw:CLAW_INTAKING_CUBE;"
       ]

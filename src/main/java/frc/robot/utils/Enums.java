@@ -10,6 +10,12 @@ public class Enums {
         SINGLE_SUB
     }
 
+    public enum ElevatorMode {
+        POSITION,
+        MOTION_MAGIC,
+        DUTY_CYCLE
+    }
+
     public enum ClawState {
         CLAW_OUTTAKE, //Claw shoot cube
         CLAW_HOLDING, //Claw tilted down and closed
