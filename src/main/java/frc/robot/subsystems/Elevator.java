@@ -23,7 +23,7 @@ public class Elevator extends SubsystemBase {
     private final CANCoder verticalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
 
-    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
+    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_EXTENDED_MID;
 
     public Elevator(TitanFX verticalElevatorMotor,
                     CANCoder verticalElevatorEncoder,
@@ -49,13 +49,15 @@ public class Elevator extends SubsystemBase {
 
     private void configMotor() {
         CANCoderConfiguration CVEConfig = new CANCoderConfiguration();
+        CVEConfig.unitString = "deg";
+        CVEConfig.sensorDirection = false;
         CVEConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
         verticalElevatorEncoder.configAllSettings(CVEConfig);
 
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.slot0.kP = 0.53;
+        VEConfig.slot0.kP = 0.2; //.53
         VEConfig.slot0.kD = 0.03;
-        VEConfig.slot0.kF = 0.2;
+        VEConfig.slot0.kF = 0.045;
         VEConfig.closedloopRamp = 0.2;
         VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         VEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorEncoder.getDeviceID();
