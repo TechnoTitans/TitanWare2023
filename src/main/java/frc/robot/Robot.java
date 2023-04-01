@@ -27,6 +27,8 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
         robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
+//        robotContainer.elevatorVerticalMotorMain.brake();
+//        robotContainer.elevatorVerticalMotorFollower.brake();
     }
 
     private void updatePose() {
@@ -53,6 +55,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
         SmartDashboard.putBoolean("fff", robotContainer.elevatorVerticalLimitSwitch.get());
+        SmartDashboard.putNumber("CANCODER ID", robotContainer.elevatorVerticalEncoder.getPosition());
     }
 
     @Override
@@ -93,6 +96,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+//        robotContainer.elevatorVerticalMotorMain.set(1);
     }
 
     @Override

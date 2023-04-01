@@ -37,6 +37,7 @@ public class IntakeTeleop extends CommandBase {
 
     @Override
     public void execute() {
+
         if (mainController.getAButton()) {
             claw.setState(Enums.ClawState.CLAW_INTAKING_CONE);
         } else if (mainController.getBButton()) {
