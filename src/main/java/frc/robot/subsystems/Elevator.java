@@ -1,11 +1,10 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenixpro.configs.CANcoderConfiguration;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.hardware.CANcoder;
+import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenixpro.signals.*;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,26 +12,34 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ElevatorControl;
 import frc.robot.utils.Enums;
-import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
-    private final TitanFX verticalElevatorMotor;
+    private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
+    private final boolean verticalElevatorMotorR, verticalElevatorMotorFollowerR, verticalElevatorEncoderR;
     private final TitanMAX horizontalElevatorMotor;
-    private final CANCoder verticalElevatorEncoder;
+    private final CANcoder verticalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
 
-    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_EXTENDED_MID;
+    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
 
-    public Elevator(TitanFX verticalElevatorMotor,
-                    CANCoder verticalElevatorEncoder,
+    public Elevator(TalonFX verticalElevatorMotor,
+                    boolean verticalElevatorMotorR,
+                    TalonFX verticalElevatorMotorFollower,
+                    boolean verticalElevatorMotorFollowerR,
+                    CANcoder verticalElevatorEncoder,
+                    boolean verticalElevatorEncoderR,
                     TitanMAX horizontalElevatorMotor,
                     DigitalInput verticalElevatorLimitSwitch,
                     DigitalInput horizontalElevatorLimitSwitch) {
         this.verticalElevatorMotor = verticalElevatorMotor;
-        this.horizontalElevatorMotor = horizontalElevatorMotor;
+        this.verticalElevatorMotorR = verticalElevatorMotorR;
+        this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
+        this.verticalElevatorMotorFollowerR = verticalElevatorMotorFollowerR;
         this.verticalElevatorEncoder = verticalElevatorEncoder;
+        this.verticalElevatorEncoderR = verticalElevatorEncoderR;
+        this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
         this.horizontalElevatorLimitSwitch = horizontalElevatorLimitSwitch;
 
@@ -44,26 +51,32 @@ public class Elevator extends SubsystemBase {
 
     public void telemetry() {
         SmartDashboard.putNumber("Elevator Enc", getPosition());
-        SmartDashboard.putNumber("Elevator Current", getCurrent());
     }
 
     private void configMotor() {
-        CANCoderConfiguration CVEConfig = new CANCoderConfiguration();
-        CVEConfig.unitString = "deg";
-        CVEConfig.sensorDirection = false;
-        CVEConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        verticalElevatorEncoder.configAllSettings(CVEConfig);
+        CANcoderConfiguration CVEConfig = new CANcoderConfiguration();
+        CVEConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+        CVEConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+        verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
 
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.slot0.kP = 0.2; //.53
-        VEConfig.slot0.kD = 0.03;
-        VEConfig.slot0.kF = 0.045;
-        VEConfig.closedloopRamp = 0.2;
-        VEConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
-        VEConfig.remoteFilter0.remoteSensorDeviceID = verticalElevatorEncoder.getDeviceID();
-        VEConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-        verticalElevatorMotor.configAllSettings(VEConfig);
-        verticalElevatorMotor.brake();
+        VEConfig.Slot0.kP = 9; //.53
+        VEConfig.Slot0.kD = 0.15;
+        VEConfig.Slot0.kS = 0.15925;
+        VEConfig.Slot0.kV = 1.4126;
+        VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
+        VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        VEConfig.MotorOutput.Inverted = verticalElevatorMotorR ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        VEConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
+        VEConfig.MotionMagic.MotionMagicAcceleration = 50;
+        VEConfig.MotionMagic.MotionMagicJerk = 90;
+        verticalElevatorMotor.getConfigurator().apply(VEConfig);
+
+        TalonFXConfiguration VEFConfig = new TalonFXConfiguration();
+        VEFConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        verticalElevatorMotorFollower.getConfigurator().apply(VEFConfig);
 
         SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
         HEConfig.setP(0.18);
@@ -84,8 +97,16 @@ public class Elevator extends SubsystemBase {
         return currentState;
     }
 
-    public TitanFX getVerticalElevatorMotor() {
+    public TalonFX getVerticalElevatorMotor() {
         return verticalElevatorMotor;
+    }
+
+    public TalonFX getVerticalElevatorMotorFollower() {
+        return verticalElevatorMotorFollower;
+    }
+
+    public CANcoder getVerticalElevatorEncoder() {
+        return verticalElevatorEncoder;
     }
 
     public TitanMAX getHorizontalElevatorMotor() {
@@ -101,11 +122,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getPosition() {
-        return verticalElevatorEncoder.getPosition();
+        return verticalElevatorEncoder.getPosition().getValue();
     }
-
-    public double getCurrent() {
-        return verticalElevatorMotor.getCurrent();
-    }
-
 }

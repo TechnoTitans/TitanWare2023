@@ -72,6 +72,7 @@ public interface RobotMap {
     int followerVerticalFalcon = 11;
     boolean followerVerticalFalconR = true;
     int verticalElevatorEncoder = 12;
+    boolean verticalElevatorEncoderR = true;
     int horizontalElevatorNeo = 2;
     int verticalLimitSwitch = 6;
     int horizontalLimitSwitch = 8;
