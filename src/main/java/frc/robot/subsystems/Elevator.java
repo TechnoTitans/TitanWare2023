@@ -17,7 +17,8 @@ import frc.robot.wrappers.motors.TitanMAX;
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
-    private final boolean verticalElevatorMotorR, verticalElevatorMotorFollowerR, verticalElevatorEncoderR;
+    private final InvertedValue verticalElevatorMotorR, verticalElevatorMotorFollowerR;
+    private final SensorDirectionValue verticalElevatorEncoderR;
     private final TitanMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
@@ -25,11 +26,11 @@ public class Elevator extends SubsystemBase {
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
 
     public Elevator(TalonFX verticalElevatorMotor,
-                    boolean verticalElevatorMotorR,
+                    InvertedValue verticalElevatorMotorR,
                     TalonFX verticalElevatorMotorFollower,
-                    boolean verticalElevatorMotorFollowerR,
+                    InvertedValue verticalElevatorMotorFollowerR,
                     CANcoder verticalElevatorEncoder,
-                    boolean verticalElevatorEncoderR,
+                    SensorDirectionValue verticalElevatorEncoderR,
                     TitanMAX horizontalElevatorMotor,
                     DigitalInput verticalElevatorLimitSwitch,
                     DigitalInput horizontalElevatorLimitSwitch) {
@@ -56,7 +57,7 @@ public class Elevator extends SubsystemBase {
     private void configMotor() {
         CANcoderConfiguration CVEConfig = new CANcoderConfiguration();
         CVEConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
-        CVEConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+        CVEConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR;
         verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
 
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
@@ -67,7 +68,7 @@ public class Elevator extends SubsystemBase {
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        VEConfig.MotorOutput.Inverted = verticalElevatorMotorR ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        VEConfig.MotorOutput.Inverted = verticalElevatorMotorR;
         VEConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
         VEConfig.MotionMagic.MotionMagicAcceleration = 50;
         VEConfig.MotionMagic.MotionMagicJerk = 90;
@@ -75,7 +76,7 @@ public class Elevator extends SubsystemBase {
 
         TalonFXConfiguration VEFConfig = new TalonFXConfiguration();
         VEFConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR;
         verticalElevatorMotorFollower.getConfigurator().apply(VEFConfig);
 
         SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();

@@ -27,15 +27,15 @@ public class SwerveModule extends SubsystemBase {
     private final TitanFX turnMotor;
     private final CANCoder turnEncoder;
     private final double magnetOffset;
-    private final boolean inverted;
+    private final InvertedValue invertedValue;
     private final VelocityVoltage velocityDutyCycle;
 
-    public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, boolean inverted, double magnetOffset) {
+    public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, InvertedValue invertedValue, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
-        this.inverted = inverted;
+        this.invertedValue = invertedValue;
 
         config();
 
@@ -63,7 +63,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
         driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        driverConfig.MotorOutput.Inverted = inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        driverConfig.MotorOutput.Inverted = invertedValue ;
         driveMotor.getConfigurator().apply(driverConfig);
 
         turnMotor.configFactoryDefault();

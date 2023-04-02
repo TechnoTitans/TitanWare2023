@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenixpro.signals.InvertedValue;
+import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -7,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import org.w3c.dom.css.Counter;
 
 @SuppressWarnings("unused")
 public interface RobotMap {
@@ -45,34 +48,34 @@ public interface RobotMap {
     int frontLeftDrive = 1;
     int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
-    boolean frontLeftDriveR = true;
+    InvertedValue frontLeftDriveR = InvertedValue.Clockwise_Positive;
     boolean frontLeftTurnR = false;
 
     int frontRightDrive = 3;
     int frontRightTurn = 4;
     int frontRightEncoder = 2;
-    boolean frontRightDriveR = false;
+    InvertedValue frontRightDriveR = InvertedValue.CounterClockwise_Positive;
     boolean frontRightTurnR = false;
 
     int backRightDrive = 5;
     int backRightTurn = 6;
     int backRightEncoder = 3;
-    boolean backRightDriveR = false;
+    InvertedValue backRightDriveR = InvertedValue.CounterClockwise_Positive;
     boolean backRightTurnR = false;
 
     int backLeftDrive = 7;
     int backLeftTurn = 8;
     int backLeftEncoder = 4;
-    boolean backLeftDriveR = true;
+    InvertedValue backLeftDriveR = InvertedValue.Clockwise_Positive;
     boolean backLeftTurnR = false;
 
     //Elevator
     int mainVerticalFalcon = 10;
-    boolean mainVerticalFalconR = true;
+    InvertedValue mainVerticalFalconR = InvertedValue.Clockwise_Positive;
     int followerVerticalFalcon = 11;
-    boolean followerVerticalFalconR = true;
+    InvertedValue followerVerticalFalconR = InvertedValue.Clockwise_Positive;
     int verticalElevatorEncoder = 12;
-    boolean verticalElevatorEncoderR = true;
+    SensorDirectionValue verticalElevatorEncoderR = SensorDirectionValue.Clockwise_Positive;
     int horizontalElevatorNeo = 2;
     int verticalLimitSwitch = 6;
     int horizontalLimitSwitch = 8;
