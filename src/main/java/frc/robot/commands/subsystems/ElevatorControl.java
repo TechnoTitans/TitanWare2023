@@ -1,7 +1,6 @@
 package frc.robot.commands.subsystems;
 
 import com.ctre.phoenixpro.controls.DutyCycleOut;
-import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.controls.PositionVoltage;
 import com.ctre.phoenixpro.hardware.CANcoder;
@@ -15,7 +14,7 @@ import frc.robot.wrappers.motors.TitanMAX;
 
 public class ElevatorControl extends CommandBase {
     private final Elevator elevator;
-    private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
+    private final TalonFX verticalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
     private final TitanMAX horizontalElevatorMotor;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
@@ -27,7 +26,6 @@ public class ElevatorControl extends CommandBase {
     private final PositionVoltage positionVoltage;
     private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
-    private final Follower follower;
     private Enums.ElevatorMode elevatorMode;
 
     private double
@@ -39,7 +37,6 @@ public class ElevatorControl extends CommandBase {
     public ElevatorControl(Elevator elevator) {
         this.elevator = elevator;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
-        this.verticalElevatorMotorFollower = elevator.getVerticalElevatorMotorFollower();
         this.verticalElevatorEncoder = elevator.getVerticalElevatorEncoder();
         this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
         this.verticalElevatorLimitSwitch = elevator.getVerticalLimitSwitch();
@@ -48,7 +45,6 @@ public class ElevatorControl extends CommandBase {
         this.positionVoltage = new PositionVoltage(0, true, 0, 0, false);
         this.motionMagicVoltage = new MotionMagicVoltage(0, true, 0, 0, false);
         this.dutyCycleOut = new DutyCycleOut(0, true, false);
-        this.follower = new Follower(verticalElevatorMotor.getDeviceID() ,false);
 
         addRequirements(elevator);
     }
@@ -133,8 +129,6 @@ public class ElevatorControl extends CommandBase {
                 );
                 break;
         }
-
-        verticalElevatorMotorFollower.setControl(follower);
 
         horizontalElevatorMotor.set(
                 HEControlMode,

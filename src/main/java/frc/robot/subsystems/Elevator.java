@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.*;
@@ -79,6 +80,9 @@ public class Elevator extends SubsystemBase {
         VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR;
         verticalElevatorMotorFollower.getConfigurator().apply(VEFConfig);
 
+        Follower verticalElevatorFollower = new Follower(verticalElevatorMotor.getDeviceID(), false);
+        verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
+
         SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
         HEConfig.setP(0.18);
         HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
@@ -100,10 +104,6 @@ public class Elevator extends SubsystemBase {
 
     public TalonFX getVerticalElevatorMotor() {
         return verticalElevatorMotor;
-    }
-
-    public TalonFX getVerticalElevatorMotorFollower() {
-        return verticalElevatorMotorFollower;
     }
 
     public CANcoder getVerticalElevatorEncoder() {
