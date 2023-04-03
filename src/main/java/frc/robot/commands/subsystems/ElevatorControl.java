@@ -66,7 +66,7 @@ public class ElevatorControl extends CommandBase {
                 break;
             case ELEVATOR_STANDBY:
                 elevatorMode = Enums.ElevatorMode.MOTION_MAGIC;
-                VEPosition = 0;
+                VEPosition = -0.25;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 HETargetRotations = -0.3;
                 break;

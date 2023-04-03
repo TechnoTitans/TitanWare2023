@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenixpro.hardware.CANcoder;
@@ -38,6 +39,8 @@ import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonCameraWrapper;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
+
+import java.util.List;
 
 public class RobotContainer {
     //OI
@@ -202,10 +205,10 @@ public class RobotContainer {
         candleController = new CandleController(cANdle);
 
         //Teleop Commands
-        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
+        swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, oi.getXboxMain());
         autoAlignment = new AutoAlignment(swerve, poseEstimator, oi.getXboxMain());
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
-        elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
+        elevatorTeleop = new ElevatorTeleop(elevator, claw, oi.getXboxCo());
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
