@@ -230,7 +230,8 @@ public class RobotContainer {
         autoChooser.addOption("2PieceAutoBalance", trajectoryManager.getCommand("2PieceAutoBal"));
         autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack"));
         autoChooser.addOption("DropAndCharge", trajectoryManager.getCommand("DropAndCharge"));
-        autoChooser.addOption("LinkAuton", trajectoryManager.getCommand("LinkAuton"));
+        autoChooser.addOption("2.5BalAuton", trajectoryManager.getCommand("2.5BalAuton"));
+        autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         configureButtonBindings();

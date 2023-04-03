@@ -69,7 +69,7 @@ public class TrajectoryManager {
 
 @SuppressWarnings("unused")
 class TrajectoryFollower extends CommandBase {
-    private final PathPlannerTrajectory traj;
+    private PathPlannerTrajectory traj;
     private final Timer timer;
 
     private final Swerve swerve;
@@ -90,7 +90,7 @@ class TrajectoryFollower extends CommandBase {
         this.field2d = field2d;
         this.controller = controller;
         this.poseEstimator = poseEstimator;
-        this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
+        this.traj = traj;
 
         this.claw = claw;
         this.elevator = elevator;
@@ -100,6 +100,7 @@ class TrajectoryFollower extends CommandBase {
 
     @Override
     public void initialize() {
+        this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
         Pose2d initialPose = traj.getInitialHolonomicPose();
         swerve.setAngle(initialPose.getRotation().getDegrees());
         poseEstimator.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);

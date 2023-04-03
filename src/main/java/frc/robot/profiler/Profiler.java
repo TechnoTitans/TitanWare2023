@@ -50,7 +50,7 @@ public class Profiler {
                     break;
                 case SLOW:
                     ThrottleWeight = 0.214;
-                    RotateWeight = 0.357;
+                    RotateWeight = 0.2;
                     break;
                 default:
                     break;

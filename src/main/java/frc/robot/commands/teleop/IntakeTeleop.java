@@ -46,7 +46,9 @@ public class IntakeTeleop extends CommandBase {
             claw.setState(Enums.ClawState.CLAW_ANGLE_CUBE);
         } else if (mainController.getXButton()) {
             claw.setState(Enums.ClawState.CLAW_HOLDING);
-            if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_CUBE || elevator.getTargetState() == Enums.ElevatorState.SINGLE_SUB) {
+            if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_CUBE ||
+                    elevator.getTargetState() == Enums.ElevatorState.SINGLE_SUB ||
+                    elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM) {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
             }
         }
@@ -73,27 +75,27 @@ public class IntakeTeleop extends CommandBase {
             claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT);
         }
 
-        if (flag3) {
-            if (timer2.hasElapsed(0.5) && flag2) {
-                claw.setState(Enums.ClawState.CLAW_STANDBY);
-                flag3 = false;
-                flag2 = false;
-                timer2.reset();
-                timer2.stop();
-            }
-            else if (coController.getRightBumper() && timer.hasElapsed(.5)){
-                claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH);
-                flag2 = true;
-                timer2.reset();
-                timer2.start();
-            }
-            else if (coController.getLeftBumper() && timer.hasElapsed(.5)){
-                claw.setState(Enums.ClawState.CLAW_SHOOT_LOW);
-                flag2 = true;
-                timer2.reset();
-                timer2.start();
-            }
-        }
+//        if (flag3) {
+//            if (timer2.hasElapsed(0.5) && flag2) {
+//                claw.setState(Enums.ClawState.CLAW_STANDBY);
+//                flag3 = false;
+//                flag2 = false;
+//                timer2.reset();
+//                timer2.stop();
+//            }
+//            else if (coController.getRightBumper() && timer.hasElapsed(.5)){
+//                claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH);
+//                flag2 = true;
+//                timer2.reset();
+//                timer2.start();
+//            }
+//            else if (coController.getLeftBumper() && timer.hasElapsed(.5)){
+//                claw.setState(Enums.ClawState.CLAW_SHOOT_LOW);
+//                flag2 = true;
+//                timer2.reset();
+//                timer2.start();
+//            }
+//        }
 
 
         if (flag) {
