@@ -72,7 +72,7 @@ public class Elevator extends SubsystemBase {
         VEConfig.MotorOutput.Inverted = verticalElevatorMotorR;
         VEConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
         VEConfig.MotionMagic.MotionMagicAcceleration = 50;
-        VEConfig.MotionMagic.MotionMagicJerk = 90;
+        VEConfig.MotionMagic.MotionMagicJerk = 75;
         verticalElevatorMotor.getConfigurator().apply(VEConfig);
 
         TalonFXConfiguration VEFConfig = new TalonFXConfiguration();
@@ -100,6 +100,12 @@ public class Elevator extends SubsystemBase {
 
     public Enums.ElevatorState getTargetState() {
         return currentState;
+    }
+
+    public boolean verticalIsExtended() {
+        return currentState == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH
+            || currentState == Enums.ElevatorState.ELEVATOR_EXTENDED_MID
+            || currentState == Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM;
     }
 
     public TalonFX getVerticalElevatorMotor() {

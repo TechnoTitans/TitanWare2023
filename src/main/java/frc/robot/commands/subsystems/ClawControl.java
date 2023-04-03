@@ -29,8 +29,6 @@ public class ClawControl extends CommandBase {
         this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
         this.clawTiltNeo = claw.getClawTiltNeo();
 
-//        claw.getClawFollowerWheelBag().follow(clawWheelMotor);
-
         addRequirements(claw);
     }
 
@@ -39,14 +37,14 @@ public class ClawControl extends CommandBase {
             case CLAW_HOLDING:
                 speed = 0.2;
                 tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
-                tiltRotations = -0.35;
+                tiltRotations = -0.4;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.37;
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
                 tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
-                tiltRotations = -0.35;
+                tiltRotations = -0.4;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 260;
                 break;
