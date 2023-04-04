@@ -20,7 +20,7 @@ public interface Constants {
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
-        double ROBOT_MAX_SPEED = Units.feetToMeters(9);
+        double ROBOT_MAX_SPEED = Units.feetToMeters(13);
         double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
@@ -43,9 +43,9 @@ public interface Constants {
         double DISTANCE_FROM_GRID = 1.83;
 
         interface LEFT {
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 4.93), Rotation2d.fromDegrees(180));
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 5.1), Rotation2d.fromDegrees(180));
             Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 4.43), Rotation2d.fromDegrees(180));
-            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.94), Rotation2d.fromDegrees(180));
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.875), Rotation2d.fromDegrees(180));
         }
         interface CENTER {
             Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.27), Rotation2d.fromDegrees(180));

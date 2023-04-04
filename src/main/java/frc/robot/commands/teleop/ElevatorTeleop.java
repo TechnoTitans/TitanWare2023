@@ -2,6 +2,9 @@ package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -27,8 +30,11 @@ public class ElevatorTeleop extends CommandBase {
     public void execute() {
         switch (controller.getPOV()) {
             case 0:
-                elevator.setState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH);
-                claw.setState(Enums.ClawState.CLAW_DROP);
+                new SequentialCommandGroup(
+                        new InstantCommand(() -> elevator.setState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH)),
+                        new WaitCommand(0.2),
+                        new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_DROP))
+                ).schedule();
                 break;
             case 90:
                 elevator.setState(Enums.ElevatorState.ELEVATOR_EXTENDED_MID);

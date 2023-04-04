@@ -25,7 +25,7 @@ public class AutoAlignment extends CommandBase {
         this.mainController = mainController;
         this.poseEstimator = poseEstimator;
         this.driverProfile = Profiler.getProfile();
-        this.alignPIDController = new PIDController(0.1, 0, 0);
+        this.alignPIDController = new PIDController(0.7, 0, 0);
 
         addRequirements(swerve);
     }
@@ -81,7 +81,7 @@ public class AutoAlignment extends CommandBase {
 
         swerve.faceDirection(
                 frontBack * driverProfile.getThrottleWeight(),
-                alignPIDController.calculate(poseError.getX()),
+                alignPIDController.calculate(poseError.getY()),
                 180,
                 true
         );

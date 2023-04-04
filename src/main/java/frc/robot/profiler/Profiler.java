@@ -1,5 +1,7 @@
 package frc.robot.profiler;
 
+import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 import frc.robot.utils.Enums;
 
 public class Profiler {
@@ -40,17 +42,18 @@ public class Profiler {
         if (currentState != state) {
             currentState = state;
             switch (state) {
+                // wanted speed / Teleop max speed
                 case FAST:
-                    ThrottleWeight = 1;
-                    RotateWeight = 0.6;
+                    ThrottleWeight = Units.feetToMeters(13) / Constants.Swerve.TELEOP_MAX_SPEED;
+                    RotateWeight = Math.PI / 2 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
                     break;
                 case NORMAL:
-                    ThrottleWeight = 0.357;
-                    RotateWeight = 0.5;
+                    ThrottleWeight = Units.feetToMeters(6) / Constants.Swerve.TELEOP_MAX_SPEED;
+                    RotateWeight = Math.PI / 3 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
                     break;
                 case SLOW:
-                    ThrottleWeight = 0.214;
-                    RotateWeight = 0.2;
+                    ThrottleWeight = Units.feetToMeters(3) / Constants.Swerve.TELEOP_MAX_SPEED;
+                    RotateWeight = Math.PI / 4 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
                     break;
                 default:
                     break;

@@ -37,14 +37,14 @@ public class ClawControl extends CommandBase {
             case CLAW_HOLDING:
                 speed = 0.2;
                 tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
-                tiltRotations = -0.4;
+                tiltRotations = -0.5;
                 openCloseControlMode = ControlMode.PercentOutput;
-                openCloseControl = -0.37;
+                openCloseControl = -0.37; //-0.37
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
                 tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
-                tiltRotations = -0.4;
+                tiltRotations = -0.5;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 260;
                 break;
@@ -58,7 +58,7 @@ public class ClawControl extends CommandBase {
             case CLAW_INTAKING_CONE:
                 speed = 0.5;
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
-                tiltRotations = .3;
+                tiltRotations = .315;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 200;
                 break;
@@ -110,6 +110,13 @@ public class ClawControl extends CommandBase {
                 tiltRotations = .2;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 200;
+                break;
+            case TIPPED_CONE:
+                speed = 0.5;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
+                tiltRotations = .45;
+                openCloseControlMode = ControlMode.Position;
+                openCloseControl = 100;
                 break;
             default:
                 break;
