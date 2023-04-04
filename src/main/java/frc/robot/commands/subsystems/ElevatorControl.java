@@ -55,7 +55,7 @@ public class ElevatorControl extends CommandBase {
         this.elevatorMode = Enums.ElevatorMode.POSITION;
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
-                VEPosition = 5; //15500
+                VEPosition = 5.25; //15500
                 HEControlMode = CANSparkMax.ControlType.kPosition;
                 HETargetRotations = 2.5;
                 break;
@@ -71,7 +71,7 @@ public class ElevatorControl extends CommandBase {
                 HETargetRotations = -0.3;
                 break;
             case ELEVATOR_EXTENDED_PLATFORM:
-                VEPosition = 4.2;
+                VEPosition = 4.3;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 HETargetRotations = -0.3;
                 break;
@@ -79,6 +79,11 @@ public class ElevatorControl extends CommandBase {
                 VEPosition = 1.3;
                 HEControlMode = CANSparkMax.ControlType.kDutyCycle;
                 HETargetRotations = -0.3;
+                break;
+            case ELEVATOR_TIPPED_CONE:
+                VEPosition = 1.55;
+                HEControlMode = CANSparkMax.ControlType.kPosition;
+                HETargetRotations = .2;
                 break;
             case SINGLE_SUB:
                 VEPosition = 2.1;
@@ -111,6 +116,8 @@ public class ElevatorControl extends CommandBase {
         } else if (verticalElevatorLimitSwitch.get() && VESwitchFlag && targetState != Enums.ElevatorState.ELEVATOR_STANDBY) {
             VESwitchFlag = false;
         }
+
+
 
         switch (elevatorMode) {
             case POSITION:

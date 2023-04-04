@@ -27,8 +27,6 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
         robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
-//        robotContainer.elevatorVerticalMotorMain.brake();
-//        robotContainer.elevatorVerticalMotorFollower.brake();
     }
 
     private void updatePose() {

@@ -53,7 +53,7 @@ public class SwerveDriveTeleop extends CommandBase {
             swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, true, 1);
         } else {
             double rot = MathMethods.deadband(controller.getRightX(), 0.01) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
-            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, true);
+//            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, true);
         }
     }
 

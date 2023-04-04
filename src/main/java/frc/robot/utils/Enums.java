@@ -7,7 +7,8 @@ public class Enums {
         ELEVATOR_EXTENDED_PLATFORM, //Elevator Platform and Horizontal extended
         ELEVATOR_STANDBY, //Elevator at normal height
         ELEVATOR_CUBE,
-        SINGLE_SUB
+        SINGLE_SUB,
+        ELEVATOR_TIPPED_CONE
     }
 
     public enum ElevatorMode {
@@ -27,7 +28,8 @@ public class Enums {
         CLAW_SHOOT_HIGH,
         CLAW_SHOOT_LOW,
         CLAW_ANGLE_CUBE,
-        SINGLE_SUB
+        SINGLE_SUB,
+        TIPPED_CONE
     }
 
     public enum CANdleState {

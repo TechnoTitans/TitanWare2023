@@ -74,10 +74,9 @@ public class Claw extends SubsystemBase {
         clawOpenCloseMotor.brake();
 
         SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
-        clawTiltPID.setP(2.6);
-        clawTiltPID.setI(0.0);
-        clawTiltPID.setD(0);
-        clawTiltPID.setOutputRange(-0.5, 0.5);
+        clawTiltPID.setP(5);
+        clawTiltPID.setD(1.5);
+//        clawTiltPID.setOutputRange(-0.5, 0.5);
         clawTiltPID.setFeedbackDevice(clawTiltNeo.getRevBoreThroughEncoder());
 //        clawTiltNeo.setClosedLoopRampRate(0.2);
 //        clawTiltNeo.currentLimit(50, 30);
