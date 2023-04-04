@@ -52,7 +52,7 @@ public class Profiler {
                     RotateWeight = Math.PI / 3 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
                     break;
                 case SLOW:
-                    ThrottleWeight = Units.feetToMeters(3) / Constants.Swerve.TELEOP_MAX_SPEED;
+                    ThrottleWeight = Units.feetToMeters(2) / Constants.Swerve.TELEOP_MAX_SPEED;
                     RotateWeight = Math.PI / 4 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
                     break;
                 default:
