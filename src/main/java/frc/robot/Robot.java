@@ -67,9 +67,12 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-//         schedule the autonomous command (example)
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
+        }
+
+        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
+            robotContainer.photonApriltagCam.loadTags();
         }
     }
 
@@ -85,6 +88,11 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+
+        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
+            robotContainer.photonApriltagCam.loadTags();
+        }
+
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
         robotContainer.elevatorTeleop.schedule();
         robotContainer.intakeTeleop.schedule();

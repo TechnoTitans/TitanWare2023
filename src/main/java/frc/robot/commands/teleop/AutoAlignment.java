@@ -3,7 +3,9 @@ package frc.robot.commands.teleop;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -63,7 +65,21 @@ public class AutoAlignment extends CommandBase {
             default:
                 return;
         }
+
+        targetPose = transformPose(targetPose);
+
         this.schedule();
+    }
+
+    private Pose2d transformPose(Pose2d originalPose) {
+        if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
+            return new Pose2d(
+                    originalPose.getX(),
+                    Constants.Grid.FIELD_WIDTH_METERS - originalPose.getY(),
+                    originalPose.getRotation().rotateBy(Rotation2d.fromDegrees(180)));
+        } else {
+            return originalPose;
+        }
     }
 
     @Override
