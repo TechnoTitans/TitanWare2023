@@ -42,7 +42,11 @@ public class SwerveDriveTeleop extends CommandBase {
                 Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
             }
         } else {
-            Profiler.setWeights(Enums.SwerveSpeeds.SLOW);
+            if (controller.getLeftTriggerAxis() > 0.5) {
+                Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
+            } else {
+                Profiler.setWeights(Enums.SwerveSpeeds.SLOW);
+            }
         }
 
         double throttleWeight = driverProfile.getThrottleWeight();

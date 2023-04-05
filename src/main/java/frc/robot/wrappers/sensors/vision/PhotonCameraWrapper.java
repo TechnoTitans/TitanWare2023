@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class PhotonCameraWrapper {
-    private PhotonPoseEstimator photonPoseEstimator;
     private final PhotonCamera apriltagCamera;
+    private PhotonPoseEstimator photonPoseEstimator;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
 
     public PhotonCameraWrapper(PhotonCamera apriltagCamera) {
