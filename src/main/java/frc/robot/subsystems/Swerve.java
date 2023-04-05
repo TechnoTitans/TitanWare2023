@@ -14,16 +14,16 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class Swerve extends SubsystemBase {
     private final Pigeon2 pigeon;
-    private final SwerveModule frontLeft, frontRight, backLeft, backRight;
     private final SwerveDriveKinematics kinematics;
+    private final SwerveModule frontLeft, frontRight, backLeft, backRight;
 
     public Swerve(Pigeon2 pigeon, SwerveDriveKinematics kinematics, SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight) {
         this.pigeon = pigeon;
+        this.kinematics = kinematics;
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
-        this.kinematics = kinematics;
     }
 
     public double getHeading() {
