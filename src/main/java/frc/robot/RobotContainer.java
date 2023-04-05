@@ -1,7 +1,6 @@
 package frc.robot;
 
 import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenixpro.hardware.CANcoder;
@@ -39,8 +38,6 @@ import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonCameraWrapper;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
-
-import java.util.List;
 
 public class RobotContainer {
     //OI
