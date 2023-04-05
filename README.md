@@ -11,11 +11,11 @@
 - [x] Add Elevator
 - [x] Add AutoBalance
 - [x] Fix Auto !!!
-- [ ] Limelight assisted lineup
+- [x] Odometry assisted lineup
 - [x] Auto Paths
 - [x] Add Candle
 - [x] Figure out controls
-- [ ] Switch to Phoenix Pro (https://api.ctr-electronics.com/phoenixpro/release/java/index.html)
+- [x] Switch to Phoenix Pro (https://api.ctr-electronics.com/phoenixpro/release/java/index.html)
 
 ## Drivetrain (Swerve):
 - [x] Set Module Offsets
@@ -23,7 +23,7 @@
 - [x] Tune PID
 - [x] Run path planning paths
 - [x] Locking System
-- [ ] Vison alignment 
+- [x] Vison alignment 
 
 ## Elevator:
 - [x] Tune PID
