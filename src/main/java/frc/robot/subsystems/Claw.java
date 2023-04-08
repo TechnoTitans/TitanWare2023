@@ -61,12 +61,12 @@ public class Claw extends SubsystemBase {
         canCoderConfiguration.unitString = "deg";
         canCoderConfiguration.sensorDirection = false;
         canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        canCoderConfiguration.magnetOffsetDegrees = -79.89;
+        canCoderConfiguration.magnetOffsetDegrees = -81.387;
         clawOpenCloseEncoder.configAllSettings(canCoderConfiguration);
 
         clawOpenCloseMotor.configFactoryDefault();
         TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
-        CCConfig.slot0.kP = 1.3; //TODO: TUNE ALL OF THESE
+        CCConfig.slot0.kP = 2; //TODO: TUNE ALL OF THESE  //1.3
         CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
