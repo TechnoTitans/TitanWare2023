@@ -52,7 +52,7 @@ public class RobotContainer {
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
     public final CANcoder elevatorVerticalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
-    public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch;
+    public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
@@ -149,6 +149,7 @@ public class RobotContainer {
 
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
+        elevatorHorizontalHighLimitSwitch = new DigitalInput(RobotMap.horizontalLimitHighSwitch);
 
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
@@ -163,7 +164,7 @@ public class RobotContainer {
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
 //        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-        elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
+        elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltLimitSwitch);
 
         //Swerve
@@ -234,6 +235,8 @@ public class RobotContainer {
         autoChooser.addOption("2.5BalAuton", trajectoryManager.getCommand("2.5BalAuton"));
         autoChooser.addOption("2.5BalAutonV2", trajectoryManager.getCommand("2.5BalAutonV2"));
         autoChooser.addOption("2.5PieceNonBal", trajectoryManager.getCommand("2.5PieceNonBal"));
+        autoChooser.addOption("2.5BalNonBalV2", trajectoryManager.getCommand("2.5BalNonBalV2"));
+        autoChooser.addOption("2.5PieceNoBalTurns", trajectoryManager.getCommand("2.5PieceNoBalTurns"));
         autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
         autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
         SmartDashboard.putData("Auto Chooser", autoChooser);

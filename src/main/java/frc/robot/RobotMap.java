@@ -78,6 +78,7 @@ public interface RobotMap {
     int horizontalElevatorNeo = 2;
     int verticalLimitSwitch = 6;
     int horizontalLimitSwitch = 8;
+    int horizontalLimitHighSwitch = 5;
 
     //Claw Motors
     int clawTiltNeo = 3;

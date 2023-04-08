@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
             EstimatedRobotPose camPose = result.get();
             robotContainer.poseEstimator.addVisionMeasurement(
                     camPose.estimatedPose.toPose2d(),
+
                     camPose.timestampSeconds);
         }
         robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
@@ -52,6 +53,12 @@ public class Robot extends TimedRobot {
         updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
+        SmartDashboard.putNumber("horizonenc", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
+
+        if (robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH ||
+                robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_MID) {
+            System.out.println(DriverStation.getMatchType().toString() + "(" + DriverStation.getMatchTime() + "): " + robotContainer.poseEstimator.getEstimatedPosition());
+        }
     }
 
     @Override
@@ -71,9 +78,9 @@ public class Robot extends TimedRobot {
             autonomousCommand.schedule();
         }
 
-        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
-            robotContainer.photonApriltagCam.loadTags();
-        }
+//        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
+//            robotContainer.photonApriltagCam.loadTags();
+//        }
     }
 
     @Override
@@ -89,9 +96,9 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
 
-        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
+//        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
             robotContainer.photonApriltagCam.loadTags();
-        }
+//        }
 
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
         robotContainer.elevatorTeleop.schedule();

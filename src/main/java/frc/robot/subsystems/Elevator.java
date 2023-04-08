@@ -22,7 +22,7 @@ public class Elevator extends SubsystemBase {
     private final SensorDirectionValue verticalElevatorEncoderR;
     private final TitanMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
-    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch;
+    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
 
@@ -34,7 +34,8 @@ public class Elevator extends SubsystemBase {
                     SensorDirectionValue verticalElevatorEncoderR,
                     TitanMAX horizontalElevatorMotor,
                     DigitalInput verticalElevatorLimitSwitch,
-                    DigitalInput horizontalElevatorLimitSwitch) {
+                    DigitalInput horizontalElevatorLimitSwitch,
+                    DigitalInput elevatorHorizontalHighLimitSwitch) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.verticalElevatorMotorR = verticalElevatorMotorR;
         this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
@@ -44,6 +45,7 @@ public class Elevator extends SubsystemBase {
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
         this.horizontalElevatorLimitSwitch = horizontalElevatorLimitSwitch;
+        this.elevatorHorizontalHighLimitSwitch = elevatorHorizontalHighLimitSwitch;
 
         configMotor();
 
@@ -83,10 +85,9 @@ public class Elevator extends SubsystemBase {
         Follower verticalElevatorFollower = new Follower(verticalElevatorMotor.getDeviceID(), false);
         verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
 
-        SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
-        HEConfig.setP(0.18);
-        HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
-        horizontalElevatorMotor.setOpenLoopRampRate(1);
+//        SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
+//        HEConfig.setP(0.18);
+//        HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
         horizontalElevatorMotor.brake();
     }
 
@@ -126,6 +127,10 @@ public class Elevator extends SubsystemBase {
 
     public DigitalInput getHorizontalLimitSwitch() {
         return horizontalElevatorLimitSwitch;
+    }
+
+    public DigitalInput getHorizontalHighLimitSwitch() {
+        return elevatorHorizontalHighLimitSwitch;
     }
 
     public double getPosition() {

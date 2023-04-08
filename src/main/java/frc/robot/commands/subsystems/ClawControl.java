@@ -37,30 +37,37 @@ public class ClawControl extends CommandBase {
             case CLAW_HOLDING:
                 speed = 0.2;
                 tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
-                tiltRotations = -0.5;
+                tiltRotations = -0.4;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.37; //-0.37
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
                 tiltControlMode = CANSparkMax.ControlType.kDutyCycle;
-                tiltRotations = -0.5;
+                tiltRotations = -0.4;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 260;
                 break;
             case CLAW_OUTTAKE:
                 speed = -0.1;
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
-                tiltRotations = .3;
+                tiltRotations = .295;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = .2;
+                break;
+            case CLAW_OUTTAKE_HYBIRD:
+                speed = -0.2;
+                tiltControlMode = CANSparkMax.ControlType.kPosition;
+                tiltRotations = .295;
+                openCloseControlMode = ControlMode.PercentOutput;
+                openCloseControl = .3;
                 break;
             case CLAW_INTAKING_CONE:
                 speed = 0.5;
                 tiltControlMode = CANSparkMax.ControlType.kPosition;
                 tiltRotations = .315;
                 openCloseControlMode = ControlMode.Position;
-                openCloseControl = 200;
+                openCloseControl = 100;
                 break;
             case CLAW_INTAKING_CUBE:
                 speed = 0.5;

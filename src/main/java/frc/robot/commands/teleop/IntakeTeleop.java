@@ -15,7 +15,6 @@ public class IntakeTeleop extends CommandBase {
     private final Timer timer;
     private final Timer timer2;
 
-    boolean flag = false;
     boolean flag2 = false;
     boolean flag3 = false;
 
@@ -51,7 +50,7 @@ public class IntakeTeleop extends CommandBase {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
             } else if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM) {
                 new SequentialCommandGroup(
-                        new WaitCommand(0.35),
+                        new WaitCommand(0.3),
                         new InstantCommand(() -> elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY))
                 ).schedule();
             }
@@ -59,10 +58,10 @@ public class IntakeTeleop extends CommandBase {
             elevator.setState(Enums.ElevatorState.SINGLE_SUB);
             claw.setState(Enums.ClawState.SINGLE_SUB);
         }
-//        else if (mainController.getLeftBumper()) {
-//            elevator.setState(Enums.ElevatorState.ELEVATOR_TIPPED_CONE); //TODO THIS IS FLOOR PICKUP CONE
-//            claw.setState(Enums.ClawState.TIPPED_CONE);
-//        }
+        else if (mainController.getStartButton()) {
+            elevator.setState(Enums.ElevatorState.ELEVATOR_TIPPED_CONE); //TODO THIS IS FLOOR PICKUP CONE
+            claw.setState(Enums.ClawState.TIPPED_CONE);
+        }
 
 //        else if (coController.getAButton()) {
 //            if (!flag) {
@@ -73,7 +72,7 @@ public class IntakeTeleop extends CommandBase {
 //            }
 //            claw.setState(Enums.ClawState.CLAW_DROP);
 //        }
-        else if (coController.getLeftBumper() || coController.getRightBumper()) {
+        else if (coController.getLeftBumper()) {
             if (!flag3) {
                 timer.reset();
                 timer2.reset();
@@ -81,6 +80,16 @@ public class IntakeTeleop extends CommandBase {
                 flag3 = true;
             }
             claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT);
+        }
+
+        if (coController.getRightBumper()) {
+            new SequentialCommandGroup(
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_DROP)),
+                    new WaitCommand(0.25),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_OUTTAKE_HYBIRD)),
+                    new WaitCommand(0.65),
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
+            ).schedule();
         }
 
         if (flag3) {
@@ -91,24 +100,20 @@ public class IntakeTeleop extends CommandBase {
                 timer2.reset();
                 timer2.stop();
             }
-            else if (coController.getRightBumper() && timer.hasElapsed(.5)){
+            else if (coController.getLeftBumper() && timer.hasElapsed(.5)){
                 claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH);
                 flag2 = true;
                 timer2.reset();
                 timer2.start();
             }
-            else if (coController.getLeftBumper() && timer.hasElapsed(.5)){
-                claw.setState(Enums.ClawState.CLAW_SHOOT_LOW);
-                flag2 = true;
-                timer2.reset();
-                timer2.start();
-            }
+
         }
 
         if (coController.getAButton()) {
+            System.out.println("DROPPED");
             new SequentialCommandGroup(
                     new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_OUTTAKE)),
-                    new WaitCommand(0.6),
+                    new WaitCommand(0.7),
                     new InstantCommand(() -> {
                         claw.setState(Enums.ClawState.CLAW_STANDBY);
                         elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);

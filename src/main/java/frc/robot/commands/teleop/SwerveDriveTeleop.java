@@ -42,7 +42,7 @@ public class SwerveDriveTeleop extends CommandBase {
                 Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
             }
         } else {
-            if (controller.getLeftTriggerAxis() > 0.5) {
+            if (controller.getRightTriggerAxis() > 0.5) {
                 Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
             } else {
                 Profiler.setWeights(Enums.SwerveSpeeds.SLOW);

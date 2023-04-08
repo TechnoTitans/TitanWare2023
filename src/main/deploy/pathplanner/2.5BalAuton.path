@@ -202,7 +202,7 @@
     {
       "position": 0.0,
       "names": [
-        "dtpause:true;elevator:ELEVATOR_EXTENDED_HIGH;wait:0.5;claw:CLAW_DROP;wait:0.5;claw:CLAW_OUTTAKE;wait:0.5;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;"
+        "dtpause:true;elevator:ELEVATOR_EXTENDED_HIGH;wait:0.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.5;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;"
       ]
     },
     {
