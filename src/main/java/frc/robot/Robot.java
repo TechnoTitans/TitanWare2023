@@ -53,8 +53,7 @@ public class Robot extends TimedRobot {
         updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-        SmartDashboard.putNumber("horizontal encoder", robotContainer.clawTiltNeo.getAlternateEncoder(8192).getPosition());
-        SmartDashboard.putBoolean("horizontal LS", robotContainer.clawTiltLimitSwitch.get());
+        SmartDashboard.putNumber("tiltenc", robotContainer.elevatorHorizontalEncoder.getPosition());
 
         if (robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH ||
                 robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_MID) {

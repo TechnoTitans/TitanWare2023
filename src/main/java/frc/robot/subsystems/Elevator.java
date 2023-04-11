@@ -91,8 +91,8 @@ public class Elevator extends SubsystemBase {
         CANCoderConfiguration horizontalElevatorEncoderConfig = new CANCoderConfiguration();
         horizontalElevatorEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
         horizontalElevatorEncoderConfig.unitString = "deg";
-        horizontalElevatorEncoderConfig.sensorDirection = false;
-        horizontalElevatorEncoderConfig.sensorCoefficient = 1.0 / 4096.0; // this makes getPosition() return in rotations
+        horizontalElevatorEncoderConfig.sensorDirection = true;
+        horizontalElevatorEncoderConfig.sensorCoefficient = 1.0 / 4096; // this makes getPosition() return in rotations
         horizontalElevatorEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         horizontalElevatorEncoder.configAllSettings(horizontalElevatorEncoderConfig);
     }

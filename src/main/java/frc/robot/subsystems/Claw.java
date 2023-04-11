@@ -77,10 +77,11 @@ public class Claw extends SubsystemBase {
         clawTiltNeo.brake();
 
         CANCoderConfiguration clawTiltEncoderConfig = new CANCoderConfiguration();
-        clawTiltEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        clawTiltEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         clawTiltEncoderConfig.unitString = "deg";
-        clawTiltEncoderConfig.sensorDirection = false;
-        clawTiltEncoderConfig.sensorCoefficient = 1.0 / 4096.0; // this makes getPosition() return in rotations
+        clawTiltEncoderConfig.sensorDirection = true;
+        clawTiltEncoderConfig.sensorCoefficient = 1.0/4096; // this makes getPosition() return in rotations
+        clawTiltEncoderConfig.magnetOffsetDegrees = -296.806640625;
         clawTiltEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         clawTiltEncoder.configAllSettings(clawTiltEncoderConfig);
     }
