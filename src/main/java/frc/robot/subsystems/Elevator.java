@@ -1,14 +1,16 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.*;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ElevatorControl;
@@ -22,6 +24,7 @@ public class Elevator extends SubsystemBase {
     private final SensorDirectionValue verticalElevatorEncoderR;
     private final TitanMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
+    private final CANCoder horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
@@ -31,6 +34,7 @@ public class Elevator extends SubsystemBase {
                     TalonFX verticalElevatorMotorFollower,
                     InvertedValue verticalElevatorMotorFollowerR,
                     CANcoder verticalElevatorEncoder,
+                    CANCoder horizontalElevatorEncoder,
                     SensorDirectionValue verticalElevatorEncoderR,
                     TitanMAX horizontalElevatorMotor,
                     DigitalInput verticalElevatorLimitSwitch,
@@ -41,6 +45,7 @@ public class Elevator extends SubsystemBase {
         this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
         this.verticalElevatorMotorFollowerR = verticalElevatorMotorFollowerR;
         this.verticalElevatorEncoder = verticalElevatorEncoder;
+        this.horizontalElevatorEncoder = horizontalElevatorEncoder;
         this.verticalElevatorEncoderR = verticalElevatorEncoderR;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
@@ -51,10 +56,6 @@ public class Elevator extends SubsystemBase {
 
         ElevatorControl elevatorControl = new ElevatorControl(this);
         CommandScheduler.getInstance().setDefaultCommand(this, elevatorControl);
-    }
-
-    public void telemetry() {
-        SmartDashboard.putNumber("Elevator Enc", getPosition());
     }
 
     private void configMotor() {
@@ -85,10 +86,15 @@ public class Elevator extends SubsystemBase {
         Follower verticalElevatorFollower = new Follower(verticalElevatorMotor.getDeviceID(), false);
         verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
 
-//        SparkMaxPIDController HEConfig = horizontalElevatorMotor.getPIDController();
-//        HEConfig.setP(0.18);
-//        HEConfig.setFeedbackDevice(horizontalElevatorMotor.getAlternateEncoder(8192));
         horizontalElevatorMotor.brake();
+
+        CANCoderConfiguration horizontalElevatorEncoderConfig = new CANCoderConfiguration();
+        horizontalElevatorEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        horizontalElevatorEncoderConfig.unitString = "deg";
+        horizontalElevatorEncoderConfig.sensorDirection = false;
+        horizontalElevatorEncoderConfig.sensorCoefficient = 1.0 / 4096.0; // this makes getPosition() return in rotations
+        horizontalElevatorEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        horizontalElevatorEncoder.configAllSettings(horizontalElevatorEncoderConfig);
     }
 
     public void setState(Enums.ElevatorState targetState) {
@@ -115,6 +121,10 @@ public class Elevator extends SubsystemBase {
 
     public CANcoder getVerticalElevatorEncoder() {
         return verticalElevatorEncoder;
+    }
+
+    public CANCoder getHorizontalElevatorEncoder() {
+        return horizontalElevatorEncoder;
     }
 
     public TitanMAX getHorizontalElevatorMotor() {

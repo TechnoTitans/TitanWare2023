@@ -7,7 +7,6 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,7 +19,7 @@ import frc.robot.wrappers.motors.TitanSRX;
 public class Claw extends SubsystemBase {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
-    private final CANCoder clawOpenCloseEncoder;
+    private final CANCoder clawOpenCloseEncoder, clawTiltEncoder;
     private final TitanMAX clawTiltNeo;
     private final DigitalInput clawTiltLimitSwitch;
 //    private final ColorSensorV3 colorSensor;
@@ -33,12 +32,14 @@ public class Claw extends SubsystemBase {
                 TitanSRX clawOpenCloseMotor,
                 CANCoder clawOpenCloseEncoder,
                 TitanMAX clawTiltNeo,
+                CANCoder clawTiltEncoder,
                 DigitalInput clawTiltLimitSwitch
 //                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
         this.clawTiltNeo = clawTiltNeo;
+        this.clawTiltEncoder = clawTiltEncoder;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawTiltLimitSwitch = clawTiltLimitSwitch;
@@ -73,14 +74,15 @@ public class Claw extends SubsystemBase {
         clawOpenCloseMotor.configAllSettings(CCConfig);
         clawOpenCloseMotor.brake();
 
-        SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
-        clawTiltPID.setP(5);
-        clawTiltPID.setD(1.5);
-//        clawTiltPID.setOutputRange(-0.5, 0.5);
-        clawTiltPID.setFeedbackDevice(clawTiltNeo.getRevBoreThroughEncoder());
-//        clawTiltNeo.setClosedLoopRampRate(0.2);
-//        clawTiltNeo.currentLimit(50, 30);
         clawTiltNeo.brake();
+
+        CANCoderConfiguration clawTiltEncoderConfig = new CANCoderConfiguration();
+        clawTiltEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        clawTiltEncoderConfig.unitString = "deg";
+        clawTiltEncoderConfig.sensorDirection = false;
+        clawTiltEncoderConfig.sensorCoefficient = 1.0 / 4096.0; // this makes getPosition() return in rotations
+        clawTiltEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        clawTiltEncoder.configAllSettings(clawTiltEncoderConfig);
     }
 
     public void setState(Enums.ClawState state) {
@@ -121,6 +123,10 @@ public class Claw extends SubsystemBase {
 
     public TitanMAX getClawTiltNeo() {
         return clawTiltNeo;
+    }
+
+    public CANCoder getClawTiltEncoder() {
+        return clawTiltEncoder;
     }
 
     public DigitalInput getClawTiltLimitSwitch() {

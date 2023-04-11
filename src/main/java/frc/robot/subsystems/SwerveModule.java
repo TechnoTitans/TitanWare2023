@@ -28,7 +28,7 @@ public class SwerveModule extends SubsystemBase {
     private final CANCoder turnEncoder;
     private final double magnetOffset;
     private final InvertedValue invertedValue;
-    private final VelocityVoltage velocityDutyCycle;
+    private final VelocityVoltage voltageVelocity;
 
     public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, InvertedValue invertedValue, double magnetOffset) {
         this.driveMotor = driveMotor;
@@ -39,7 +39,7 @@ public class SwerveModule extends SubsystemBase {
 
         config();
 
-        this.velocityDutyCycle = new VelocityVoltage(0, true, 0, 0, false);
+        this.voltageVelocity = new VelocityVoltage(0, true, 0, 0, false);
     }
 
     private void config() {
@@ -104,7 +104,7 @@ public class SwerveModule extends SubsystemBase {
         double current_ticks = turnMotor.getSelectedSensorPosition();
         double desired_turner_ticks = current_ticks + delta_ticks;
 
-        driveMotor.setControl(velocityDutyCycle.withVelocity(desired_driver_velocity));
+        driveMotor.setControl(voltageVelocity.withVelocity(desired_driver_velocity));
         turnMotor.set(TalonFXControlMode.Position, desired_turner_ticks);
     }
 
@@ -114,7 +114,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void manualVelocityControl(double rps) {
-        driveMotor.setControl(velocityDutyCycle.withVelocity(rps));
+        driveMotor.setControl(voltageVelocity.withVelocity(rps));
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
