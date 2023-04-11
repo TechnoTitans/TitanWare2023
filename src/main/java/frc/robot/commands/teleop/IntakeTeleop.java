@@ -54,7 +54,8 @@ public class IntakeTeleop extends CommandBase {
                         new InstantCommand(() -> elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY))
                 ).schedule();
             }
-        } else if (coController.getBButton()) {
+        }
+        else if (coController.getBButton()) {
             elevator.setState(Enums.ElevatorState.SINGLE_SUB);
             claw.setState(Enums.ClawState.SINGLE_SUB);
         }
