@@ -1,12 +1,12 @@
 package frc.robot.commands.subsystems;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenixpro.controls.DutyCycleOut;
 import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.controls.PositionVoltage;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -18,12 +18,12 @@ public class ElevatorControl extends CommandBase {
     private final Elevator elevator;
     private final TalonFX verticalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
+    private final CANCoder horizontalElevatorEncoder;
     private final TitanMAX horizontalElevatorMotor;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     private Enums.ElevatorState currentState;
     private final PIDController horizontalElevatorPID;
-    private final RelativeEncoder horizontalElevatorEncoder;
 
     private final PositionVoltage positionVoltage;
     private final MotionMagicVoltage motionMagicVoltage;
@@ -41,13 +41,13 @@ public class ElevatorControl extends CommandBase {
         this.elevator = elevator;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
         this.verticalElevatorEncoder = elevator.getVerticalElevatorEncoder();
+        this.horizontalElevatorEncoder = elevator.getHorizontalElevatorEncoder();
         this.horizontalElevatorMotor = elevator.getHorizontalElevatorMotor();
         this.verticalElevatorLimitSwitch = elevator.getVerticalLimitSwitch();
         this.horizontalElevatorLimitSwitch = elevator.getHorizontalLimitSwitch();
         this.elevatorHorizontalHighLimitSwitch = elevator.getHorizontalHighLimitSwitch();
 
         this.horizontalElevatorPID = new PIDController(0.3, 0, 0);
-        this.horizontalElevatorEncoder = horizontalElevatorMotor.getAlternateEncoder(8192);
 
         this.positionVoltage = new PositionVoltage(0, true, 0, 0, false);
         this.motionMagicVoltage = new MotionMagicVoltage(0, true, 0, 0, false);

@@ -74,6 +74,7 @@ public interface RobotMap {
     int followerVerticalFalcon = 11;
     InvertedValue followerVerticalFalconR = InvertedValue.Clockwise_Positive;
     int verticalElevatorEncoder = 12;
+    int horizontalElevatorEncoder = 13;
     SensorDirectionValue verticalElevatorEncoderR = SensorDirectionValue.CounterClockwise_Positive;
     int horizontalElevatorNeo = 2;
     int verticalLimitSwitch = 6;
@@ -85,6 +86,7 @@ public interface RobotMap {
     int clawOpenCloseMotor = 6;
     boolean clawOpenCloseMotorR = false;
     int clawOpenCloseEncoder = 9;
+    int clawTiltEncoder = 14;
     int clawLimitSwitch = 7;
 
     int clawMainWheelsMotor = 7;

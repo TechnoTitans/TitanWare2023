@@ -17,6 +17,11 @@ public class Enums {
         DUTY_CYCLE
     }
 
+    public enum ClawMode {
+        POSITION,
+        DUTY_CYCLE
+    }
+
     public enum ClawState {
         CLAW_OUTTAKE, //Claw shoot cube
         CLAW_OUTTAKE_HYBIRD, //Claw shoot cube
