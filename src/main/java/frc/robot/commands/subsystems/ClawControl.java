@@ -33,7 +33,7 @@ public class ClawControl extends CommandBase {
         this.clawTiltNeo = claw.getClawTiltNeo();
         this.clawTiltEncoder = claw.getClawTiltEncoder();
 
-        this.tiltPID = new PIDController(5, 0, 1.5);
+        this.tiltPID = new PIDController(3.2, 0, 0);
 
         addRequirements(claw);
     }
@@ -71,7 +71,7 @@ public class ClawControl extends CommandBase {
             case CLAW_INTAKING_CONE:
                 speed = 0.5;
                 clawMode = Enums.ClawMode.POSITION;
-                tiltRotations = .27;
+                tiltRotations = .3;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 100;
                 break;

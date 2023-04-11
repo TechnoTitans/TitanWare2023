@@ -135,23 +135,23 @@ public class ElevatorControl extends CommandBase {
             VESwitchFlag = false;
         }
 
-        switch (elevatorMode) {
-            case POSITION:
-                verticalElevatorMotor.setControl(
-                        positionVoltage.withPosition(VEPosition)
-                );
-                break;
-            case MOTION_MAGIC:
-                verticalElevatorMotor.setControl(
-                        motionMagicVoltage.withPosition(VEPosition)
-                );
-                break;
-            case DUTY_CYCLE:
-                verticalElevatorMotor.setControl(
-                        dutyCycleOut.withOutput(VEPosition)
-                );
-                break;
-        }
+//        switch (elevatorMode) {
+//            case POSITION:
+//                verticalElevatorMotor.setControl(
+//                        positionVoltage.withPosition(VEPosition)
+//                );
+//                break;
+//            case MOTION_MAGIC:
+//                verticalElevatorMotor.setControl(
+//                        motionMagicVoltage.withPosition(VEPosition)
+//                );
+//                break;
+//            case DUTY_CYCLE:
+//                verticalElevatorMotor.setControl(
+//                        dutyCycleOut.withOutput(VEPosition)
+//                );
+//                break;
+//        }
 
         if (horizontalPositionalControl) {
             horizontalElevatorMotor.set(
