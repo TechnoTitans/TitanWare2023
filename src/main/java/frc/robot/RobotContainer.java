@@ -199,7 +199,7 @@ public class RobotContainer {
         photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
         photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonDriverCam = new PhotonDriverCam(photonDriveCamera);
-        photonApriltagCam = new PhotonCameraWrapper(photonApriltagCamera);
+        photonApriltagCam = new PhotonCameraWrapper(photonApriltagCamera, swerve, poseEstimator, field);
 
         //LEDS
         cANdle = new CANdle(RobotMap.CANdle_ID);

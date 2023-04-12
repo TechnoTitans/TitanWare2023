@@ -12,10 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
-import org.photonvision.EstimatedRobotPose;
 
 import java.io.File;
-import java.util.Optional;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
@@ -29,28 +27,9 @@ public class Robot extends TimedRobot {
         robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
     }
 
-    private void updatePose() {
-        robotContainer.poseEstimator.update(
-                robotContainer.swerve.getRotation2d(),
-                robotContainer.swerve.getModulePositions());
-
-        Optional<EstimatedRobotPose> result = robotContainer.photonApriltagCam.getEstimatedGlobalPose(
-                        robotContainer.poseEstimator.getEstimatedPosition());
-
-        if (!DriverStation.isAutonomous() && result.isPresent()) {
-            EstimatedRobotPose camPose = result.get();
-            robotContainer.poseEstimator.addVisionMeasurement(
-                    camPose.estimatedPose.toPose2d(),
-
-                    camPose.timestampSeconds);
-        }
-        robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
-    }
-
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        updatePose();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
         SmartDashboard.putNumber("tiltenc", robotContainer.elevatorHorizontalEncoder.getPosition());
@@ -95,10 +74,6 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-
-//        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
-            robotContainer.photonApriltagCam.loadTags();
-//        }
 
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
         robotContainer.elevatorTeleop.schedule();
