@@ -20,6 +20,7 @@ public class PhotonApriltags extends SubsystemBase {
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d;
     private final PhotonRunnable photonEstimator;
+    private final Notifier photonNotifier;
     private AprilTagFieldLayout fieldLayout;
     private PhotonPoseEstimator photonPoseEstimator;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
@@ -32,10 +33,9 @@ public class PhotonApriltags extends SubsystemBase {
 
         this.photonEstimator = new PhotonRunnable(apriltagCamera);
 
-        try (Notifier photonNotifier = new Notifier(photonEstimator)) {
-            photonNotifier.setName("PhotonRunnable");
-            photonNotifier.startPeriodic(0.02);
-        }
+        photonNotifier = new Notifier(photonEstimator);
+        photonNotifier.setName("PhotonRunnable");
+        photonNotifier.startPeriodic(0.02);
     }
 
     public void refreshAlliance() {

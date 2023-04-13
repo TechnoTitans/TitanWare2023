@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
 import org.photonvision.EstimatedRobotPose;
@@ -34,7 +35,7 @@ public class PhotonRunnable implements Runnable {
                     layout,
                     PoseStrategy.MULTI_TAG_PNP,
                     apriltagCamera,
-                    RobotMap.robotToCam.inverse());
+                    Constants.Vision.robotToCam);
 
             photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         } catch (IOException e) {
@@ -48,7 +49,7 @@ public class PhotonRunnable implements Runnable {
         if (photonPoseEstimator != null && apriltagCamera != null && !RobotState.isAutonomous()) {
             PhotonPipelineResult photonResults = apriltagCamera.getLatestResult();
             if (photonResults.hasTargets()
-                    && (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < 0.2)) {
+                    && (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < Constants.Vision.singleTagMaxAmbiguity)) {
                 photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {
                     Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
                     if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Constants.Grid.FIELD_LENGTH_METERS

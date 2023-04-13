@@ -12,6 +12,8 @@ public class IntakeTeleop extends CommandBase {
     private final XboxController mainController;
     private final XboxController coController;
 
+    private boolean hasLoweredAfter = false;
+
     public IntakeTeleop(Claw claw, Elevator elevator, XboxController mainController, XboxController coController) {
         this.claw = claw;
         this.elevator = elevator;
@@ -22,6 +24,7 @@ public class IntakeTeleop extends CommandBase {
 
     @Override
     public void initialize() {
+        hasLoweredAfter = false;
     }
 
     @Override
@@ -65,20 +68,30 @@ public class IntakeTeleop extends CommandBase {
         } else if (coController.getBButton()) {
             elevator.setState(Enums.ElevatorState.SINGLE_SUB);
             claw.setState(Enums.ClawState.SINGLE_SUB);
-        } else if (claw.getTargetState() == Enums.ClawState.CLAW_ANGLE_SHOOT && coController.getRightBumper()) {
+        } else if (hasLoweredAfter && coController.getRightBumper()) {
             new SequentialCommandGroup(
                     new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_LOW)),
-                    new WaitCommand(0.3),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
+                    new WaitCommand(0.4),
+                    new InstantCommand(() -> {
+                        claw.setState(Enums.ClawState.CLAW_STANDBY);
+                        hasLoweredAfter = false;
+                    })
             ).schedule();
-        } else if (claw.getTargetState() == Enums.ClawState.CLAW_ANGLE_SHOOT && coController.getLeftBumper()) {
+        } else if (hasLoweredAfter && coController.getLeftBumper()) {
             new SequentialCommandGroup(
                     new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH)),
-                    new WaitCommand(0.3),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
+                    new WaitCommand(0.4),
+                    new InstantCommand(() -> {
+                        claw.setState(Enums.ClawState.CLAW_STANDBY);
+                        hasLoweredAfter = false;
+                    })
             ).schedule();
         } else if (coController.getLeftBumper()) {
-            claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT);
+            new SequentialCommandGroup(
+                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
+                    new WaitCommand(0.5),
+                    new InstantCommand(() -> hasLoweredAfter = true)
+            ).schedule();
         } else if (coController.getRightBumper()) {
             new SequentialCommandGroup(
                     new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_DROP)),
