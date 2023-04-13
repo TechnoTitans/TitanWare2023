@@ -32,7 +32,7 @@ public interface RobotMap {
     Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1) ; // Units.degreesToRadians(5)
     //Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
     // less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
-    Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);; // Units.degreesToRadians(10)
+    Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5); // Units.degreesToRadians(10)
 
 
     //Canivore

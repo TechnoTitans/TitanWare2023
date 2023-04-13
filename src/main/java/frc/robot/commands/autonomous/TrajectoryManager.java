@@ -180,7 +180,7 @@ class TrajectoryFollower extends CommandBase {
                         sequentialCommands.add(new InstantCommand(() -> elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()))));
                         break;
                     case "autobalance":
-                        sequentialCommands.add(new AutoBalance(swerve, sample.holonomicRotation.getDegrees()));
+                        sequentialCommands.add(new AutoBalance(swerve));
                         break;
                     case "wait":
                         sequentialCommands.add(new WaitCommand(Double.parseDouble(args[1])));

@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("ALL")
 public interface Constants {
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in

@@ -57,7 +57,6 @@ public class ElevatorControl extends CommandBase {
     }
 
     private void setState(Enums.ElevatorState state) {
-        //TODO TUNE THIS
         this.currentState = state;
         this.elevatorMode = Enums.ElevatorMode.POSITION;
         switch (state) {

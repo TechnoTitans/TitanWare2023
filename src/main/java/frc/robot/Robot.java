@@ -57,11 +57,6 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-
-        if (robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH ||
-                robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_MID) {
-            System.out.println(DriverStation.getMatchType().toString() + "(" + DriverStation.getMatchTime() + "): " + robotContainer.poseEstimator.getEstimatedPosition());
-        }
     }
 
     @Override
@@ -104,7 +99,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-//        robotContainer.elevatorVerticalMotorMain.set(1);
     }
 
     @Override

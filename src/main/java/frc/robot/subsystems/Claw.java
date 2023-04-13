@@ -22,7 +22,6 @@ public class Claw extends SubsystemBase {
     private final CANCoder clawOpenCloseEncoder, clawTiltEncoder;
     private final TitanMAX clawTiltNeo;
     private final DigitalInput clawTiltLimitSwitch;
-//    private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
     private Enums.ClawState targetState;
@@ -34,7 +33,6 @@ public class Claw extends SubsystemBase {
                 TitanMAX clawTiltNeo,
                 CANCoder clawTiltEncoder,
                 DigitalInput clawTiltLimitSwitch
-//                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
@@ -43,7 +41,6 @@ public class Claw extends SubsystemBase {
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawTiltLimitSwitch = clawTiltLimitSwitch;
-//        this.colorSensor = colorSensor;
 
         configMotor();
 
@@ -67,7 +64,7 @@ public class Claw extends SubsystemBase {
 
         clawOpenCloseMotor.configFactoryDefault();
         TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
-        CCConfig.slot0.kP = 2; //TODO: TUNE ALL OF THESE  //1.3
+        CCConfig.slot0.kP = 2;
         CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
@@ -93,18 +90,6 @@ public class Claw extends SubsystemBase {
     public boolean isAtWantedState() {
         return clawControl.isAtWantedState();
     }
-
-//    public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS
-//        if (colorSensor.getProximity() < 800) {
-//            return Enums.CurrentGamePiece.NONE;
-//        } else if (colorSensor.getColor().blue > 100) {
-//            return Enums.CurrentGamePiece.CUBE;
-//        } else if (colorSensor.getProximity() > 800) {
-//            return Enums.CurrentGamePiece.CONE;
-//        } else {
-//            return Enums.CurrentGamePiece.NONE;
-//        }
-//    }
 
     public Enums.ClawState getTargetState() {
         return targetState;
