@@ -43,7 +43,6 @@ public class SwerveModule extends SubsystemBase {
     }
 
     private void config() {
-        //TODO MAKE SURE SENSORS ARE CCW+ AND GYRO IS CCW+
         CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
         canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         canCoderConfiguration.unitString = "deg";
@@ -72,8 +71,6 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.slot0.kI = 0;
         turnerConfig.slot0.kD = 0;
         turnerConfig.slot0.kF = 0;
-//        turnerConfig.closedloopRamp = 0.1;
-//        turnerConfig.neutralDeadband = 0.07;
         turnerConfig.peakOutputForward = 0.5;
         turnerConfig.peakOutputReverse = -0.5;
         turnerConfig.remoteFilter0.remoteSensorDeviceID = turnEncoder.getDeviceID();
@@ -96,7 +93,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void setDesiredState(SwerveModuleState state) {
-        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle()); // TODO: CHECK THIS
+        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle());
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         double desired_driver_velocity = wantedState.speedMetersPerSecond / (2 * Math.PI * Constants.Modules.WHEEL_RADIUS);
         Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);

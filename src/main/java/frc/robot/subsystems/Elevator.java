@@ -101,10 +101,6 @@ public class Elevator extends SubsystemBase {
         currentState = targetState;
     }
 
-//    public boolean isAtWantedState() {
-//        return elevatorControl.isAtWantedState();
-//    }
-
     public Enums.ElevatorState getTargetState() {
         return currentState;
     }

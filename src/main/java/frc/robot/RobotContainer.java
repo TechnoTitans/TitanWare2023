@@ -75,7 +75,6 @@ public class RobotContainer {
 
     //Sensors
     public final Pigeon2 pigeon;
-//    public final ColorSensorV3 clawColorSensor;
 
     //Vision
     public final PhotonCamera photonDriveCamera, photonApriltagCamera;
@@ -137,7 +136,6 @@ public class RobotContainer {
         backRightEncoder = new CANCoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
         frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 116.63);
         frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, -60.12);
         backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, -163.39);
@@ -165,14 +163,13 @@ public class RobotContainer {
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
-//        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
         elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, elevatorHorizontalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltEncoder, clawTiltLimitSwitch);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), //front left //TODO: TUNE THESE
+                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), //front left
                 new Translation2d(Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2), // front right
                 new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), // back left
                 new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2)); //back right //in meters, swerve modules relative to the center of robot
@@ -223,12 +220,13 @@ public class RobotContainer {
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator);
 
-        //SmartDashboard
+        //Driver Profile Selector
         profileChooser = new SendableChooser<>();
         profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.DRIVER1);
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
+        //Autonomous Selector
         autoChooser = new SendableChooser<>();
         autoChooser.setDefaultOption("DropAndMobility", trajectoryManager.getCommand("DropAndMobility"));
         autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack", 2, 1));
