@@ -80,10 +80,6 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
-
-//        if (robotContainer.photonApriltagCam.robotOriginMatchesAlliance()) {
-//            robotContainer.photonApriltagCam.loadTags();
-//        }
     }
 
     @Override
@@ -92,6 +88,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        robotContainer.photonApriltags.refreshAlliance();
+
         //Set Profile
         Profiler.setProfile(robotContainer.profileChooser.getSelected());
 
