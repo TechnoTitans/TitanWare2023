@@ -41,7 +41,12 @@ public interface Constants {
         Translation2d RIGHTTOP = new Translation2d(3.35, 1.89);
 
         double DISTANCE_FROM_GRID = 1.83;
-        double FIELD_WIDTH_METERS = 8.02;
+        double FIELD_LENGTH_METERS = 16.54175;
+        double FIELD_WIDTH_METERS = 8.0137;
+
+        Pose2d FLIPPING_POSE = new Pose2d(
+                new Translation2d(FIELD_LENGTH_METERS, FIELD_WIDTH_METERS),
+                new Rotation2d(Math.PI));
 
         interface LEFT {
             Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 4.98), Rotation2d.fromDegrees(180));

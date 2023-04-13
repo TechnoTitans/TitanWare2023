@@ -45,6 +45,10 @@ public class MathMethods {
                 currentPose.getTranslation().getY() > point1.getY() && currentPose.getTranslation().getY() < point2.getY();
     }
 
+    public static Pose2d flipAlliancePose(Pose2d poseToFlip) {
+        return poseToFlip.relativeTo(Constants.Grid.FLIPPING_POSE);
+    }
+
     public static Pose2d transformPose(Pose2d originalPose) {
         if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
             return new Pose2d(

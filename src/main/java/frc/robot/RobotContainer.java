@@ -35,7 +35,7 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
-import frc.robot.wrappers.sensors.vision.PhotonCameraWrapper;
+import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
 
@@ -80,7 +80,7 @@ public class RobotContainer {
     //Vision
     public final PhotonCamera photonDriveCamera, photonApriltagCamera;
     public final PhotonDriverCam photonDriverCam;
-    public final PhotonCameraWrapper photonApriltagCam;
+    public final PhotonApriltags photonApriltagCam;
 
     //Candle
     public final CANdle cANdle;
@@ -197,9 +197,10 @@ public class RobotContainer {
 
         //Vision
         photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
-        photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonDriverCam = new PhotonDriverCam(photonDriveCamera);
-        photonApriltagCam = new PhotonCameraWrapper(photonApriltagCamera, swerve, poseEstimator, field);
+
+        photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
+        photonApriltagCam = new PhotonApriltags(photonApriltagCamera, swerve, poseEstimator, field);
 
         //LEDS
         cANdle = new CANdle(RobotMap.CANdle_ID);
