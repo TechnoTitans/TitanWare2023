@@ -18,10 +18,10 @@ public class PhotonApriltags extends SubsystemBase {
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d;
+    private final PhotonRunnable photonEstimator;
     private AprilTagFieldLayout fieldLayout;
     private PhotonPoseEstimator photonPoseEstimator;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
-    private final PhotonRunnable photonEstimator;
 
     public PhotonApriltags(PhotonCamera apriltagCamera, Swerve swerve, SwerveDrivePoseEstimator poseEstimator, Field2d field2d) {
         apriltagCamera.setDriverMode(false);
@@ -60,15 +60,15 @@ public class PhotonApriltags extends SubsystemBase {
 
     @Override
     public void periodic() {
-        EstimatedRobotPose visionPose = photonEstimator.grabLatestEstimatedPose();
-        if (visionPose != null) {
-            Pose2d pose2d = visionPose.estimatedPose.toPose2d();
+        EstimatedRobotPose estimatedRobotPose = photonEstimator.grabLatestEstimatedPose();
+        if (estimatedRobotPose != null) {
+            Pose2d estimatedPose2d = estimatedRobotPose.estimatedPose.toPose2d();
             if (robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) {
-                pose2d = MathMethods.flipAlliancePose(pose2d);
+                estimatedPose2d = MathMethods.flipAlliancePose(estimatedPose2d);
             }
             poseEstimator.addVisionMeasurement(
-                    pose2d,
-                    visionPose.timestampSeconds
+                    estimatedPose2d,
+                    estimatedRobotPose.timestampSeconds
             );
         }
 
