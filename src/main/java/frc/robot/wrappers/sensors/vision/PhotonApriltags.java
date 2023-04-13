@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.MathMethods;
+import frc.robot.utils.PoseUtils;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -53,7 +54,7 @@ public class PhotonApriltags extends SubsystemBase {
         }
 
         if (allianceChanged) {
-            Pose2d newPose = MathMethods.flipAlliancePose(poseEstimator.getEstimatedPosition());
+            Pose2d newPose = PoseUtils.flipAlliancePose(poseEstimator.getEstimatedPosition());
             poseEstimator.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), newPose);
         }
     }
@@ -64,7 +65,7 @@ public class PhotonApriltags extends SubsystemBase {
         if (estimatedRobotPose != null) {
             Pose2d estimatedPose2d = estimatedRobotPose.estimatedPose.toPose2d();
             if (robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) {
-                estimatedPose2d = MathMethods.flipAlliancePose(estimatedPose2d);
+                estimatedPose2d = PoseUtils.flipAlliancePose(estimatedPose2d);
             }
             poseEstimator.addVisionMeasurement(
                     estimatedPose2d,
@@ -78,7 +79,7 @@ public class PhotonApriltags extends SubsystemBase {
 
         Pose2d dashboardPose = poseEstimator.getEstimatedPosition();
         if (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide) {
-            dashboardPose = MathMethods.flipAlliancePose(dashboardPose);
+            dashboardPose = PoseUtils.flipAlliancePose(dashboardPose);
         }
         field2d.setRobotPose(dashboardPose);
     }

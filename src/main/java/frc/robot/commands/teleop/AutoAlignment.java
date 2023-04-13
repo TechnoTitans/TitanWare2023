@@ -11,6 +11,7 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
+import frc.robot.utils.PoseUtils;
 
 public class AutoAlignment extends CommandBase {
     private final Swerve swerve;
@@ -34,15 +35,15 @@ public class AutoAlignment extends CommandBase {
         Pose2d currentPose = poseEstimator.getEstimatedPosition();
         Pose2d LEFT, CENTER, RIGHT;
 
-        if (MathMethods.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
+        if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
             LEFT = Constants.Grid.LEFT.LEFT;
             CENTER = Constants.Grid.LEFT.CUBE;
             RIGHT = Constants.Grid.LEFT.RIGHT;
-        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) { // CENTER OF GRID
+        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) { // CENTER OF GRID
             LEFT = Constants.Grid.CENTER.LEFT;
             CENTER = Constants.Grid.CENTER.CUBE;
             RIGHT = Constants.Grid.CENTER.RIGHT;
-        } else if (MathMethods.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) { // RIGHT OF GRID
+        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) { // RIGHT OF GRID
             LEFT = Constants.Grid.RIGHT.LEFT;
             CENTER = Constants.Grid.RIGHT.CUBE;
             RIGHT = Constants.Grid.RIGHT.RIGHT;
@@ -64,7 +65,7 @@ public class AutoAlignment extends CommandBase {
                 return;
         }
 
-        targetPose = MathMethods.transformPose(targetPose);
+        targetPose = PoseUtils.transformPose(targetPose);
 
         this.schedule();
     }
