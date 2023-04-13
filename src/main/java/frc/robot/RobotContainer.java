@@ -80,7 +80,7 @@ public class RobotContainer {
     //Vision
     public final PhotonCamera photonDriveCamera, photonApriltagCamera;
     public final PhotonDriverCam photonDriverCam;
-    public final PhotonApriltags photonApriltagCam;
+    public final PhotonApriltags photonApriltags;
 
     //Candle
     public final CANdle cANdle;
@@ -200,7 +200,7 @@ public class RobotContainer {
         photonDriverCam = new PhotonDriverCam(photonDriveCamera);
 
         photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
-        photonApriltagCam = new PhotonApriltags(photonApriltagCamera, swerve, poseEstimator, field);
+        photonApriltags = new PhotonApriltags(photonApriltagCamera, swerve, poseEstimator, field);
 
         //LEDS
         cANdle = new CANdle(RobotMap.CANdle_ID);
