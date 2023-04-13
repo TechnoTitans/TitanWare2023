@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
 /*
@@ -19,8 +18,6 @@ public class TitanFX extends WPI_TalonFX implements MotorController {
 
     private TitanFX brownoutFollower = null;
     private boolean brownout = false;
-
-    private SlewRateLimiter filter;
 
     /**
      * Constructor for a TalonFX motor
@@ -36,12 +33,6 @@ public class TitanFX extends WPI_TalonFX implements MotorController {
     public TitanFX(int channel, boolean reversed, String canBus) {
         super(channel, canBus);
         super.setInverted(reversed);
-    }
-
-    public TitanFX(int channel, boolean reversed, SlewRateLimiter filter) {
-        super(channel);
-        super.setInverted(reversed);
-        this.filter = filter;
     }
 
     /**

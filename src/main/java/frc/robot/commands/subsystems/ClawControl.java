@@ -2,7 +2,8 @@ package frc.robot.commands.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.CANCoder;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Claw;
 import frc.robot.utils.Enums;
@@ -19,7 +20,7 @@ public class ClawControl extends CommandBase {
     private Enums.ClawState currentState;
     private ControlMode openCloseControlMode;
     private Enums.ClawMode clawMode;
-    private final PIDController tiltPID;
+    private final ProfiledPIDController tiltPID;
 
     private double
             speed = 0, //Claw Intake Wheel Speed
@@ -33,7 +34,7 @@ public class ClawControl extends CommandBase {
         this.clawTiltNeo = claw.getClawTiltNeo();
         this.clawTiltEncoder = claw.getClawTiltEncoder();
 
-        this.tiltPID = new PIDController(3.2, 0, 0);
+        this.tiltPID = new ProfiledPIDController(3.2, 0, 0, new TrapezoidProfile.Constraints(3, 5));
 
         addRequirements(claw);
     }
@@ -42,15 +43,15 @@ public class ClawControl extends CommandBase {
         switch (state) {
             case CLAW_HOLDING:
                 speed = 0.2;
-                clawMode = Enums.ClawMode.DUTY_CYCLE;
-                tiltRotations = -0.4;
+                clawMode = Enums.ClawMode.POSITION;
+                tiltRotations = 0;
                 openCloseControlMode = ControlMode.PercentOutput;
                 openCloseControl = -0.37; //-0.37
                 break;
             case CLAW_STANDBY:
                 speed = 0.2;
-                clawMode = Enums.ClawMode.DUTY_CYCLE;
-                tiltRotations = -0.4;
+                clawMode = Enums.ClawMode.POSITION;
+                tiltRotations = 0;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 260;
                 break;
@@ -142,7 +143,7 @@ public class ClawControl extends CommandBase {
                 openCloseControl,
                 5) &&
                 MathMethods.withinRange(
-                        clawTiltNeo.getRevBoreThroughEncoder().getPosition(),
+                        clawTiltEncoder.getPosition(),
                         tiltRotations,
                         5);
     }
@@ -161,9 +162,8 @@ public class ClawControl extends CommandBase {
         }
 
         if (claw.getClawTiltLimitSwitch().get() && clawMode == Enums.ClawMode.DUTY_CYCLE) {
-            clawTiltNeo.getRevBoreThroughEncoder().setPosition(0);
-            clawMode = Enums.ClawMode.POSITION;
-            tiltRotations = 0;
+            clawTiltEncoder.setPosition(0);
+            tiltRotations = 0.1;
         }
 
         clawWheelMotor.set(
@@ -176,7 +176,7 @@ public class ClawControl extends CommandBase {
 
         switch (clawMode) {
             case POSITION:
-                clawTiltNeo.set(tiltPID.calculate(clawTiltEncoder.getPosition(), tiltRotations));
+                clawTiltNeo.set(tiltPID.calculate(clawTiltEncoder.getAbsolutePosition(), tiltRotations));
                 break;
             case DUTY_CYCLE:
                 clawTiltNeo.set(tiltRotations);

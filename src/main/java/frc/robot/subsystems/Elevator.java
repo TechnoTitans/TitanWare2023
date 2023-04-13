@@ -74,8 +74,8 @@ public class Elevator extends SubsystemBase {
         VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         VEConfig.MotorOutput.Inverted = verticalElevatorMotorR;
         VEConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
-        VEConfig.MotionMagic.MotionMagicAcceleration = 50;
-        VEConfig.MotionMagic.MotionMagicJerk = 75;
+        VEConfig.MotionMagic.MotionMagicAcceleration = 25;
+        VEConfig.MotionMagic.MotionMagicJerk = 40;
         verticalElevatorMotor.getConfigurator().apply(VEConfig);
 
         TalonFXConfiguration VEFConfig = new TalonFXConfiguration();

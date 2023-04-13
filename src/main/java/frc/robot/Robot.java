@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -14,10 +17,14 @@ import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 
 import java.io.File;
+import java.util.List;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+
+    private final ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
+    private List<SuppliedValueWidget<Double>> debugEntries;
 
     @Override
     public void robotInit() {
@@ -25,6 +32,24 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
         robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
+        createDebugEntries();
+    }
+
+    private void createDebugEntries() {
+        if (debugEntries != null && debugEntries.size() > 0)
+            for (final SuppliedValueWidget<Double> widget : debugEntries)
+                widget.close();
+
+        debugEntries = List.of(
+                debugTab.addDouble("FL Enc", robotContainer.frontLeftEncoder::getPosition),
+                debugTab.addDouble("FR Enc", robotContainer.frontRightEncoder::getPosition),
+                debugTab.addDouble("BL Enc", robotContainer.backLeftEncoder::getPosition),
+                debugTab.addDouble("BR Enc", robotContainer.backRightEncoder::getPosition),
+                debugTab.addDouble("EVertical Enc", () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue()),
+                debugTab.addDouble("EH Enc", robotContainer.elevatorHorizontalEncoder::getPosition),
+                debugTab.addDouble("Tilt Enc", robotContainer.clawTiltEncoder::getAbsolutePosition),
+                debugTab.addDouble("OpenClose Enc", robotContainer.clawOpenCloseEncoder::getPosition)
+        );
     }
 
     @Override
@@ -32,7 +57,6 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
         SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
-        SmartDashboard.putNumber("tiltenc", robotContainer.elevatorHorizontalEncoder.getPosition());
 
         if (robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH ||
                 robotContainer.elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_MID) {
@@ -92,7 +116,8 @@ public class Robot extends TimedRobot {
         File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
         if (paths == null) return;
         for (File path : paths) {
-            path.delete();
+            boolean deleteSuccess = path.delete();
+            DriverStation.reportWarning(String.format("File Delete %s", deleteSuccess ? "Success" : "Fail"), false);
         }
     }
 

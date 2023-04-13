@@ -18,8 +18,8 @@ public class ElevatorControl extends CommandBase {
     private final Elevator elevator;
     private final TalonFX verticalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
-    private final CANCoder horizontalElevatorEncoder;
     private final TitanMAX horizontalElevatorMotor;
+    private final CANCoder horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     private Enums.ElevatorState currentState;
@@ -63,8 +63,10 @@ public class ElevatorControl extends CommandBase {
         switch (state) {
             case ELEVATOR_EXTENDED_HIGH:
                 VEPosition = 5; //15500
-                horizontalPositionalControl = false;
-                HETargetRotations = 0.25;
+//                horizontalPositionalControl = false;
+                horizontalPositionalControl = true;
+                HETargetRotations = 0.9;
+//                HETargetRotations = 0.25;
                 break;
             case ELEVATOR_EXTENDED_MID:
                 VEPosition = 3.2; //11000
@@ -135,23 +137,23 @@ public class ElevatorControl extends CommandBase {
             VESwitchFlag = false;
         }
 
-//        switch (elevatorMode) {
-//            case POSITION:
-//                verticalElevatorMotor.setControl(
-//                        positionVoltage.withPosition(VEPosition)
-//                );
-//                break;
-//            case MOTION_MAGIC:
-//                verticalElevatorMotor.setControl(
-//                        motionMagicVoltage.withPosition(VEPosition)
-//                );
-//                break;
-//            case DUTY_CYCLE:
-//                verticalElevatorMotor.setControl(
-//                        dutyCycleOut.withOutput(VEPosition)
-//                );
-//                break;
-//        }
+        switch (elevatorMode) {
+            case POSITION:
+                verticalElevatorMotor.setControl(
+                        positionVoltage.withPosition(VEPosition)
+                );
+                break;
+            case MOTION_MAGIC:
+                verticalElevatorMotor.setControl(
+                        motionMagicVoltage.withPosition(VEPosition)
+                );
+                break;
+            case DUTY_CYCLE:
+                verticalElevatorMotor.setControl(
+                        dutyCycleOut.withOutput(VEPosition)
+                );
+                break;
+        }
 
         if (horizontalPositionalControl) {
             horizontalElevatorMotor.set(

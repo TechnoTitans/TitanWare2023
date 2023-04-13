@@ -15,6 +15,8 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -55,6 +57,7 @@ public class PhotonCameraWrapper extends SubsystemBase {
                     apriltagCamera,
                     RobotMap.robotToCam);
             photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
         } catch (IOException e) {
             DriverStation.reportError("Failed to load AprilTagFieldLayout", e.getStackTrace());
             photonPoseEstimator = null;
@@ -63,19 +66,19 @@ public class PhotonCameraWrapper extends SubsystemBase {
 
     @Override
     public void periodic() {
-        var pipelineResult = apriltagCamera.getLatestResult();
-        var resultTimestamp = pipelineResult.getTimestampSeconds();
+        final PhotonPipelineResult pipelineResult = apriltagCamera.getLatestResult();
+        final double resultTimestamp = pipelineResult.getTimestampSeconds();
         if (!DriverStation.isAutonomous() && resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
             previousPipelineTimestamp = resultTimestamp;
-            var target = pipelineResult.getBestTarget();
-            var fiducialId = target.getFiducialId();
+            final PhotonTrackedTarget target = pipelineResult.getBestTarget();
+            final int fiducialId = target.getFiducialId();
             Optional<Pose3d> tagPose = fieldLayout == null ? Optional.empty() : fieldLayout.getTagPose(fiducialId);
-            if (target.getPoseAmbiguity() <= .2 && fiducialId >= 0 && tagPose.isPresent()) {
-                var targetPose = tagPose.get();
-                Transform3d camToTarget = target.getBestCameraToTarget();
-                Pose3d camPose = targetPose.transformBy(camToTarget.inverse());
+            if (target.getPoseAmbiguity() <= 0.2 && fiducialId >= 0 && tagPose.isPresent()) {
+                final Pose3d targetPose = tagPose.get();
+                final Transform3d camToTarget = target.getBestCameraToTarget();
+                final Pose3d camPose = targetPose.transformBy(camToTarget.inverse());
+                final Pose3d visionMeasurement = camPose.transformBy(RobotMap.robotToCam);
 
-                var visionMeasurement = camPose.transformBy(RobotMap.robotToCam);
                 poseEstimator.addVisionMeasurement(visionMeasurement.toPose2d(), resultTimestamp);
             }
         }
