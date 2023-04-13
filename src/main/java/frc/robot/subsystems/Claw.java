@@ -72,6 +72,7 @@ public class Claw extends SubsystemBase {
         clawOpenCloseMotor.brake();
 
         clawTiltNeo.brake();
+        clawTiltNeo.currentLimit(25);
 
         CANCoderConfiguration clawTiltEncoderConfig = new CANCoderConfiguration();
         clawTiltEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;

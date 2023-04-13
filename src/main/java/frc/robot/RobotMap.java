@@ -17,23 +17,10 @@ public interface RobotMap {
 
     //Sensors
     int PIGEON_ID = 1;
-//    I2C.Port CLAW_COLOR_SENSOR = I2C.Port.kOnboard;
 
     //Vision
     String PhotonVision_Driver_Cam = "drivercam1";
     String PhotonVision_AprilTag_Cam = "apriltag1";
-    Transform3d robotToCam = new Transform3d( //x, y, z
-                    new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(-12.625), Units.inchesToMeters(25)),
-                    new Rotation3d(0, 0, 0));
-    // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-
-    // Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
-    // matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then meters.
-    Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1) ; // Units.degreesToRadians(5)
-    //Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
-    // less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
-    Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5); // Units.degreesToRadians(10)
-
 
     //Canivore
     int CANIVORE_ID = 1;

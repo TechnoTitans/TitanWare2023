@@ -136,10 +136,10 @@ public class RobotContainer {
         backRightEncoder = new CANCoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 116.63);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, -60.12);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, -163.39);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, -78.40);
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 113.90625);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, -62.05078125);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, 16.435546875);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, -78.662109375);
 
         //Elevator Motors
         elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
@@ -181,8 +181,8 @@ public class RobotContainer {
                 swerve.getRotation2d(),
                 swerve.getModulePositions(),
                 new Pose2d(),
-                RobotMap.stateStdDevs,
-                RobotMap.visionMeasurementStdDevs
+                Constants.Vision.stateStdDevs,
+                Constants.Vision.visionMeasurementStdDevs
         );
         field = new Field2d();
 
@@ -205,7 +205,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, oi.getXboxMain());
-        autoAlignment = new AutoAlignment(swerve, poseEstimator, oi.getXboxMain());
+        autoAlignment = new AutoAlignment(swerve, poseEstimator, oi.getXboxMain(), field);
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
         elevatorTeleop = new ElevatorTeleop(elevator, claw, oi.getXboxCo());
 

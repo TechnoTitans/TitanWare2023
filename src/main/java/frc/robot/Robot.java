@@ -31,7 +31,6 @@ public class Robot extends TimedRobot {
         robotContainer = new RobotContainer();
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
-        robotContainer.field.getObject("robot").setPose(robotContainer.poseEstimator.getEstimatedPosition());
         createDebugEntries();
     }
 
@@ -41,10 +40,10 @@ public class Robot extends TimedRobot {
                 widget.close();
 
         debugEntries = List.of(
-                debugTab.addDouble("FL Enc", robotContainer.frontLeftEncoder::getPosition),
-                debugTab.addDouble("FR Enc", robotContainer.frontRightEncoder::getPosition),
-                debugTab.addDouble("BL Enc", robotContainer.backLeftEncoder::getPosition),
-                debugTab.addDouble("BR Enc", robotContainer.backRightEncoder::getPosition),
+                debugTab.addDouble("FL Enc", robotContainer.frontLeftEncoder::getAbsolutePosition),
+                debugTab.addDouble("FR Enc", robotContainer.frontRightEncoder::getAbsolutePosition),
+                debugTab.addDouble("BL Enc", robotContainer.backLeftEncoder::getAbsolutePosition),
+                debugTab.addDouble("BR Enc", robotContainer.backRightEncoder::getAbsolutePosition),
                 debugTab.addDouble("EVertical Enc", () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue()),
                 debugTab.addDouble("EH Enc", robotContainer.elevatorHorizontalEncoder::getPosition),
                 debugTab.addDouble("Tilt Enc", robotContainer.clawTiltEncoder::getAbsolutePosition),

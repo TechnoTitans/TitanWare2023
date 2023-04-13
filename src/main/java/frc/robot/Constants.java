@@ -1,8 +1,9 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 @SuppressWarnings("ALL")
@@ -30,6 +31,17 @@ public interface Constants {
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 1;
+    }
+
+    interface Vision {
+        Transform3d robotToCam = new Transform3d( //x, y, z
+                new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(-12.625), Units.inchesToMeters(25)),
+                new Rotation3d(0, 0, 0));
+        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+        Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+        Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
+        double singleTagMaxAmbiguity = 0.2;
     }
 
     interface Grid {
