@@ -41,7 +41,6 @@ public class Swerve extends SubsystemBase {
         return pigeon.getRoll();
     }
 
-
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getHeading());
     }
@@ -162,5 +161,25 @@ public class Swerve extends SubsystemBase {
         frontRight.manualVelocityControl(velocityTicksPer100ms);
         backLeft.manualVelocityControl(velocityTicksPer100ms);
         backRight.manualVelocityControl(velocityTicksPer100ms);
+    }
+
+    @Log(name = "FL Enc", tabName = "Debug", columnIndex = 1, rowIndex = 1)
+    private double frontLeftAngle() {
+        return frontLeft.getAngle();
+    }
+
+    @Log(name = "FR Enc", tabName = "Debug", columnIndex = 2, rowIndex = 1)
+    private double frontRightAngle() {
+        return frontRight.getAngle();
+    }
+
+    @Log(name = "BL Enc", tabName = "Debug", columnIndex = 1, rowIndex = 2)
+    private double backLeftAngle() {
+        return backLeft.getAngle();
+    }
+
+    @Log(name = "BR Enc", tabName = "Debug", columnIndex = 2, rowIndex = 2)
+    private double backRightAngle() {
+        return backRight.getAngle();
     }
 }
