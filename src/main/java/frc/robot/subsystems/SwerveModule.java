@@ -20,7 +20,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.wrappers.motors.TitanFX;
-import io.github.oblarg.oblog.annotations.Log;
 
 @SuppressWarnings("unused")
 public class SwerveModule extends SubsystemBase {
