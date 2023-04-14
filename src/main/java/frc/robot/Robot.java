@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
+import frc.robot.utils.TitanBoard;
 
 import java.io.File;
 import java.util.List;
@@ -23,39 +24,36 @@ public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
 
-    private final ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
-    private List<SuppliedValueWidget<Double>> debugEntries;
-
     @Override
     public void robotInit() {
         robotContainer = new RobotContainer();
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
-        createDebugEntries();
-    }
 
-    private void createDebugEntries() {
-        if (debugEntries != null && debugEntries.size() > 0)
-            for (final SuppliedValueWidget<Double> widget : debugEntries)
-                widget.close();
-
-        debugEntries = List.of(
-                debugTab.addDouble("FL Enc", robotContainer.frontLeftEncoder::getAbsolutePosition),
-                debugTab.addDouble("FR Enc", robotContainer.frontRightEncoder::getAbsolutePosition),
-                debugTab.addDouble("BL Enc", robotContainer.backLeftEncoder::getAbsolutePosition),
-                debugTab.addDouble("BR Enc", robotContainer.backRightEncoder::getAbsolutePosition),
-                debugTab.addDouble("EVertical Enc", () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue()),
-                debugTab.addDouble("EH Enc", robotContainer.elevatorHorizontalEncoder::getPosition),
-                debugTab.addDouble("Tilt Enc", robotContainer.clawTiltEncoder::getAbsolutePosition),
-                debugTab.addDouble("OpenClose Enc", robotContainer.clawOpenCloseEncoder::getPosition)
+        TitanBoard.addDouble("Yaw", robotContainer.swerve::getHeading);
+        TitanBoard.addDouble("Pitch", robotContainer.swerve::getPitch);
+        TitanBoard.addEncoder("EVertical Enc",
+                () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue(),
+                () -> robotContainer.elevatorVerticalEncoder.getVelocity().getValue()
         );
+        TitanBoard.addEncoder("EHorizontal Enc",
+                robotContainer.elevatorHorizontalEncoder::getPosition, robotContainer.elevatorHorizontalEncoder::getVelocity
+        );
+        TitanBoard.addEncoder("Tilt Enc",
+                robotContainer.clawTiltEncoder::getAbsolutePosition, robotContainer.clawTiltEncoder::getVelocity
+        );
+        TitanBoard.addEncoder("OpenClose Enc",
+                robotContainer.clawOpenCloseEncoder::getPosition, robotContainer.clawOpenCloseEncoder::getVelocity
+        );
+
+        TitanBoard.addSwerve("Swerve", robotContainer.swerve);
+
+        TitanBoard.start();
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
     }
 
     @Override
