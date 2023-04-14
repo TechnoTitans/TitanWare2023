@@ -36,7 +36,6 @@ import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
-import io.github.oblarg.oblog.Logger;
 import io.github.oblarg.oblog.annotations.Log;
 import org.photonvision.PhotonCamera;
 
@@ -126,9 +125,6 @@ public class RobotContainer {
     public final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        //Logger
-        Logger.configureLoggingAndConfig(this, false);
-
         //OI
         oi = new OI();
 
@@ -260,6 +256,7 @@ public class RobotContainer {
         autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
         autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
 
+        //Create Button Bindings
         configureButtonBindings();
     }
 
