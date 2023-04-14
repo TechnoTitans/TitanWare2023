@@ -27,7 +27,7 @@ public class PoseUtils {
                 : poseToFlip;
     }
 
-    public static Pose2d localizeRobotPoseOnBlueAlliance(final Pose2d originalPose) {
+    public static Pose2d localizeRobotPoseOnBlueAlliance(Pose2d originalPose) {
         return DriverStation.getAlliance() == DriverStation.Alliance.Red
                         ? new Pose2d(
                             originalPose.getX(),
@@ -36,7 +36,7 @@ public class PoseUtils {
                         : originalPose;
     }
 
-    public static Pose2d transformGridPose(final Pose2d originalPose) {
+    public static Pose2d transformGridPose(Pose2d originalPose) {
         return DriverStation.getAlliance() == DriverStation.Alliance.Red
                 ? new Pose2d(
                     Constants.Grid.FIELD_LENGTH_METERS - originalPose.getX(),
