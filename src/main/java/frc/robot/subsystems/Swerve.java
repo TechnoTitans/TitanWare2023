@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import io.github.oblarg.oblog.annotations.Log;
 
 import java.util.function.Consumer;
 
@@ -26,10 +27,12 @@ public class Swerve extends SubsystemBase {
         this.backRight = backRight;
     }
 
+    @Log(name = "Yaw")
     public double getHeading() {
         return pigeon.getYaw();
     }
 
+    @Log(name = "Pitch")
     public double getPitch() {
         return pigeon.getPitch();
     }

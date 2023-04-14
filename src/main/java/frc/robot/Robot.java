@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
+import io.github.oblarg.oblog.Logger;
 
 import java.io.File;
 import java.util.List;
@@ -23,15 +23,15 @@ public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
 
-    private final ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
+    private static final ShuffleboardTab mainTab = Shuffleboard.getTab("Main");
+    private static final ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
     private List<SuppliedValueWidget<Double>> debugEntries;
 
     @Override
     public void robotInit() {
         robotContainer = new RobotContainer();
         robotContainer.swerve.brake();
-        SmartDashboard.putData("Field", robotContainer.field);
-        createDebugEntries();
+//        createDebugEntries();
     }
 
     private void createDebugEntries() {
@@ -47,15 +47,14 @@ public class Robot extends TimedRobot {
                 debugTab.addDouble("EVertical Enc", () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue()),
                 debugTab.addDouble("EH Enc", robotContainer.elevatorHorizontalEncoder::getPosition),
                 debugTab.addDouble("Tilt Enc", robotContainer.clawTiltEncoder::getAbsolutePosition),
-                debugTab.addDouble("OpenClose Enc", robotContainer.clawOpenCloseEncoder::getPosition)
+                debugTab.addDouble("OpenClose Enc", robotContainer.clawOpenCloseEncoder::getAbsolutePosition)
         );
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        SmartDashboard.putNumber("gyro", robotContainer.swerve.getHeading());
-        SmartDashboard.putNumber("pitch", robotContainer.swerve.getPitch());
+        Logger.updateEntries();
     }
 
     @Override
