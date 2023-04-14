@@ -46,29 +46,18 @@ public class RobotContainer {
     //Motors
     public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
-    @Log(name = "FL Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 1, rowIndex = 1)
-    public final CANCoder frontLeftEncoder;
-    @Log(name = "FR Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 2, rowIndex = 1)
-    public final CANCoder frontRightEncoder;
-    @Log(name = "BL Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 1, rowIndex = 2)
-    public final CANCoder backLeftEncoder;
-    @Log(name = "BR Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 2, rowIndex = 2)
-    public final CANCoder backRightEncoder;
+    public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
-    @Log(name = "Vertical Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 4, rowIndex = 4)
     public final CANcoder elevatorVerticalEncoder;
-    @Log(name = "Horizontal Enc", methodName = "getPosition", tabName = "Debug", columnIndex = 4, rowIndex = 3)
     public final CANCoder elevatorHorizontalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    @Log(name = "OpenClose Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 4, rowIndex = 1)
     public final CANCoder clawOpenCloseEncoder;
-    @Log(name = "Tilt Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 4, rowIndex = 2)
     public final CANCoder clawTiltEncoder;
     public final TitanMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;

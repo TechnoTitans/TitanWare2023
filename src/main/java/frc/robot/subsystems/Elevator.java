@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ElevatorControl;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanMAX;
+import io.github.oblarg.oblog.annotations.Log;
 
 @SuppressWarnings("unused")
 public class Elevator extends SubsystemBase {
@@ -141,5 +142,15 @@ public class Elevator extends SubsystemBase {
 
     public double getPosition() {
         return verticalElevatorEncoder.getPosition().getValue();
+    }
+
+    @Log(name = "Vertical Enc", tabName = "Debug", columnIndex = 4, rowIndex = 4)
+    private double getVerticalElevatorEncoderValue() {
+        return verticalElevatorEncoder.getPosition().getValue();
+    }
+
+    @Log(name = "Horizontal Enc", tabName = "Debug", columnIndex = 4, rowIndex = 3)
+    private double getHorizontalElevatorEncoderValue() {
+        return horizontalElevatorEncoder.getPosition();
     }
 }
