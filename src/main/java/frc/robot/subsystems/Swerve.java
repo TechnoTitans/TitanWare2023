@@ -124,25 +124,6 @@ public class Swerve extends SubsystemBase {
         drive(dx, dy, rotPower, fieldRelative);
     }
 
-
-    public void faceClosest(double dx, double dy, boolean fieldRelative) {
-        int current_rotation = (int) getHeading() % 360;
-        if (current_rotation < -180) current_rotation += 360;
-        if (current_rotation > 180) current_rotation -= 360;
-        if (Math.abs(current_rotation) <= 90) {
-            faceDirection(dx, dy, 0, fieldRelative);
-        } else {
-            faceDirection(dx, dy, 180, fieldRelative);
-        }
-    }
-
-    public void tuneTurner(int desiredAngle) {
-        frontLeft.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-        frontRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-        backLeft.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-        backRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-    }
-
     public void zeroWheels() {
         drive(new SwerveModuleState[] {
                 new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
