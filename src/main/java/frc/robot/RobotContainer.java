@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
@@ -37,6 +36,8 @@ import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
+import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
@@ -46,18 +47,30 @@ public class RobotContainer {
     //Motors
     public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TitanFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
-    public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
+    @Log(name = "FL Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 1, rowIndex = 1)
+    public final CANCoder frontLeftEncoder;
+    @Log(name = "FR Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 2, rowIndex = 1)
+    public final CANCoder frontRightEncoder;
+    @Log(name = "BL Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 1, rowIndex = 2)
+    public final CANCoder backLeftEncoder;
+    @Log(name = "BR Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 2, rowIndex = 2)
+    public final CANCoder backRightEncoder;
 
     //Elevator
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
+    @Log(name = "Vertical Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 4, rowIndex = 4)
     public final CANcoder elevatorVerticalEncoder;
+    @Log(name = "Horizontal Enc", methodName = "getPosition", tabName = "Debug", columnIndex = 4, rowIndex = 3)
     public final CANCoder elevatorHorizontalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    public final CANCoder clawOpenCloseEncoder, clawTiltEncoder;
+    @Log(name = "OpenClose Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 4, rowIndex = 1)
+    public final CANCoder clawOpenCloseEncoder;
+    @Log(name = "Tilt Enc", methodName = "getAbsolutePosition", tabName = "Debug", columnIndex = 4, rowIndex = 2)
+    public final CANCoder clawTiltEncoder;
     public final TitanMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
@@ -68,6 +81,7 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
+    @Log(name = "Field")
     public final Field2d field;
 
     //PDH
@@ -106,10 +120,15 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
+    @Log(name = "Profile Chooser")
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
+    @Log(name = "Auto Chooser", width = 2)
     public final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        //Logger
+        Logger.configureLoggingAndConfig(this, false);
+
         //OI
         oi = new OI();
 
@@ -225,7 +244,6 @@ public class RobotContainer {
         profileChooser = new SendableChooser<>();
         profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.DRIVER1);
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
-        SmartDashboard.putData("Profile Chooser", profileChooser);
 
         //Autonomous Selector
         autoChooser = new SendableChooser<>();
@@ -242,7 +260,6 @@ public class RobotContainer {
         autoChooser.addOption("2.5PieceNoBalTurns", trajectoryManager.getCommand("2.5PieceNoBalTurns"));
         autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
         autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
-        SmartDashboard.putData("Auto Chooser", autoChooser);
 
         configureButtonBindings();
     }
