@@ -1,11 +1,9 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class PoseUtils {
@@ -29,7 +27,7 @@ public class PoseUtils {
                 : poseToFlip;
     }
 
-    public static Pose2d localizeRobotPoseOnBlueAlliance(final Pose2d originalPose) {
+    public static Pose2d localizeRobotPoseOnBlueAlliance(Pose2d originalPose) {
         return DriverStation.getAlliance() == DriverStation.Alliance.Red
                         ? new Pose2d(
                             originalPose.getX(),
@@ -38,7 +36,7 @@ public class PoseUtils {
                         : originalPose;
     }
 
-    public static Pose2d transformGridPose(final Pose2d originalPose) {
+    public static Pose2d transformGridPose(Pose2d originalPose) {
         return DriverStation.getAlliance() == DriverStation.Alliance.Red
                 ? new Pose2d(
                     Constants.Grid.FIELD_LENGTH_METERS - originalPose.getX(),

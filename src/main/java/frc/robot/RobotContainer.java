@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autonomous.TrajectoryManager;
@@ -37,6 +36,7 @@ import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
+import io.github.oblarg.oblog.annotations.Log;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
@@ -57,7 +57,8 @@ public class RobotContainer {
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    public final CANCoder clawOpenCloseEncoder, clawTiltEncoder;
+    public final CANCoder clawOpenCloseEncoder;
+    public final CANCoder clawTiltEncoder;
     public final TitanMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
@@ -68,6 +69,7 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
+    @Log(name = "Field")
     public final Field2d field;
 
     //PDH
@@ -106,7 +108,9 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
+    @Log(name = "Profile Chooser")
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
+    @Log(name = "Auto Chooser", width = 2)
     public final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
@@ -225,7 +229,6 @@ public class RobotContainer {
         profileChooser = new SendableChooser<>();
         profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.DRIVER1);
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
-        SmartDashboard.putData("Profile Chooser", profileChooser);
 
         //Autonomous Selector
         autoChooser = new SendableChooser<>();
@@ -242,8 +245,8 @@ public class RobotContainer {
         autoChooser.addOption("2.5PieceNoBalTurns", trajectoryManager.getCommand("2.5PieceNoBalTurns"));
         autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
         autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
-        SmartDashboard.putData("Auto Chooser", autoChooser);
 
+        //Create Button Bindings
         configureButtonBindings();
     }
 
