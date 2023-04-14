@@ -169,10 +169,11 @@ public class RobotContainer {
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), //front left
-                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2), // front right
-                new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), // back left
-                new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2)); //back right //in meters, swerve modules relative to the center of robot
+                Constants.Swerve.FL_OFFSET,
+                Constants.Swerve.FR_OFFSET,
+                Constants.Swerve.BL_OFFSET,
+                Constants.Swerve.BR_OFFSET
+        );
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
 

@@ -30,6 +30,8 @@ public class SwerveModule extends SubsystemBase {
     private final InvertedValue invertedValue;
     private final VelocityVoltage voltageVelocity;
 
+    private SwerveModuleState lastDesiredState = new SwerveModuleState();
+
     public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, InvertedValue invertedValue, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
@@ -88,11 +90,17 @@ public class SwerveModule extends SubsystemBase {
         return new SwerveModuleState(-driveMotor.getVelocity().getValue() * (2*Math.PI*Constants.Modules.WHEEL_RADIUS), Rotation2d.fromDegrees(getAngle()));
     }
 
+    public SwerveModuleState getLastDesiredState() {
+        return lastDesiredState;
+    }
+
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(-driveMotor.getPosition().getValue() * (2*Math.PI*Constants.Modules.WHEEL_RADIUS), Rotation2d.fromDegrees(getAngle()));
     }
 
     public void setDesiredState(SwerveModuleState state) {
+        lastDesiredState = state;
+
         Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle());
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         double desired_driver_velocity = wantedState.speedMetersPerSecond / (2 * Math.PI * Constants.Modules.WHEEL_RADIUS);

@@ -19,6 +19,8 @@ public interface Constants {
     }
 
     interface Swerve {
+        int N_MODULES = 4;
+
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
         double ROBOT_MAX_SPEED = Units.feetToMeters(13);
@@ -31,6 +33,12 @@ public interface Constants {
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 1;
+
+        //in meters, swerve modules relative to the center of robot
+        Translation2d FL_OFFSET = new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2); //front left
+        Translation2d FR_OFFSET = new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2); // front right
+        Translation2d BL_OFFSET = new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2); // back left
+        Translation2d BR_OFFSET = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2); //back right
     }
 
     interface Vision {
