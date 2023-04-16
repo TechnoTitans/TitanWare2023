@@ -7,9 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,7 +15,6 @@ import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
 
 import java.io.File;
-import java.util.List;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
@@ -46,8 +42,10 @@ public class Robot extends TimedRobot {
                 robotContainer.clawOpenCloseEncoder::getPosition, robotContainer.clawOpenCloseEncoder::getVelocity
         );
 
-        TitanBoard.addSwerve("Swerve", robotContainer.swerve);
+        TitanBoard.addBoolean("Vertical Elevator LS", robotContainer.elevatorVerticalLimitSwitch::get);
+        TitanBoard.addBoolean("Horizontal Elevator Back LS", robotContainer.elevatorHorizontalLimitSwitch::get);
 
+//        TitanBoard.addSwerve("Swerve", robotContainer.swerve);
         TitanBoard.start();
     }
 

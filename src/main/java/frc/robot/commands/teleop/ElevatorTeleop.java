@@ -22,7 +22,7 @@ public class ElevatorTeleop extends CommandBase {
 
     @Override
     public void initialize () {
-        elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+        elevator.setState(Enums.ElevatorState.ELEVATOR_RESET);
     }
 
     @Override

@@ -2,13 +2,14 @@ package frc.robot.utils;
 
 public class Enums {
     public enum ElevatorState {
+        ELEVATOR_RESET, //DutyCycle back to limit switch to reset encoder
         ELEVATOR_EXTENDED_HIGH, //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_MID, //Elevator Mid and Horizontal extended
         ELEVATOR_EXTENDED_PLATFORM, //Elevator Platform and Horizontal extended
         ELEVATOR_STANDBY, //Elevator at normal height
         ELEVATOR_CUBE,
         SINGLE_SUB,
-        ELEVATOR_TIPPED_CONE
+        ELEVATOR_TIPPED_CONE,
     }
 
     public enum ElevatorMode {
