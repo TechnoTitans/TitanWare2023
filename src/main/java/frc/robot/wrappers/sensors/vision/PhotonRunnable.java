@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PhotonRunnable implements Runnable {
-    public static final boolean IGNORE_DURING_AUTO = true;
+    public static final boolean DISABLE_VISION_IN_AUTO = true;
+    public static final boolean DISABLE_VISION_DISTANCE_FIX = false;
 
     private final PhotonPoseEstimator photonPoseEstimator;
     private final PhotonCamera apriltagCamera;
@@ -55,7 +56,7 @@ public class PhotonRunnable implements Runnable {
     public void run() {
         if (photonPoseEstimator != null
                 && apriltagCamera != null
-                && (!IGNORE_DURING_AUTO || !RobotState.isAutonomous())
+                && (!DISABLE_VISION_IN_AUTO || !RobotState.isAutonomous())
         ) {
             final PhotonPipelineResult photonResults = apriltagCamera.getLatestResult();
             if (photonResults.hasTargets()
@@ -66,15 +67,21 @@ public class PhotonRunnable implements Runnable {
                     final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
                     final Pose2d flattenedEstimatedPose = estimatedPose.toPose2d();
 
-                    final double lastTimestamp = Double.longBitsToDouble(
-                            lastVisionTimestamp.getAndSet(Double.doubleToLongBits(estimatedRobotPose.timestampSeconds))
-                    );
-
                     if (estimatedPose.getX() < 0.0 || estimatedPose.getX() > Constants.Grid.FIELD_LENGTH_METERS
                             || estimatedPose.getY() < 0.0 || estimatedPose.getY() > Constants.Grid.FIELD_WIDTH_METERS) {
                         // ignore estimated pose if it's out of the field
                         return;
                     }
+
+                    if (DISABLE_VISION_DISTANCE_FIX) {
+                        // if disable vision distance fix, then just set estimated pose directly and return early
+                        atomicEstimatedRobotPose.set(estimatedRobotPose);
+                        return;
+                    }
+
+                    final double lastTimestamp = Double.longBitsToDouble(
+                            lastVisionTimestamp.getAndSet(Double.doubleToLongBits(estimatedRobotPose.timestampSeconds))
+                    );
 
                     final EstimatedRobotPose lastEstimatedRobotPose = atomicLastEstimatedRobotPose.get();
                     if (lastEstimatedRobotPose == null) {
