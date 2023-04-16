@@ -15,6 +15,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * controller - Holonomic angular velocity is used as a feedforward for the rotation controller,
  * which no longer needs to be a @ProfiledPIDController
  */
+
+@SuppressWarnings("unused")
 public class DriveController {
     private final PIDController xController;
     private final PIDController yController;
@@ -72,12 +74,8 @@ public class DriveController {
      * @return The next output of the holonomic drive controller
      */
     public ChassisSpeeds calculate(Pose2d currentPose, PathPlannerState referenceState) {
-//        double xFF = referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getCos();
-//        double yFF = referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getSin();
-//        double rotationFF = referenceState.holonomicAngularVelocityRadPerSec;
-
-//        this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
-//        this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
+        this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
+        this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
 
         double xFeedback = this.xController.calculate(currentPose.getX(), referenceState.poseMeters.getX());
         double yFeedback = this.yController.calculate(currentPose.getY(), referenceState.poseMeters.getY());

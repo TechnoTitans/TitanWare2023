@@ -10,14 +10,12 @@ import frc.robot.utils.MathMethods;
 
 public class AutoBalance extends CommandBase {
     private final Swerve swerve;
-    private final double holonomicRotation;
     private final PIDController pitchPIDController;
     private final double p = 0.03;
     private boolean flag = false;
 
-    public AutoBalance(Swerve swerve, double holonomicRotation) {
+    public AutoBalance(Swerve swerve) {
         this.swerve = swerve;
-        this.holonomicRotation = holonomicRotation;
         this.pitchPIDController = new PIDController(p, 0, 0);
         pitchPIDController.setTolerance(0.001);
         addRequirements(swerve);

@@ -3,12 +3,12 @@ package frc.robot;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -34,9 +34,9 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanFX;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
-import frc.robot.wrappers.sensors.vision.Limelight;
-import frc.robot.wrappers.sensors.vision.PhotonCameraWrapper;
+import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
+import io.github.oblarg.oblog.annotations.Log;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
@@ -49,13 +49,16 @@ public class RobotContainer {
     public final CANCoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
 
     //Elevator
-    public final TitanFX elevatorVerticalMotor;
+    public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
+    public final CANcoder elevatorVerticalEncoder;
+    public final CANCoder elevatorHorizontalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
-    public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch;
+    public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     public final CANCoder clawOpenCloseEncoder;
+    public final CANCoder clawTiltEncoder;
     public final TitanMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
@@ -66,6 +69,7 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
+    @Log(name = "Field")
     public final Field2d field;
 
     //PDH
@@ -73,13 +77,11 @@ public class RobotContainer {
 
     //Sensors
     public final Pigeon2 pigeon;
-//    public final ColorSensorV3 clawColorSensor;
 
     //Vision
-    public final Limelight limeLight;
     public final PhotonCamera photonDriveCamera, photonApriltagCamera;
     public final PhotonDriverCam photonDriverCam;
-    public final PhotonCameraWrapper photonApriltagCam;
+    public final PhotonApriltags photonApriltags;
 
     //Candle
     public final CANdle cANdle;
@@ -106,7 +108,10 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
+    @Log(name = "Profile Chooser")
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
+    @Log(name = "Auto Chooser", width = 2)
+    public final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
         //OI
@@ -135,16 +140,20 @@ public class RobotContainer {
         backRightEncoder = new CANCoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        //TODO: TUNE THESE / They need to be turned facing the wanted "front" direction then measure the values in smartdashboard
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 116.19);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, 3.516);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, 17.84);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, 282.92);
+        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, 113.90625);
+        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, -62.05078125);
+        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, 16.435546875);
+        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, -78.662109375);
 
         //Elevator Motors
-        elevatorVerticalMotor = new TitanFX(RobotMap.mainVerticalFalcon, RobotMap.mainVerticalFalconR);
+        elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
+        elevatorVerticalMotorFollower = new TalonFX(RobotMap.followerVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
+        elevatorVerticalEncoder = new CANcoder(RobotMap.verticalElevatorEncoder, RobotMap.CANIVORE_CAN_NAME);
+        elevatorHorizontalEncoder = new CANCoder(RobotMap.horizontalElevatorEncoder);
+
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
+        elevatorHorizontalHighLimitSwitch = new DigitalInput(RobotMap.horizontalLimitHighSwitch);
 
         clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
         clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
@@ -153,21 +162,22 @@ public class RobotContainer {
 
         elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
         clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltEncoder = new CANCoder(RobotMap.clawTiltEncoder);
         clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         //Sensors
         pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
-//        clawColorSensor = new ColorSensorV3(RobotMap.CLAW_COLOR_SENSOR);
 
-        elevator = new Elevator(elevatorVerticalMotor, elevatorHorizontalNeo, clawMainWheelsMotor, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltLimitSwitch);
+        elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, elevatorHorizontalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch);
+        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltEncoder, clawTiltLimitSwitch);
 
         //Swerve
         kinematics = new SwerveDriveKinematics(
-                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), //front left //TODO: TUNE THESE
-                new Translation2d(Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2), // front right
-                new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, Constants.Swerve.TRACK_WIDTH / 2), // back left
-                new Translation2d(-Constants.Swerve.WHEEL_BASE / 2, -Constants.Swerve.TRACK_WIDTH / 2)); //back right //in meters, swerve modules relative to the center of robot
+                Constants.Swerve.FL_OFFSET,
+                Constants.Swerve.FR_OFFSET,
+                Constants.Swerve.BL_OFFSET,
+                Constants.Swerve.BR_OFFSET
+        );
 
         swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
 
@@ -175,7 +185,9 @@ public class RobotContainer {
                 kinematics,
                 swerve.getRotation2d(),
                 swerve.getModulePositions(),
-                new Pose2d()
+                new Pose2d(),
+                Constants.Vision.stateStdDevs,
+                Constants.Vision.visionMeasurementStdDevs
         );
         field = new Field2d();
 
@@ -186,21 +198,21 @@ public class RobotContainer {
         );
 
         //Vision
-        limeLight = new Limelight();
         photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
-        photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonDriverCam = new PhotonDriverCam(photonDriveCamera);
-        photonApriltagCam = new PhotonCameraWrapper(photonApriltagCamera);
+
+        photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
+        photonApriltags = new PhotonApriltags(photonApriltagCamera, swerve, poseEstimator, field);
 
         //LEDS
         cANdle = new CANdle(RobotMap.CANdle_ID);
         candleController = new CandleController(cANdle);
 
         //Teleop Commands
-        swerveDriveTeleop = new SwerveDriveTeleop(swerve, oi.getXboxMain());
-        autoAlignment = new AutoAlignment(swerve, limeLight, oi.getXboxMain());
+        swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, oi.getXboxMain());
+        autoAlignment = new AutoAlignment(swerve, poseEstimator, oi.getXboxMain(), field);
         intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
-        elevatorTeleop = new ElevatorTeleop(elevator, oi.getXboxCo());
+        elevatorTeleop = new ElevatorTeleop(elevator, claw, oi.getXboxCo());
 
         //Buttons
         resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
@@ -211,23 +223,40 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator, limeLight);
+        trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator);
 
-        //SmartDashboard
+        //Driver Profile Selector
         profileChooser = new SendableChooser<>();
         profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.DRIVER1);
         profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
+        //Autonomous Selector
+        autoChooser = new SendableChooser<>();
+        autoChooser.setDefaultOption("DropAndMobility", trajectoryManager.getCommand("DropAndMobility"));
+        autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack", 2, 1));
+        autoChooser.addOption("DropAndCharge", trajectoryManager.getCommand("DropAndCharge"));
+        autoChooser.addOption("2PieceAuto", trajectoryManager.getCommand("2PieceAuto"));
+        autoChooser.addOption("2PieceAutoBalance", trajectoryManager.getCommand("2PieceAutoBal"));
+        autoChooser.addOption("2PieceBump", trajectoryManager.getCommand("2PieceBump", 2, 1));
+        autoChooser.addOption("2.5BalAuton", trajectoryManager.getCommand("2.5BalAuton"));
+        autoChooser.addOption("2.5BalAutonV2", trajectoryManager.getCommand("2.5BalAutonV2"));
+        autoChooser.addOption("2.5PieceNonBal", trajectoryManager.getCommand("2.5PieceNonBal"));
+        autoChooser.addOption("2.5BalNonBalV2", trajectoryManager.getCommand("2.5BalNonBalV2"));
+        autoChooser.addOption("2.5PieceNoBalTurns", trajectoryManager.getCommand("2.5PieceNoBalTurns"));
+        autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
+        autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        //Create Button Bindings
         configureButtonBindings();
     }
 
     private void configureButtonBindings() {
         // Main Driver
         resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.LEFT)));
-        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setTrackMode(Enums.LimelightPipelines.RIGHT)));
-//        alignRightBtn.onTrue(new AutoBalance(swerve, 180));
+        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.LEFT)));
+        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.RIGHT)));
 
         // Co Driver
         candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
@@ -235,14 +264,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return trajectoryManager.getCommand("2PieceAuto", 0.5, 0.5);
-//        return trajectoryManager.getCommand("2PieceAuto", 4, 3);
-        return trajectoryManager.getCommand("2PieceAutoBal");
-//        return trajectoryManager.getCommand("2PieceBump");
-//        return trajectoryManager.getCommand("notime");
-//        return trajectoryManager.getCommand("CubeAndChargeBack", 1, 2);
-//        return trajectoryManager.getCommand("DropAndMobility");
-//        return trajectoryManager.getCommand("DropAndCharge", 5, 3);
-//        return trajectoryManager.getCommand("2PieceCharge");
+        return autoChooser.getSelected();
     }
 }

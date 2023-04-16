@@ -29,5 +29,4 @@ public class MathMethods {
     public static double deadband(double input, double band, double setPoint) {
         return (Math.abs(input) <= band || Math.abs(input) <= -band) ? setPoint : input;
     }
-
 }

@@ -1,7 +1,6 @@
 package frc.robot.wrappers.leds;
 
 import com.ctre.phoenix.led.CANdle;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.utils.Enums;
 
 @SuppressWarnings("unused")
@@ -30,6 +29,5 @@ public class CandleController {
                 caNdle.setLEDs(200, 0, 150);
                 break;
         }
-        SmartDashboard.putBoolean("CANdle", state == Enums.CANdleState.YELLOW);
     }
 }

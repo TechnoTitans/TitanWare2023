@@ -7,7 +7,6 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,15 +14,15 @@ import frc.robot.commands.subsystems.ClawControl;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
+import io.github.oblarg.oblog.annotations.Log;
 
 @SuppressWarnings("unused")
 public class Claw extends SubsystemBase {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
-    private final CANCoder clawOpenCloseEncoder;
+    private final CANCoder clawOpenCloseEncoder, clawTiltEncoder;
     private final TitanMAX clawTiltNeo;
     private final DigitalInput clawTiltLimitSwitch;
-//    private final ColorSensorV3 colorSensor;
 
     private final ClawControl clawControl;
     private Enums.ClawState targetState;
@@ -33,16 +32,16 @@ public class Claw extends SubsystemBase {
                 TitanSRX clawOpenCloseMotor,
                 CANCoder clawOpenCloseEncoder,
                 TitanMAX clawTiltNeo,
+                CANCoder clawTiltEncoder,
                 DigitalInput clawTiltLimitSwitch
-//                ColorSensorV3 colorSensor
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
         this.clawTiltNeo = clawTiltNeo;
+        this.clawTiltEncoder = clawTiltEncoder;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawTiltLimitSwitch = clawTiltLimitSwitch;
-//        this.colorSensor = colorSensor;
 
         configMotor();
 
@@ -61,27 +60,29 @@ public class Claw extends SubsystemBase {
         canCoderConfiguration.unitString = "deg";
         canCoderConfiguration.sensorDirection = false;
         canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        canCoderConfiguration.magnetOffsetDegrees = -79.89;
+        canCoderConfiguration.magnetOffsetDegrees = -81.387;
         clawOpenCloseEncoder.configAllSettings(canCoderConfiguration);
 
         clawOpenCloseMotor.configFactoryDefault();
         TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
-        CCConfig.slot0.kP = 1.3; //TODO: TUNE ALL OF THESE
+        CCConfig.slot0.kP = 2;
         CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
         clawOpenCloseMotor.configAllSettings(CCConfig);
         clawOpenCloseMotor.brake();
 
-        SparkMaxPIDController clawTiltPID = clawTiltNeo.getPIDController();
-        clawTiltPID.setP(2.6);
-        clawTiltPID.setI(0.0);
-        clawTiltPID.setD(0);
-        clawTiltPID.setOutputRange(-0.5, 0.5);
-        clawTiltPID.setFeedbackDevice(clawTiltNeo.getRevBoreThroughEncoder());
-//        clawTiltNeo.setClosedLoopRampRate(0.2);
-//        clawTiltNeo.currentLimit(50, 30);
         clawTiltNeo.brake();
+        clawTiltNeo.currentLimit(25);
+
+        CANCoderConfiguration clawTiltEncoderConfig = new CANCoderConfiguration();
+        clawTiltEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+        clawTiltEncoderConfig.unitString = "deg";
+        clawTiltEncoderConfig.sensorDirection = true;
+        clawTiltEncoderConfig.sensorCoefficient = 1.0/4096; // this makes getPosition() return in rotations
+        clawTiltEncoderConfig.magnetOffsetDegrees = 57.39;
+        clawTiltEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        clawTiltEncoder.configAllSettings(clawTiltEncoderConfig);
     }
 
     public void setState(Enums.ClawState state) {
@@ -91,18 +92,6 @@ public class Claw extends SubsystemBase {
     public boolean isAtWantedState() {
         return clawControl.isAtWantedState();
     }
-
-//    public Enums.CurrentGamePiece getCurrentGamePiece() { //TODO: TUNE THIS
-//        if (colorSensor.getProximity() < 800) {
-//            return Enums.CurrentGamePiece.NONE;
-//        } else if (colorSensor.getColor().blue > 100) {
-//            return Enums.CurrentGamePiece.CUBE;
-//        } else if (colorSensor.getProximity() > 800) {
-//            return Enums.CurrentGamePiece.CONE;
-//        } else {
-//            return Enums.CurrentGamePiece.NONE;
-//        }
-//    }
 
     public Enums.ClawState getTargetState() {
         return targetState;
@@ -124,7 +113,21 @@ public class Claw extends SubsystemBase {
         return clawTiltNeo;
     }
 
+    public CANCoder getClawTiltEncoder() {
+        return clawTiltEncoder;
+    }
+
     public DigitalInput getClawTiltLimitSwitch() {
         return clawTiltLimitSwitch;
+    }
+
+    @Log(name = "OpenClose Enc", tabName = "Debug", columnIndex = 4, rowIndex = 1)
+    private double getOpenCloseEncoderValue() {
+        return clawOpenCloseEncoder.getAbsolutePosition();
+    }
+
+    @Log(name = "Tilt Enc", tabName = "Debug", columnIndex = 4, rowIndex = 2)
+    private double getTiltEncoderValue() {
+        return clawTiltEncoder.getAbsolutePosition();
     }
 }

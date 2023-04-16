@@ -49,12 +49,37 @@
     },
     {
       "anchorPoint": {
-        "x": 3.8282001350327484,
-        "y": 2.797696193682985
+        "x": 3.348595073258523,
+        "y": 2.6720853441706884
       },
       "prevControl": {
-        "x": 4.855925267406089,
-        "y": 2.8205345299579485
+        "x": 3.348595073258523,
+        "y": 2.5185719895140015
+      },
+      "nextControl": {
+        "x": 3.348595073258523,
+        "y": 2.748249296973654
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.337175905121041,
+        "y": 2.8547920343703934
+      },
+      "prevControl": {
+        "x": 3.3513617007610415,
+        "y": 2.7871738411767635
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -74,13 +99,7 @@
     {
       "position": 0.0,
       "names": [
-        "dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;"
-      ]
-    },
-    {
-      "position": 2.0,
-      "names": [
-        "autobalance:true;"
+        "dtpause:true;elevator:ELEVATOR_EXTENDED_HIGH;wait:0.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.5;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;"
       ]
     }
   ]

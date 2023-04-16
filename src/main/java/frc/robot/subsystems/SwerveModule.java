@@ -27,23 +27,24 @@ public class SwerveModule extends SubsystemBase {
     private final TitanFX turnMotor;
     private final CANCoder turnEncoder;
     private final double magnetOffset;
-    private final boolean inverted;
-    private final VelocityVoltage velocityDutyCycle;
+    private final InvertedValue invertedValue;
+    private final VelocityVoltage voltageVelocity;
 
-    public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, boolean inverted, double magnetOffset) {
+    private SwerveModuleState lastDesiredState = new SwerveModuleState();
+
+    public SwerveModule(TalonFX driveMotor, TitanFX turnMotor, CANCoder turnEncoder, InvertedValue invertedValue, double magnetOffset) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
-        this.inverted = inverted;
+        this.invertedValue = invertedValue;
 
         config();
 
-        this.velocityDutyCycle = new VelocityVoltage(0, true, 0, 0, false);
+        this.voltageVelocity = new VelocityVoltage(0, true, 0, 0, false);
     }
 
     private void config() {
-        //TODO MAKE SURE SENSORS ARE CCW+ AND GYRO IS CCW+
         CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
         canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         canCoderConfiguration.unitString = "deg";
@@ -63,7 +64,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
         driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        driverConfig.MotorOutput.Inverted = inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        driverConfig.MotorOutput.Inverted = invertedValue ;
         driveMotor.getConfigurator().apply(driverConfig);
 
         turnMotor.configFactoryDefault();
@@ -72,8 +73,6 @@ public class SwerveModule extends SubsystemBase {
         turnerConfig.slot0.kI = 0;
         turnerConfig.slot0.kD = 0;
         turnerConfig.slot0.kF = 0;
-//        turnerConfig.closedloopRamp = 0.1;
-//        turnerConfig.neutralDeadband = 0.07;
         turnerConfig.peakOutputForward = 0.5;
         turnerConfig.peakOutputReverse = -0.5;
         turnerConfig.remoteFilter0.remoteSensorDeviceID = turnEncoder.getDeviceID();
@@ -91,12 +90,18 @@ public class SwerveModule extends SubsystemBase {
         return new SwerveModuleState(-driveMotor.getVelocity().getValue() * (2*Math.PI*Constants.Modules.WHEEL_RADIUS), Rotation2d.fromDegrees(getAngle()));
     }
 
+    public SwerveModuleState getLastDesiredState() {
+        return lastDesiredState;
+    }
+
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(-driveMotor.getPosition().getValue() * (2*Math.PI*Constants.Modules.WHEEL_RADIUS), Rotation2d.fromDegrees(getAngle()));
     }
 
     public void setDesiredState(SwerveModuleState state) {
-        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle()); // TODO: CHECK THIS
+        lastDesiredState = state;
+
+        Rotation2d currentWheelRotation = Rotation2d.fromDegrees(getAngle());
         SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         double desired_driver_velocity = wantedState.speedMetersPerSecond / (2 * Math.PI * Constants.Modules.WHEEL_RADIUS);
         Rotation2d delta_rotation = currentWheelRotation.minus(wantedState.angle);
@@ -104,7 +109,7 @@ public class SwerveModule extends SubsystemBase {
         double current_ticks = turnMotor.getSelectedSensorPosition();
         double desired_turner_ticks = current_ticks + delta_ticks;
 
-        driveMotor.setControl(velocityDutyCycle.withVelocity(desired_driver_velocity));
+        driveMotor.setControl(voltageVelocity.withVelocity(desired_driver_velocity));
         turnMotor.set(TalonFXControlMode.Position, desired_turner_ticks);
     }
 
@@ -114,7 +119,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void manualVelocityControl(double rps) {
-        driveMotor.setControl(velocityDutyCycle.withVelocity(rps));
+        driveMotor.setControl(voltageVelocity.withVelocity(rps));
         turnMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 

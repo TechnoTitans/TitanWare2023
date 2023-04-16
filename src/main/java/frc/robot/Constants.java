@@ -1,8 +1,12 @@
 package frc.robot;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
-//@SuppressWarnings("unused")
+@SuppressWarnings("ALL")
 public interface Constants {
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in
@@ -11,18 +15,15 @@ public interface Constants {
         double DRIVER_GEAR_RATIO = 8.14;
         double TURNER_GEAR_RATIO = 150.0 / 7.0;
         double TICKS_PER_MOTOR_RADIAN = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / (2 * Math.PI);
-        double DRIVER_TICKS_PER_WHEEL_RADIAN = TICKS_PER_MOTOR_RADIAN * DRIVER_GEAR_RATIO;
-        double TICKS_PER_DRIVER_WHEEL_ROTATION = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS * DRIVER_GEAR_RATIO;
-        int HUNDREDMILLISECONDS_TO_1SECOND = 10;
-        double ONESECOND_TO_100_MILLISECONDS = .1;
-        double TICKS_PER_TALON_ENCODER_DEGREE = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / 360.0;
         double TICKS_PER_CANCODER_DEGREE = CANCODER_TICKS_PER_ROTATION / 360.0;
     }
 
     interface Swerve {
+        int N_MODULES = 4;
+
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
-        double ROBOT_MAX_SPEED = Units.feetToMeters(9);
+        double ROBOT_MAX_SPEED = Units.feetToMeters(13);
         double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
@@ -31,7 +32,61 @@ public interface Constants {
         double TRAJ_MAX_ACCELERATION = 3;
         double TRAJ_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJ_MAX_ANGULAR_ACCELERATION = Math.PI;
-        double ROTATE_P = 1; //TUNE THIS: (rotation pid) 2
-        double AUTO_BALANCE_PITCH_P = 0.005; // P value for auto balance
+        double ROTATE_P = 1;
+
+        //in meters, swerve modules relative to the center of robot
+        Translation2d FL_OFFSET = new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2); //front left
+        Translation2d FR_OFFSET = new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2); // front right
+        Translation2d BL_OFFSET = new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2); // back left
+        Translation2d BR_OFFSET = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2); //back right
+    }
+
+    interface Vision {
+        Transform3d robotToCam = new Transform3d( //x, y, z
+                new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(-12.625), Units.inchesToMeters(25)),
+                new Rotation3d(0, 0, 0));
+        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+        Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+        Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
+        double singleTagMaxAmbiguity = 0.2;
+    }
+
+    interface Grid {
+        Translation2d LEFTBOTTOM = new Translation2d(1, 3.6);
+        Translation2d LEFTTOP = new Translation2d(3.35, 5.26);
+        Translation2d CENTERBOTTOM = new Translation2d(1, 1.91);
+        Translation2d CENTERTOP = new Translation2d(3.35, 3.58);
+        Translation2d RIGHTBOTTOM = new Translation2d(1, 0);
+        Translation2d RIGHTTOP = new Translation2d(3.35, 1.89);
+
+        double DISTANCE_FROM_GRID = 1.84;
+        double FIELD_LENGTH_METERS = 16.54175;
+        double FIELD_WIDTH_METERS = 8.0137;
+
+        Pose2d FLIPPING_POSE = new Pose2d(
+                new Translation2d(FIELD_LENGTH_METERS, FIELD_WIDTH_METERS),
+                new Rotation2d(Math.PI));
+
+        interface LEFT {
+            // 4.98
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 5.045), Rotation2d.fromDegrees(180));
+            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
+            // 3.8
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.84), Rotation2d.fromDegrees(180));
+        }
+        interface CENTER {
+            // 3.34
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.38), Rotation2d.fromDegrees(180));
+            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
+            // 2.13
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 2.2), Rotation2d.fromDegrees(180));
+        }
+        interface RIGHT {
+            // 1.6
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 1.63), Rotation2d.fromDegrees(180));
+            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 0.47), Rotation2d.fromDegrees(180));
+        }
     }
 }

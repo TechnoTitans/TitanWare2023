@@ -8,28 +8,31 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import io.github.oblarg.oblog.annotations.Log;
 
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class Swerve extends SubsystemBase {
     private final Pigeon2 pigeon;
-    private final SwerveModule frontLeft, frontRight, backLeft, backRight;
     private final SwerveDriveKinematics kinematics;
+    private final SwerveModule frontLeft, frontRight, backLeft, backRight;
 
     public Swerve(Pigeon2 pigeon, SwerveDriveKinematics kinematics, SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight) {
         this.pigeon = pigeon;
+        this.kinematics = kinematics;
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
-        this.kinematics = kinematics;
     }
 
+    @Log(name = "Yaw")
     public double getHeading() {
         return pigeon.getYaw();
     }
 
+    @Log(name = "Pitch")
     public double getPitch() {
         return pigeon.getPitch();
     }
@@ -37,7 +40,6 @@ public class Swerve extends SubsystemBase {
     public double getRoll() {
         return pigeon.getRoll();
     }
-
 
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getHeading());
@@ -56,11 +58,25 @@ public class Swerve extends SubsystemBase {
     }
 
     public SwerveModuleState[] getModuleStates() {
-        return new SwerveModuleState[]{frontLeft.getState(), frontRight.getState(), backLeft.getState(), backRight.getState()};
+        return new SwerveModuleState[] {
+                frontLeft.getState(),
+                frontRight.getState(),
+                backLeft.getState(),
+                backRight.getState()
+        };
+    }
+
+    public SwerveModuleState[] getModuleDesiredStates() {
+        return new SwerveModuleState[] {
+                frontLeft.getLastDesiredState(),
+                frontRight.getLastDesiredState(),
+                backLeft.getLastDesiredState(),
+                backRight.getLastDesiredState()
+        };
     }
 
     public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[]{frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
+        return new SwerveModulePosition[] {frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
     }
 
     public Consumer<SwerveModuleState[]> getModuleStateConsumer() {
@@ -124,25 +140,6 @@ public class Swerve extends SubsystemBase {
         drive(dx, dy, rotPower, fieldRelative);
     }
 
-
-    public void faceClosest(double dx, double dy, boolean fieldRelative) {
-        int current_rotation = (int) getHeading() % 360;
-        if (current_rotation < -180) current_rotation += 360;
-        if (current_rotation > 180) current_rotation -= 360;
-        if (Math.abs(current_rotation) <= 90) {
-            faceDirection(dx, dy, 0, fieldRelative);
-        } else {
-            faceDirection(dx, dy, 180, fieldRelative);
-        }
-    }
-
-    public void tuneTurner(int desiredAngle) {
-        frontLeft.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-        frontRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-        backLeft.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-        backRight.setDesiredState(new SwerveModuleState(0.1, Rotation2d.fromDegrees(desiredAngle)));
-    }
-
     public void zeroWheels() {
         drive(new SwerveModuleState[] {
                 new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
@@ -164,5 +161,25 @@ public class Swerve extends SubsystemBase {
         frontRight.manualVelocityControl(velocityTicksPer100ms);
         backLeft.manualVelocityControl(velocityTicksPer100ms);
         backRight.manualVelocityControl(velocityTicksPer100ms);
+    }
+
+    @Log(name = "FL Enc", tabName = "Debug", columnIndex = 1, rowIndex = 1)
+    private double frontLeftAngle() {
+        return frontLeft.getAngle();
+    }
+
+    @Log(name = "FR Enc", tabName = "Debug", columnIndex = 2, rowIndex = 1)
+    private double frontRightAngle() {
+        return frontRight.getAngle();
+    }
+
+    @Log(name = "BL Enc", tabName = "Debug", columnIndex = 1, rowIndex = 2)
+    private double backLeftAngle() {
+        return backLeft.getAngle();
+    }
+
+    @Log(name = "BR Enc", tabName = "Debug", columnIndex = 2, rowIndex = 2)
+    private double backRightAngle() {
+        return backRight.getAngle();
     }
 }
