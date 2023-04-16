@@ -29,7 +29,7 @@ public class ElevatorControl extends CommandBase {
     private final PositionVoltage positionVoltage;
     private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
-    private Enums.ElevatorMode elevatorMode;
+    private Enums.ElevatorMode verticalElevatorMode;
 
     private double
         HETargetRotations = 0, //Horizontal Elevator Target Ticks
@@ -60,8 +60,14 @@ public class ElevatorControl extends CommandBase {
 
     private void setState(Enums.ElevatorState state) {
         this.currentState = state;
-        this.elevatorMode = Enums.ElevatorMode.POSITION;
+        this.verticalElevatorMode = Enums.ElevatorMode.POSITION;
         switch (state) {
+            case ELEVATOR_RESET:
+                verticalElevatorMode = Enums.ElevatorMode.MOTION_MAGIC;
+                VEPosition = -0.25;
+                horizontalPositionalControl = false;
+                HETargetRotations = -0.3;
+                break;
             case ELEVATOR_EXTENDED_HIGH:
                 VEPosition = 5; //15500
 //                horizontalPositionalControl = false;
@@ -75,7 +81,7 @@ public class ElevatorControl extends CommandBase {
                 HETargetRotations = 0.9;
                 break;
             case ELEVATOR_STANDBY:
-                elevatorMode = Enums.ElevatorMode.MOTION_MAGIC;
+                verticalElevatorMode = Enums.ElevatorMode.MOTION_MAGIC;
                 VEPosition = -0.25;
 //                horizontalPositionalControl = false;
                 horizontalPositionalControl = true;
@@ -123,6 +129,12 @@ public class ElevatorControl extends CommandBase {
             HETargetRotations = 0.15;
         }
 
+        if (horizontalElevatorLimitSwitch.get() && targetState == Enums.ElevatorState.ELEVATOR_RESET) {
+            horizontalElevatorEncoder.setPosition(0);
+            elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+            return;
+        }
+
         if (elevatorHorizontalHighLimitSwitch.get() && targetState == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH &&
                 horizontalElevatorEncoder.getPosition() > 1.5) {
             horizontalPositionalControl = true;
@@ -134,16 +146,24 @@ public class ElevatorControl extends CommandBase {
             HETargetRotations = horizontalElevatorEncoder.getPosition();
         }
 
-        if (verticalElevatorLimitSwitch.get() && !VESwitchFlag && targetState == Enums.ElevatorState.ELEVATOR_STANDBY) {
+        if (verticalElevatorLimitSwitch.get()
+                && !VESwitchFlag
+                && (
+                        targetState == Enums.ElevatorState.ELEVATOR_STANDBY
+                                || targetState == Enums.ElevatorState.ELEVATOR_RESET)
+        ) {
             VESwitchFlag = true;
             verticalElevatorEncoder.setPosition(0);
-            elevatorMode = Enums.ElevatorMode.DUTY_CYCLE;
+            verticalElevatorMode = Enums.ElevatorMode.DUTY_CYCLE;
             VEPosition = 0;
-        } else if (verticalElevatorLimitSwitch.get() && VESwitchFlag && targetState != Enums.ElevatorState.ELEVATOR_STANDBY) {
+        } else if (verticalElevatorLimitSwitch.get()
+                && VESwitchFlag
+                && (targetState != Enums.ElevatorState.ELEVATOR_STANDBY)
+        ) {
             VESwitchFlag = false;
         }
 
-        switch (elevatorMode) {
+        switch (verticalElevatorMode) {
             case POSITION:
                 verticalElevatorMotor.setControl(
                         positionVoltage.withPosition(VEPosition)
