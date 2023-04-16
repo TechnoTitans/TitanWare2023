@@ -28,7 +28,7 @@ public class Elevator extends SubsystemBase {
     private final CANCoder horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
-    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_STANDBY;
+    private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_RESET;
 
     public Elevator(TalonFX verticalElevatorMotor,
                     InvertedValue verticalElevatorMotorR,

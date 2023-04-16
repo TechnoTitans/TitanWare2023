@@ -66,6 +66,12 @@ public class TitanBoard implements Runnable {
         ), stringSupplier);
     }
 
+    public static void addBoolean(final String name, final Supplier<Boolean> booleanSupplier) {
+        primitivePublisherSupplierMap.put(robotNT.getTopic(name).genericPublish(
+                NetworkTableType.kBoolean.getValueStr()
+        ), booleanSupplier);
+    }
+
     public static void addEncoder(final String name, final Supplier<Double> distance, final Supplier<Double> speed) {
         addDouble(String.format("%s/distance", name), distance);
         addDouble(String.format("%s/speed", name), speed);
