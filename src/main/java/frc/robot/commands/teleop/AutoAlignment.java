@@ -14,6 +14,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 import frc.robot.utils.PoseUtils;
+import frc.robot.utils.TitanBoard;
 
 public class AutoAlignment extends CommandBase {
     private final Swerve swerve;
@@ -24,13 +25,17 @@ public class AutoAlignment extends CommandBase {
     private final PIDController alignPIDController;
     private Pose2d targetPose;
 
+    private String gridSectionName = "None";
+
     public AutoAlignment(Swerve swerve, SwerveDrivePoseEstimator poseEstimator, XboxController mainController, Field2d field2d) {
         this.swerve = swerve;
         this.field2d = field2d;
         this.mainController = mainController;
         this.poseEstimator = poseEstimator;
         this.driverProfile = Profiler.getProfile();
-        this.alignPIDController = new PIDController(0.6, 0, 0);
+        this.alignPIDController = new PIDController(0.7, 0, 0);
+
+        TitanBoard.addString("gridSection", () -> gridSectionName);
 
         addRequirements(swerve);
     }
@@ -40,14 +45,17 @@ public class AutoAlignment extends CommandBase {
         final Pose2d LEFT, CENTER, RIGHT;
 
         if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP, field2d)) { //LEFT SIDE OF GRID
+            gridSectionName = "LEFT";
             LEFT = Constants.Grid.LEFT.LEFT;
             CENTER = Constants.Grid.LEFT.CUBE;
             RIGHT = Constants.Grid.LEFT.RIGHT;
         } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP, field2d)) { // CENTER OF GRID
+            gridSectionName = "CENTER";
             LEFT = Constants.Grid.CENTER.LEFT;
             CENTER = Constants.Grid.CENTER.CUBE;
             RIGHT = Constants.Grid.CENTER.RIGHT;
         } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP, field2d)) { // RIGHT OF GRID
+            gridSectionName = "RIGHT";
             LEFT = Constants.Grid.RIGHT.LEFT;
             CENTER = Constants.Grid.RIGHT.CUBE;
             RIGHT = Constants.Grid.RIGHT.RIGHT;
@@ -70,6 +78,7 @@ public class AutoAlignment extends CommandBase {
         }
 
         targetPose = PoseUtils.transformGridPose(targetPose);
+
         this.schedule();
     }
 
@@ -83,7 +92,7 @@ public class AutoAlignment extends CommandBase {
         Pose2d transformedPose = PoseUtils.transformRobotPose(poseEstimator.getEstimatedPosition());
         Transform2d poseError = transformedPose.minus(targetPose);
 
-        double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.1) *
+        double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.01) *
                 Constants.Swerve.TELEOP_MAX_SPEED *
                 driverProfile.getThrottleSensitivity();
 

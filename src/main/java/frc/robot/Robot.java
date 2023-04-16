@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
         robotContainer.swerve.brake();
         SmartDashboard.putData("Field", robotContainer.field);
 
-        TitanBoard.addDouble("Yaw", robotContainer.swerve::getHeading);
+        TitanBoard.addDouble("Yaw", () -> robotContainer.swerve.getHeading() % 360);
         TitanBoard.addDouble("Pitch", robotContainer.swerve::getPitch);
         TitanBoard.addEncoder("EVertical Enc",
                 () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue(),

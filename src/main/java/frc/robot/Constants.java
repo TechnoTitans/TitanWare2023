@@ -60,7 +60,7 @@ public interface Constants {
         Translation2d RIGHTBOTTOM = new Translation2d(1, 0);
         Translation2d RIGHTTOP = new Translation2d(3.35, 1.89);
 
-        double DISTANCE_FROM_GRID = 1.83;
+        double DISTANCE_FROM_GRID = 1.84;
         double FIELD_LENGTH_METERS = 16.54175;
         double FIELD_WIDTH_METERS = 8.0137;
 
@@ -69,17 +69,22 @@ public interface Constants {
                 new Rotation2d(Math.PI));
 
         interface LEFT {
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 4.98), Rotation2d.fromDegrees(180));
+            // 4.98
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 5.045), Rotation2d.fromDegrees(180));
             Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
-            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.8), Rotation2d.fromDegrees(180));
+            // 3.8
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.84), Rotation2d.fromDegrees(180));
         }
         interface CENTER {
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.34), Rotation2d.fromDegrees(180));
+            // 3.34
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.38), Rotation2d.fromDegrees(180));
             Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
-            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 2.13), Rotation2d.fromDegrees(180));
+            // 2.13
+            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 2.2), Rotation2d.fromDegrees(180));
         }
         interface RIGHT {
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 1.6), Rotation2d.fromDegrees(180));
+            // 1.6
+            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 1.63), Rotation2d.fromDegrees(180));
             Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
             Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 0.47), Rotation2d.fromDegrees(180));
         }
