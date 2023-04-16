@@ -72,7 +72,7 @@ public class ClawControl extends CommandBase {
             case CLAW_INTAKING_CONE:
                 speed = 0.5;
                 clawMode = Enums.ClawMode.POSITION;
-                tiltRotations = .3;
+                tiltRotations = .31;
                 openCloseControlMode = ControlMode.Position;
                 openCloseControl = 100;
                 break;
