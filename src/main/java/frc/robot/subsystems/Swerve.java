@@ -8,7 +8,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import io.github.oblarg.oblog.annotations.Log;
 
 import java.util.function.Consumer;
 
@@ -27,12 +26,10 @@ public class Swerve extends SubsystemBase {
         this.backRight = backRight;
     }
 
-    @Log(name = "Yaw")
     public double getHeading() {
         return pigeon.getYaw();
     }
 
-    @Log(name = "Pitch")
     public double getPitch() {
         return pigeon.getPitch();
     }
@@ -161,25 +158,5 @@ public class Swerve extends SubsystemBase {
         frontRight.manualVelocityControl(velocityTicksPer100ms);
         backLeft.manualVelocityControl(velocityTicksPer100ms);
         backRight.manualVelocityControl(velocityTicksPer100ms);
-    }
-
-    @Log(name = "FL Enc", tabName = "Debug", columnIndex = 1, rowIndex = 1)
-    private double frontLeftAngle() {
-        return frontLeft.getAngle();
-    }
-
-    @Log(name = "FR Enc", tabName = "Debug", columnIndex = 2, rowIndex = 1)
-    private double frontRightAngle() {
-        return frontRight.getAngle();
-    }
-
-    @Log(name = "BL Enc", tabName = "Debug", columnIndex = 1, rowIndex = 2)
-    private double backLeftAngle() {
-        return backLeft.getAngle();
-    }
-
-    @Log(name = "BR Enc", tabName = "Debug", columnIndex = 2, rowIndex = 2)
-    private double backRightAngle() {
-        return backRight.getAngle();
     }
 }

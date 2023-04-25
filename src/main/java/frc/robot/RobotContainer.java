@@ -36,7 +36,6 @@ import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
-import io.github.oblarg.oblog.annotations.Log;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
@@ -69,7 +68,6 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
-    @Log(name = "Field")
     public final Field2d field;
 
     //PDH
@@ -108,9 +106,7 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    @Log(name = "Profile Chooser")
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
-    @Log(name = "Auto Chooser", width = 2)
     public final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {

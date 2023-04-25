@@ -14,7 +14,6 @@ import frc.robot.commands.subsystems.ClawControl;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
-import io.github.oblarg.oblog.annotations.Log;
 
 @SuppressWarnings("unused")
 public class Claw extends SubsystemBase {
@@ -119,15 +118,5 @@ public class Claw extends SubsystemBase {
 
     public DigitalInput getClawTiltLimitSwitch() {
         return clawTiltLimitSwitch;
-    }
-
-    @Log(name = "OpenClose Enc", tabName = "Debug", columnIndex = 4, rowIndex = 1)
-    private double getOpenCloseEncoderValue() {
-        return clawOpenCloseEncoder.getAbsolutePosition();
-    }
-
-    @Log(name = "Tilt Enc", tabName = "Debug", columnIndex = 4, rowIndex = 2)
-    private double getTiltEncoderValue() {
-        return clawTiltEncoder.getAbsolutePosition();
     }
 }
