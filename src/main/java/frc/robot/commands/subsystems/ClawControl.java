@@ -112,7 +112,7 @@ public class ClawControl extends CommandBase {
                 openCloseControl = -0.37;
                 break;
             case CLAW_ANGLE_CUBE:
-                speed = 0.5;
+                speed = 0.6;
                 clawMode = Enums.ClawMode.POSITION;
                 tiltRotations = .4;
                 openCloseControlMode = ControlMode.Position;
