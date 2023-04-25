@@ -1,13 +1,16 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.PoseUtils;
 
 import java.util.function.Consumer;
 
@@ -88,7 +91,22 @@ public class Swerve extends SubsystemBase {
     }
 
     public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
-        ChassisSpeeds speeds = (fieldRelative) ? ChassisSpeeds.fromFieldRelativeSpeeds(xspeed, yspeed, rot, getRotation2d()) : new ChassisSpeeds(xspeed, yspeed, rot);
+        ChassisSpeeds speeds = (fieldRelative) ?
+                ChassisSpeeds.fromFieldRelativeSpeeds(xspeed, yspeed, rot, getRotation2d()) :
+                new ChassisSpeeds(xspeed, yspeed, rot);
+
+        // This is supposed to correct for the actuation speed of the swerve. Should try and prevent robot drift.
+        // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
+        double dtConstant = 0.009; //This is a real magic number.
+        Pose2d robotPoseVel = new Pose2d(
+                speeds.vxMetersPerSecond * dtConstant,
+                speeds.vyMetersPerSecond * dtConstant,
+                Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dtConstant));
+        Twist2d twistVel = PoseUtils.PoseLog(robotPoseVel);
+
+        speeds = new ChassisSpeeds(twistVel.dx / dtConstant, twistVel.dy / dtConstant,
+                twistVel.dtheta / dtConstant);
+
         drive(speeds);
     }
 

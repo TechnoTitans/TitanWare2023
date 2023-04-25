@@ -1,7 +1,9 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants;
@@ -43,5 +45,23 @@ public class PoseUtils {
                     originalPose.getY(),
                     originalPose.getRotation().times(-1))
                 : originalPose;
+    }
+
+    //I stole this from 254
+    public static Twist2d PoseLog(Pose2d transform) {
+        double kEps = 1E-9;
+        double dtheta = transform.getRotation().getRadians();
+        double half_dtheta = 0.5 * dtheta;
+        double cos_minus_one = transform.getRotation().getCos() - 1.0;
+        double halftheta_by_tan_of_halfdtheta;
+
+        if (Math.abs(cos_minus_one) < kEps) {
+            halftheta_by_tan_of_halfdtheta = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
+        } else {
+            halftheta_by_tan_of_halfdtheta = -(half_dtheta * transform.getRotation().getSin()) / cos_minus_one;
+        }
+        Translation2d translation_part = transform.getTranslation().rotateBy(
+                new Rotation2d(halftheta_by_tan_of_halfdtheta, -half_dtheta));
+        return new Twist2d(translation_part.getX(), translation_part.getY(), dtheta);
     }
 }
