@@ -31,6 +31,9 @@ public class IntakeTeleop extends CommandBase {
     public void execute() {
         //Main Controller
         if (mainController.getAButton()) {
+            if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_CUBE) {
+                elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
+            }
             claw.setState(Enums.ClawState.CLAW_INTAKING_CONE);
         } else if (mainController.getBButton()) {
             elevator.setState(Enums.ElevatorState.ELEVATOR_CUBE);

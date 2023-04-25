@@ -58,6 +58,11 @@ public class ElevatorControl extends CommandBase {
         addRequirements(elevator);
     }
 
+    @Override
+    public void initialize() {
+        VESwitchFlag = false;
+    }
+
     private void setState(Enums.ElevatorState state) {
         this.currentState = state;
         this.verticalElevatorMode = Enums.ElevatorMode.POSITION;
@@ -126,13 +131,13 @@ public class ElevatorControl extends CommandBase {
                 horizontalElevatorEncoder.getPosition() < 0.5) {
 //            horizontalElevatorEncoder.setPosition(0);
             horizontalPositionalControl = true;
-            HETargetRotations = 0.15;
+            HETargetRotations = 0.1;
         }
 
         if (horizontalElevatorLimitSwitch.get() && targetState == Enums.ElevatorState.ELEVATOR_RESET) {
             horizontalElevatorEncoder.setPosition(0);
-            elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
-            return;
+            horizontalPositionalControl = true;
+            HETargetRotations = 0.1;
         }
 
         if (elevatorHorizontalHighLimitSwitch.get() && targetState == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH &&
@@ -146,22 +151,17 @@ public class ElevatorControl extends CommandBase {
             HETargetRotations = horizontalElevatorEncoder.getPosition();
         }
 
-        if (verticalElevatorLimitSwitch.get()
-                && !VESwitchFlag
-                && (
-                        targetState == Enums.ElevatorState.ELEVATOR_STANDBY
-                                || targetState == Enums.ElevatorState.ELEVATOR_RESET)
-        ) {
+        if (verticalElevatorLimitSwitch.get() && !VESwitchFlag &&
+                (targetState == Enums.ElevatorState.ELEVATOR_STANDBY || targetState == Enums.ElevatorState.ELEVATOR_RESET)) {
             VESwitchFlag = true;
             verticalElevatorEncoder.setPosition(0);
             verticalElevatorMode = Enums.ElevatorMode.DUTY_CYCLE;
             VEPosition = 0;
-        } else if (verticalElevatorLimitSwitch.get()
-                && VESwitchFlag
-                && (targetState != Enums.ElevatorState.ELEVATOR_STANDBY)
-        ) {
+        } else if (!verticalElevatorLimitSwitch.get() && VESwitchFlag && (targetState != Enums.ElevatorState.ELEVATOR_STANDBY &&
+                targetState != Enums.ElevatorState.ELEVATOR_RESET)) {
             VESwitchFlag = false;
         }
+
 
         switch (verticalElevatorMode) {
             case POSITION:

@@ -236,16 +236,10 @@ public class RobotContainer {
         autoChooser.setDefaultOption("DropAndMobility", trajectoryManager.getCommand("DropAndMobility"));
         autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack", 2, 1));
         autoChooser.addOption("DropAndCharge", trajectoryManager.getCommand("DropAndCharge"));
-        autoChooser.addOption("2PieceAuto", trajectoryManager.getCommand("2PieceAuto"));
-        autoChooser.addOption("2PieceAutoBalance", trajectoryManager.getCommand("2PieceAutoBal"));
         autoChooser.addOption("2PieceBump", trajectoryManager.getCommand("2PieceBump", 2, 1));
-        autoChooser.addOption("2.5BalAuton", trajectoryManager.getCommand("2.5BalAuton"));
-        autoChooser.addOption("2.5BalAutonV2", trajectoryManager.getCommand("2.5BalAutonV2"));
-        autoChooser.addOption("2.5PieceNonBal", trajectoryManager.getCommand("2.5PieceNonBal"));
-        autoChooser.addOption("2.5BalNonBalV2", trajectoryManager.getCommand("2.5BalNonBalV2"));
         autoChooser.addOption("2.5PieceNoBalTurns", trajectoryManager.getCommand("2.5PieceNoBalTurns"));
-        autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
-        autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
+//        autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
+//        autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Create Button Bindings
