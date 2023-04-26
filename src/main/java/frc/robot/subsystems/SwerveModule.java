@@ -55,7 +55,6 @@ public class SwerveModule extends SubsystemBase {
 
         com.ctre.phoenixpro.configs.TalonFXConfiguration driverConfig = new com.ctre.phoenixpro.configs.TalonFXConfiguration();
         driverConfig.Slot0.kP = 0.00060954;
-        driverConfig.Slot0.kI = 0.002;
         driverConfig.Slot0.kD = 0.01;
         driverConfig.Slot0.kS = 0.25655;
         driverConfig.Slot0.kV = 2.9757;
