@@ -44,17 +44,17 @@ public class AutoAlignment extends CommandBase {
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
         final Pose2d LEFT, CENTER, RIGHT;
 
-        if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP, field2d)) { //LEFT SIDE OF GRID
+        if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
             gridSectionName = "LEFT";
             LEFT = Constants.Grid.LEFT.LEFT;
             CENTER = Constants.Grid.LEFT.CUBE;
             RIGHT = Constants.Grid.LEFT.RIGHT;
-        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP, field2d)) { // CENTER OF GRID
+        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) { // CENTER OF GRID
             gridSectionName = "CENTER";
             LEFT = Constants.Grid.CENTER.LEFT;
             CENTER = Constants.Grid.CENTER.CUBE;
             RIGHT = Constants.Grid.CENTER.RIGHT;
-        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP, field2d)) { // RIGHT OF GRID
+        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) { // RIGHT OF GRID
             gridSectionName = "RIGHT";
             LEFT = Constants.Grid.RIGHT.LEFT;
             CENTER = Constants.Grid.RIGHT.CUBE;

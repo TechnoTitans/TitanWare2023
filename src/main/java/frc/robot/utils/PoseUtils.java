@@ -5,11 +5,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants;
 
 public class PoseUtils {
-    public static boolean poseWithinArea(Pose2d currentPose, Translation2d point1, Translation2d point2, Field2d field) {
+    public static boolean poseWithinArea(Pose2d currentPose, Translation2d point1, Translation2d point2) {
         Pose2d transformedPose = localizeRobotPoseOnBlueAlliance(currentPose);
         Translation2d transformedTranslation = transformedPose.getTranslation();
 
