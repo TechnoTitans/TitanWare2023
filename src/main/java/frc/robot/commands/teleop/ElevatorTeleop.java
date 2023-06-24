@@ -14,7 +14,11 @@ public class ElevatorTeleop extends CommandBase {
     private final Claw claw;
     private final XboxController controller;
 
-    public ElevatorTeleop(Elevator elevator, Claw claw, XboxController controller) {
+    public ElevatorTeleop(
+            final Elevator elevator,
+            final Claw claw,
+            final XboxController controller
+    ) {
         this.elevator = elevator;
         this.claw = claw;
         this.controller = controller;

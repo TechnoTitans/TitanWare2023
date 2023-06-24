@@ -27,7 +27,12 @@ public class AutoAlignment extends CommandBase {
 
     private String gridSectionName = "None";
 
-    public AutoAlignment(Swerve swerve, SwerveDrivePoseEstimator poseEstimator, XboxController mainController, Field2d field2d) {
+    public AutoAlignment(
+            final Swerve swerve,
+            final SwerveDrivePoseEstimator poseEstimator,
+            final XboxController mainController,
+            final Field2d field2d
+    ) {
         this.swerve = swerve;
         this.field2d = field2d;
         this.mainController = mainController;
@@ -40,7 +45,7 @@ public class AutoAlignment extends CommandBase {
         addRequirements(swerve);
     }
 
-    public void setState(Enums.GridPositions state) {
+    public void setState(final Enums.GridPositions state) {
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
         final Pose2d LEFT, CENTER, RIGHT;
 
@@ -89,10 +94,10 @@ public class AutoAlignment extends CommandBase {
 
     @Override
     public void execute() {
-        Pose2d transformedPose = PoseUtils.transformRobotPose(poseEstimator.getEstimatedPosition());
-        Transform2d poseError = transformedPose.minus(targetPose);
+        final Pose2d transformedPose = PoseUtils.transformRobotPose(poseEstimator.getEstimatedPosition());
+        final Transform2d poseError = transformedPose.minus(targetPose);
 
-        double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.01) *
+        final double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.01) *
                 Constants.Swerve.TELEOP_MAX_SPEED *
                 driverProfile.getThrottleSensitivity();
 

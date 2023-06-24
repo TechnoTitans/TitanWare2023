@@ -29,17 +29,18 @@ public class Elevator extends SubsystemBase {
 
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_RESET;
 
-    public Elevator(TalonFX verticalElevatorMotor,
-                    InvertedValue verticalElevatorMotorR,
-                    TalonFX verticalElevatorMotorFollower,
-                    InvertedValue verticalElevatorMotorFollowerR,
-                    CANcoder verticalElevatorEncoder,
-                    CANCoder horizontalElevatorEncoder,
-                    SensorDirectionValue verticalElevatorEncoderR,
-                    TitanMAX horizontalElevatorMotor,
-                    DigitalInput verticalElevatorLimitSwitch,
-                    DigitalInput horizontalElevatorLimitSwitch,
-                    DigitalInput elevatorHorizontalHighLimitSwitch) {
+    public Elevator(final TalonFX verticalElevatorMotor,
+                    final InvertedValue verticalElevatorMotorR,
+                    final TalonFX verticalElevatorMotorFollower,
+                    final InvertedValue verticalElevatorMotorFollowerR,
+                    final CANcoder verticalElevatorEncoder,
+                    final CANCoder horizontalElevatorEncoder,
+                    final SensorDirectionValue verticalElevatorEncoderR,
+                    final TitanMAX horizontalElevatorMotor,
+                    final DigitalInput verticalElevatorLimitSwitch,
+                    final DigitalInput horizontalElevatorLimitSwitch,
+                    final DigitalInput elevatorHorizontalHighLimitSwitch
+    ) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.verticalElevatorMotorR = verticalElevatorMotorR;
         this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
@@ -97,7 +98,7 @@ public class Elevator extends SubsystemBase {
         horizontalElevatorEncoder.configAllSettings(horizontalElevatorEncoderConfig);
     }
 
-    public void setState(Enums.ElevatorState targetState) {
+    public void setState(final Enums.ElevatorState targetState) {
         currentState = targetState;
     }
 

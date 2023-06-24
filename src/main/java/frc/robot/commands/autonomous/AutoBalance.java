@@ -14,7 +14,7 @@ public class AutoBalance extends CommandBase {
     private final double p = 0.03;
     private boolean flag = false;
 
-    public AutoBalance(Swerve swerve) {
+    public AutoBalance(final Swerve swerve) {
         this.swerve = swerve;
         this.pitchPIDController = new PIDController(p, 0, 0);
         pitchPIDController.setTolerance(0.001);
@@ -34,7 +34,7 @@ public class AutoBalance extends CommandBase {
             pitchPIDController.setP(0.024);
             flag = true;
         }
-        double pidOutput = MathUtil.clamp(pitchPIDController.calculate(swerve.getPitch() + swerve.getRoll()), -1, 1);
+        final double pidOutput = MathUtil.clamp(pitchPIDController.calculate(swerve.getPitch() + swerve.getRoll()), -1, 1);
         swerve.drive(
                 pidOutput,
                 0,

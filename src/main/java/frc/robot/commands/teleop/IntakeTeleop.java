@@ -14,7 +14,12 @@ public class IntakeTeleop extends CommandBase {
 
     private boolean hasLoweredAfter = false;
 
-    public IntakeTeleop(Claw claw, Elevator elevator, XboxController mainController, XboxController coController) {
+    public IntakeTeleop(
+            final Claw claw,
+            final Elevator elevator,
+            final XboxController mainController,
+            final XboxController coController
+    ) {
         this.claw = claw;
         this.elevator = elevator;
         this.mainController = mainController;

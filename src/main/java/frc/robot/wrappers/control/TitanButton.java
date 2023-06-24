@@ -8,7 +8,10 @@ public class TitanButton extends JoystickButton {
     private final GenericHID hid;
     private final int buttonNumber;
 
-    public TitanButton(GenericHID hid, int buttonNumber) {
+    public TitanButton(
+            final GenericHID hid,
+            final int buttonNumber
+    ) {
         super(hid, buttonNumber);
         this.hid = hid;
         this.buttonNumber = buttonNumber;

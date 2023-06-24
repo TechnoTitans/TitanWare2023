@@ -24,7 +24,12 @@ public class PhotonApriltags extends SubsystemBase {
     private PhotonPoseEstimator photonPoseEstimator;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
 
-    public PhotonApriltags(PhotonCamera apriltagCamera, Swerve swerve, SwerveDrivePoseEstimator poseEstimator, Field2d field2d) {
+    public PhotonApriltags(
+            final PhotonCamera apriltagCamera,
+            final Swerve swerve,
+            final SwerveDrivePoseEstimator poseEstimator,
+            final Field2d field2d
+    ) {
         apriltagCamera.setDriverMode(false);
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
@@ -38,7 +43,7 @@ public class PhotonApriltags extends SubsystemBase {
     }
 
     public void refreshAlliance() {
-        boolean allianceChanged;
+        final boolean allianceChanged;
         switch (DriverStation.getAlliance()) {
             case Blue:
                 allianceChanged = (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
@@ -53,14 +58,14 @@ public class PhotonApriltags extends SubsystemBase {
         }
 
         if (allianceChanged) {
-            Pose2d newPose = PoseUtils.flipAlliancePose(poseEstimator.getEstimatedPosition());
+            final Pose2d newPose = PoseUtils.flipAlliancePose(poseEstimator.getEstimatedPosition());
             poseEstimator.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), newPose);
         }
     }
 
     @Override
     public void periodic() {
-        EstimatedRobotPose estimatedRobotPose = photonEstimator.grabLatestEstimatedPose();
+        final EstimatedRobotPose estimatedRobotPose = photonEstimator.grabLatestEstimatedPose();
         if (estimatedRobotPose != null) {
             Pose2d estimatedPose2d = estimatedRobotPose.estimatedPose.toPose2d();
             if (robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) {

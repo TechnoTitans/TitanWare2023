@@ -34,11 +34,11 @@ public class Profiler {
         return newProfile;
     }
 
-    public static void setProfile(Enums.DriverProfiles profile) {
+    public static void setProfile(final Enums.DriverProfiles profile) {
         Profiler.profile = profile;
     }
 
-    public static void setWeights(Enums.SwerveSpeeds state) {
+    public static void setWeights(final Enums.SwerveSpeeds state) {
         if (currentState != state) {
             currentState = state;
             switch (state) {

@@ -27,7 +27,7 @@ public class ClawControl extends CommandBase {
             tiltRotations = 0, //Claw Tilt Rotations
             openCloseControl = 0; //Claw Open Close Ticks
 
-    public ClawControl(Claw claw) {
+    public ClawControl(final Claw claw) {
         this.claw = claw;
         this.clawWheelMotor = claw.getClawWheelMotor();
         this.clawOpenCloseMotor = claw.getClawOpenCloseMotor();
@@ -39,7 +39,7 @@ public class ClawControl extends CommandBase {
         addRequirements(claw);
     }
 
-    private void setState(Enums.ClawState state) {
+    private void setState(final Enums.ClawState state) {
         switch (state) {
             case CLAW_HOLDING:
                 speed = 0.2;
@@ -155,7 +155,7 @@ public class ClawControl extends CommandBase {
 
     @Override
     public void execute() {
-        Enums.ClawState newState = claw.getTargetState();
+        final Enums.ClawState newState = claw.getTargetState();
         if (newState != currentState) {
             currentState = newState;
             setState(currentState);

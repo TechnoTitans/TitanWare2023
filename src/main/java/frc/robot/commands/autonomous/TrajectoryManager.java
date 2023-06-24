@@ -45,24 +45,24 @@ public class TrajectoryManager {
     }
 
     public void follow(String trajDir, double maxVel, double maxAccl) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
-        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator);
+        final PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
+        final TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public void follow(String trajDir) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
-        TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator);
+        final PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
+        final TrajectoryFollower trajFollower = new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator);
         CommandScheduler.getInstance().schedule(trajFollower);
     }
 
     public TrajectoryFollower getCommand(String trajDir) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
+        final PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, Constants.Swerve.TRAJ_MAX_SPEED, Constants.Swerve.TRAJ_MAX_ACCELERATION, reverseTrajectory);
         return new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator);
     }
 
     public TrajectoryFollower getCommand(String trajDir, double maxVel, double maxAccl) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
+        final PathPlannerTrajectory traj = PathPlanner.loadPath(trajDir, maxVel, maxAccl, reverseTrajectory);
         return new TrajectoryFollower(swerve, field2d, controller, poseEstimator, traj, claw, elevator);
     }
 }
@@ -84,7 +84,15 @@ class TrajectoryFollower extends CommandBase {
     private boolean paused = false;
     private boolean wheelX = false;
 
-    public TrajectoryFollower(Swerve swerve, Field2d field2d, DriveController controller, SwerveDrivePoseEstimator poseEstimator, PathPlannerTrajectory traj, Claw claw, Elevator elevator) {
+    public TrajectoryFollower(
+            final Swerve swerve,
+            final Field2d field2d,
+            final DriveController controller,
+            final SwerveDrivePoseEstimator poseEstimator,
+            final PathPlannerTrajectory traj,
+            final Claw claw,
+            final Elevator elevator
+    ) {
         this.swerve = swerve;
         this.timer = new Timer();
         this.field2d = field2d;
@@ -101,7 +109,7 @@ class TrajectoryFollower extends CommandBase {
     @Override
     public void initialize() {
         this.traj = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
-        Pose2d initialPose = traj.getInitialHolonomicPose();
+        final Pose2d initialPose = traj.getInitialHolonomicPose();
         swerve.setAngle(initialPose.getRotation().getDegrees());
         poseEstimator.resetPosition(initialPose.getRotation(), swerve.getModulePositions(), initialPose);
         eventMarkers = null;
@@ -112,8 +120,8 @@ class TrajectoryFollower extends CommandBase {
     @Override
     public void execute() {
         if (!paused) {
-            double currentTime = timer.get();
-            PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
+            final double currentTime = timer.get();
+            final PathPlannerTrajectory.PathPlannerState sample = (PathPlannerTrajectory.PathPlannerState) traj.sample(currentTime);
             commander(sample);
             if (wheelX) {
                 wheelX();
@@ -135,8 +143,8 @@ class TrajectoryFollower extends CommandBase {
         return !RobotState.isAutonomous();
     }
 
-    private void driveToState(PathPlannerTrajectory.PathPlannerState state) {
-        ChassisSpeeds correction = controller.calculate(poseEstimator.getEstimatedPosition(), state);
+    private void driveToState(final PathPlannerTrajectory.PathPlannerState state) {
+        final ChassisSpeeds correction = controller.calculate(poseEstimator.getEstimatedPosition(), state);
 
         field2d.getObject("wantedState").setPose(new Pose2d(state.poseMeters.getX(), state.poseMeters.getY(), state.holonomicRotation));
 
@@ -156,20 +164,20 @@ class TrajectoryFollower extends CommandBase {
         });
     }
 
-    private void commander(PathPlannerTrajectory.PathPlannerState sample) {
+    private void commander(final PathPlannerTrajectory.PathPlannerState sample) {
         if (eventMarkers == null) {
             eventMarkers = traj.getMarkers();
         }
         if (eventMarkers == null || eventMarkers.size() == 0) {
             return;
         }
-        PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
-        double distError = 0.1;
+        final PathPlannerTrajectory.EventMarker marker = eventMarkers.get(0);
+        final double distError = 0.1;
 //        if (MathMethods.withinBand(marker.positionMeters.getDistance(sample.poseMeters.getTranslation()), distError)) {
         if (MathMethods.withinRange(marker.timeSeconds, timer.get(), distError)) {
             eventMarkers.remove(0);
-            String[] commands = marker.names.get(0).trim().split(";");
-            List<Command> sequentialCommands = new ArrayList<>();
+            final String[] commands = marker.names.get(0).trim().split(";");
+            final List<Command> sequentialCommands = new ArrayList<>();
             for (String x : commands) {
                 String[] args = x.split(":");
                 switch (args[0].toLowerCase()) {

@@ -7,21 +7,28 @@ import edu.wpi.first.math.MathUtil;
 
 @SuppressWarnings("unused")
 public class TitanMAX extends CANSparkMax {
-    public TitanMAX(int deviceId, MotorType type) {
+    public TitanMAX(
+            final int deviceId,
+            final MotorType type
+    ) {
         super(deviceId, type);
     }
 
-    public TitanMAX(int deviceId, MotorType type, boolean inverted) {
+    public TitanMAX(
+            final int deviceId,
+            final MotorType type,
+            final boolean inverted
+    ) {
         super(deviceId, type);
         super.setInverted(inverted);
     }
 
-    public void set(double speed) {
-        speed = MathUtil.clamp(speed, -1, 1);
-        super.set(speed);
+    public void set(final double speed) {
+        final double clampedSpeed = MathUtil.clamp(speed, -1, 1);
+        super.set(clampedSpeed);
     }
 
-    public void set(ControlType controlType, double value) {
+    public void set(final ControlType controlType, final double value) {
         this.getPIDController().setReference(value, controlType);
     }
 
@@ -37,19 +44,26 @@ public class TitanMAX extends CANSparkMax {
         super.setIdleMode(IdleMode.kCoast);
     }
 
-    public void follow(TitanMAX other) {
+    public void follow(final TitanMAX other) {
         super.follow(other);
     }
 
-    public void currentLimit(int stallLimit) {
+    public void currentLimit(final int stallLimit) {
         super.setSmartCurrentLimit(stallLimit);
     }
 
-    public void currentLimit(int stallLimit, int freeLimit) {
+    public void currentLimit(
+            final int stallLimit,
+            final int freeLimit
+    ) {
         super.setSmartCurrentLimit(stallLimit, freeLimit);
     }
 
-    public void currentLimit(int stallLimit, int freeLimit, int limitRPM) {
+    public void currentLimit(
+            final int stallLimit,
+            final int freeLimit,
+            final int limitRPM
+    ) {
         super.setSmartCurrentLimit(stallLimit, freeLimit, limitRPM);
     }
 

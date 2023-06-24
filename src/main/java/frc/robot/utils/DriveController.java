@@ -34,7 +34,10 @@ public class DriveController {
      * @param rotationController A PID controller to respond to error in rotation
      */
     public DriveController(
-            PIDController xController, PIDController yController, PIDController rotationController) {
+            final PIDController xController,
+            final PIDController yController,
+            final PIDController rotationController
+    ) {
         this.xController = xController;
         this.yController = yController;
         this.rotationController = rotationController;
@@ -49,8 +52,8 @@ public class DriveController {
      * @return True if the pose error is within tolerance of the reference.
      */
     public boolean atReference() {
-        Translation2d translationTolerance = this.tolerance.getTranslation();
-        Rotation2d rotationTolerance = this.tolerance.getRotation();
+        final Translation2d translationTolerance = this.tolerance.getTranslation();
+        final Rotation2d rotationTolerance = this.tolerance.getRotation();
 
         return Math.abs(this.translationError.getX()) < translationTolerance.getX()
                 && Math.abs(this.translationError.getY()) < translationTolerance.getY()
@@ -62,7 +65,7 @@ public class DriveController {
      *
      * @param tolerance The pose error which is tolerable
      */
-    public void setTolerance(Pose2d tolerance) {
+    public void setTolerance(final Pose2d tolerance) {
         this.tolerance = tolerance;
     }
 
@@ -73,7 +76,10 @@ public class DriveController {
      * @param referenceState The desired trajectory state
      * @return The next output of the holonomic drive controller
      */
-    public ChassisSpeeds calculate(Pose2d currentPose, PathPlannerState referenceState) {
+    public ChassisSpeeds calculate(
+            final Pose2d currentPose,
+            final PathPlannerState referenceState
+    ) {
         this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
         this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
 

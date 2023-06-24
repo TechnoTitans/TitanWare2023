@@ -8,7 +8,7 @@ public class CandleController {
     private final CANdle caNdle;
     private Enums.CANdleState state;
 
-    public CandleController(CANdle caNdle) {
+    public CandleController(final CANdle caNdle) {
         this.caNdle = caNdle;
     }
 

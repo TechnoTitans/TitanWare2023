@@ -4,7 +4,7 @@ import org.photonvision.PhotonCamera;
 
 public class PhotonDriverCam {
 
-    public PhotonDriverCam(PhotonCamera photonCamera) {
+    public PhotonDriverCam(final PhotonCamera photonCamera) {
         photonCamera.setDriverMode(true);
     }
 }

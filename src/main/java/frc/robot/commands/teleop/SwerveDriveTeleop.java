@@ -15,8 +15,11 @@ public class SwerveDriveTeleop extends CommandBase {
     private final XboxController controller;
     private Profiler driverProfile;
 
-
-    public SwerveDriveTeleop(Swerve swerve, Elevator elevator, XboxController controller) {
+    public SwerveDriveTeleop(
+            final Swerve swerve,
+            final Elevator elevator,
+            final XboxController controller
+    ) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.controller = controller;
@@ -30,8 +33,8 @@ public class SwerveDriveTeleop extends CommandBase {
 
     @Override
     public void execute() {
-        double frontBack = MathMethods.deadband(controller.getLeftY(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
-        double leftRight = MathMethods.deadband(controller.getLeftX(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
+        final double frontBack = MathMethods.deadband(controller.getLeftY(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
+        final double leftRight = MathMethods.deadband(controller.getLeftX(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
 
         if (!elevator.verticalIsExtended()) {
             if (controller.getLeftTriggerAxis() > 0.5) {
@@ -49,14 +52,14 @@ public class SwerveDriveTeleop extends CommandBase {
             }
         }
 
-        double throttleWeight = driverProfile.getThrottleWeight();
-        double rotWeight = driverProfile.getRotateWeight();
+        final double throttleWeight = driverProfile.getThrottleWeight();
+        final double rotWeight = driverProfile.getRotateWeight();
 
         if (controller.getRightStickButton()) {
-            double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
+            final double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
             swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, true, 1);
         } else {
-            double rot = MathMethods.deadband(controller.getRightX(), 0.01) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
+            final double rot = MathMethods.deadband(controller.getRightX(), 0.01) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
             swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, true);
         }
     }

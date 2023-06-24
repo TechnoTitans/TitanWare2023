@@ -17,7 +17,14 @@ public class Swerve extends SubsystemBase {
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule frontLeft, frontRight, backLeft, backRight;
 
-    public Swerve(Pigeon2 pigeon, SwerveDriveKinematics kinematics, SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft, SwerveModule backRight) {
+    public Swerve(
+            final Pigeon2 pigeon,
+            final SwerveDriveKinematics kinematics,
+            final SwerveModule frontLeft,
+            final SwerveModule frontRight,
+            final SwerveModule backLeft,
+            final SwerveModule backRight
+    ) {
         this.pigeon = pigeon;
         this.kinematics = kinematics;
         this.frontLeft = frontLeft;
@@ -42,7 +49,7 @@ public class Swerve extends SubsystemBase {
         return Rotation2d.fromDegrees(getHeading());
     }
 
-    public void setAngle(double angle) {
+    public void setAngle(final double angle) {
         pigeon.setYaw(angle);
     }
 
@@ -63,61 +70,41 @@ public class Swerve extends SubsystemBase {
         };
     }
 
-    public SwerveModuleState[] getModuleDesiredStates() {
-        return new SwerveModuleState[] {
-                frontLeft.getLastDesiredState(),
-                frontRight.getLastDesiredState(),
-                backLeft.getLastDesiredState(),
-                backRight.getLastDesiredState()
-        };
-    }
-
     public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {frontLeft.getPosition(), frontRight.getPosition(), backLeft.getPosition(), backRight.getPosition()};
+        return new SwerveModulePosition[] {
+                frontLeft.getPosition(),
+                frontRight.getPosition(),
+                backLeft.getPosition(),
+                backRight.getPosition()
+        };
     }
 
     public Consumer<SwerveModuleState[]> getModuleStateConsumer() {
         return this::drive;
     }
 
-    public void tankDrive(double lspeed, double rspeed) {
-        frontLeft.percentOutputControl(lspeed);
-        backLeft.percentOutputControl(lspeed);
-        frontRight.percentOutputControl(-rspeed);
-        backRight.percentOutputControl(-rspeed);
-    }
-
-    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        ChassisSpeeds speeds = (fieldRelative)
+    public void drive(
+            final double xSpeed,
+            final double ySpeed,
+            final double rot,
+            final boolean fieldRelative
+    ) {
+        final ChassisSpeeds speeds = (fieldRelative)
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
         drive(speeds);
     }
 
-    public void drive(ChassisSpeeds speeds) {
+    public void drive(final ChassisSpeeds speeds) {
         drive(kinematics.toSwerveModuleStates(speeds));
     }
 
-    public void drive(SwerveModuleState[] states) {
+    public void drive(final SwerveModuleState[] states) {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.Swerve.MODULE_MAX_SPEED);
         frontLeft.setDesiredState(states[0]);
         frontRight.setDesiredState(states[1]);
         backLeft.setDesiredState(states[2]);
         backRight.setDesiredState(states[3]);
-    }
-
-    public void brake() {
-        frontLeft.brake();
-        backLeft.brake();
-        frontRight.brake();
-        backRight.brake();
-    }
-
-    public void coast() {
-        frontLeft.coast();
-        backLeft.coast();
-        frontRight.coast();
-        backRight.coast();
     }
 
     public void stop() {
@@ -127,15 +114,26 @@ public class Swerve extends SubsystemBase {
         backRight.stop();
     }
 
-    public void faceDirection(double dx, double dy, double theta, boolean fieldRelative) {
-        Rotation2d error = Rotation2d.fromDegrees(theta).minus(Rotation2d.fromDegrees(-getHeading()));
-        double rotPower = error.getRadians() * Constants.Swerve.ROTATE_P;
+    public void faceDirection(
+            final double dx,
+            final double dy,
+            final double theta,
+            final boolean fieldRelative
+    ) {
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(Rotation2d.fromDegrees(-getHeading()));
+        final double rotPower = error.getRadians() * Constants.Swerve.ROTATE_P;
         drive(dx, dy, rotPower, fieldRelative);
     }
 
-    public void faceDirection(double dx, double dy, double theta, boolean fieldRelative, double kP) {
-        Rotation2d error = Rotation2d.fromDegrees(theta).minus(Rotation2d.fromDegrees(-getHeading()));
-        double rotPower = error.getRadians() * kP;
+    public void faceDirection(
+            final double dx,
+            final double dy,
+            final double theta,
+            final boolean fieldRelative,
+            final double kP
+    ) {
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(Rotation2d.fromDegrees(-getHeading()));
+        final double rotPower = error.getRadians() * kP;
         drive(dx, dy, rotPower, fieldRelative);
     }
 
@@ -148,14 +146,14 @@ public class Swerve extends SubsystemBase {
         });
     }
 
-    public void manualPercentOutput(double percentOutput) {
+    public void manualPercentOutput(final double percentOutput) {
         frontLeft.percentOutputControl(percentOutput);
         frontRight.percentOutputControl(percentOutput);
         backLeft.percentOutputControl(percentOutput);
         backRight.percentOutputControl(percentOutput);
     }
 
-    public void manualVelocity(double velocityTicksPer100ms) {
+    public void manualVelocity(final double velocityTicksPer100ms) {
         frontLeft.manualVelocityControl(velocityTicksPer100ms);
         frontRight.manualVelocityControl(velocityTicksPer100ms);
         backLeft.manualVelocityControl(velocityTicksPer100ms);

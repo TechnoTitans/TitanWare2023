@@ -21,7 +21,7 @@ public class PhotonRunnable implements Runnable {
     private final PhotonCamera apriltagCamera;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<>();
 
-    public PhotonRunnable(PhotonCamera apriltagCamera) {
+    public PhotonRunnable(final PhotonCamera apriltagCamera) {
         this.apriltagCamera = apriltagCamera;
 
         PhotonPoseEstimator photonPoseEstimator = null;
@@ -45,7 +45,7 @@ public class PhotonRunnable implements Runnable {
     @Override
     public void run() {
         if (photonPoseEstimator != null && apriltagCamera != null && !RobotState.isAutonomous()) {
-            PhotonPipelineResult photonResults = apriltagCamera.getLatestResult();
+            final PhotonPipelineResult photonResults = apriltagCamera.getLatestResult();
             if (photonResults.hasTargets()
                     && (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < Constants.Vision.singleTagMaxAmbiguity)) {
                 photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {

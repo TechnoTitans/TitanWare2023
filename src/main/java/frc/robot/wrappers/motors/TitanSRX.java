@@ -20,7 +20,10 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
      * @param channel  The port where the TalonSRX is plugged in.
      * @param reversed If the TalonSRX should invert the signal.
      */
-    public TitanSRX(int channel, boolean reversed) {
+    public TitanSRX(
+            final int channel,
+            final boolean reversed
+    ) {
         super(channel);
         super.setInverted(reversed);
     }
@@ -30,9 +33,9 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
      * @param speed -- Speed from 0 to 1 (or negative for backwards)
      */
 
-    public void set(double speed) {
-        speed = MathUtil.clamp(speed, -1, 1);
-        super.set(ControlMode.PercentOutput, speed);
+    public void set(final double speed) {
+        final double clampedSpeed = MathUtil.clamp(speed, -1, 1);
+        super.set(ControlMode.PercentOutput, clampedSpeed);
     }
 
     public void brake() {
@@ -45,7 +48,7 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         super.setNeutralMode(NeutralMode.Coast);
     }
 
-    public void limitCurrent(int amps) {
+    public void limitCurrent(final int amps) {
         super.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, amps, amps, 1));
     }
 
@@ -73,11 +76,11 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         set(0);
     }
 
-    public void follow(TitanSRX other) {
+    public void follow(final TitanSRX other) {
         this.set(ControlMode.Follower, other.getDeviceID());
     }
 
-    public void setVoltage(double outputVolts) {
+    public void setVoltage(final double outputVolts) {
         super.setVoltage(outputVolts);
     }
 

@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -25,17 +24,13 @@ public class SwerveModule extends SubsystemBase {
     private final VelocityVoltage voltageVelocity;
     private final PositionVoltage positionVelocity;
 
-    private final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
-
-    private SwerveModuleState lastDesiredState = new SwerveModuleState();
-
     public SwerveModule(
-            TalonFX driveMotor,
-            TalonFX turnMotor,
-            CANcoder turnEncoder,
-            InvertedValue driveInvertedValue,
-            InvertedValue turnInvertedValue,
-            double magnetOffset
+            final TalonFX driveMotor,
+            final TalonFX turnMotor,
+            final CANcoder turnEncoder,
+            final InvertedValue driveInvertedValue,
+            final InvertedValue turnInvertedValue,
+            final double magnetOffset
     ) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
@@ -45,7 +40,7 @@ public class SwerveModule extends SubsystemBase {
         this.turnInvertedValue = turnInvertedValue;
 
         this.voltageVelocity = new VelocityVoltage(
-                0, true, 0, 0, false
+                0,true, 0, 0, false
         );
 
         this.positionVelocity = new PositionVoltage(
@@ -113,19 +108,14 @@ public class SwerveModule extends SubsystemBase {
         );
     }
 
-    public SwerveModuleState getLastDesiredState() {
-        return lastDesiredState;
-    }
-
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                -getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE, getAngle()
+                -getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getAngle()
         );
     }
 
     public void setDesiredState(final SwerveModuleState state) {
-        lastDesiredState = state;
-
         final Rotation2d currentWheelRotation = getAngle();
         final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         final double desired_driver_velocity = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
@@ -148,15 +138,5 @@ public class SwerveModule extends SubsystemBase {
     public void stop() {
         driveMotor.set(0);
         turnMotor.set(0);
-    }
-
-    public void brake() {
-        motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
-        driveMotor.getConfigurator().refresh(motorOutputConfigs);
-    }
-
-    public void coast() {
-        motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
-        driveMotor.getConfigurator().refresh(motorOutputConfigs);
     }
 }

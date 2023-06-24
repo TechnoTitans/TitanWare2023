@@ -38,7 +38,7 @@ public class ElevatorControl extends CommandBase {
     private boolean VESwitchFlag = false;
     private boolean horizontalPositionalControl = false;
 
-    public ElevatorControl(Elevator elevator) {
+    public ElevatorControl(final Elevator elevator) {
         this.elevator = elevator;
         this.verticalElevatorMotor = elevator.getVerticalElevatorMotor();
         this.verticalElevatorEncoder = elevator.getVerticalElevatorEncoder();
@@ -51,9 +51,12 @@ public class ElevatorControl extends CommandBase {
         this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
                 new TrapezoidProfile.Constraints(10, 20));
 
-        this.positionVoltage = new PositionVoltage(0, true, 0, 0, false);
-        this.motionMagicVoltage = new MotionMagicVoltage(0, true, 0, 0, false);
-        this.dutyCycleOut = new DutyCycleOut(0, true, false);
+        this.positionVoltage = new PositionVoltage(
+                0, true, 0, 0, false);
+        this.motionMagicVoltage = new MotionMagicVoltage(
+                0, true, 0, 0, false);
+        this.dutyCycleOut = new DutyCycleOut(
+                0, true, false);
 
         addRequirements(elevator);
     }
@@ -63,7 +66,7 @@ public class ElevatorControl extends CommandBase {
         VESwitchFlag = false;
     }
 
-    private void setState(Enums.ElevatorState state) {
+    private void setState(final Enums.ElevatorState state) {
         this.currentState = state;
         this.verticalElevatorMode = Enums.ElevatorMode.POSITION;
         switch (state) {
@@ -122,7 +125,7 @@ public class ElevatorControl extends CommandBase {
 
     @Override
     public void execute() {
-        Enums.ElevatorState targetState = elevator.getTargetState();
+        final Enums.ElevatorState targetState = elevator.getTargetState();
         if (currentState != targetState) {
             setState(targetState);
         }
