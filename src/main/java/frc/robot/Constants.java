@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings("unused")
 public interface Constants {
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in
@@ -16,6 +16,8 @@ public interface Constants {
         double TURNER_GEAR_RATIO = 150.0 / 7.0;
         double TICKS_PER_MOTOR_RADIAN = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / (2 * Math.PI);
         double TICKS_PER_CANCODER_DEGREE = CANCODER_TICKS_PER_ROTATION / 360.0;
+
+        double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
     }
 
     interface Swerve {
@@ -61,11 +63,11 @@ public interface Constants {
         Translation2d RIGHTTOP = new Translation2d(3.35, 1.89);
 
         double DISTANCE_FROM_GRID = 1.84;
-        double FIELD_LENGTH_METERS = 16.54175;
-        double FIELD_WIDTH_METERS = 8.0137;
+        double FIELD_LENGTH_X_METERS = 16.54175;
+        double FIELD_WIDTH_Y_METERS = 8.0137;
 
         Pose2d FLIPPING_POSE = new Pose2d(
-                new Translation2d(FIELD_LENGTH_METERS, FIELD_WIDTH_METERS),
+                new Translation2d(FIELD_LENGTH_X_METERS, FIELD_WIDTH_Y_METERS),
                 new Rotation2d(Math.PI));
 
         interface LEFT {

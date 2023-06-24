@@ -32,7 +32,7 @@ public class PoseUtils {
         return DriverStation.getAlliance() == DriverStation.Alliance.Red
                         ? new Pose2d(
                             originalPose.getX(),
-                            Constants.Grid.FIELD_WIDTH_METERS - originalPose.getY(),
+                            Constants.Grid.FIELD_WIDTH_Y_METERS - originalPose.getY(),
                             originalPose.getRotation().times(-1))
                         : originalPose;
     }
@@ -40,13 +40,15 @@ public class PoseUtils {
     public static Pose2d transformGridPose(Pose2d originalPose) {
         return DriverStation.getAlliance() == DriverStation.Alliance.Red
                 ? new Pose2d(
-                    Constants.Grid.FIELD_LENGTH_METERS - originalPose.getX(),
+                    Constants.Grid.FIELD_LENGTH_X_METERS - originalPose.getX(),
                     originalPose.getY(),
                     originalPose.getRotation().times(-1))
                 : originalPose;
     }
 
     //I stole this from 254
+    // what in the world is this bro
+    @SuppressWarnings("unused")
     public static Twist2d PoseLog(Pose2d transform) {
         double kEps = 1E-9;
         double dtheta = transform.getRotation().getRadians();

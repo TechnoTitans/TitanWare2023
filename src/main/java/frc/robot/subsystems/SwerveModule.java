@@ -17,7 +17,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-@SuppressWarnings("unused")
 public class SwerveModule extends SubsystemBase {
     private final TalonFX driveMotor, turnMotor;
     private final CANcoder turnEncoder;
@@ -25,6 +24,8 @@ public class SwerveModule extends SubsystemBase {
     private final InvertedValue driveInvertedValue, turnInvertedValue;
     private final VelocityVoltage voltageVelocity;
     private final PositionVoltage positionVelocity;
+
+    private final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
 
     private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
@@ -43,18 +44,23 @@ public class SwerveModule extends SubsystemBase {
         this.driveInvertedValue = driveInvertedValue;
         this.turnInvertedValue = turnInvertedValue;
 
-        config();
+        this.voltageVelocity = new VelocityVoltage(
+                0, true, 0, 0, false
+        );
 
-        this.voltageVelocity = new VelocityVoltage(0, true, 0, 0, false);
-        this.positionVelocity = new PositionVoltage(0, true, 0, 0, false);
+        this.positionVelocity = new PositionVoltage(
+                0, true, 0, 0, false
+        );
+
+        config();
     }
 
     private void config() {
-        CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
+        final CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
         canCoderConfiguration.MagnetSensor.MagnetOffset = -magnetOffset;
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
-        TalonFXConfiguration driverConfig = new TalonFXConfiguration();
+        final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
         driverConfig.Slot0.kP = 0.00060954;
         driverConfig.Slot0.kD = 0.01;
         driverConfig.Slot0.kS = 0.25655;
@@ -67,7 +73,7 @@ public class SwerveModule extends SubsystemBase {
         driverConfig.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driverConfig);
 
-        TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
+        final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
         turnerConfig.Slot0.kP = 30; //0.47
         turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
         turnerConfig.MotorOutput.PeakReverseDutyCycle = 0.5;
@@ -96,10 +102,14 @@ public class SwerveModule extends SubsystemBase {
         );
     }
 
+    public double getDriveVelocity() {
+        return driveMotor.getVelocity().refresh().getValue();
+    }
+
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                -driveMotor.getVelocity().getValue() *
-                (2*Math.PI*Constants.Modules.WHEEL_RADIUS), getAngle()
+                -getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getAngle()
         );
     }
 
@@ -109,29 +119,28 @@ public class SwerveModule extends SubsystemBase {
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                -getDrivePosition() *
-                (2*Math.PI*Constants.Modules.WHEEL_RADIUS), getAngle()
+                -getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE, getAngle()
         );
     }
 
-    public void setDesiredState(SwerveModuleState state) {
+    public void setDesiredState(final SwerveModuleState state) {
         lastDesiredState = state;
 
-        Rotation2d currentWheelRotation = getAngle();
-        SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
-        double desired_driver_velocity = wantedState.speedMetersPerSecond / (2 * Math.PI * Constants.Modules.WHEEL_RADIUS);
-        double wanted_rotation = wantedState.angle.getRotations();
+        final Rotation2d currentWheelRotation = getAngle();
+        final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
+        final double desired_driver_velocity = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
+        final double desired_turner_rotations = wantedState.angle.getRotations();
 
         driveMotor.setControl(voltageVelocity.withVelocity(desired_driver_velocity));
-        turnMotor.setControl(positionVelocity.withPosition(wanted_rotation));
+        turnMotor.setControl(positionVelocity.withPosition(desired_turner_rotations));
     }
 
-    public void percentOutputControl(double output) {
+    public void percentOutputControl(final double output) {
         driveMotor.set(output);
         turnMotor.set(0);
     }
 
-    public void manualVelocityControl(double rps) {
+    public void manualVelocityControl(final double rps) {
         driveMotor.setControl(voltageVelocity.withVelocity(rps));
         turnMotor.set(0);
     }
@@ -142,13 +151,11 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void brake() {
-        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
         motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
         driveMotor.getConfigurator().refresh(motorOutputConfigs);
     }
 
     public void coast() {
-        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
         motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
         driveMotor.getConfigurator().refresh(motorOutputConfigs);
     }

@@ -87,26 +87,10 @@ public class Swerve extends SubsystemBase {
         backRight.percentOutputControl(-rspeed);
     }
 
-    public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
-//        ChassisSpeeds speeds = (fieldRelative) ?
-//                ChassisSpeeds.fromFieldRelativeSpeeds(xspeed, yspeed, rot, getRotation2d()) :
-//                new ChassisSpeeds(xspeed, yspeed, rot);
-//
-//        // This is supposed to correct for the actuation speed of the swerve. Should try and prevent robot drift.
-//        // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
-//        double dtConstant = 0.009; //This is a real magic number.
-//        Pose2d robotPoseVel = new Pose2d(
-//                speeds.vxMetersPerSecond * dtConstant,
-//                speeds.vyMetersPerSecond * dtConstant,
-//                Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dtConstant));
-//        Twist2d twistVel = PoseUtils.PoseLog(robotPoseVel);
-//
-//        speeds = new ChassisSpeeds(twistVel.dx / dtConstant, twistVel.dy / dtConstant,
-//                twistVel.dtheta / dtConstant);
-//
-//        drive(speeds);
-
-        ChassisSpeeds speeds = (fieldRelative) ? ChassisSpeeds.fromFieldRelativeSpeeds(xspeed, yspeed, rot, getRotation2d()) : new ChassisSpeeds(xspeed, yspeed, rot);
+    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+        ChassisSpeeds speeds = (fieldRelative)
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getRotation2d())
+                : new ChassisSpeeds(xSpeed, ySpeed, rot);
         drive(speeds);
     }
 
