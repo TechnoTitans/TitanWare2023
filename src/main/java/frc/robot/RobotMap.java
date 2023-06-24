@@ -1,7 +1,7 @@
 package frc.robot;
 
-import com.ctre.phoenixpro.signals.InvertedValue;
-import com.ctre.phoenixpro.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 @SuppressWarnings("unused")
 public interface RobotMap {
@@ -28,25 +28,25 @@ public interface RobotMap {
     int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
     InvertedValue frontLeftDriveR = InvertedValue.Clockwise_Positive;
-    boolean frontLeftTurnR = false;
+    InvertedValue frontLeftTurnR = InvertedValue.Clockwise_Positive;
 
     int frontRightDrive = 3;
     int frontRightTurn = 4;
     int frontRightEncoder = 2;
     InvertedValue frontRightDriveR = InvertedValue.CounterClockwise_Positive;
-    boolean frontRightTurnR = false;
+    InvertedValue frontRightTurnR = InvertedValue.Clockwise_Positive;
 
     int backRightDrive = 5;
     int backRightTurn = 6;
     int backRightEncoder = 3;
     InvertedValue backRightDriveR = InvertedValue.CounterClockwise_Positive;
-    boolean backRightTurnR = false;
+    InvertedValue backRightTurnR = InvertedValue.Clockwise_Positive;
 
     int backLeftDrive = 7;
     int backLeftTurn = 8;
     int backLeftEncoder = 4;
     InvertedValue backLeftDriveR = InvertedValue.Clockwise_Positive;
-    boolean backLeftTurnR = false;
+    InvertedValue backLeftTurnR = InvertedValue.Clockwise_Positive;
 
     //Elevator
     int mainVerticalFalcon = 10;

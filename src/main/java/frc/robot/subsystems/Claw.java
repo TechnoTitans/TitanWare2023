@@ -79,7 +79,7 @@ public class Claw extends SubsystemBase {
         clawTiltEncoderConfig.unitString = "deg";
         clawTiltEncoderConfig.sensorDirection = true;
         clawTiltEncoderConfig.sensorCoefficient = 1.0/4096; // this makes getPosition() return in rotations
-        clawTiltEncoderConfig.magnetOffsetDegrees = 57.39;
+        clawTiltEncoderConfig.magnetOffsetDegrees = 56;
         clawTiltEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         clawTiltEncoder.configAllSettings(clawTiltEncoderConfig);
     }

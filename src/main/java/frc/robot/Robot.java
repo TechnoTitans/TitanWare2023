@@ -43,7 +43,27 @@ public class Robot extends TimedRobot {
                 robotContainer.clawTiltEncoder::getAbsolutePosition, robotContainer.clawTiltEncoder::getVelocity
         );
         TitanBoard.addEncoder("OpenClose Enc",
-                robotContainer.clawOpenCloseEncoder::getPosition, robotContainer.clawOpenCloseEncoder::getVelocity
+                robotContainer.clawOpenCloseEncoder::getAbsolutePosition, robotContainer.clawOpenCloseEncoder::getVelocity
+        );
+
+        TitanBoard.addEncoder("frontleft Enc",
+                () -> robotContainer.frontLeftEncoder.getAbsolutePosition().getValue(),
+                () -> robotContainer.frontLeftEncoder.getVelocity().getValue()
+        );
+
+        TitanBoard.addEncoder("frontright Enc",
+                () -> robotContainer.frontRightEncoder.getAbsolutePosition().getValue(),
+                () -> robotContainer.frontRightEncoder.getVelocity().getValue()
+        );
+
+        TitanBoard.addEncoder("backleft Enc",
+                () -> robotContainer.backLeftEncoder.getAbsolutePosition().getValue(),
+                () -> robotContainer.backLeftEncoder.getVelocity().getValue()
+        );
+
+        TitanBoard.addEncoder("backright Enc",
+                () -> robotContainer.backRightEncoder.getAbsolutePosition().getValue(),
+                () -> robotContainer.backRightEncoder.getVelocity().getValue()
         );
 
         TitanBoard.addBoolean("Vertical Elevator LS", robotContainer.elevatorVerticalLimitSwitch::get);

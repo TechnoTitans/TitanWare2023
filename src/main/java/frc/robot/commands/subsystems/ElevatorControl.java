@@ -1,11 +1,11 @@
 package frc.robot.commands.subsystems;
 
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenixpro.controls.DutyCycleOut;
-import com.ctre.phoenixpro.controls.MotionMagicVoltage;
-import com.ctre.phoenixpro.controls.PositionVoltage;
-import com.ctre.phoenixpro.hardware.CANcoder;
-import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
