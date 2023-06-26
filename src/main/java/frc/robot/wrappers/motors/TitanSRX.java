@@ -14,12 +14,6 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 @SuppressWarnings("unused")
 public class TitanSRX extends WPI_TalonSRX implements MotorController {
 
-    /**
-     * Constructor for a TalonSRX motor
-     *
-     * @param channel  The port where the TalonSRX is plugged in.
-     * @param reversed If the TalonSRX should invert the signal.
-     */
     public TitanSRX(
             final int channel,
             final boolean reversed
@@ -27,11 +21,6 @@ public class TitanSRX extends WPI_TalonSRX implements MotorController {
         super(channel);
         super.setInverted(reversed);
     }
-    /**
-     * Set the speed of the TalonSRX.
-     *
-     * @param speed -- Speed from 0 to 1 (or negative for backwards)
-     */
 
     public void set(final double speed) {
         final double clampedSpeed = MathUtil.clamp(speed, -1, 1);

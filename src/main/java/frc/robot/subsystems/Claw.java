@@ -26,13 +26,14 @@ public class Claw extends SubsystemBase {
     private final ClawControl clawControl;
     private Enums.ClawState targetState;
 
-    public Claw(final TitanSRX clawMainWheelBag,
-                final TitanSRX clawFollowerWheelBag,
-                final TitanSRX clawOpenCloseMotor,
-                final CANCoder clawOpenCloseEncoder,
-                final TitanMAX clawTiltNeo,
-                final CANCoder clawTiltEncoder,
-                final DigitalInput clawTiltLimitSwitch
+    public Claw(
+            final TitanSRX clawMainWheelBag,
+            final TitanSRX clawFollowerWheelBag,
+            final TitanSRX clawOpenCloseMotor,
+            final CANCoder clawOpenCloseEncoder,
+            final TitanMAX clawTiltNeo,
+            final CANCoder clawTiltEncoder,
+            final DigitalInput clawTiltLimitSwitch
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;

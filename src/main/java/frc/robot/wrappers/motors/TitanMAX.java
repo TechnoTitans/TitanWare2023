@@ -7,6 +7,7 @@ import edu.wpi.first.math.MathUtil;
 
 @SuppressWarnings("unused")
 public class TitanMAX extends CANSparkMax {
+
     public TitanMAX(
             final int deviceId,
             final MotorType type
@@ -28,7 +29,10 @@ public class TitanMAX extends CANSparkMax {
         super.set(clampedSpeed);
     }
 
-    public void set(final ControlType controlType, final double value) {
+    public void set(
+            final ControlType controlType,
+            final double value
+    ) {
         this.getPIDController().setReference(value, controlType);
     }
 

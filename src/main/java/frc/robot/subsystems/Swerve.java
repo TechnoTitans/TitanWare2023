@@ -58,7 +58,12 @@ public class Swerve extends SubsystemBase {
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
-        return kinematics.toChassisSpeeds(frontLeft.getState(), frontRight.getState(), backLeft.getState(), backRight.getState());
+        return kinematics.toChassisSpeeds(
+                frontLeft.getState(),
+                frontRight.getState(),
+                backLeft.getState(),
+                backRight.getState()
+        );
     }
 
     public SwerveModuleState[] getModuleStates() {
@@ -144,19 +149,5 @@ public class Swerve extends SubsystemBase {
                 new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
                 new SwerveModuleState(0, Rotation2d.fromDegrees(0))
         });
-    }
-
-    public void manualPercentOutput(final double percentOutput) {
-        frontLeft.percentOutputControl(percentOutput);
-        frontRight.percentOutputControl(percentOutput);
-        backLeft.percentOutputControl(percentOutput);
-        backRight.percentOutputControl(percentOutput);
-    }
-
-    public void manualVelocity(final double velocityTicksPer100ms) {
-        frontLeft.manualVelocityControl(velocityTicksPer100ms);
-        frontRight.manualVelocityControl(velocityTicksPer100ms);
-        backLeft.manualVelocityControl(velocityTicksPer100ms);
-        backRight.manualVelocityControl(velocityTicksPer100ms);
     }
 }

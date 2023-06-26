@@ -3,7 +3,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.*;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -39,7 +40,6 @@ public class SwerveModule extends SubsystemBase {
         this.turnInvertedValue = turnInvertedValue;
 
         this.torqueVelocity = new VelocityTorqueCurrentFOC(0);
-
         this.positionVelocity = new PositionVoltage(0);
 
         config();
@@ -73,7 +73,7 @@ public class SwerveModule extends SubsystemBase {
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 
-    public Rotation2d getAngle() {
+    private Rotation2d getAngle() {
         final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
                 turnEncoder.getAbsolutePosition().refresh(),
                 turnEncoder.getVelocity().refresh()
@@ -82,14 +82,14 @@ public class SwerveModule extends SubsystemBase {
         return Rotation2d.fromRotations(compensatedValue);
     }
 
-    public double getDrivePosition() {
+    private double getDrivePosition() {
         return BaseStatusSignal.getLatencyCompensatedValue(
                 driveMotor.getPosition().refresh(),
                 driveMotor.getVelocity().refresh()
         );
     }
 
-    public double getDriveVelocity() {
+    private double getDriveVelocity() {
         return driveMotor.getVelocity().refresh().getValue();
     }
 
@@ -115,16 +115,6 @@ public class SwerveModule extends SubsystemBase {
 
         driveMotor.setControl(torqueVelocity.withVelocity(desired_driver_velocity));
         turnMotor.setControl(positionVelocity.withPosition(desired_turner_rotations));
-    }
-
-    public void percentOutputControl(final double output) {
-        driveMotor.set(output);
-        turnMotor.set(0);
-    }
-
-    public void manualVelocityControl(final double rps) {
-        driveMotor.setControl(torqueVelocity.withVelocity(rps));
-        turnMotor.set(0);
     }
 
     public void stop() {

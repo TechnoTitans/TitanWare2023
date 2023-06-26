@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.subsystems.ElevatorControl;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.api.Slot0Configs;
 import frc.robot.wrappers.motors.TitanMAX;
 
 @SuppressWarnings("unused")
@@ -29,17 +30,18 @@ public class Elevator extends SubsystemBase {
 
     private Enums.ElevatorState currentState = Enums.ElevatorState.ELEVATOR_RESET;
 
-    public Elevator(final TalonFX verticalElevatorMotor,
-                    final InvertedValue verticalElevatorMotorR,
-                    final TalonFX verticalElevatorMotorFollower,
-                    final InvertedValue verticalElevatorMotorFollowerR,
-                    final CANcoder verticalElevatorEncoder,
-                    final CANCoder horizontalElevatorEncoder,
-                    final SensorDirectionValue verticalElevatorEncoderR,
-                    final TitanMAX horizontalElevatorMotor,
-                    final DigitalInput verticalElevatorLimitSwitch,
-                    final DigitalInput horizontalElevatorLimitSwitch,
-                    final DigitalInput elevatorHorizontalHighLimitSwitch
+    public Elevator(
+            final TalonFX verticalElevatorMotor,
+            final InvertedValue verticalElevatorMotorR,
+            final TalonFX verticalElevatorMotorFollower,
+            final InvertedValue verticalElevatorMotorFollowerR,
+            final CANcoder verticalElevatorEncoder,
+            final CANCoder horizontalElevatorEncoder,
+            final SensorDirectionValue verticalElevatorEncoderR,
+            final TitanMAX horizontalElevatorMotor,
+            final DigitalInput verticalElevatorLimitSwitch,
+            final DigitalInput horizontalElevatorLimitSwitch,
+            final DigitalInput elevatorHorizontalHighLimitSwitch
     ) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.verticalElevatorMotorR = verticalElevatorMotorR;
@@ -66,10 +68,7 @@ public class Elevator extends SubsystemBase {
         verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
 
         TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.Slot0.kP = 9; //.53
-        VEConfig.Slot0.kD = 0.15;
-        VEConfig.Slot0.kS = 0.15925;
-        VEConfig.Slot0.kV = 1.4126;
+        VEConfig.Slot0 = new Slot0Configs(9, 0.15, 0.15925, 1.4126);
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -84,7 +83,10 @@ public class Elevator extends SubsystemBase {
         VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR;
         verticalElevatorMotorFollower.getConfigurator().apply(VEFConfig);
 
-        Follower verticalElevatorFollower = new Follower(verticalElevatorMotor.getDeviceID(), false);
+        Follower verticalElevatorFollower = new Follower(
+                verticalElevatorMotor.getDeviceID(),
+                false
+        );
         verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
 
         horizontalElevatorMotor.brake();
