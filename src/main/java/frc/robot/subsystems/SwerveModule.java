@@ -62,8 +62,8 @@ public class SwerveModule extends SubsystemBase {
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
         turnerConfig.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
-        turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
-        turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
+//        turnerConfig.Voltage.PeakForwardVoltage = 6;
+//        turnerConfig.Voltage.PeakReverseVoltage = -6;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
