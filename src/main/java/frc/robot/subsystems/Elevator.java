@@ -141,6 +141,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getPosition() {
-        return verticalElevatorEncoder.getPosition().getValue();
+        return verticalElevatorEncoder.getPosition().refresh().getValue();
     }
 }

@@ -32,8 +32,8 @@ public class Robot extends TimedRobot {
         TitanBoard.addDouble("Yaw", () -> robotContainer.swerve.getHeading() % 360);
         TitanBoard.addDouble("Pitch", robotContainer.swerve::getPitch);
         TitanBoard.addEncoder("EVertical Enc",
-                () -> robotContainer.elevatorVerticalEncoder.getPosition().getValue(),
-                () -> robotContainer.elevatorVerticalEncoder.getVelocity().getValue()
+                () -> robotContainer.elevatorVerticalEncoder.getPosition().refresh().getValue(),
+                () -> robotContainer.elevatorVerticalEncoder.getVelocity().refresh().getValue()
         );
         TitanBoard.addEncoder("EHorizontal Enc",
                 robotContainer.elevatorHorizontalEncoder::getPosition, robotContainer.elevatorHorizontalEncoder::getVelocity
@@ -46,18 +46,18 @@ public class Robot extends TimedRobot {
         );
 
         TitanBoard.addEncoder("frontleft Enc",
-                () -> robotContainer.frontLeftEncoder.getAbsolutePosition().getValue(),
-                () -> robotContainer.frontLeftEncoder.getVelocity().getValue()
+                () -> robotContainer.frontLeftEncoder.getAbsolutePosition().refresh().getValue(),
+                () -> robotContainer.frontLeftEncoder.getVelocity().refresh().getValue()
         );
 
         TitanBoard.addEncoder("frontright Enc",
-                () -> robotContainer.frontRightEncoder.getAbsolutePosition().getValue(),
-                () -> robotContainer.frontRightEncoder.getVelocity().getValue()
+                () -> robotContainer.frontRightEncoder.getAbsolutePosition().refresh().getValue(),
+                () -> robotContainer.frontRightEncoder.getVelocity().refresh().getValue()
         );
 
         TitanBoard.addEncoder("backleft Enc",
-                () -> robotContainer.backLeftEncoder.getAbsolutePosition().getValue(),
-                () -> robotContainer.backLeftEncoder.getVelocity().getValue()
+                () -> robotContainer.backLeftEncoder.getAbsolutePosition().refresh().getValue(),
+                () -> robotContainer.backLeftEncoder.getVelocity().refresh().getValue()
         );
 
         TitanBoard.addEncoder("backright Enc",

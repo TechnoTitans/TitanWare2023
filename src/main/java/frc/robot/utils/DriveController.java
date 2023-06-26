@@ -83,9 +83,9 @@ public class DriveController {
         this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
         this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
 
-        double xFeedback = this.xController.calculate(currentPose.getX(), referenceState.poseMeters.getX());
-        double yFeedback = this.yController.calculate(currentPose.getY(), referenceState.poseMeters.getY());
-        double rotationFeedback = this.rotationController.calculate(
+        final double xFeedback = this.xController.calculate(currentPose.getX(), referenceState.poseMeters.getX());
+        final double yFeedback = this.yController.calculate(currentPose.getY(), referenceState.poseMeters.getY());
+        final double rotationFeedback = this.rotationController.calculate(
                 currentPose.getRotation().getRadians(), referenceState.holonomicRotation.getRadians());
 
         return new ChassisSpeeds(xFeedback, yFeedback, rotationFeedback);

@@ -3,8 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -21,7 +20,7 @@ public class SwerveModule extends SubsystemBase {
     private final CANcoder turnEncoder;
     private final double magnetOffset;
     private final InvertedValue driveInvertedValue, turnInvertedValue;
-    private final VelocityVoltage voltageVelocity;
+    private final VelocityTorqueCurrentFOC torqueVelocity;
     private final PositionVoltage positionVelocity;
 
     public SwerveModule(
@@ -39,13 +38,9 @@ public class SwerveModule extends SubsystemBase {
         this.driveInvertedValue = driveInvertedValue;
         this.turnInvertedValue = turnInvertedValue;
 
-        this.voltageVelocity = new VelocityVoltage(
-                0,true, 0, 0, false
-        );
+        this.torqueVelocity = new VelocityTorqueCurrentFOC(0);
 
-        this.positionVelocity = new PositionVoltage(
-                0, true, 0, 0, false
-        );
+        this.positionVelocity = new PositionVoltage(0);
 
         config();
     }
@@ -56,22 +51,19 @@ public class SwerveModule extends SubsystemBase {
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.Slot0.kP = 0.00060954;
-        driverConfig.Slot0.kD = 0.01;
-        driverConfig.Slot0.kS = 0.25655;
-        driverConfig.Slot0.kV = 2.9757;
-        driverConfig.CurrentLimits.StatorCurrentLimit = 60;
-        driverConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        driverConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
+        driverConfig.Slot0 = Constants.Modules.DRIVE_MOTOR_CONSTANTS;
+        driverConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
+        driverConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
+        driverConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
         driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driverConfig.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driverConfig);
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0.kP = 30; //0.47
+        turnerConfig.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
         turnerConfig.MotorOutput.PeakForwardDutyCycle = 0.5;
-        turnerConfig.MotorOutput.PeakReverseDutyCycle = 0.5;
+        turnerConfig.MotorOutput.PeakReverseDutyCycle = -0.5;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
@@ -121,7 +113,7 @@ public class SwerveModule extends SubsystemBase {
         final double desired_driver_velocity = wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
         final double desired_turner_rotations = wantedState.angle.getRotations();
 
-        driveMotor.setControl(voltageVelocity.withVelocity(desired_driver_velocity));
+        driveMotor.setControl(torqueVelocity.withVelocity(desired_driver_velocity));
         turnMotor.setControl(positionVelocity.withPosition(desired_turner_rotations));
     }
 
@@ -131,7 +123,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void manualVelocityControl(final double rps) {
-        driveMotor.setControl(voltageVelocity.withVelocity(rps));
+        driveMotor.setControl(torqueVelocity.withVelocity(rps));
         turnMotor.set(0);
     }
 

@@ -5,24 +5,22 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in
-        int MOTOR_ROTATION_TO_TALON_ENCODER_TICKS = 2048;
-        int CANCODER_TICKS_PER_ROTATION = 4096;
         double DRIVER_GEAR_RATIO = 8.14;
         double TURNER_GEAR_RATIO = 150.0 / 7.0;
-        double TICKS_PER_MOTOR_RADIAN = MOTOR_ROTATION_TO_TALON_ENCODER_TICKS / (2 * Math.PI);
-        double TICKS_PER_CANCODER_DEGREE = CANCODER_TICKS_PER_ROTATION / 360.0;
 
         double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
+
+        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.00060954, 0.01, 0.25655, 2.9757);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0, 0);
     }
 
     interface Swerve {
-        int N_MODULES = 4;
-
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
         double ROBOT_MAX_SPEED = Units.feetToMeters(13);

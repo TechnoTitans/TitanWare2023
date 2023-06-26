@@ -34,7 +34,10 @@ public class ClawControl extends CommandBase {
         this.clawTiltNeo = claw.getClawTiltNeo();
         this.clawTiltEncoder = claw.getClawTiltEncoder();
 
-        this.tiltPID = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(3, 5));
+        this.tiltPID = new ProfiledPIDController(
+                3, 0, 0,
+                new TrapezoidProfile.Constraints(3, 5)
+        );
 
         addRequirements(claw);
     }
