@@ -89,7 +89,9 @@ public class PhotonApriltags extends SubsystemBase {
     }
 
     public boolean robotOriginMatchesAlliance() {
-        return (DriverStation.getAlliance() != DriverStation.Alliance.Blue || robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) &&
-                (DriverStation.getAlliance() != DriverStation.Alliance.Red || robotOriginPosition != AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+        return (DriverStation.getAlliance() != DriverStation.Alliance.Blue ||
+                robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) &&
+                (DriverStation.getAlliance() != DriverStation.Alliance.Red ||
+                        robotOriginPosition != AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
     }
 }

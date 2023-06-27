@@ -46,10 +46,12 @@ public class PhotonRunnable implements Runnable {
     public void run() {
         if (photonPoseEstimator != null && apriltagCamera != null && !RobotState.isAutonomous()) {
             final PhotonPipelineResult photonResults = apriltagCamera.getLatestResult();
-            if (photonResults.hasTargets()
-                    && (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < Constants.Vision.singleTagMaxAmbiguity)) {
+            if (photonResults.hasTargets() &&
+                    (photonResults.targets.size() > 1 ||
+                            photonResults.targets.get(0).getPoseAmbiguity() < Constants.Vision.singleTagMaxAmbiguity)
+            ) {
                 photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {
-                    Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
+                    final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
                     if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Constants.Grid.FIELD_LENGTH_X_METERS
                             && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Constants.Grid.FIELD_WIDTH_Y_METERS) {
                         atomicEstimatedRobotPose.set(estimatedRobotPose);
