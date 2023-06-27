@@ -11,7 +11,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -20,7 +23,6 @@ import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathMethods;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -177,27 +179,30 @@ class TrajectoryFollower extends CommandBase {
         if (MathMethods.withinRange(marker.timeSeconds, timer.get(), distError)) {
             eventMarkers.remove(0);
             final String[] commands = marker.names.get(0).trim().split(";");
-            final List<Command> sequentialCommands = new ArrayList<>();
+            final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
             for (String x : commands) {
                 String[] args = x.split(":");
                 switch (args[0].toLowerCase()) {
                     case "claw":
-                        sequentialCommands.add(new InstantCommand(() -> claw.setState(Enums.ClawState.valueOf(args[1].toUpperCase()))));
+                        commandGroup.addCommands(Commands.runOnce(() ->
+                                claw.setState(Enums.ClawState.valueOf(args[1].toUpperCase()))));
                         break;
                     case "elevator":
-                        sequentialCommands.add(new InstantCommand(() -> elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()))));
+                        commandGroup.addCommands(Commands.runOnce(() ->
+                                elevator.setState(Enums.ElevatorState.valueOf(args[1].toUpperCase()))));
                         break;
                     case "autobalance":
-                        sequentialCommands.add(new AutoBalance(swerve));
+                        commandGroup.addCommands(new AutoBalance(swerve));
                         break;
                     case "wait":
-                        sequentialCommands.add(new WaitCommand(Double.parseDouble(args[1])));
+                        commandGroup.addCommands(Commands.waitSeconds(Double.parseDouble(args[1])));
                         break;
                     case "wheelx":
-                        sequentialCommands.add(new InstantCommand(() -> wheelX = Boolean.parseBoolean(args[1])));
+                        commandGroup.addCommands(Commands.runOnce(() ->
+                                wheelX = Boolean.parseBoolean(args[1])));
                         break;
                     case "dtpause":
-                        sequentialCommands.add(new InstantCommand(() -> {
+                        commandGroup.addCommands(Commands.runOnce(() -> {
                             paused = Boolean.parseBoolean(args[1]);
                             if (paused) {
                                 timer.stop();
@@ -214,7 +219,7 @@ class TrajectoryFollower extends CommandBase {
             //dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
 
 //            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
-            new SequentialCommandGroup(sequentialCommands.toArray(new Command[0])).schedule();
+            commandGroup.schedule();
         }
 
     }

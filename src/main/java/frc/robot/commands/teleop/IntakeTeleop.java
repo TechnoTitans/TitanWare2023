@@ -1,7 +1,9 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.utils.Enums;
@@ -51,9 +53,9 @@ public class IntakeTeleop extends CommandBase {
                 elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
 
             } else if (elevator.getTargetState() == Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM) {
-                new SequentialCommandGroup(
-                        new WaitCommand(0.3),
-                        new InstantCommand(() -> elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY))
+                Commands.sequence(
+                        Commands.waitSeconds(0.3),
+                        Commands.runOnce(() -> elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY))
                 ).schedule();
 
             }
@@ -65,10 +67,10 @@ public class IntakeTeleop extends CommandBase {
 
         //Co Controller
         if (coController.getAButton()) {
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_OUTTAKE)),
-                    new WaitCommand(0.7),
-                    new InstantCommand(() -> {
+            Commands.sequence(
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_OUTTAKE)),
+                    Commands.waitSeconds(0.7),
+                    Commands.runOnce(() -> {
                         claw.setState(Enums.ClawState.CLAW_STANDBY);
                         elevator.setState(Enums.ElevatorState.ELEVATOR_STANDBY);
                     })
@@ -77,36 +79,36 @@ public class IntakeTeleop extends CommandBase {
             elevator.setState(Enums.ElevatorState.SINGLE_SUB);
             claw.setState(Enums.ClawState.SINGLE_SUB);
         } else if (hasLoweredAfter && coController.getRightBumper()) {
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_LOW)),
-                    new WaitCommand(0.4),
-                    new InstantCommand(() -> {
+            Commands.sequence(
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_LOW)),
+                    Commands.waitSeconds(0.4),
+                    Commands.runOnce(() -> {
                         claw.setState(Enums.ClawState.CLAW_STANDBY);
                         hasLoweredAfter = false;
                     })
             ).schedule();
         } else if (hasLoweredAfter && coController.getLeftBumper()) {
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH)),
-                    new WaitCommand(0.4),
-                    new InstantCommand(() -> {
+            Commands.sequence(
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_SHOOT_HIGH)),
+                    Commands.waitSeconds(0.4),
+                    Commands.runOnce(() -> {
                         claw.setState(Enums.ClawState.CLAW_STANDBY);
                         hasLoweredAfter = false;
                     })
             ).schedule();
         } else if (coController.getLeftBumper()) {
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
-                    new WaitCommand(0.5),
-                    new InstantCommand(() -> hasLoweredAfter = true)
+            Commands.sequence(
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_ANGLE_SHOOT)),
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> hasLoweredAfter = true)
             ).schedule();
         } else if (coController.getRightBumper()) {
-            new SequentialCommandGroup(
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_DROP)),
-                    new WaitCommand(0.25),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_OUTTAKE_HYBIRD)),
-                    new WaitCommand(0.65),
-                    new InstantCommand(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
+            Commands.sequence(
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_DROP)),
+                    Commands.waitSeconds(0.25),
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_OUTTAKE_HYBIRD)),
+                    Commands.waitSeconds(0.65),
+                    Commands.runOnce(() -> claw.setState(Enums.ClawState.CLAW_STANDBY))
             ).schedule();
         }
     }

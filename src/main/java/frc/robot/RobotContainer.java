@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoAlignment;
 import frc.robot.commands.teleop.ElevatorTeleop;
@@ -243,13 +243,13 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         // Main Driver
-        resetGyroBtn.onTrue(new InstantCommand(swerve::zeroRotation));
-        alignLeftBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.LEFT)));
-        alignRightBtn.whileTrue(new InstantCommand(() -> autoAlignment.setState(Enums.GridPositions.RIGHT)));
+        resetGyroBtn.onTrue(Commands.runOnce(swerve::zeroRotation));
+        alignLeftBtn.whileTrue(Commands.runOnce(() -> autoAlignment.setState(Enums.GridPositions.LEFT)));
+        alignRightBtn.whileTrue(Commands.runOnce(() -> autoAlignment.setState(Enums.GridPositions.RIGHT)));
 
         // Co Driver
-        candleYellowBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
-        candlePurpleBtn.onTrue(new InstantCommand(() -> candleController.setState(Enums.CANdleState.PURPLE)));
+        candleYellowBtn.onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.YELLOW)));
+        candlePurpleBtn.onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.PURPLE)));
     }
 
     public Command getAutonomousCommand() {
