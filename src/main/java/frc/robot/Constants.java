@@ -16,8 +16,9 @@ public interface Constants {
 
         double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
-        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.00060954, 0.01, 0.25655, 2.9757);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0, 0);
+        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(4, 0, 0.256, 0.9);
+//        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.00060954, 0.01, 0.25655, 2.9757);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(50, 0, 0, 0);
     }
 
     interface Swerve {

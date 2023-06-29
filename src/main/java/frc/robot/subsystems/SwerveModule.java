@@ -13,7 +13,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.utils.TitanBoard;
 
 public class SwerveModule {
     private final TalonFX driveMotor, turnMotor;
@@ -52,9 +54,9 @@ public class SwerveModule {
 
         final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
         driverConfig.Slot0 = Constants.Modules.DRIVE_MOTOR_CONSTANTS;
-        driverConfig.CurrentLimits.StatorCurrentLimit = 60;
+        driverConfig.CurrentLimits.StatorCurrentLimit = 80;
         driverConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        driverConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
+        driverConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
         driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driverConfig.MotorOutput.Inverted = driveInvertedValue;
@@ -62,8 +64,8 @@ public class SwerveModule {
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
         turnerConfig.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
-        turnerConfig.Voltage.PeakForwardVoltage = 6;
-        turnerConfig.Voltage.PeakReverseVoltage = -6;
+//        turnerConfig.Voltage.PeakForwardVoltage = 6;
+//        turnerConfig.Voltage.PeakReverseVoltage = -6;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
@@ -115,6 +117,11 @@ public class SwerveModule {
 
         driveMotor.setControl(velocityVoltage.withVelocity(desired_driver_velocity));
         turnMotor.setControl(positionVoltage.withPosition(desired_turner_rotations));
+
+        if (turnMotor.getDeviceID() == 2) {
+            SmartDashboard.putNumber("FL drive desired speed", Math.abs(desired_driver_velocity));
+            SmartDashboard.putNumber("FL drive current speed", Math.abs(driveMotor.getVelocity().refresh().getValue()));
+        }
     }
 
     public void stop() {
