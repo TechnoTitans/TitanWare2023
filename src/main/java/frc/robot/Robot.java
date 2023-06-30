@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,25 +46,12 @@ public class Robot extends TimedRobot {
                 robotContainer.clawOpenCloseEncoder::getAbsolutePosition, robotContainer.clawOpenCloseEncoder::getVelocity
         );
 
-        TitanBoard.addEncoder("frontleft Enc",
-                () -> robotContainer.frontLeftEncoder.getAbsolutePosition().refresh().getValue(),
-                () -> robotContainer.frontLeftEncoder.getVelocity().refresh().getValue()
-        );
+        TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
 
-        TitanBoard.addEncoder("frontright Enc",
-                () -> robotContainer.frontRightEncoder.getAbsolutePosition().refresh().getValue(),
-                () -> robotContainer.frontRightEncoder.getVelocity().refresh().getValue()
-        );
-
-        TitanBoard.addEncoder("backleft Enc",
-                () -> robotContainer.backLeftEncoder.getAbsolutePosition().refresh().getValue(),
-                () -> robotContainer.backLeftEncoder.getVelocity().refresh().getValue()
-        );
-
-        TitanBoard.addEncoder("backright Enc",
-                () -> robotContainer.backRightEncoder.getAbsolutePosition().getValue(),
-                () -> robotContainer.backRightEncoder.getVelocity().getValue()
-        );
+        TitanBoard.addSwerveModuleStates("FL", robotContainer.frontLeft);
+        TitanBoard.addSwerveModuleStates("FR", robotContainer.frontRight);
+        TitanBoard.addSwerveModuleStates("BL", robotContainer.backLeft);
+        TitanBoard.addSwerveModuleStates("BR", robotContainer.backRight);
 
         TitanBoard.addBoolean("Vertical Elevator LS", robotContainer.elevatorVerticalLimitSwitch::get);
         TitanBoard.addBoolean("Horizontal Elevator Back LS", robotContainer.elevatorHorizontalLimitSwitch::get);

@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.wpilibj.Notifier;
+import frc.robot.subsystems.SwerveModule;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class TitanBoard implements Runnable {
 
         titanBoardThread = new Notifier(new TitanBoard());
         titanBoardThread.setName("titanBoardThread");
-        titanBoardThread.startPeriodic(0.1);
+        titanBoardThread.startPeriodic(0.05);
     }
 
     public static void addDouble(
@@ -81,6 +82,24 @@ public class TitanBoard implements Runnable {
     ) {
         addDouble(String.format("%s/distance", name), distance);
         addDouble(String.format("%s/speed", name), speed);
+    }
+
+    public static void addSwerveModuleStates(final String name, final SwerveModule module) {
+        addDouble(String.format("%s_SwerveModule/drive/desired_velocity", name),
+                () -> Math.abs(module.compute_desired_driver_velocity(module.getLastDesiredState()))
+        );
+        addDouble(String.format("%s_SwerveModule/drive/current_velocity", name),
+                () -> Math.abs(module.getDriveVelocity())
+        );
+
+        addDouble(String.format("%s_SwerveModule/turn/desired_rotations", name), () -> {
+            final double desired_turner_rotations =
+                    module.compute_desired_turner_rotations(module.getLastDesiredState());
+
+            return desired_turner_rotations + ((desired_turner_rotations < 0) ? 1 : 0);
+        });
+
+        addDouble(String.format("%s_SwerveModule/turn/current_rotations", name), () -> module.getAngle().getRotations());
     }
 
     @Override

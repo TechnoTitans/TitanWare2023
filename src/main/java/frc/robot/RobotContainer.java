@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -232,7 +233,8 @@ public class RobotContainer {
         autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack", 2, 1));
         autoChooser.addOption("DropAndCharge", trajectoryManager.getCommand("DropAndCharge"));
         autoChooser.addOption("2PieceBump", trajectoryManager.getCommand("2PieceBump", 2, 1));
-        autoChooser.addOption("2.5PieceNoBalTurns", trajectoryManager.getCommand("2.5PieceNoBalTurns"));
+        autoChooser.addOption("2.5PieceNoBalTurns",
+                trajectoryManager.getCommand("2.5PieceNoBalTurns",Units.feetToMeters(13), Units.feetToMeters(13)*2));
 //        autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
 //        autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
         SmartDashboard.putData("Auto Chooser", autoChooser);

@@ -69,6 +69,7 @@ public class Claw extends SubsystemBase {
         CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
         CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
         CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
+        CCConfig.continuousCurrentLimit = 10;
         clawOpenCloseMotor.configAllSettings(CCConfig);
         clawOpenCloseMotor.brake();
 
