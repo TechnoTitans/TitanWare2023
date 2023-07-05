@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.PoseUtils;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -79,13 +80,16 @@ public class PhotonApriltags extends SubsystemBase {
 
         poseEstimator.update(
                 swerve.getRotation2d(),
-                swerve.getModulePositions());
+                swerve.getModulePositions()
+        );
 
         Pose2d dashboardPose = poseEstimator.getEstimatedPosition();
         if (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide) {
             dashboardPose = PoseUtils.flipAlliancePose(dashboardPose);
         }
+
         field2d.setRobotPose(dashboardPose);
+        Logger.getInstance().recordOutput("Odometry/Robot", dashboardPose);
     }
 
     public boolean robotOriginMatchesAlliance() {

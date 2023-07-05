@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -15,7 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 
-public class SwerveModule {
+public class SwerveModuleIOFalcon implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
@@ -26,7 +26,7 @@ public class SwerveModule {
 
     private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
-    public SwerveModule(
+    public SwerveModuleIOFalcon(
             final TalonFX driveMotor,
             final TalonFX turnMotor,
             final CANcoder turnEncoder,
@@ -47,7 +47,8 @@ public class SwerveModule {
         config();
     }
 
-    private void config() {
+    @Override
+    public void config() {
         final CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
         canCoderConfiguration.MagnetSensor.MagnetOffset = -magnetOffset;
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
@@ -75,6 +76,22 @@ public class SwerveModule {
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 
+    @Override
+    public void updateInputs(final SwerveModuleIOInputs inputs) {
+        inputs.drivePositionRots = getDrivePosition();
+        inputs.driveVelocityRotsPerSec = getDriveVelocity();
+        inputs.driveDesiredVelocityRotsPerSec = compute_desired_driver_velocity(getLastDesiredState());
+        inputs.driveCurrentAmps = driveMotor.getTorqueCurrent().refresh().getValue();
+        inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
+
+        inputs.turnAbsolutePositionRots = getAngle().getRotations();
+        inputs.turnDesiredAbsolutePositionRotsPerSec = compute_desired_turner_rotations(getLastDesiredState());
+        inputs.turnVelocityRotsPerSec = turnEncoder.getVelocity().refresh().getValue();
+        inputs.turnCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
+        inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();
+    }
+
+    @Override
     public Rotation2d getAngle() {
         final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
                 turnEncoder.getAbsolutePosition().refresh(),
@@ -84,6 +101,7 @@ public class SwerveModule {
         return Rotation2d.fromRotations(compensatedValue);
     }
 
+    @Override
     public double getDrivePosition() {
         return BaseStatusSignal.getLatencyCompensatedValue(
                 driveMotor.getPosition().refresh(),
@@ -91,10 +109,12 @@ public class SwerveModule {
         );
     }
 
+    @Override
     public double getDriveVelocity() {
         return driveMotor.getVelocity().refresh().getValue();
     }
 
+    @Override
     public SwerveModuleState getState() {
         return new SwerveModuleState(
                 -getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
@@ -102,6 +122,7 @@ public class SwerveModule {
         );
     }
 
+    @Override
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
                 -getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
@@ -109,14 +130,17 @@ public class SwerveModule {
         );
     }
 
+    @Override
     public double compute_desired_driver_velocity(final SwerveModuleState wantedState) {
         return wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
     }
 
+    @Override
     public double compute_desired_turner_rotations(final SwerveModuleState wantedState) {
         return wantedState.angle.getRotations();
     }
 
+    @Override
     public void setDesiredState(final SwerveModuleState state) {
         final Rotation2d currentWheelRotation = getAngle();
         final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
@@ -128,11 +152,13 @@ public class SwerveModule {
         turnMotor.setControl(positionVoltage.withPosition(desired_turner_rotations));
     }
 
+    @Override
     public void stop() {
         driveMotor.set(0);
         turnMotor.set(0);
     }
 
+    @Override
     public SwerveModuleState getLastDesiredState() {
         return lastDesiredState;
     }

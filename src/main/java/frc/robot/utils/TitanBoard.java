@@ -5,7 +5,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.wpilibj.Notifier;
-import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.drive.SwerveModuleIO;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -84,7 +84,7 @@ public class TitanBoard implements Runnable {
         addDouble(String.format("%s/speed", name), speed);
     }
 
-    public static void addSwerveModuleStates(final String name, final SwerveModule module) {
+    public static void addSwerveModuleStates(final String name, final SwerveModuleIO module) {
         addDouble(String.format("%s_SwerveModule/drive/desired_velocity", name),
                 () -> Math.abs(module.compute_desired_driver_velocity(module.getLastDesiredState()))
         );

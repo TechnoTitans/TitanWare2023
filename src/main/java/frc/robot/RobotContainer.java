@@ -2,8 +2,8 @@ package frc.robot;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
@@ -26,7 +26,12 @@ import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModuleIOFalcon;
+import frc.robot.subsystems.drive.SwerveModuleIOSim;
+import frc.robot.subsystems.gyro.GyroIO;
+import frc.robot.subsystems.gyro.GyroIOPigeon2;
+import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.control.OI;
@@ -65,7 +70,7 @@ public class RobotContainer {
     public final SwerveDrivePoseEstimator poseEstimator;
 
     //Swerve
-    public final SwerveModule frontLeft, frontRight, backLeft, backRight;
+    public final SwerveModuleIO frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
     public final Field2d field;
@@ -74,7 +79,7 @@ public class RobotContainer {
     public final PowerDistribution powerDistribution;
 
     //Sensors
-    public final Pigeon2 pigeon;
+    public final GyroIO gyroIO;
 
     //Vision
     public final PhotonCamera photonDriveCamera, photonApriltagCamera;
@@ -136,10 +141,47 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        frontLeft = new SwerveModule(frontLeftDrive, frontLeftTurn, frontLeftEncoder, RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322);
-        frontRight = new SwerveModule(frontRightDrive, frontRightTurn, frontRightEncoder, RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168);
-        backLeft = new SwerveModule(backLeftDrive, backLeftTurn, backLeftEncoder, RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05);
-        backRight = new SwerveModule(backRightDrive, backRightTurn, backRightEncoder, RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216);
+        switch (Constants.CURRENT_MODE) {
+            case REAL:
+                frontLeft = new SwerveModuleIOFalcon(
+                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
+                );
+                frontRight = new SwerveModuleIOFalcon(
+                        frontRightDrive, frontRightTurn, frontRightEncoder,
+                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
+                );
+                backLeft = new SwerveModuleIOFalcon(
+                        backLeftDrive, backLeftTurn, backLeftEncoder,
+                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
+                );
+                backRight = new SwerveModuleIOFalcon(
+                        backRightDrive, backRightTurn, backRightEncoder,
+                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
+                );
+                break;
+            case SIM:
+                frontLeft = new SwerveModuleIOSim(
+                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
+                );
+                frontRight = new SwerveModuleIOSim(
+                        frontRightDrive, frontRightTurn, frontRightEncoder,
+                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
+                );
+                backLeft = new SwerveModuleIOSim(
+                        backLeftDrive, backLeftTurn, backLeftEncoder,
+                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
+                );
+                backRight = new SwerveModuleIOSim(
+                        backRightDrive, backRightTurn, backRightEncoder,
+                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
+                );
+                break;
+            case REPLAY:
+            default:
+                throw new RuntimeException("this isn't possible");
+        }
 
         //Elevator Motors
         elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
@@ -162,7 +204,17 @@ public class RobotContainer {
         clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         //Sensors
-        pigeon = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
+        switch (Constants.CURRENT_MODE) {
+            case REAL:
+                gyroIO = new GyroIOPigeon2(new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME));
+                break;
+            case SIM:
+                gyroIO = new GyroIOSim(new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME));
+                break;
+            case REPLAY:
+            default:
+                throw new RuntimeException("this isn't possible");
+        }
 
         elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, elevatorHorizontalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch);
         claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltEncoder, clawTiltLimitSwitch);
@@ -175,7 +227,7 @@ public class RobotContainer {
                 Constants.Swerve.BR_OFFSET
         );
 
-        swerve = new Swerve(pigeon, kinematics, frontLeft, frontRight, backLeft, backRight);
+        swerve = new Swerve(gyroIO, kinematics, frontLeft, frontRight, backLeft, backRight);
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,

@@ -9,8 +9,27 @@ import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
+    RobotMode CURRENT_MODE = RobotMode.SIM;
+    enum RobotMode {
+        REAL,
+        SIM,
+        REPLAY
+    }
+
+    interface Sim {
+        double LOOP_PERIOD_SECONDS = 0.02;
+        // Assume 2mOhm resistance for voltage drop calculation
+        double FALCON_MOTOR_RESISTANCE = 0.002;
+
+        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(1.05, 0, 0, 0);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(20, 0, 1, 0);
+    }
+
     interface Modules {
         double WHEEL_RADIUS = 0.0508; //2 in
+        double WHEEL_MASS = 0.2313321; //0.51 lbs
+        double DRIVE_WHEEL_MOMENT_OF_INERTIA = WHEEL_MASS * WHEEL_RADIUS * WHEEL_RADIUS;
+        double TURN_WHEEL_MOMENT_OF_INERTIA = 0.004;
         double DRIVER_GEAR_RATIO = 8.14;
         double TURNER_GEAR_RATIO = 150.0 / 7.0;
 
