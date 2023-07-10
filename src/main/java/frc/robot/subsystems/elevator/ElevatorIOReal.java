@@ -17,6 +17,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.Constants;
 import frc.robot.utils.Enums;
 import frc.robot.wrappers.api.Slot0Configs;
 import frc.robot.wrappers.motors.TitanMAX;
@@ -26,9 +27,8 @@ public class ElevatorIOReal implements ElevatorIO {
     private final InvertedValue verticalElevatorMotorR, verticalElevatorMotorFollowerR;
     private final SensorDirectionValue verticalElevatorEncoderR;
     private final TitanMAX horizontalElevatorMotor;
-    private final CANcoder verticalElevatorEncoder;
-    private final CANCoder horizontalElevatorEncoder;
-    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
+    private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
+    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch, horizontalElevatorFrontLimitSwitch;
 
     private Enums.ElevatorState desiredState = Enums.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
@@ -42,7 +42,7 @@ public class ElevatorIOReal implements ElevatorIO {
             HEPositionRotations = 0, //Horizontal Elevator Target Rotations
             VEPositionRotations = 0; //Vertical Elevator Target Rotations
 
-    private boolean VESwitchFlag = false;
+    private boolean elevatorsHaveReset = false;
     private boolean horizontalPositionalControl = false;
 
     public ElevatorIOReal(
@@ -51,12 +51,12 @@ public class ElevatorIOReal implements ElevatorIO {
             final TalonFX verticalElevatorMotorFollower,
             final InvertedValue verticalElevatorMotorFollowerR,
             final CANcoder verticalElevatorEncoder,
-            final CANCoder horizontalElevatorEncoder,
+            final CANcoder horizontalElevatorEncoder,
             final SensorDirectionValue verticalElevatorEncoderR,
             final TitanMAX horizontalElevatorMotor,
             final DigitalInput verticalElevatorLimitSwitch,
-            final DigitalInput horizontalElevatorLimitSwitch,
-            final DigitalInput elevatorHorizontalHighLimitSwitch
+            final DigitalInput horizontalElevatorRearLimitSwitch,
+            final DigitalInput horizontalElevatorFrontLimitSwitch
     ) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.verticalElevatorMotorR = verticalElevatorMotorR;
@@ -67,8 +67,8 @@ public class ElevatorIOReal implements ElevatorIO {
         this.verticalElevatorEncoderR = verticalElevatorEncoderR;
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
-        this.horizontalElevatorLimitSwitch = horizontalElevatorLimitSwitch;
-        this.elevatorHorizontalHighLimitSwitch = elevatorHorizontalHighLimitSwitch;
+        this.horizontalElevatorRearLimitSwitch = horizontalElevatorRearLimitSwitch;
+        this.horizontalElevatorFrontLimitSwitch = horizontalElevatorFrontLimitSwitch;
 
         config();
 
@@ -83,64 +83,95 @@ public class ElevatorIOReal implements ElevatorIO {
                 0, true, false);
     }
 
+    private boolean resetElevator() {
+        final boolean horizontalDidReset;
+        final boolean verticalDidReset;
+
+        if (verticalElevatorLimitSwitch.get()) {
+            verticalElevatorEncoder.setPosition(0);
+            verticalElevatorMode = Enums.ElevatorMode.DUTY_CYCLE;
+            VEPositionRotations = 0;
+            verticalDidReset = true;
+        } else {
+            verticalDidReset = false;
+        }
+
+        if (horizontalElevatorRearLimitSwitch.get()) {
+            horizontalElevatorEncoder.setPosition(0);
+            horizontalPositionalControl = true;
+            HEPositionRotations = 0.1;
+            horizontalDidReset = true;
+        } else {
+            horizontalDidReset = false;
+        }
+
+        return verticalDidReset && horizontalDidReset;
+    }
+
     private void periodic() {
-        if (horizontalElevatorLimitSwitch.get() && desiredState == Enums.ElevatorState.ELEVATOR_STANDBY &&
-                horizontalElevatorEncoder.getPosition() < 0.5) {
+        final boolean hasHorizontalElevatorRearLSPressed = horizontalElevatorRearLimitSwitch.get();
+        final boolean hasHorizontalElevatorFrontLimitSwitch = horizontalElevatorFrontLimitSwitch.get();
+        final boolean hasVerticalElevatorLSPressed = verticalElevatorLimitSwitch.get();
+
+        final double horizontalElevatorEncoderPositionRots = horizontalElevatorEncoder.getPosition().refresh().getValue();
+
+        if (desiredState == Enums.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
+            elevatorsHaveReset = resetElevator();
+            if (elevatorsHaveReset) {
+                setDesiredState(Enums.ElevatorState.ELEVATOR_STANDBY);
+            }
+        }
+
+        if (desiredState == Enums.ElevatorState.ELEVATOR_STANDBY &&
+                horizontalElevatorEncoderPositionRots < 0.5 &&
+                hasHorizontalElevatorRearLSPressed
+        ) {
             horizontalPositionalControl = true;
             HEPositionRotations = 0.1;
         }
 
-        if (horizontalElevatorLimitSwitch.get() && desiredState == Enums.ElevatorState.ELEVATOR_RESET) {
+        if (desiredState == Enums.ElevatorState.ELEVATOR_RESET && hasHorizontalElevatorRearLSPressed) {
             horizontalElevatorEncoder.setPosition(0);
             horizontalPositionalControl = true;
             HEPositionRotations = 0.1;
         }
 
-        if (elevatorHorizontalHighLimitSwitch.get() && desiredState == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH &&
-                horizontalElevatorEncoder.getPosition() > 1.5) {
+        if (desiredState == Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH &&
+                horizontalElevatorEncoderPositionRots > 1.5 &&
+                hasHorizontalElevatorFrontLimitSwitch
+        ) {
             horizontalPositionalControl = true;
-            HEPositionRotations = horizontalElevatorEncoder.getPosition();
+            HEPositionRotations = horizontalElevatorEncoderPositionRots;
         }
 
-        if (horizontalElevatorLimitSwitch.get() && desiredState == Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM) {
+        if (desiredState == Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM && hasHorizontalElevatorRearLSPressed) {
             horizontalPositionalControl = true;
-            HEPositionRotations = horizontalElevatorEncoder.getPosition();
+            HEPositionRotations = horizontalElevatorEncoderPositionRots;
         }
 
-        if (verticalElevatorLimitSwitch.get() && !VESwitchFlag &&
-                (desiredState == Enums.ElevatorState.ELEVATOR_STANDBY || desiredState == Enums.ElevatorState.ELEVATOR_RESET)) {
-            VESwitchFlag = true;
+        if (desiredState == Enums.ElevatorState.ELEVATOR_STANDBY && hasVerticalElevatorLSPressed) {
             verticalElevatorEncoder.setPosition(0);
             verticalElevatorMode = Enums.ElevatorMode.DUTY_CYCLE;
             VEPositionRotations = 0;
-        } else if (!verticalElevatorLimitSwitch.get() && VESwitchFlag && (desiredState != Enums.ElevatorState.ELEVATOR_STANDBY &&
-                desiredState != Enums.ElevatorState.ELEVATOR_RESET)) {
-            VESwitchFlag = false;
         }
 
-
         switch (verticalElevatorMode) {
-            case POSITION:
-                verticalElevatorMotor.setControl(
-                        positionVoltage.withPosition(VEPositionRotations)
-                );
-                break;
-            case MOTION_MAGIC:
-                verticalElevatorMotor.setControl(
-                        motionMagicVoltage.withPosition(VEPositionRotations)
-                );
-                break;
-            case DUTY_CYCLE:
-                verticalElevatorMotor.setControl(
-                        dutyCycleOut.withOutput(VEPositionRotations)
-                );
-                break;
+            case POSITION -> verticalElevatorMotor.setControl(
+                    positionVoltage.withPosition(VEPositionRotations)
+            );
+            case MOTION_MAGIC -> verticalElevatorMotor.setControl(
+                    motionMagicVoltage.withPosition(VEPositionRotations)
+            );
+            case DUTY_CYCLE -> verticalElevatorMotor.setControl(
+                    dutyCycleOut.withOutput(VEPositionRotations)
+            );
         }
 
         if (horizontalPositionalControl) {
             horizontalElevatorMotor.set(
                     CANSparkMax.ControlType.kDutyCycle,
-                    horizontalElevatorPID.calculate(horizontalElevatorEncoder.getPosition(), HEPositionRotations)
+                    horizontalElevatorPID.calculate(
+                            horizontalElevatorEncoder.getPosition().refresh().getValue(), HEPositionRotations)
             );
         } else {
             horizontalElevatorMotor.set(
@@ -154,9 +185,9 @@ public class ElevatorIOReal implements ElevatorIO {
     public void updateInputs(final ElevatorIOInputs inputs) {
         periodic();
 
-        inputs.desiredState = desiredState.name();
+        inputs.desiredState = desiredState.toString();
 
-        inputs.verticalElevatorMode = verticalElevatorMode.name();
+        inputs.verticalElevatorMode = verticalElevatorMode.toString();
         inputs.VEPositionRotations = VEPositionRotations;
 
         inputs.horizontalPositionalControl = horizontalPositionalControl;
@@ -165,21 +196,21 @@ public class ElevatorIOReal implements ElevatorIO {
         inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
         inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
 
-        inputs.horizontalElevatorEncoderPosition = horizontalElevatorEncoder.getPosition();
-        inputs.horizontalElevatorEncoderVelocity = horizontalElevatorEncoder.getVelocity();
+        inputs.horizontalElevatorEncoderPosition = horizontalElevatorEncoder.getPosition().refresh().getValue();
+        inputs.horizontalElevatorEncoderVelocity = horizontalElevatorEncoder.getVelocity().refresh().getValue();
 
         inputs.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch.get();
-        inputs.horizontalElevatorLimitSwitch = horizontalElevatorLimitSwitch.get();
+        inputs.horizontalElevatorLimitSwitch = horizontalElevatorRearLimitSwitch.get();
     }
 
     @Override
     public void config() {
-        CANcoderConfiguration CVEConfig = new CANcoderConfiguration();
+        final CANcoderConfiguration CVEConfig = new CANcoderConfiguration();
         CVEConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         CVEConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR;
         verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
 
-        TalonFXConfiguration VEConfig = new TalonFXConfiguration();
+        final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.Slot0 = new Slot0Configs(9, 0.15, 0.15925, 1.4126);
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
@@ -190,78 +221,30 @@ public class ElevatorIOReal implements ElevatorIO {
         VEConfig.MotionMagic.MotionMagicJerk = 40;
         verticalElevatorMotor.getConfigurator().apply(VEConfig);
 
-        TalonFXConfiguration VEFConfig = new TalonFXConfiguration();
+        final TalonFXConfiguration VEFConfig = new TalonFXConfiguration();
         VEFConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR;
         verticalElevatorMotorFollower.getConfigurator().apply(VEFConfig);
 
-        Follower verticalElevatorFollower = new Follower(
+        final Follower verticalElevatorFollower = new Follower(
                 verticalElevatorMotor.getDeviceID(),
                 false
         );
         verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
-
         horizontalElevatorMotor.brake();
 
-        CANCoderConfiguration horizontalElevatorEncoderConfig = new CANCoderConfiguration();
-        horizontalElevatorEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        horizontalElevatorEncoderConfig.unitString = "deg";
-        horizontalElevatorEncoderConfig.sensorDirection = true;
-        horizontalElevatorEncoderConfig.sensorCoefficient = 1.0 / 4096; // this makes getPosition() return in rotations
-        horizontalElevatorEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        horizontalElevatorEncoder.configAllSettings(horizontalElevatorEncoderConfig);
+        final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();
+        horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        horizontalElevatorEncoder.getConfigurator().apply(horizontalElevatorEncoderConfig);
     }
 
     @Override
     public void setDesiredState(final Enums.ElevatorState state) {
         this.desiredState = state;
-        this.verticalElevatorMode = Enums.ElevatorMode.POSITION;
-        switch (state) {
-            case ELEVATOR_RESET:
-                verticalElevatorMode = Enums.ElevatorMode.MOTION_MAGIC;
-                VEPositionRotations = -0.25;
-                horizontalPositionalControl = false;
-                HEPositionRotations = -0.3;
-                break;
-            case ELEVATOR_EXTENDED_HIGH:
-                VEPositionRotations = 5;
-                horizontalPositionalControl = true;
-                HEPositionRotations = 3;
-                break;
-            case ELEVATOR_EXTENDED_MID:
-                VEPositionRotations = 3.2;
-                horizontalPositionalControl = true;
-                HEPositionRotations = 0.9;
-                break;
-            case ELEVATOR_STANDBY:
-                verticalElevatorMode = Enums.ElevatorMode.MOTION_MAGIC;
-                VEPositionRotations = -0.25;
-                horizontalPositionalControl = true;
-                HEPositionRotations = 0;
-                break;
-            case ELEVATOR_EXTENDED_PLATFORM:
-                VEPositionRotations = 4.3;
-                horizontalPositionalControl = true;
-                HEPositionRotations = 0;
-                break;
-            case ELEVATOR_CUBE:
-                VEPositionRotations = 1.3;
-                horizontalPositionalControl = false;
-                HEPositionRotations = -0.3;
-                break;
-            case ELEVATOR_TIPPED_CONE:
-                VEPositionRotations = 1.55;
-                horizontalPositionalControl = true;
-                HEPositionRotations = .2;
-                break;
-            case SINGLE_SUB:
-                VEPositionRotations = 2.1;
-                horizontalPositionalControl = true;
-                HEPositionRotations = 0;
-                break;
-            default:
-                break;
-        }
+        this.verticalElevatorMode = state.getVerticalElevatorMode();
+        this.VEPositionRotations = state.getVEPositionRotations();
+        this.horizontalPositionalControl = state.isHorizontalPositionalControl();
+        this.HEPositionRotations = state.getHEPositionRotation();
     }
 
     @Override

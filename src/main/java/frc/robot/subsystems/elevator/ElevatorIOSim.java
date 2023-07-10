@@ -30,8 +30,7 @@ public class ElevatorIOSim implements ElevatorIO {
     private final TitanMAX horizontalElevatorMotor;
     private final DCMotorSim horizontalElevatorSimMotor;
 
-    private final CANcoder verticalElevatorEncoder;
-    private final CANCoder horizontalElevatorEncoder;
+    private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     private Enums.ElevatorState desiredState = Enums.ElevatorState.ELEVATOR_RESET;
@@ -55,7 +54,7 @@ public class ElevatorIOSim implements ElevatorIO {
             final TalonFX verticalElevatorMotorFollower,
             final InvertedValue verticalElevatorMotorFollowerR,
             final CANcoder verticalElevatorEncoder,
-            final CANCoder horizontalElevatorEncoder,
+            final CANcoder horizontalElevatorEncoder,
             final SensorDirectionValue verticalElevatorEncoderR,
             final TitanMAX horizontalElevatorMotor,
             final DigitalInput verticalElevatorLimitSwitch,

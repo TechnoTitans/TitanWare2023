@@ -58,15 +58,14 @@ public class RobotContainer {
 
     //Elevator
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
-    public final CANcoder elevatorVerticalEncoder;
-    public final CANCoder elevatorHorizontalEncoder;
+    public final CANcoder elevatorVerticalEncoder, elevatorHorizontalEncoder;
     public final TitanMAX elevatorHorizontalNeo;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     public final CANCoder clawOpenCloseEncoder;
-    public final CANCoder clawTiltEncoder;
+    public final CANcoder clawTiltEncoder;
     public final TitanMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
@@ -192,7 +191,7 @@ public class RobotContainer {
         elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
         elevatorVerticalMotorFollower = new TalonFX(RobotMap.followerVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
         elevatorVerticalEncoder = new CANcoder(RobotMap.verticalElevatorEncoder, RobotMap.CANIVORE_CAN_NAME);
-        elevatorHorizontalEncoder = new CANCoder(RobotMap.horizontalElevatorEncoder);
+        elevatorHorizontalEncoder = new CANcoder(RobotMap.horizontalElevatorEncoder);
 
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
@@ -205,7 +204,7 @@ public class RobotContainer {
 
         elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
         clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawTiltEncoder = new CANCoder(RobotMap.clawTiltEncoder);
+        clawTiltEncoder = new CANcoder(RobotMap.clawTiltEncoder);
         clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         //Swerve Kinematics

@@ -72,7 +72,7 @@ public class Robot extends LoggedRobot {
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
                 //TODO: figure out which port is occupied, use sda1 if sda2 is used
-                logger.addDataReceiver(new WPILOGWriter("/media/sda2"));
+                logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
                 logger.addDataReceiver(new NT4Publisher());
             }
             case SIM -> {
@@ -97,10 +97,12 @@ public class Robot extends LoggedRobot {
                 () -> robotContainer.elevatorVerticalEncoder.getVelocity().refresh().getValue()
         );
         TitanBoard.addEncoder("EHorizontal Enc",
-                robotContainer.elevatorHorizontalEncoder::getPosition, robotContainer.elevatorHorizontalEncoder::getVelocity
+                () -> robotContainer.elevatorHorizontalEncoder.getPosition().refresh().getValue(),
+                () -> robotContainer.elevatorHorizontalEncoder.getVelocity().refresh().getValue()
         );
         TitanBoard.addEncoder("Tilt Enc",
-                robotContainer.clawTiltEncoder::getAbsolutePosition, robotContainer.clawTiltEncoder::getVelocity
+                () -> robotContainer.clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
+                () -> robotContainer.clawTiltEncoder.getVelocity().refresh().getValue()
         );
         TitanBoard.addEncoder("OpenClose Enc",
                 robotContainer.clawOpenCloseEncoder::getAbsolutePosition, robotContainer.clawOpenCloseEncoder::getVelocity

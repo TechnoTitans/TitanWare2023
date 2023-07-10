@@ -32,6 +32,8 @@ public interface ClawIO {
      */
     void updateInputs(final ClawIOInputs inputs);
 
+    void periodic();
+
     void config();
 
     void setDesiredState(final Enums.ClawState state);

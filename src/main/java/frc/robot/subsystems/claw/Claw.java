@@ -2,6 +2,7 @@ package frc.robot.subsystems.claw;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Enums;
+import org.littletonrobotics.junction.Logger;
 
 public class Claw extends SubsystemBase {
     private final ClawIO clawIO;
@@ -17,6 +18,9 @@ public class Claw extends SubsystemBase {
     @Override
     public void periodic() {
         clawIO.updateInputs(inputs);
+        clawIO.periodic();
+
+        Logger.getInstance().processInputs("Claw", inputs);
     }
 
     private void config() {

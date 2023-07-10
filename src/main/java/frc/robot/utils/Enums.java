@@ -4,30 +4,97 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class Enums {
     public enum ElevatorState {
-        ELEVATOR_RESET("Reset"), //DutyCycle back to limit switch to reset encoder
-        ELEVATOR_EXTENDED_HIGH("ExtendedHigh"), //Elevator High and Horizontal extended
-        ELEVATOR_EXTENDED_MID("ExtendedMid"), //Elevator Mid and Horizontal extended
-        ELEVATOR_EXTENDED_PLATFORM("DoubleSubstation"), //Elevator Platform and Horizontal extended
-        ELEVATOR_STANDBY("Standby"), //Elevator at normal height
-        ELEVATOR_CUBE("Cube"),
-        SINGLE_SUB("SingleSubstation"),
-        ELEVATOR_TIPPED_CONE("TippedCone");
+        //DutyCycle back to limit switch to reset encoder
+        ELEVATOR_RESET(
+                Enums.ElevatorMode.MOTION_MAGIC,
+                -0.25,
+                false,
+                -0.3
+        ),
+        //Elevator High and Horizontal extended
+        ELEVATOR_EXTENDED_HIGH(
+                Enums.ElevatorMode.POSITION,
+                5,
+                true,
+                3
+        ),
 
-        final String name;
-        ElevatorState(final String name) {
-            this.name = name;
+        ELEVATOR_EXTENDED_MID(
+                Enums.ElevatorMode.POSITION,
+                3.2,
+                true,
+                0.9
+        ), //Elevator Mid and Horizontal extended
+        ELEVATOR_EXTENDED_PLATFORM(
+                Enums.ElevatorMode.POSITION,
+                4.3,
+                true,
+                0
+        ), //Elevator Platform and Horizontal extended
+        ELEVATOR_STANDBY(
+                ElevatorMode.MOTION_MAGIC,
+                -0.25,
+                true,
+                0
+        ), //Elevator at normal height
+        ELEVATOR_CUBE(
+                Enums.ElevatorMode.POSITION,
+                1.3,
+                false,
+                -0.3
+        ),
+        SINGLE_SUB(
+                Enums.ElevatorMode.POSITION,
+                2.1,
+                true,
+                0
+        ),
+        ELEVATOR_TIPPED_CONE(
+                Enums.ElevatorMode.POSITION,
+                1.55,
+                true,
+                0.2
+        );
+
+        final ElevatorMode verticalElevatorMode;
+        final double VEPositionRotations;
+        final boolean horizontalPositionalControl;
+        final double HEPositionRotation;
+
+        public ElevatorMode getVerticalElevatorMode() {
+            return verticalElevatorMode;
+        }
+
+        public double getVEPositionRotations() {
+            return VEPositionRotations;
+        }
+
+        public boolean isHorizontalPositionalControl() {
+            return horizontalPositionalControl;
+        }
+
+        public double getHEPositionRotation() {
+            return HEPositionRotation;
+        }
+
+        ElevatorState(
+                final ElevatorMode verticalElevatorMode,
+                final double VEPositionRotations,
+                final boolean horizontalPositionalControl,
+                final double HEPositionRotation
+        ) {
+            this.verticalElevatorMode = verticalElevatorMode;
+            this.VEPositionRotations = VEPositionRotations;
+            this.horizontalPositionalControl = horizontalPositionalControl;
+            this.HEPositionRotation = HEPositionRotation;
+
         }
     }
 
     public enum ElevatorMode {
-        POSITION("Position"),
-        MOTION_MAGIC("MotionMagic"),
-        DUTY_CYCLE("DutyCycle");
-
-        final String name;
-        ElevatorMode(final String name) {
-            this.name = name;
-        }
+        POSITION,
+        MOTION_MAGIC,
+        DUTY_CYCLE;
     }
 
     public enum ClawControlMode {

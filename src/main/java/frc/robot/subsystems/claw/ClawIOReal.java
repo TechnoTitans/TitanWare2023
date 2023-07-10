@@ -8,7 +8,12 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
@@ -17,10 +22,13 @@ import frc.robot.utils.MathUtils;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 
+import java.time.Clock;
+
 public class ClawIOReal implements ClawIO {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
-    private final CANCoder clawOpenCloseEncoder, clawTiltEncoder;
+    private final CANCoder clawOpenCloseEncoder;
+    private final CANcoder clawTiltEncoder;
     private final TitanMAX clawTiltNeo;
     private final DigitalInput clawTiltLimitSwitch;
 
@@ -45,7 +53,7 @@ public class ClawIOReal implements ClawIO {
             final TitanSRX clawOpenCloseMotor,
             final CANCoder clawOpenCloseEncoder,
             final TitanMAX clawTiltNeo,
-            final CANCoder clawTiltEncoder,
+            final CANcoder clawTiltEncoder,
             final DigitalInput clawTiltLimitSwitch
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
@@ -56,8 +64,9 @@ public class ClawIOReal implements ClawIO {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawTiltLimitSwitch = clawTiltLimitSwitch;
 
+        //TODO: TOOK THIS
         this.tiltPID = new ProfiledPIDController(
-                3, 0, 0,
+                2.8, 0, 0,
                 new TrapezoidProfile.Constraints(3, 5)
         );
 
@@ -65,6 +74,7 @@ public class ClawIOReal implements ClawIO {
         setDesiredState(Enums.ClawState.CLAW_STANDBY);
     }
 
+    @Override
     public void periodic() {
         if (clawTiltLimitSwitch.get() && clawControlMode == Enums.ClawControlMode.DUTY_CYCLE) {
             clawTiltEncoder.setPosition(0);
@@ -80,7 +90,8 @@ public class ClawIOReal implements ClawIO {
                 desiredOpenClosePositionTicks);
 
         switch (clawControlMode) {
-            case POSITION -> clawTiltNeo.set(tiltPID.calculate(clawTiltEncoder.getAbsolutePosition(), desiredTiltPositionTicks));
+            case POSITION -> clawTiltNeo.set(tiltPID.calculate(
+                    clawTiltEncoder.getAbsolutePosition().refresh().getValue(), desiredTiltPositionTicks));
             case DUTY_CYCLE -> clawTiltNeo.set(desiredTiltPositionTicks);
         }
     }
@@ -88,9 +99,8 @@ public class ClawIOReal implements ClawIO {
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
         isAtDesiredState();
-        periodic();
 
-        inputs.currentTiltEncoderPositionTicks = clawTiltEncoder.getAbsolutePosition();
+        inputs.currentTiltEncoderPositionTicks = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.desiredTiltPositionTicks = desiredTiltPositionTicks;
         inputs.currentOpenCloseEncoderPositionTicks = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.desiredOpenClosePositionTicks = desiredOpenClosePositionTicks;
@@ -133,16 +143,12 @@ public class ClawIOReal implements ClawIO {
         clawTiltNeo.brake();
         clawTiltNeo.currentLimit(25);
 
-        final CANCoderConfiguration clawTiltEncoderConfig = new CANCoderConfiguration();
-        clawTiltEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        clawTiltEncoderConfig.unitString = Constants.CTRE.PHOENIX_5_CANCODER_UNIT_STRING_ROTS;
-        clawTiltEncoderConfig.sensorDirection = true;
-        clawTiltEncoderConfig.sensorCoefficient = Constants.CTRE.PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS;
-        clawTiltEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        clawTiltEncoderConfig.magnetOffsetDegrees = 56;
+        final CANcoderConfiguration clawTiltEncoderConfig = new CANcoderConfiguration();
+        clawTiltEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        clawTiltEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+        clawTiltEncoderConfig.MagnetSensor.MagnetOffset = -0.17;
 
-        clawTiltEncoder.configFactoryDefault();
-        clawTiltEncoder.configAllSettings(clawTiltEncoderConfig);
+        clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }
 
     public void setDesiredState(final Enums.ClawState state) {
@@ -165,7 +171,7 @@ public class ClawIOReal implements ClawIO {
                             desiredOpenClosePositionTicks,
                             5
                     ) && MathUtils.withinRange(
-                            clawTiltEncoder.getAbsolutePosition(),
+                            clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
                             desiredTiltPositionTicks,
                             5
                     );

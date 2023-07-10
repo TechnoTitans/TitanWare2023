@@ -9,7 +9,7 @@ import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     double LOOP_PERIOD_SECONDS = 0.02;
 
     enum RobotMode {
@@ -20,7 +20,7 @@ public interface Constants {
 
     interface CTRE {
         // apply to CANCoder configuration which makes the sensor return in rotations
-        double PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS = 1d / 4096;
+        double PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS = 1d / 4096d;
         String PHOENIX_5_CANCODER_UNIT_STRING_ROTS = "rot";
     }
 

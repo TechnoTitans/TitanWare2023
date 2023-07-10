@@ -7,8 +7,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
     @AutoLog
     class ElevatorIOInputs {
-        public String desiredState = Enums.ElevatorState.ELEVATOR_RESET.name();
-        public String verticalElevatorMode = Enums.ElevatorMode.MOTION_MAGIC.name();
+        public String desiredState = Enums.ElevatorState.ELEVATOR_RESET.toString();
+        public String verticalElevatorMode = Enums.ElevatorMode.MOTION_MAGIC.toString();
         public double VEPositionRotations = 0.0;
         public boolean horizontalPositionalControl = false;
         public double HEPositionRotations = 0.0;
