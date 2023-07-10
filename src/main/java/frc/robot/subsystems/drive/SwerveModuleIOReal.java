@@ -15,7 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 
-public class SwerveModuleIOFalcon implements SwerveModuleIO {
+public class SwerveModuleIOReal implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
@@ -26,7 +26,7 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
 
     private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
-    public SwerveModuleIOFalcon(
+    public SwerveModuleIOReal(
             final TalonFX driveMotor,
             final TalonFX turnMotor,
             final CANcoder turnEncoder,

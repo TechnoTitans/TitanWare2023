@@ -75,12 +75,9 @@ public class ElevatorIOReal implements ElevatorIO {
         this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
                 new TrapezoidProfile.Constraints(10, 20));
 
-        this.positionVoltage = new PositionVoltage(
-                0, true, 0, 0, false);
-        this.motionMagicVoltage = new MotionMagicVoltage(
-                0, true, 0, 0, false);
-        this.dutyCycleOut = new DutyCycleOut(
-                0, true, false);
+        this.positionVoltage = new PositionVoltage(0);
+        this.motionMagicVoltage = new MotionMagicVoltage(0);
+        this.dutyCycleOut = new DutyCycleOut(0);
     }
 
     private boolean resetElevator() {
@@ -166,18 +163,19 @@ public class ElevatorIOReal implements ElevatorIO {
                     dutyCycleOut.withOutput(VEPositionRotations)
             );
         }
-
-        if (horizontalPositionalControl) {
-            horizontalElevatorMotor.set(
-                    CANSparkMax.ControlType.kDutyCycle,
-                    horizontalElevatorPID.calculate(
-                            horizontalElevatorEncoder.getPosition().refresh().getValue(), HEPositionRotations)
-            );
-        } else {
-            horizontalElevatorMotor.set(
-                    CANSparkMax.ControlType.kDutyCycle,
-                    HEPositionRotations
-            );
+        if (false) {
+            if (horizontalPositionalControl) {
+                horizontalElevatorMotor.set(
+                        CANSparkMax.ControlType.kDutyCycle,
+                        horizontalElevatorPID.calculate(
+                                horizontalElevatorEncoder.getPosition().refresh().getValue(), HEPositionRotations)
+                );
+            } else {
+                horizontalElevatorMotor.set(
+                        CANSparkMax.ControlType.kDutyCycle,
+                        HEPositionRotations
+                );
+            }
         }
     }
 
@@ -206,13 +204,13 @@ public class ElevatorIOReal implements ElevatorIO {
     @Override
     public void config() {
         final CANcoderConfiguration CVEConfig = new CANcoderConfiguration();
-        CVEConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         CVEConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR;
         verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
 
         final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.Slot0 = new Slot0Configs(9, 0.15, 0.15925, 1.4126);
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        VEConfig.Feedback.RotorToSensorRatio = 1/0.0938;
         VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         VEConfig.MotorOutput.Inverted = verticalElevatorMotorR;

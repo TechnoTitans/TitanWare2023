@@ -27,7 +27,7 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOReal;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModuleIO;
-import frc.robot.subsystems.drive.SwerveModuleIOFalcon;
+import frc.robot.subsystems.drive.SwerveModuleIOReal;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
@@ -146,19 +146,19 @@ public class RobotContainer {
         //Swerve Modules
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
-                frontLeft = new SwerveModuleIOFalcon(
+                frontLeft = new SwerveModuleIOReal(
                         frontLeftDrive, frontLeftTurn, frontLeftEncoder,
                         RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
                 );
-                frontRight = new SwerveModuleIOFalcon(
+                frontRight = new SwerveModuleIOReal(
                         frontRightDrive, frontRightTurn, frontRightEncoder,
                         RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
                 );
-                backLeft = new SwerveModuleIOFalcon(
+                backLeft = new SwerveModuleIOReal(
                         backLeftDrive, backLeftTurn, backLeftEncoder,
                         RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
                 );
-                backRight = new SwerveModuleIOFalcon(
+                backRight = new SwerveModuleIOReal(
                         backRightDrive, backRightTurn, backRightEncoder,
                         RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
                 );
