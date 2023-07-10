@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.drive.Swerve;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathMethods;
+import frc.robot.utils.MathUtils;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.TitanBoard;
 
@@ -49,21 +49,21 @@ public class AutoAlignment extends CommandBase {
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
         final Pose2d LEFT, CENTER, RIGHT;
 
-        if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.LEFTBOTTOM, Constants.Grid.LEFTTOP)) { //LEFT SIDE OF GRID
+        if (PoseUtils.poseWithinArea(currentPose, Constants.Field.LEFT_BOTTOM, Constants.Field.LEFT_TOP)) { //LEFT SIDE OF GRID
             gridSectionName = "LEFT";
-            LEFT = Constants.Grid.LEFT.LEFT;
-            CENTER = Constants.Grid.LEFT.CUBE;
-            RIGHT = Constants.Grid.LEFT.RIGHT;
-        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.CENTERBOTTOM, Constants.Grid.CENTERTOP)) { // CENTER OF GRID
+            LEFT = Constants.Field.LEFT.LEFT;
+            CENTER = Constants.Field.LEFT.CUBE;
+            RIGHT = Constants.Field.LEFT.RIGHT;
+        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Field.CENTER_BOTTOM, Constants.Field.CENTER_TOP)) { // CENTER OF GRID
             gridSectionName = "CENTER";
-            LEFT = Constants.Grid.CENTER.LEFT;
-            CENTER = Constants.Grid.CENTER.CUBE;
-            RIGHT = Constants.Grid.CENTER.RIGHT;
-        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Grid.RIGHTBOTTOM, Constants.Grid.RIGHTTOP)) { // RIGHT OF GRID
+            LEFT = Constants.Field.CENTER.LEFT;
+            CENTER = Constants.Field.CENTER.CUBE;
+            RIGHT = Constants.Field.CENTER.RIGHT;
+        } else if (PoseUtils.poseWithinArea(currentPose, Constants.Field.RIGHT_BOTTOM, Constants.Field.RIGHT_TOP)) { // RIGHT OF GRID
             gridSectionName = "RIGHT";
-            LEFT = Constants.Grid.RIGHT.LEFT;
-            CENTER = Constants.Grid.RIGHT.CUBE;
-            RIGHT = Constants.Grid.RIGHT.RIGHT;
+            LEFT = Constants.Field.RIGHT.LEFT;
+            CENTER = Constants.Field.RIGHT.CUBE;
+            RIGHT = Constants.Field.RIGHT.RIGHT;
         } else {
             return;
         }
@@ -97,7 +97,7 @@ public class AutoAlignment extends CommandBase {
         final Pose2d transformedPose = PoseUtils.transformRobotPose(poseEstimator.getEstimatedPosition());
         final Transform2d poseError = transformedPose.minus(targetPose);
 
-        final double frontBack = MathMethods.deadband(mainController.getLeftY(), 0.01) *
+        final double frontBack = MathUtils.deadband(mainController.getLeftY(), 0.01) *
                 Constants.Swerve.TELEOP_MAX_SPEED *
                 driverProfile.getThrottleSensitivity();
 

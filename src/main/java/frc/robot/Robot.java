@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,6 +33,28 @@ public class Robot extends LoggedRobot {
         final Logger logger = Logger.getInstance();
         robotContainer = new RobotContainer();
 
+        if ((RobotBase.isReal() && Constants.CURRENT_MODE != Constants.RobotMode.REAL)
+                || (RobotBase.isSimulation() && Constants.CURRENT_MODE == Constants.RobotMode.REAL)
+        ) {
+            DriverStation.reportWarning(String.format(
+                    "Potentially incorrect CURRENT_MODE \"%s\" specified, robot is running \"%s\"",
+                    Constants.CURRENT_MODE,
+                    RobotBase.getRuntimeType().toString()
+            ), true);
+        }
+
+        // we practically never use LiveWindow, and apparently this causes loop overruns so disable it
+        LiveWindow.disableAllTelemetry();
+        LiveWindow.setEnabled(false);
+
+        // schedule PathPlanner server to start
+        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
+            PathPlannerServer.startServer(Constants.PathPlanner.SERVER_PORT);
+        }
+
+        // disable joystick not found warnings when in sim
+        DriverStation.silenceJoystickConnectionWarning(Constants.CURRENT_MODE == Constants.RobotMode.SIM);
+
         // record git metadata
         logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -38,38 +62,31 @@ public class Robot extends LoggedRobot {
         logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
         logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
         switch (BuildConstants.DIRTY) {
-            case 0:
-                logger.recordMetadata("GitDirty", "All changes committed");
-                break;
+            case 0 -> logger.recordMetadata("GitDirty", "All changes committed");
             // no need to inspect this here because BuildConstants is a dynamically changing file upon compilation
             //noinspection DataFlowIssue
-            case 1:
-                logger.recordMetadata("GitDirty", "Uncommitted changes");
-                break;
-            default:
-                logger.recordMetadata("GitDirty", "Unknown");
-                break;
+            case 1 -> logger.recordMetadata("GitDirty", "Uncommitted changes");
+            default -> logger.recordMetadata("GitDirty", "Unknown");
         }
 
         switch (Constants.CURRENT_MODE) {
-            case REAL:
-                // TODO: need log to USB or some other sort of data storage for real
+            case REAL -> {
+                //TODO: figure out which port is occupied, use sda1 if sda2 is used
+                logger.addDataReceiver(new WPILOGWriter("/media/sda2"));
                 logger.addDataReceiver(new NT4Publisher());
-                break;
-            case SIM:
+            }
+            case SIM -> {
                 // log to working directory when running sim
                 logger.addDataReceiver(new WPILOGWriter(""));
                 logger.addDataReceiver(new NT4Publisher());
-                break;
-            case REPLAY:
+            }
+            case REPLAY -> {
                 setUseTiming(false);
                 final String logPath = LogFileUtil.findReplayLog();
                 logger.setReplaySource(new WPILOGReader(logPath));
                 logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-                break;
+            }
         }
-
-        LiveWindow.disableAllTelemetry();
 
         SmartDashboard.putData("Field", robotContainer.field);
 
@@ -106,6 +123,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+        Logger.getInstance().recordOutput("IsTrajectoryFollowerScheduled", CommandScheduler.getInstance()
+                .isScheduled(robotContainer.getAutonomousCommand())
+        );
     }
 
     @Override
@@ -154,11 +174,19 @@ public class Robot extends LoggedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
-        File[] paths = new File(Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()).listFiles();
-        if (paths == null) return;
-        for (File path : paths) {
-            boolean deleteSuccess = path.delete();
-            DriverStation.reportWarning(String.format("File Delete %s", deleteSuccess ? "Success" : "Fail"), false);
+        final File[] paths = new File(
+                Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()
+        ).listFiles();
+
+        if (paths == null || Constants.CURRENT_MODE == Constants.RobotMode.SIM) {
+            return;
+        }
+
+        for (final File path : paths) {
+            final boolean deleteSuccess = path.delete();
+            DriverStation.reportWarning(
+                    String.format("File at %s deletion %s", path, deleteSuccess ? "Success" : "Failed"), false
+            );
         }
     }
 

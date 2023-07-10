@@ -4,10 +4,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.drive.Swerve;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathMethods;
+import frc.robot.utils.MathUtils;
 
 public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
@@ -33,8 +33,8 @@ public class SwerveDriveTeleop extends CommandBase {
 
     @Override
     public void execute() {
-        final double frontBack = MathMethods.deadband(controller.getLeftY(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
-        final double leftRight = MathMethods.deadband(controller.getLeftX(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
+        final double frontBack = MathUtils.deadband(controller.getLeftY(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
+        final double leftRight = MathUtils.deadband(controller.getLeftX(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
 
         if (!elevator.verticalIsExtended()) {
             if (controller.getLeftTriggerAxis() > 0.5) {
@@ -59,7 +59,7 @@ public class SwerveDriveTeleop extends CommandBase {
             final double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
             swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, true, 1);
         } else {
-            final double rot = MathMethods.deadband(controller.getRightX(), 0.01) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
+            final double rot = MathUtils.deadband(controller.getRightX(), 0.01) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
             swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, true);
         }
     }

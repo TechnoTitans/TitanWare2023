@@ -1,0 +1,504 @@
+{
+  "version": "2.3.0",
+  "layout": [
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/DriveVelocityRotsPerSec",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/TurnDesiredAbsolutePositionRotsPerSec",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/TurnAbsolutePositionRots",
+              "color": "#80588e",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": [
+            -17.886038068650258,
+            21.03575450663176
+          ],
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackRight/DriveDesiredVelocityRotsPerSec",
+              "color": "#80588e",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": [
+            -17.886038068650258,
+            21.03575450663176
+          ],
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/DriveVelocityRotsPerSec",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontRight/DriveVelocityRotsPerSec",
+              "color": "#aacaee",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackLeft/DriveVelocityRotsPerSec",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackRight/DriveVelocityRotsPerSec",
+              "color": "#858584",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/TurnDesiredAbsolutePositionRotsPerSec",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontRight/TurnDesiredAbsolutePositionRotsPerSec",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackLeft/TurnDesiredAbsolutePositionRotsPerSec",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackRight/TurnDesiredAbsolutePositionRotsPerSec",
+              "color": "#c0b487",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": [
+            -0.7590236442491891,
+            0.7632026611060652
+          ],
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/TurnAbsolutePositionRots",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_FrontRight/TurnAbsolutePositionRots",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackLeft/TurnAbsolutePositionRots",
+              "color": "#aacaee",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Module_BackRight/TurnAbsolutePositionRots",
+              "color": "#858584",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/PitchPositionDeg",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/RollPositionDeg",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/YawPositionDeg",
+              "color": "#e48b32",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/HasHardwareFault",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/State/IsUsingFallbackSimGyro",
+              "color": "#2b66a2",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/PitchVelocityDegPerSec",
+              "color": "#aacaee",
+              "show": false
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/RollVelocityDegPerSec",
+              "color": "#c0b487",
+              "show": false
+            },
+            {
+              "key": "NT:/AdvantageKit/Drive/Gyro/YawVelocityDegPerSec",
+              "color": "#858584",
+              "show": false
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDx",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDy",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDTheta",
+              "color": "#e48b32",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/gyroUseOdometryPose/0",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/gyroUseOdometryPose/1",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/gyroUseOdometryPose/2",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDx",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDy",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDTheta",
+              "color": "#aacaee",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": [
+            0.022092820591444517,
+            10.017963964549995
+          ],
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState/0",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState/1",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState/2",
+              "color": "#af2437",
+              "show": false
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Auto/EstimatedPose/0",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Auto/EstimatedPose/1",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Auto/EstimatedPose/2",
+              "color": "#aacaee",
+              "show": false
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 5,
+      "fields": [],
+      "listFields": [
+        [
+          {
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/Auto/Trajectory",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Vision Target",
+            "key": "NT:/AdvantageKit/RealOutputs/Auto/Markers",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "game": "2023",
+        "unitDistance": "meters",
+        "unitRotation": "radians",
+        "origin": "right",
+        "size": 0.75,
+        "allianceBumpers": "auto",
+        "allianceOrigin": "auto",
+        "orientation": "blue left, red right"
+      },
+      "title": "Odometry"
+    },
+    {
+      "type": 6,
+      "fields": [],
+      "listFields": [
+        [],
+        [
+          {
+            "type": "Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "field": "2023",
+        "alliance": "auto",
+        "robot": "KitBot",
+        "unitDistance": "meters",
+        "unitRotation": "radians"
+      },
+      "title": "3D Field"
+    },
+    {
+      "type": 9,
+      "fields": [
+        "NT:/AdvantageKit/RealOutputs/SwerveStates/CurrentStates",
+        "NT:/AdvantageKit/RealOutputs/SwerveStates/DesiredStates",
+        null
+      ],
+      "listFields": [],
+      "options": {
+        "maxSpeed": 4,
+        "rotationUnits": "radians",
+        "arrangement": "0,1,2,3",
+        "sizeLeftRight": 0.7366,
+        "sizeFrontBack": 0.7366,
+        "forwardDirection": "up"
+      },
+      "title": "Swerve"
+    }
+  ]
+}

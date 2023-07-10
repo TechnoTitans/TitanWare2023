@@ -5,8 +5,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Swerve;
-import frc.robot.utils.MathMethods;
+import frc.robot.subsystems.drive.Swerve;
+import frc.robot.utils.MathUtils;
 
 public class AutoBalance extends CommandBase {
     private final Swerve swerve;
@@ -44,7 +44,7 @@ public class AutoBalance extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return flag && MathMethods.withinRange(swerve.getPitch() + swerve.getRoll(), 0, 2);
+        return flag && MathUtils.withinRange(swerve.getPitch() + swerve.getRoll(), 0, 2);
     }
 
     @Override

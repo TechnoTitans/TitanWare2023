@@ -26,46 +26,79 @@ public class SwerveModule {
         Logger.getInstance().processInputs(String.format("Drive/Module_%s", name), inputs);
     }
 
+    /**
+     * @see SwerveModuleIO#config()
+     */
     private void config() {
         moduleIO.config();
     }
 
+    /**
+     * @see SwerveModuleIO#getAngle()
+     */
     public Rotation2d getAngle() {
         return moduleIO.getAngle();
     }
 
+    /**
+     * @see SwerveModuleIO#getDrivePosition()
+     */
     public double getDrivePosition() {
         return moduleIO.getDrivePosition();
     }
 
+    /**
+     * @see SwerveModuleIO#getDriveVelocity()
+     */
     public double getDriveVelocity() {
         return moduleIO.getDriveVelocity();
     }
 
+    /**
+     * @see SwerveModuleIO#getState()
+     */
     public SwerveModuleState getState() {
         return moduleIO.getState();
     }
 
+    /**
+     * @see SwerveModuleIO#getPosition()
+     */
     public SwerveModulePosition getPosition() {
         return moduleIO.getPosition();
     }
 
+    /**
+     * @see SwerveModuleIO#compute_desired_driver_velocity(SwerveModuleState)
+     */
     public double compute_desired_driver_velocity(final SwerveModuleState wantedState) {
         return moduleIO.compute_desired_driver_velocity(wantedState);
     }
 
+    /**
+     * @see SwerveModuleIO#compute_desired_turner_rotations(SwerveModuleState)
+     */
     public double compute_desired_turner_rotations(final SwerveModuleState wantedState) {
         return moduleIO.compute_desired_turner_rotations(wantedState);
     }
 
+    /**
+     * @see SwerveModuleIO#setDesiredState(SwerveModuleState)
+     */
     public void setDesiredState(final SwerveModuleState state) {
         moduleIO.setDesiredState(state);
     }
 
+    /**
+     * @see SwerveModuleIO#stop()
+     */
     public void stop() {
         moduleIO.stop();
     }
 
+    /**
+     * @see SwerveModuleIO#getLastDesiredState()
+     */
     public SwerveModuleState getLastDesiredState() {
         return moduleIO.getLastDesiredState();
     }

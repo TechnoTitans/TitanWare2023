@@ -3,31 +3,94 @@ package frc.robot.utils;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import org.littletonrobotics.junction.Logger;
 
 /**
- * Custom version of a @HolonomicDriveController specifically for following PathPlanner paths
+ * Custom version of a {@link edu.wpi.first.math.controller.HolonomicDriveController} specifically for
+ * following PathPlanner paths
  *
  * <p>This controller adds the following functionality over the WPILib version: - calculate() method
- * takes in a PathPlannerState directly - Continuous input is automatically enabled for the rotation
+ * takes in a {@link PathPlannerState} directly - Continuous input is automatically enabled for the rotation
  * controller - Holonomic angular velocity is used as a feedforward for the rotation controller,
- * which no longer needs to be a @ProfiledPIDController
+ * which no longer needs to be a {@link edu.wpi.first.math.controller.ProfiledPIDController}
  */
 
-@SuppressWarnings("unused")
 public class DriveController {
+    /**
+     * Determines if the DriveController will use x-axis FeedForward obtained from PathPlanner in addition
+     * to PID control
+     */
+    private final boolean useXFF;
+    /**
+     * Determines if the DriveController will use y-axis FeedForward obtained from PathPlanner in addition
+     * to PID control
+     */
+    private final boolean useYFF;
+    /**
+     * Determines if the DriveController will use rotational FeedForward obtained from PathPlanner in addition
+     * to PID control
+     */
+    private final boolean useRotFF;
     private final PIDController xController;
     private final PIDController yController;
     private final PIDController rotationController;
 
-    private Translation2d translationError = new Translation2d();
-    private Rotation2d rotationError = new Rotation2d();
-    private Pose2d tolerance = new Pose2d();
+    private final boolean isEnabled;
 
     /**
-     * Constructs a PPHolonomicDriveController
+     * Constructs a DriveController
+     *
+     * @param xController        A PID controller to respond to error in the field-relative X direction
+     * @param yController        A PID controller to respond to error in the field-relative Y direction
+     * @param rotationController A PID controller to respond to error in rotation
+     * @param isEnabled          Use PID control
+     * @param useXFF             Use x-axis FeedForward obtained from PathPlanner
+     * @param useYFF             Use y-axis FeedForward obtained from PathPlanner
+     * @param useRotFF           Use rotational FeedForward obtained from PathPlanner
+     */
+    public DriveController(
+            final PIDController xController,
+            final PIDController yController,
+            final PIDController rotationController,
+            final boolean isEnabled,
+            final boolean useXFF,
+            final boolean useYFF,
+            final boolean useRotFF
+    ) {
+        this.xController = xController;
+        this.yController = yController;
+        this.rotationController = rotationController;
+        this.isEnabled = isEnabled;
+        this.useXFF = useXFF;
+        this.useYFF = useYFF;
+        this.useRotFF = useRotFF;
+
+        // Auto-configure continuous input for rotation controller
+        this.rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    }
+
+    /**
+     * Constructs a DriveController (without any FeedForward input)
+     *
+     * @param xController        A PID controller to respond to error in the field-relative X direction
+     * @param yController        A PID controller to respond to error in the field-relative Y direction
+     * @param rotationController A PID controller to respond to error in rotation
+     * @param isEnabled          Use PID control
+     * @param useFF              Use FeedForward
+     */
+    public DriveController(
+            final PIDController xController,
+            final PIDController yController,
+            final PIDController rotationController,
+            final boolean isEnabled,
+            final boolean useFF
+    ) {
+        this(xController, yController, rotationController, isEnabled, useFF, useFF, useFF);
+    }
+
+    /**
+     * Constructs a DriveController (without any FeedForward input)
      *
      * @param xController        A PID controller to respond to error in the field-relative X direction
      * @param yController        A PID controller to respond to error in the field-relative Y direction
@@ -38,56 +101,66 @@ public class DriveController {
             final PIDController yController,
             final PIDController rotationController
     ) {
-        this.xController = xController;
-        this.yController = yController;
-        this.rotationController = rotationController;
-
-        // Auto-configure continuous input for rotation controller
-        this.rotationController.enableContinuousInput(-Math.PI, Math.PI);
+        this(xController, yController, rotationController, true, true);
     }
 
     /**
-     * Returns true if the pose error is within tolerance of the reference.
-     *
-     * @return True if the pose error is within tolerance of the reference.
+     * Resets the state of the DriveController by resetting accumulated error on all PID controllers
+     * @see PIDController#reset()
      */
-    public boolean atReference() {
-        final Translation2d translationTolerance = this.tolerance.getTranslation();
-        final Rotation2d rotationTolerance = this.tolerance.getRotation();
-
-        return Math.abs(this.translationError.getX()) < translationTolerance.getX()
-                && Math.abs(this.translationError.getY()) < translationTolerance.getY()
-                && Math.abs(this.rotationError.getRadians()) < rotationTolerance.getRadians();
-    }
-
-    /**
-     * Sets the pose error whic is considered tolerance for use with atReference()
-     *
-     * @param tolerance The pose error which is tolerable
-     */
-    public void setTolerance(final Pose2d tolerance) {
-        this.tolerance = tolerance;
+    public void reset() {
+        xController.reset();
+        yController.reset();
+        rotationController.reset();
     }
 
     /**
      * Calculates the next output of the holonomic drive controller
      *
      * @param currentPose    The current pose
-     * @param referenceState The desired trajectory state
+     * @param wantedState The desired trajectory state
      * @return The next output of the holonomic drive controller
      */
-    public ChassisSpeeds calculate(
-            final Pose2d currentPose,
-            final PathPlannerState referenceState
-    ) {
-        this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
-        this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
+    public ChassisSpeeds calculate(final Pose2d currentPose, final PathPlannerState wantedState) {
+        final double xFF = useXFF
+                ? wantedState.velocityMetersPerSecond * wantedState.poseMeters.getRotation().getCos()
+                : 0;
+        final double yFF = useYFF
+                ? wantedState.velocityMetersPerSecond * wantedState.poseMeters.getRotation().getSin()
+                : 0;
+        final double rotationFF = useRotFF
+                ? wantedState.holonomicAngularVelocityRadPerSec
+                : 0;
 
-        final double xFeedback = this.xController.calculate(currentPose.getX(), referenceState.poseMeters.getX());
-        final double yFeedback = this.yController.calculate(currentPose.getY(), referenceState.poseMeters.getY());
-        final double rotationFeedback = this.rotationController.calculate(
-                currentPose.getRotation().getRadians(), referenceState.holonomicRotation.getRadians());
+        if (!this.isEnabled) {
+            return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, rotationFF, currentPose.getRotation());
+        }
 
-        return new ChassisSpeeds(xFeedback, yFeedback, rotationFeedback);
+        double xFeedback =
+                this.xController.calculate(currentPose.getX(), wantedState.poseMeters.getX());
+        double yFeedback =
+                this.yController.calculate(currentPose.getY(), wantedState.poseMeters.getY());
+        double rotationFeedback =
+                this.rotationController.calculate(
+                        currentPose.getRotation().getRadians(), wantedState.holonomicRotation.getRadians());
+
+        Logger.getInstance().recordOutput("xController/positionError", xController.getPositionError());
+        Logger.getInstance().recordOutput("xController/velocityError", xController.getVelocityError());
+        Logger.getInstance().recordOutput("xController/controlEffort", xFeedback);
+
+        Logger.getInstance().recordOutput("yController/positionError", yController.getPositionError());
+        Logger.getInstance().recordOutput("yController/velocityError", yController.getVelocityError());
+        Logger.getInstance().recordOutput("yController/controlEffort", yFeedback);
+
+        Logger.getInstance().recordOutput("rotationController/positionError", rotationController.getPositionError());
+        Logger.getInstance().recordOutput("rotationController/velocityError", rotationController.getVelocityError());
+        Logger.getInstance().recordOutput("rotationController/controlEffort", rotationFeedback);
+
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                xFF + xFeedback,
+                yFF + yFeedback,
+                rotationFF + rotationFeedback,
+                currentPose.getRotation()
+        );
     }
 }

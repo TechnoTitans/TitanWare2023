@@ -1,7 +1,6 @@
 package frc.robot.subsystems.gyro;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.math.util.Units;
 
 public class GyroIOPigeon2 implements GyroIO {
     private final Pigeon2 pigeon;
@@ -15,19 +14,22 @@ public class GyroIOPigeon2 implements GyroIO {
     public void updateInputs(final GyroIOInputs inputs) {
         inputs.hasHardwareFault = pigeon.getFault_Hardware().refresh().getValue();
 
-        inputs.rollPositionRad = Units.degreesToRadians(getRoll());
-        inputs.pitchPositionRad = Units.degreesToRadians(-getPitch());
-        inputs.yawPositionRad = Units.degreesToRadians(getHeading());
+        inputs.rollPositionDeg = getRoll();
+        inputs.pitchPositionDeg = -getPitch();
+        inputs.yawPositionDeg = getHeading();
 
-        inputs.rollVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityY().refresh().getValue());
-        inputs.pitchVelocityRadPerSec = Units.degreesToRadians(-pigeon.getAngularVelocityX().refresh().getValue());
-        inputs.yawVelocityRadPerSec = Units.degreesToRadians(pigeon.getAngularVelocityZ().refresh().getValue());
+        inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
+        inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
+        inputs.yawVelocityDegPerSec = pigeon.getAngularVelocityZ().refresh().getValue();
     }
 
     @Override
     public Pigeon2 getPigeon() {
         return pigeon;
     }
+
+    @Override
+    public boolean isReal() { return true; }
 
     @Override
     public double getHeading() {

@@ -116,16 +116,18 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
 
     @Override
     public SwerveModuleState getState() {
+        // #1 max sell of the year
         return new SwerveModuleState(
-                -getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
         );
     }
 
     @Override
     public SwerveModulePosition getPosition() {
+        // #1 max sell of the year
         return new SwerveModulePosition(
-                -getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
         );
     }

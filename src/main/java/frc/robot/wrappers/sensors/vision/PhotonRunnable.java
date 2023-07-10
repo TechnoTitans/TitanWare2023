@@ -52,8 +52,8 @@ public class PhotonRunnable implements Runnable {
             ) {
                 photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {
                     final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
-                    if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Constants.Grid.FIELD_LENGTH_X_METERS
-                            && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Constants.Grid.FIELD_WIDTH_Y_METERS) {
+                    if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Constants.Field.FIELD_LENGTH_X_METERS
+                            && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Constants.Field.FIELD_WIDTH_Y_METERS) {
                         atomicEstimatedRobotPose.set(estimatedRobotPose);
                     }
                 });

@@ -24,28 +24,85 @@ public interface SwerveModuleIO {
 
     /**
      * Updates the set of loggable inputs.
+     * @param inputs Logged class of IOInputs
+     * @see SwerveModuleIOInputs
+     * @see AutoLog
      */
     void updateInputs(final SwerveModuleIOInputs inputs);
 
+    /**
+     * Config motors call, should only be invoked once on initialize
+     */
     void config();
 
+    /**
+     * Get a {@link Rotation2d} of the current absolute turn position (computed from encoder rotations)
+     * @return the absolute turn position as a {@link Rotation2d}
+     * @see Rotation2d
+     */
     Rotation2d getAngle();
 
+    /**
+     * Get the current relative drive position in rotations
+     * @return drive position (rots)
+     */
     double getDrivePosition();
 
+    /**
+     * Get the current drive velocity in rotations/sec
+     * @return drive velocity (rps)
+     */
     double getDriveVelocity();
 
+    /**
+     * Get the current module observed {@link SwerveModuleState} (velocity, angle)
+     * @return the module's current state as a {@link SwerveModuleState}
+     * @see SwerveModuleState
+     */
     SwerveModuleState getState();
 
+    /**
+     * Get the current module observed {@link SwerveModulePosition} (position, angle)
+     * @return the module's current position as a {@link SwerveModulePosition}
+     * @see SwerveModulePosition
+     */
     SwerveModulePosition getPosition();
 
+    /**
+     * Compute the desired drive motor velocity given a desired {@link SwerveModuleState}
+     * i.e. the rotor velocity given wheel velocity (rps)
+     * @param wantedState the wanted state of the module
+     * @return the desired rotor velocity
+     * @see SwerveModuleState
+     */
     double compute_desired_driver_velocity(final SwerveModuleState wantedState);
 
+    /**
+     * Compute the desired turn motor velocity given a desired {@link SwerveModuleState}
+     * i.e. the rotor position given wheel rotational position (rots)
+     * @param wantedState the wanted state of the module
+     * @return the desired rotor position
+     * @see SwerveModuleState
+     */
     double compute_desired_turner_rotations(final SwerveModuleState wantedState);
 
+    /**
+     * Set the desired {@link SwerveModuleState} of the module
+     * @param state the desired {@link SwerveModuleState}
+     * @see SwerveModuleState
+     */
     void setDesiredState(final SwerveModuleState state);
 
+    /**
+     * Stop the module
+     */
     void stop();
 
+    /**
+     * Get the last desired {@link SwerveModuleState} set in {@link SwerveModuleIO#setDesiredState(SwerveModuleState)}
+     * <p>
+     * Note: this {@link SwerveModuleState} has been optimized and does not guarantee that it matches the last set state
+     * @return the last desired {@link SwerveModuleState}
+     */
     SwerveModuleState getLastDesiredState();
 }

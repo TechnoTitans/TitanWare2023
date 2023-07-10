@@ -23,17 +23,21 @@ import frc.robot.commands.teleop.AutoAlignment;
 import frc.robot.commands.teleop.ElevatorTeleop;
 import frc.robot.commands.teleop.IntakeTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
-import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.ClawIOReal;
+import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOFalcon;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
+import frc.robot.utils.pathplanner.AutoOption;
 import frc.robot.wrappers.control.OI;
 import frc.robot.wrappers.control.TitanButton;
 import frc.robot.wrappers.leds.CandleController;
@@ -112,7 +116,7 @@ public class RobotContainer {
 
     //SmartDashboard
     public final SendableChooser<Enums.DriverProfiles> profileChooser;
-    public final SendableChooser<Command> autoChooser;
+    public final SendableChooser<AutoOption> autoChooser;
 
     public RobotContainer() {
         //OI
@@ -142,7 +146,7 @@ public class RobotContainer {
 
         //Swerve Modules
         switch (Constants.CURRENT_MODE) {
-            case REAL:
+            case REAL -> {
                 frontLeft = new SwerveModuleIOFalcon(
                         frontLeftDrive, frontLeftTurn, frontLeftEncoder,
                         RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
@@ -159,8 +163,8 @@ public class RobotContainer {
                         backRightDrive, backRightTurn, backRightEncoder,
                         RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
                 );
-                break;
-            case SIM:
+            }
+            case SIM -> {
                 frontLeft = new SwerveModuleIOSim(
                         frontLeftDrive, frontLeftTurn, frontLeftEncoder,
                         RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
@@ -177,11 +181,12 @@ public class RobotContainer {
                         backRightDrive, backRightTurn, backRightEncoder,
                         RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
                 );
-                break;
-            case REPLAY:
-            default:
-                throw new RuntimeException("this isn't possible");
+            }
+            case REPLAY -> throw new RuntimeException("this isn't possible");
+            default -> throw new RuntimeException("invalid CURRENT_MODE");
         }
+
+        final SwerveModuleIO[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
 
         //Elevator Motors
         elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
@@ -203,23 +208,7 @@ public class RobotContainer {
         clawTiltEncoder = new CANCoder(RobotMap.clawTiltEncoder);
         clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
-        //Sensors
-        switch (Constants.CURRENT_MODE) {
-            case REAL:
-                gyroIO = new GyroIOPigeon2(new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME));
-                break;
-            case SIM:
-                gyroIO = new GyroIOSim(new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME));
-                break;
-            case REPLAY:
-            default:
-                throw new RuntimeException("this isn't possible");
-        }
-
-        elevator = new Elevator(elevatorVerticalMotorMain, RobotMap.mainVerticalFalconR, elevatorVerticalMotorFollower, RobotMap.followerVerticalFalconR, elevatorVerticalEncoder, elevatorHorizontalEncoder, RobotMap.verticalElevatorEncoderR, elevatorHorizontalNeo, elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch);
-        claw = new Claw(clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor, clawOpenCloseEncoder, clawTiltNeo, clawTiltEncoder, clawTiltLimitSwitch);
-
-        //Swerve
+        //Swerve Kinematics
         kinematics = new SwerveDriveKinematics(
                 Constants.Swerve.FL_OFFSET,
                 Constants.Swerve.FR_OFFSET,
@@ -227,6 +216,68 @@ public class RobotContainer {
                 Constants.Swerve.BR_OFFSET
         );
 
+        //Sensors
+        gyroIO = switch (Constants.CURRENT_MODE) {
+            case REAL:
+                yield new GyroIOPigeon2(new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME));
+            case SIM:
+                yield new GyroIOSim(
+                        new Pigeon2(
+                                RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME
+                        ),
+                        kinematics, swerveModules
+                );
+            case REPLAY:
+                throw new RuntimeException("this isn't possible");
+        };
+
+        //Elevator
+        elevator = switch (Constants.CURRENT_MODE) {
+            case REAL:
+                yield new Elevator(new ElevatorIOReal(
+                        elevatorVerticalMotorMain,
+                        RobotMap.mainVerticalFalconR,
+                        elevatorVerticalMotorFollower,
+                        RobotMap.followerVerticalFalconR,
+                        elevatorVerticalEncoder,
+                        elevatorHorizontalEncoder,
+                        RobotMap.verticalElevatorEncoderR,
+                        elevatorHorizontalNeo,
+                        elevatorVerticalLimitSwitch,
+                        elevatorHorizontalLimitSwitch,
+                        elevatorHorizontalHighLimitSwitch
+                ));
+            case SIM:
+                yield new Elevator(new ElevatorIOSim(
+                        elevatorVerticalMotorMain,
+                        RobotMap.mainVerticalFalconR,
+                        elevatorVerticalMotorFollower,
+                        RobotMap.followerVerticalFalconR,
+                        elevatorVerticalEncoder,
+                        elevatorHorizontalEncoder,
+                        RobotMap.verticalElevatorEncoderR,
+                        elevatorHorizontalNeo,
+                        elevatorVerticalLimitSwitch,
+                        elevatorHorizontalLimitSwitch,
+                        elevatorHorizontalHighLimitSwitch
+                ));
+            case REPLAY:
+                throw new RuntimeException("this isn't possible");
+        };
+
+        claw = new Claw(
+                new ClawIOReal(
+                        clawMainWheelsMotor,
+                        clawFollowerWheelsMotor,
+                        clawOpenCloseMotor,
+                        clawOpenCloseEncoder,
+                        clawTiltNeo,
+                        clawTiltEncoder,
+                        clawTiltLimitSwitch
+                )
+        );
+
+        //Swerve
         swerve = new Swerve(gyroIO, kinematics, frontLeft, frontRight, backLeft, backRight);
 
         poseEstimator = new SwerveDrivePoseEstimator(
@@ -239,10 +290,14 @@ public class RobotContainer {
         );
         field = new Field2d();
 
+//        new PIDController(18, 0, 0),
+//        new PIDController(32, 0, 0),
+//        new PIDController(11, 0, 0)
+
         holonomicDriveController = new DriveController(
-                new PIDController(1, 0, 0),
-                new PIDController(1, 0, 0),
-                new PIDController(0, 0, 0)
+                new PIDController(14, 0, 0),
+                new PIDController(22, 0, 0),
+                new PIDController(12, 0, 0)
         );
 
         //Vision
@@ -271,7 +326,7 @@ public class RobotContainer {
         candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, field, holonomicDriveController, poseEstimator, claw, elevator);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator);
 
         //Driver Profile Selector
         profileChooser = new SendableChooser<>();
@@ -281,14 +336,22 @@ public class RobotContainer {
 
         //Autonomous Selector
         autoChooser = new SendableChooser<>();
-        autoChooser.setDefaultOption("DropAndMobility", trajectoryManager.getCommand("DropAndMobility"));
-        autoChooser.addOption("CubeAndChargeBack", trajectoryManager.getCommand("CubeAndChargeBack", 2, 1));
-        autoChooser.addOption("DropAndCharge", trajectoryManager.getCommand("DropAndCharge"));
-        autoChooser.addOption("2PieceBump", trajectoryManager.getCommand("2PieceBump", 2, 1));
+        autoChooser.setDefaultOption("DropAndMobility", new AutoOption("DropAndMobility"));
+        autoChooser.addOption("CubeAndChargeBack", new AutoOption("CubeAndChargeBack", 2, 1));
+        autoChooser.addOption("DropAndCharge", new AutoOption("DropAndCharge"));
+        autoChooser.addOption("2PieceBump", new AutoOption("2PieceBump", 2, 1));
         autoChooser.addOption("2.5PieceNoBalTurns",
-                trajectoryManager.getCommand("2.5PieceNoBalTurns",Units.feetToMeters(13), Units.feetToMeters(13)*2));
-//        autoChooser.addOption("3PieceAuton", trajectoryManager.getCommand("3PieceAuton"));
-//        autoChooser.addOption("3PieceAutonV2", trajectoryManager.getCommand("3PieceAutonV2"));
+                new AutoOption(
+                        "2.5PieceNoBalTurns", 
+                        Units.feetToMeters(13),
+                        Units.feetToMeters(13)*2
+                )
+        );
+        autoChooser.addOption("3PieceAuton", new AutoOption("3PieceAuton"));
+        autoChooser.addOption("3PieceAutonV2", new AutoOption("3PieceAutonV2"));
+        autoChooser.addOption("FULLSPEEDACROSSTHEFIELD", new AutoOption("FULLSPEEDACROSSTHEFIELD"));
+        autoChooser.addOption("GoatedAuto", new AutoOption("GoatedAuto"));
+        autoChooser.addOption("GoatedAutoV2", new AutoOption("GoatedAutoV2"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Create Button Bindings
@@ -307,6 +370,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return trajectoryManager.getCommand(autoChooser.getSelected());
     }
 }

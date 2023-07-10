@@ -7,7 +7,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -15,6 +14,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
+import frc.robot.utils.SimUtils;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
@@ -79,11 +79,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driverConfig.MotorOutput.Inverted = driveInvertedValue;
 
-        if (driveInvertedValue == InvertedValue.Clockwise_Positive) {
-            driveMotor.getSimState().Orientation = ChassisReference.Clockwise_Positive;
-        } else if (driveInvertedValue == InvertedValue.CounterClockwise_Positive) {
-            driveMotor.getSimState().Orientation = ChassisReference.CounterClockwise_Positive;
-        }
+        SimUtils.setCTRESimStateMotorInverted(driveMotor, driveInvertedValue);
 
         driveMotor.getConfigurator().apply(driverConfig);
 
@@ -96,11 +92,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
         turnerConfig.MotorOutput.Inverted = turnInvertedValue;
 
-        if (turnInvertedValue == InvertedValue.Clockwise_Positive) {
-            turnMotor.getSimState().Orientation = ChassisReference.Clockwise_Positive;
-        } else if (turnInvertedValue == InvertedValue.CounterClockwise_Positive) {
-            turnMotor.getSimState().Orientation = ChassisReference.CounterClockwise_Positive;
-        }
+        SimUtils.setCTRESimStateMotorInverted(turnMotor, turnInvertedValue);
 
         turnMotor.getConfigurator().apply(turnerConfig);
     }
@@ -110,8 +102,8 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         driveSim.setInputVoltage(driveMotor.getSimState().getMotorVoltage());
         turnSim.setInputVoltage(turnMotor.getSimState().getMotorVoltage());
 
-        driveSim.update(Constants.Sim.LOOP_PERIOD_SECONDS);
-        turnSim.update(Constants.Sim.LOOP_PERIOD_SECONDS);
+        driveSim.update(Constants.LOOP_PERIOD_SECONDS);
+        turnSim.update(Constants.LOOP_PERIOD_SECONDS);
 
         driveMotor.getSimState().setRawRotorPosition(driveSim.getAngularPositionRotations());
         driveMotor.getSimState().setRotorVelocity(Units.radiansToRotations(driveSim.getAngularVelocityRadPerSec()));
@@ -139,8 +131,8 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         }
 
         inputs.drivePositionRots = drivePositionRots;
-        inputs.driveVelocityRotsPerSec = Math.abs(driveVelocityRotsPerSec);
-        inputs.driveDesiredVelocityRotsPerSec = Math.abs(compute_desired_driver_velocity(getLastDesiredState()));
+        inputs.driveVelocityRotsPerSec = driveVelocityRotsPerSec;
+        inputs.driveDesiredVelocityRotsPerSec = compute_desired_driver_velocity(getLastDesiredState());
         inputs.driveCurrentAmps = driveMotor.getSimState().getTorqueCurrent();
         inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
 
@@ -168,16 +160,18 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
     @Override
     public SwerveModuleState getState() {
+        // #1 max sell of the year
         return new SwerveModuleState(
-                -getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
         );
     }
 
     @Override
     public SwerveModulePosition getPosition() {
+        // #1 max sell of the year
         return new SwerveModulePosition(
-                -getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
         );
     }
