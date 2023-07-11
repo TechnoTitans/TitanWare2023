@@ -7,11 +7,11 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ClawIO {
     @AutoLog
     class ClawIOInputs {
-        double currentTiltEncoderPositionTicks = 0.0;
-        double desiredTiltPositionTicks = 0.0;
+        double currentTiltEncoderPositionRots = 0.0;
+        double desiredTiltPositionRots = 0.0;
 
-        double currentOpenCloseEncoderPositionTicks = 0.0;
-        double desiredOpenClosePositionTicks = 0.0;
+        double currentOpenCloseEncoderPositionRots = 0.0;
+        double desiredOpenClosePositionRots = 0.0;
 
         double desiredIntakeWheelsPercentOutput = 0.0;
 

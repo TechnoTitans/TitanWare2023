@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -13,20 +14,30 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
+import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
+import frc.robot.utils.sim.SimUtils;
+import org.littletonrobotics.junction.Logger;
 
-public class SwerveModuleIOReal implements SwerveModuleIO {
+public class SwerveModuleIOImpl implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
+    private final CTREPhoenix6TalonFXSim driveSim, turnSim;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
     private final InvertedValue driveInvertedValue, turnInvertedValue;
 
     private final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
+    private final VelocityVoltage velocityVoltage;
+
     private final PositionVoltage positionVoltage;
+
+    private final boolean isReal;
 
     private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
-    public SwerveModuleIOReal(
+    public SwerveModuleIOImpl(
             final TalonFX driveMotor,
             final TalonFX turnMotor,
             final CANcoder turnEncoder,
@@ -36,26 +47,49 @@ public class SwerveModuleIOReal implements SwerveModuleIO {
     ) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
+
+        this.driveInvertedValue = driveInvertedValue;
+        this.driveSim = new CTREPhoenix6TalonFXSim(
+                driveMotor,
+                new DCMotorSim(
+                        DCMotor.getFalcon500(1),
+                        Constants.Modules.DRIVER_GEAR_RATIO,
+                        Constants.Modules.DRIVE_WHEEL_MOMENT_OF_INERTIA
+                )
+        );
+
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
-        this.driveInvertedValue = driveInvertedValue;
         this.turnInvertedValue = turnInvertedValue;
+        this.turnSim = new CTREPhoenix6TalonFXSim(
+                turnMotor,
+                new DCMotorSim(
+                        DCMotor.getFalcon500(1),
+                        Constants.Modules.TURNER_GEAR_RATIO,
+                        Constants.Modules.TURN_WHEEL_MOMENT_OF_INERTIA
+                )
+        );
+        this.turnSim.attachRemoteSensor(turnEncoder);
 
         this.velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0);
+        this.velocityVoltage = new VelocityVoltage(0);
         this.positionVoltage = new PositionVoltage(0);
+
+        this.isReal = Constants.CURRENT_MODE == Constants.RobotMode.REAL;
 
         config();
     }
 
     @Override
     public boolean isReal() {
-        return true;
+        return isReal;
     }
 
     @Override
     public void config() {
         final CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
         canCoderConfiguration.MagnetSensor.MagnetOffset = -magnetOffset;
+
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
@@ -66,6 +100,8 @@ public class SwerveModuleIOReal implements SwerveModuleIO {
         driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driverConfig.MotorOutput.Inverted = driveInvertedValue;
+
+        SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
         driveMotor.getConfigurator().apply(driverConfig);
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
@@ -78,11 +114,21 @@ public class SwerveModuleIOReal implements SwerveModuleIO {
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
         turnerConfig.MotorOutput.Inverted = turnInvertedValue;
+
+        SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
         turnMotor.getConfigurator().apply(turnerConfig);
     }
 
     @Override
-    public void updateInputs(final SwerveModuleIOInputs inputs) {
+    public void periodic() {
+        if (!isReal) {
+            driveSim.update(Constants.LOOP_PERIOD_SECONDS);
+            turnSim.update(Constants.LOOP_PERIOD_SECONDS);
+        }
+    }
+
+    @Override
+    public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
         inputs.driveDesiredVelocityRotsPerSec = compute_desired_driver_velocity(getLastDesiredState());
@@ -102,6 +148,8 @@ public class SwerveModuleIOReal implements SwerveModuleIO {
                 turnEncoder.getAbsolutePosition().refresh(),
                 turnEncoder.getVelocity().refresh()
         );
+
+        Logger.getInstance().recordOutput("AngleModule_" + driveMotor.getDeviceID(), compensatedValue);
 
         return Rotation2d.fromRotations(compensatedValue);
     }
@@ -155,7 +203,12 @@ public class SwerveModuleIOReal implements SwerveModuleIO {
         final double desired_turner_rotations = compute_desired_turner_rotations(wantedState);
         this.lastDesiredState = wantedState;
 
-        driveMotor.setControl(velocityTorqueCurrentFOC.withVelocity(desired_driver_velocity));
+        if (!isReal && Constants.Sim.USE_VELOCITY_VOLTAGE_IN_SIM) {
+            driveMotor.setControl(velocityVoltage.withVelocity(desired_driver_velocity));
+        } else {
+            driveMotor.setControl(velocityTorqueCurrentFOC.withVelocity(desired_driver_velocity));
+        }
+
         turnMotor.setControl(positionVoltage.withPosition(desired_turner_rotations));
     }
 

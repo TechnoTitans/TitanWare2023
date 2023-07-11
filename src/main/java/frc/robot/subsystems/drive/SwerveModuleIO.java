@@ -31,6 +31,17 @@ public interface SwerveModuleIO {
     void updateInputs(final SwerveModuleIOInputs inputs);
 
     /**
+     * Get if the current SwerveModuleIO is real
+     * @return true if real, false if not
+     */
+    boolean isReal();
+
+    /**
+     * Periodic call, does <b>NOT</b> call updateInputs
+     */
+    default void periodic() {}
+
+    /**
      * Config motors call, should only be invoked once on initialize
      */
     void config();

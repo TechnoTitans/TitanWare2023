@@ -9,7 +9,7 @@ import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     double LOOP_PERIOD_SECONDS = 0.02;
 
     enum RobotMode {
@@ -19,9 +19,11 @@ public interface Constants {
     }
 
     interface CTRE {
+        double PHOENIX_5_100ms_PER_SECOND = 10;
+        double PHOENIX_5_CANCODER_TICKS_PER_ROTATION = 4096d;
         // apply to CANCoder configuration which makes the sensor return in rotations
-        double PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS = 1d / 4096d;
-        String PHOENIX_5_CANCODER_UNIT_STRING_ROTS = "rot";
+        double PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS = 1d / PHOENIX_5_CANCODER_TICKS_PER_ROTATION;
+        String PHOENIX_5_CANCODER_UNIT_STRING_ROTS = "rots";
     }
 
     interface PathPlanner {
@@ -36,6 +38,12 @@ public interface Constants {
     interface Sim {
         // Assume 2mOhm resistance for voltage drop calculation
         double FALCON_MOTOR_RESISTANCE = 0.002;
+
+        // According to ben (that one CTRE intern), adding VelocityTorqueCurrentFOC support is "very low priority"
+        // setting this to true configures the swerve to use VelocityVoltage instead when in simulation
+        // - keep this true until CTRE adds support for VelocityTorqueCurrentFOC
+        boolean USE_VELOCITY_VOLTAGE_IN_SIM = true;
+
 
         // Elevator Sim (all length/height units are meters)
         double ELEVATOR_VERTICAL_STAGE_ONE_HEIGHT = 0.8635746;

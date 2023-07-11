@@ -14,7 +14,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
-import frc.robot.utils.SimUtils;
+import frc.robot.utils.sim.SimUtils;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
@@ -67,6 +67,11 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         config();
     }
 
+    @Override
+    public boolean isReal() {
+        return false;
+    }
+
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
@@ -79,7 +84,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driverConfig.MotorOutput.Inverted = driveInvertedValue;
 
-        SimUtils.setCTRESimStateMotorInverted(driveMotor, driveInvertedValue);
+        SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
 
         driveMotor.getConfigurator().apply(driverConfig);
 
@@ -92,7 +97,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
         turnerConfig.MotorOutput.Inverted = turnInvertedValue;
 
-        SimUtils.setCTRESimStateMotorInverted(turnMotor, turnInvertedValue);
+        SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
 
         turnMotor.getConfigurator().apply(turnerConfig);
     }

@@ -163,19 +163,18 @@ public class ElevatorIOReal implements ElevatorIO {
                     dutyCycleOut.withOutput(VEPositionRotations)
             );
         }
-        if (false) {
-            if (horizontalPositionalControl) {
-                horizontalElevatorMotor.set(
-                        CANSparkMax.ControlType.kDutyCycle,
-                        horizontalElevatorPID.calculate(
-                                horizontalElevatorEncoder.getPosition().refresh().getValue(), HEPositionRotations)
-                );
-            } else {
-                horizontalElevatorMotor.set(
-                        CANSparkMax.ControlType.kDutyCycle,
-                        HEPositionRotations
-                );
-            }
+
+        if (horizontalPositionalControl) {
+            horizontalElevatorMotor.set(
+                    CANSparkMax.ControlType.kDutyCycle,
+                    horizontalElevatorPID.calculate(
+                            horizontalElevatorEncoder.getPosition().refresh().getValue(), HEPositionRotations)
+            );
+        } else {
+            horizontalElevatorMotor.set(
+                    CANSparkMax.ControlType.kDutyCycle,
+                    HEPositionRotations
+            );
         }
     }
 

@@ -22,6 +22,7 @@ public class SwerveModule {
     public String getName() { return name; }
 
     public void periodic() {
+        moduleIO.periodic();
         moduleIO.updateInputs(inputs);
         Logger.getInstance().processInputs(String.format("Drive/Module_%s", name), inputs);
     }

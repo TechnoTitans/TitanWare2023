@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -15,7 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.utils.Enums;
-import frc.robot.utils.SimUtils;
+import frc.robot.utils.sim.SimUtils;
 import frc.robot.wrappers.motors.TitanMAX;
 
 //TODO: literally all of the elevator sim stuff
@@ -75,8 +74,8 @@ public class ElevatorIOSim implements ElevatorIO {
                 Constants.Sim.ELEVATOR_VERTICAL_EXT_MOI
         );
 
-        SimUtils.setCTRESimStateMotorInverted(verticalElevatorMotor, verticalElevatorMotorR);
-        SimUtils.setCTRESimStateMotorInverted(verticalElevatorMotorFollower, verticalElevatorMotorFollowerR);
+        SimUtils.setCTRETalonFXSimStateMotorInverted(verticalElevatorMotor, verticalElevatorMotorR);
+        SimUtils.setCTRETalonFXSimStateMotorInverted(verticalElevatorMotorFollower, verticalElevatorMotorFollowerR);
 
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;

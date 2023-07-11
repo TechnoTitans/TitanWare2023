@@ -25,10 +25,7 @@ import frc.robot.commands.teleop.IntakeTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOReal;
-import frc.robot.subsystems.drive.Swerve;
-import frc.robot.subsystems.drive.SwerveModuleIO;
-import frc.robot.subsystems.drive.SwerveModuleIOReal;
-import frc.robot.subsystems.drive.SwerveModuleIOSim;
+import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -144,46 +141,63 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        switch (Constants.CURRENT_MODE) {
-            case REAL -> {
-                frontLeft = new SwerveModuleIOReal(
-                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
-                );
-                frontRight = new SwerveModuleIOReal(
-                        frontRightDrive, frontRightTurn, frontRightEncoder,
-                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
-                );
-                backLeft = new SwerveModuleIOReal(
-                        backLeftDrive, backLeftTurn, backLeftEncoder,
-                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
-                );
-                backRight = new SwerveModuleIOReal(
-                        backRightDrive, backRightTurn, backRightEncoder,
-                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
-                );
-            }
-            case SIM -> {
-                frontLeft = new SwerveModuleIOSim(
-                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
-                );
-                frontRight = new SwerveModuleIOSim(
-                        frontRightDrive, frontRightTurn, frontRightEncoder,
-                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
-                );
-                backLeft = new SwerveModuleIOSim(
-                        backLeftDrive, backLeftTurn, backLeftEncoder,
-                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
-                );
-                backRight = new SwerveModuleIOSim(
-                        backRightDrive, backRightTurn, backRightEncoder,
-                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
-                );
-            }
-            case REPLAY -> throw new RuntimeException("this isn't possible");
-            default -> throw new RuntimeException("invalid CURRENT_MODE");
-        }
+//        switch (Constants.CURRENT_MODE) {
+//            case REAL -> {
+//                frontLeft = new SwerveModuleIOReal(
+//                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+//                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
+//                );
+//                frontRight = new SwerveModuleIOReal(
+//                        frontRightDrive, frontRightTurn, frontRightEncoder,
+//                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
+//                );
+//                backLeft = new SwerveModuleIOReal(
+//                        backLeftDrive, backLeftTurn, backLeftEncoder,
+//                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
+//                );
+//                backRight = new SwerveModuleIOReal(
+//                        backRightDrive, backRightTurn, backRightEncoder,
+//                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
+//                );
+//            }
+//            case SIM -> {
+//                frontLeft = new SwerveModuleIOSim(
+//                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+//                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
+//                );
+//                frontRight = new SwerveModuleIOSim(
+//                        frontRightDrive, frontRightTurn, frontRightEncoder,
+//                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
+//                );
+//                backLeft = new SwerveModuleIOSim(
+//                        backLeftDrive, backLeftTurn, backLeftEncoder,
+//                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
+//                );
+//                backRight = new SwerveModuleIOSim(
+//                        backRightDrive, backRightTurn, backRightEncoder,
+//                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
+//                );
+//            }
+//            case REPLAY -> throw new RuntimeException("this isn't possible");
+//            default -> throw new RuntimeException("invalid CURRENT_MODE");
+//        }
+
+        frontLeft = new SwerveModuleIOImpl(
+                frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
+        );
+        frontRight = new SwerveModuleIOImpl(
+                frontRightDrive, frontRightTurn, frontRightEncoder,
+                RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
+        );
+        backLeft = new SwerveModuleIOImpl(
+                backLeftDrive, backLeftTurn, backLeftEncoder,
+                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
+        );
+        backRight = new SwerveModuleIOImpl(
+                backRightDrive, backRightTurn, backRightEncoder,
+                RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
+        );
 
         final SwerveModuleIO[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
 
