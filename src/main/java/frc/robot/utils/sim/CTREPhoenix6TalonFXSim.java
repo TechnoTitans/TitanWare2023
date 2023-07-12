@@ -14,18 +14,18 @@ import java.util.List;
 public class CTREPhoenix6TalonFXSim {
     private final List<TalonFXSimState> simStates;
     private final DCMotorSim dcMotorSim;
+    private final double gearRatio;
 
     private final boolean isSingularTalonFX;
 
     private boolean hasRemoteSensor = false;
     private CANcoderSimState cancoderSimState;
 
-    private final int id;
-
     private CTREPhoenix6TalonFXSim(
             final List<TalonFX> talonFXControllers,
             final List<TalonFXSimState> simStates,
-            final DCMotorSim dcMotorSim
+            final DCMotorSim dcMotorSim,
+            final double gearRatio
     ) {
         if (talonFXControllers.isEmpty() || simStates.isEmpty()) {
             throw new IllegalArgumentException("TalonFX must not be empty! TalonFXSimStates must not be empty!");
@@ -33,18 +33,21 @@ public class CTREPhoenix6TalonFXSim {
 
         this.simStates = simStates;
         this.dcMotorSim = dcMotorSim;
-
-        this.id = talonFXControllers.get(0).getDeviceID();
+        this.gearRatio = gearRatio;
 
         this.isSingularTalonFX = talonFXControllers.size() == 1 && simStates.size() == 1;
     }
 
-    public CTREPhoenix6TalonFXSim(final List<TalonFX> talonFXControllers, final DCMotorSim motorSim) {
-        this(talonFXControllers, talonFXControllers.stream().map(TalonFX::getSimState).toList(), motorSim);
+    public CTREPhoenix6TalonFXSim(
+            final List<TalonFX> talonFXControllers,
+            final double gearRatio,
+            final DCMotorSim motorSim
+    ) {
+        this(talonFXControllers, talonFXControllers.stream().map(TalonFX::getSimState).toList(), motorSim, gearRatio);
     }
 
-    public CTREPhoenix6TalonFXSim(final TalonFX talonSRX, final DCMotorSim motorSim) {
-        this(List.of(talonSRX), motorSim);
+    public CTREPhoenix6TalonFXSim(final TalonFX talonSRX, final double gearRatio, final DCMotorSim motorSim) {
+        this(List.of(talonSRX), gearRatio, motorSim);
     }
 
     public void attachRemoteSensor(final CANcoder canCoder) {
@@ -64,22 +67,20 @@ public class CTREPhoenix6TalonFXSim {
         dcMotorSim.setInputVoltage(motorVoltage);
         dcMotorSim.update(dt);
 
-        final double rotorPositionRots = dcMotorSim.getAngularPositionRotations();
-        final double rotorVelocityRotsPerSec = Units.radiansToRotations(dcMotorSim.getAngularVelocityRadPerSec());
-
-        Logger.getInstance().recordOutput("RotorVelocity_" + id, rotorVelocityRotsPerSec);
+        final double rotorAngularPositionRots = dcMotorSim.getAngularPositionRotations();
+        final double rotorAngularVelocityRotsPerSec = Units.radiansToRotations(dcMotorSim.getAngularVelocityRadPerSec());
 
         for (final TalonFXSimState simState : simStates) {
-            simState.setRawRotorPosition(rotorPositionRots);
-            simState.setRotorVelocity(rotorVelocityRotsPerSec);
+            simState.setRawRotorPosition(rotorAngularPositionRots);
+            simState.setRotorVelocity(rotorAngularVelocityRotsPerSec);
             simState.setSupplyVoltage(
                     12 - (simState.getSupplyCurrent() * Constants.Sim.FALCON_MOTOR_RESISTANCE)
             );
         }
 
         if (hasRemoteSensor) {
-            cancoderSimState.setRawPosition(rotorPositionRots);
-            cancoderSimState.setVelocity(rotorVelocityRotsPerSec);
+            cancoderSimState.setRawPosition(rotorAngularPositionRots);
+            cancoderSimState.setVelocity(rotorAngularVelocityRotsPerSec);
         }
     }
 

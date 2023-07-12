@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -37,6 +38,12 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
+    public double drivePositionRots = 0.0;
+    public double driveVelocityRotsPerSec = 0.0;
+
+    private double turnAbsolutePositionRots = 0.0;
+    private double turnVelocityRotsPerSec = 0.0;
+
     public SwerveModuleIOImpl(
             final TalonFX driveMotor,
             final TalonFX turnMotor,
@@ -51,6 +58,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         this.driveInvertedValue = driveInvertedValue;
         this.driveSim = new CTREPhoenix6TalonFXSim(
                 driveMotor,
+                Constants.Modules.DRIVER_GEAR_RATIO,
                 new DCMotorSim(
                         DCMotor.getFalcon500(1),
                         Constants.Modules.DRIVER_GEAR_RATIO,
@@ -63,6 +71,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         this.turnInvertedValue = turnInvertedValue;
         this.turnSim = new CTREPhoenix6TalonFXSim(
                 turnMotor,
+                Constants.Modules.TURNER_GEAR_RATIO,
                 new DCMotorSim(
                         DCMotor.getFalcon500(1),
                         Constants.Modules.TURNER_GEAR_RATIO,
@@ -89,11 +98,10 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     public void config() {
         final CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
         canCoderConfiguration.MagnetSensor.MagnetOffset = -magnetOffset;
-
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.Slot0 = Constants.Modules.DRIVE_MOTOR_CONSTANTS;
+        driverConfig.Slot0 = Constants.Sim.DRIVE_MOTOR_CONSTANTS;
         driverConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driverConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driverConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -105,11 +113,11 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         driveMotor.getConfigurator().apply(driverConfig);
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
+        turnerConfig.Slot0 = Constants.Sim.TURN_MOTOR_CONSTANTS;
         turnerConfig.Voltage.PeakForwardVoltage = 6;
         turnerConfig.Voltage.PeakReverseVoltage = -6;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
@@ -124,6 +132,22 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         if (!isReal) {
             driveSim.update(Constants.LOOP_PERIOD_SECONDS);
             turnSim.update(Constants.LOOP_PERIOD_SECONDS);
+
+            driveVelocityRotsPerSec = driveSim.getAngularVelocityRotsPerSec();
+            drivePositionRots = driveSim.getAngularPositionRots();
+
+            turnVelocityRotsPerSec = turnSim.getAngularVelocityRotsPerSec();
+            turnAbsolutePositionRots = MathUtil.inputModulus(
+                    turnSim.getAngularPositionRots(), -0.5, 0.5
+            );
+
+            Logger.getInstance().recordOutput(
+                    "DriveVelocity_" + driveMotor.getDeviceID(), driveMotor.getVelocity().refresh().getValue()
+            );
+
+            Logger.getInstance().recordOutput(
+                    "DriveRotorVelocity_" + driveMotor.getDeviceID(), driveMotor.getRotorVelocity().refresh().getValue()
+            );
         }
     }
 
@@ -144,27 +168,28 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public Rotation2d getAngle() {
-        final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
-                turnEncoder.getAbsolutePosition().refresh(),
-                turnEncoder.getVelocity().refresh()
-        );
-
-        Logger.getInstance().recordOutput("AngleModule_" + driveMotor.getDeviceID(), compensatedValue);
-
-        return Rotation2d.fromRotations(compensatedValue);
+        return Rotation2d.fromRotations(turnAbsolutePositionRots);
+//        final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
+//                turnEncoder.getAbsolutePosition().refresh(),
+//                turnEncoder.getVelocity().refresh()
+//        );
+//
+//        return Rotation2d.fromRotations(compensatedValue);
     }
 
     @Override
     public double getDrivePosition() {
-        return BaseStatusSignal.getLatencyCompensatedValue(
-                driveMotor.getPosition().refresh(),
-                driveMotor.getVelocity().refresh()
-        );
+        return drivePositionRots;
+//        return BaseStatusSignal.getLatencyCompensatedValue(
+//                driveMotor.getPosition().refresh(),
+//                driveMotor.getVelocity().refresh()
+//        );
     }
 
     @Override
     public double getDriveVelocity() {
-        return driveMotor.getVelocity().refresh().getValue();
+        return driveVelocityRotsPerSec;
+//        return driveMotor.getVelocity().refresh().getValue();
     }
 
     @Override
@@ -202,6 +227,9 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         final double desired_driver_velocity = compute_desired_driver_velocity(wantedState);
         final double desired_turner_rotations = compute_desired_turner_rotations(wantedState);
         this.lastDesiredState = wantedState;
+
+        Logger.getInstance().recordOutput("WantedSpeedMeters_" + driveMotor.getDeviceID(), wantedState.speedMetersPerSecond);
+        Logger.getInstance().recordOutput("DesiredDriverVelocity_" + driveMotor.getDeviceID(), desired_driver_velocity);
 
         if (!isReal && Constants.Sim.USE_VELOCITY_VOLTAGE_IN_SIM) {
             driveMotor.setControl(velocityVoltage.withVelocity(desired_driver_velocity));
