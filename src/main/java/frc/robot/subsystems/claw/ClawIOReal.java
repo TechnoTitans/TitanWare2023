@@ -63,8 +63,8 @@ public class ClawIOReal implements ClawIO {
 
         //TODO: tune pid
         this.tiltPID = new ProfiledPIDController(
-                3, 0, 0,
-                new TrapezoidProfile.Constraints(3, 5)
+                2.7, 0, 0,
+                new TrapezoidProfile.Constraints(20, 30)
         );
 
         config();

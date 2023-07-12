@@ -67,20 +67,20 @@ public class CTREPhoenix6TalonFXSim {
         dcMotorSim.setInputVoltage(motorVoltage);
         dcMotorSim.update(dt);
 
-        final double rotorAngularPositionRots = dcMotorSim.getAngularPositionRotations();
-        final double rotorAngularVelocityRotsPerSec = Units.radiansToRotations(dcMotorSim.getAngularVelocityRadPerSec());
+        final double wheelAngularPositionRots = getAngularPositionRots();
+        final double wheelAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
 
         for (final TalonFXSimState simState : simStates) {
-            simState.setRawRotorPosition(rotorAngularPositionRots);
-            simState.setRotorVelocity(rotorAngularVelocityRotsPerSec);
+            simState.setRawRotorPosition(wheelAngularPositionRots * gearRatio);
+            simState.setRotorVelocity(wheelAngularVelocityRotsPerSec * gearRatio);
             simState.setSupplyVoltage(
                     12 - (simState.getSupplyCurrent() * Constants.Sim.FALCON_MOTOR_RESISTANCE)
             );
         }
 
         if (hasRemoteSensor) {
-            cancoderSimState.setRawPosition(rotorAngularPositionRots);
-            cancoderSimState.setVelocity(rotorAngularVelocityRotsPerSec);
+            cancoderSimState.setRawPosition(wheelAngularPositionRots);
+            cancoderSimState.setVelocity(wheelAngularVelocityRotsPerSec);
         }
     }
 

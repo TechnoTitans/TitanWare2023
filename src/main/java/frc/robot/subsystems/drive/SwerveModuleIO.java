@@ -54,19 +54,20 @@ public interface SwerveModuleIO {
     Rotation2d getAngle();
 
     /**
-     * Get the current relative drive position in rotations
-     * @return drive position (rots)
+     * Get the current relative drive wheel (mechanism) position in rotations
+     * @return drive wheel position (rots)
      */
     double getDrivePosition();
 
     /**
-     * Get the current drive velocity in rotations/sec
-     * @return drive velocity (rps)
+     * Get the current drive wheel (mechanism) velocity in rotations/sec
+     * @return drive wheel velocity (rps)
      */
     double getDriveVelocity();
 
     /**
      * Get the current module observed {@link SwerveModuleState} (velocity, angle)
+     * Velocity is wheel linear velocity, angle is wheel absolute position
      * @return the module's current state as a {@link SwerveModuleState}
      * @see SwerveModuleState
      */
@@ -74,6 +75,7 @@ public interface SwerveModuleIO {
 
     /**
      * Get the current module observed {@link SwerveModulePosition} (position, angle)
+     * Velocity is wheel linear position, angle is wheel absolute position
      * @return the module's current position as a {@link SwerveModulePosition}
      * @see SwerveModulePosition
      */

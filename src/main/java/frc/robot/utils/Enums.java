@@ -18,7 +18,6 @@ public class Enums {
                 true,
                 3
         ),
-
         ELEVATOR_EXTENDED_MID(
                 Enums.ElevatorMode.POSITION,
                 3.2,

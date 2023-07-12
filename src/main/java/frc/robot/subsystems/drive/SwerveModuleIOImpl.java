@@ -101,7 +101,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.Slot0 = Constants.Sim.DRIVE_MOTOR_CONSTANTS;
+        driverConfig.Slot0 = Constants.Modules.DRIVE_MOTOR_CONSTANTS;
         driverConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driverConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driverConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -113,11 +113,11 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         driveMotor.getConfigurator().apply(driverConfig);
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0 = Constants.Sim.TURN_MOTOR_CONSTANTS;
+        turnerConfig.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
         turnerConfig.Voltage.PeakForwardVoltage = 6;
         turnerConfig.Voltage.PeakReverseVoltage = -6;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
         turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
@@ -168,33 +168,37 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public Rotation2d getAngle() {
-        return Rotation2d.fromRotations(turnAbsolutePositionRots);
-//        final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
-//                turnEncoder.getAbsolutePosition().refresh(),
-//                turnEncoder.getVelocity().refresh()
-//        );
-//
-//        return Rotation2d.fromRotations(compensatedValue);
+        final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
+                turnEncoder.getAbsolutePosition().refresh(),
+                turnEncoder.getVelocity().refresh()
+        );
+
+        return Rotation2d.fromRotations(compensatedValue);
     }
 
     @Override
     public double getDrivePosition() {
-        return drivePositionRots;
-//        return BaseStatusSignal.getLatencyCompensatedValue(
-//                driveMotor.getPosition().refresh(),
-//                driveMotor.getVelocity().refresh()
-//        );
+        final double getPosition = driveMotor.getPosition().refresh().getValue();
+        Logger.getInstance().recordOutput("DrivePositionRots_" + driveMotor.getDeviceID(), drivePositionRots);
+        Logger.getInstance().recordOutput("DriveGetPositionRots_" + driveMotor.getDeviceID(), getPosition);
+
+//        return drivePositionRots;
+        return BaseStatusSignal.getLatencyCompensatedValue(
+                driveMotor.getPosition().refresh(),
+                driveMotor.getVelocity().refresh()
+        );
+//        return driveMotor.getPosition().refresh().getValue();
+//        return getPosition;
     }
 
     @Override
     public double getDriveVelocity() {
-        return driveVelocityRotsPerSec;
-//        return driveMotor.getVelocity().refresh().getValue();
+//        return driveVelocityRotsPerSec;
+        return driveMotor.getVelocity().refresh().getValue();
     }
 
     @Override
     public SwerveModuleState getState() {
-        // #1 max sell of the year
         return new SwerveModuleState(
                 getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
@@ -203,7 +207,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public SwerveModulePosition getPosition() {
-        // #1 max sell of the year
         return new SwerveModulePosition(
                 getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
@@ -223,13 +226,11 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     @Override
     public void setDesiredState(final SwerveModuleState state) {
         final Rotation2d currentWheelRotation = getAngle();
+//        final SwerveModuleState wantedState = state;
         final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         final double desired_driver_velocity = compute_desired_driver_velocity(wantedState);
         final double desired_turner_rotations = compute_desired_turner_rotations(wantedState);
         this.lastDesiredState = wantedState;
-
-        Logger.getInstance().recordOutput("WantedSpeedMeters_" + driveMotor.getDeviceID(), wantedState.speedMetersPerSecond);
-        Logger.getInstance().recordOutput("DesiredDriverVelocity_" + driveMotor.getDeviceID(), desired_driver_velocity);
 
         if (!isReal && Constants.Sim.USE_VELOCITY_VOLTAGE_IN_SIM) {
             driveMotor.setControl(velocityVoltage.withVelocity(desired_driver_velocity));

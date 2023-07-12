@@ -129,10 +129,8 @@ class TrajectoryFollower extends CommandBase {
 
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
 
-        Logger.getInstance().recordOutput("Auto/Timer", timer.get());
-
         if (hasMarkers) {
-            commander(currentPose, currentTime);
+//            commander(currentPose, currentTime);
         }
 
         if (wheelX) {

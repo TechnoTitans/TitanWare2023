@@ -9,7 +9,7 @@ import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     double LOOP_PERIOD_SECONDS = 0.02;
 
     enum RobotMode {

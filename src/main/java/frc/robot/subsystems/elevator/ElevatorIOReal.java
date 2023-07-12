@@ -73,7 +73,7 @@ public class ElevatorIOReal implements ElevatorIO {
         config();
 
         this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
-                new TrapezoidProfile.Constraints(10, 20));
+                new TrapezoidProfile.Constraints(30, 40));
 
         this.positionVoltage = new PositionVoltage(0);
         this.motionMagicVoltage = new MotionMagicVoltage(0);
@@ -168,7 +168,9 @@ public class ElevatorIOReal implements ElevatorIO {
             horizontalElevatorMotor.set(
                     CANSparkMax.ControlType.kDutyCycle,
                     horizontalElevatorPID.calculate(
-                            horizontalElevatorEncoder.getPosition().refresh().getValue(), HEPositionRotations)
+                            horizontalElevatorEncoder.getPosition().refresh().getValue(),
+                            HEPositionRotations
+                    )
             );
         } else {
             horizontalElevatorMotor.set(
@@ -228,6 +230,7 @@ public class ElevatorIOReal implements ElevatorIO {
                 false
         );
         verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
+
         horizontalElevatorMotor.brake();
 
         final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();

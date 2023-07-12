@@ -303,14 +303,16 @@ public class RobotContainer {
         );
         field = new Field2d();
 
-//        new PIDController(18, 0, 0),
-//        new PIDController(32, 0, 0),
-//        new PIDController(11, 0, 0)
+//        holonomicDriveController = new DriveController(
+//                new PIDController(14, 0, 0),
+//                new PIDController(22, 0, 0),
+//                new PIDController(12, 0, 0)
+//        );
 
         holonomicDriveController = new DriveController(
-                new PIDController(14, 0, 0),
-                new PIDController(22, 0, 0),
-                new PIDController(12, 0, 0)
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0)
         );
 
         //Vision
@@ -365,6 +367,7 @@ public class RobotContainer {
         autoChooser.addOption("FULLSPEEDACROSSTHEFIELD", new AutoOption("FULLSPEEDACROSSTHEFIELD"));
         autoChooser.addOption("GoatedAuto", new AutoOption("GoatedAuto"));
         autoChooser.addOption("GoatedAutoV2", new AutoOption("GoatedAutoV2"));
+        autoChooser.addOption("DriveStraight", new AutoOption("DriveStraight"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Create Button Bindings
