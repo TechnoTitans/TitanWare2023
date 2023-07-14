@@ -38,6 +38,8 @@ public class PhotonApriltags extends SubsystemBase {
 
         this.photonEstimator = new PhotonRunnable(apriltagCamera);
 
+        refreshAlliance();
+
         photonNotifier = new Notifier(photonEstimator);
         photonNotifier.setName("PhotonRunnable");
         photonNotifier.startPeriodic(0.02);
@@ -46,16 +48,17 @@ public class PhotonApriltags extends SubsystemBase {
     public void refreshAlliance() {
         final boolean allianceChanged;
         switch (DriverStation.getAlliance()) {
-            case Blue:
+            case Blue -> {
                 allianceChanged = (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
                 robotOriginPosition = AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
-                break;
-            case Red:
+            }
+            case Red -> {
                 allianceChanged = (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
                 robotOriginPosition = AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide;
-                break;
-            default:
+            }
+            default -> {
                 return;
+            }
         }
 
         if (allianceChanged) {
@@ -84,18 +87,18 @@ public class PhotonApriltags extends SubsystemBase {
         );
 
         Pose2d dashboardPose = poseEstimator.getEstimatedPosition();
-        if (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide) {
-            dashboardPose = PoseUtils.flipAlliancePose(dashboardPose);
-        }
+        //TODO: this thing is suspicious!
+//        if (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide) {
+//            dashboardPose = PoseUtils.flipAlliancePose(dashboardPose);
+//        }
 
         field2d.setRobotPose(dashboardPose);
         Logger.getInstance().recordOutput("Odometry/Robot", dashboardPose);
+        Logger.getInstance().recordOutput("PoseEstimatorRotation_Rad", dashboardPose.getRotation().getRadians());
+        Logger.getInstance().recordOutput("SwerveRotation_Rad", swerve.getRotation2d().getRadians());
     }
 
-    public boolean robotOriginMatchesAlliance() {
-        return (DriverStation.getAlliance() != DriverStation.Alliance.Blue ||
-                robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) &&
-                (DriverStation.getAlliance() != DriverStation.Alliance.Red ||
-                        robotOriginPosition != AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+    public Notifier getPhotonNotifier() {
+        return photonNotifier;
     }
 }

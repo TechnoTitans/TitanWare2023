@@ -94,10 +94,12 @@ class TrajectoryFollower extends CommandBase {
         }
 
         final PathPlannerTrajectory.PathPlannerState initialState = transformedTrajectory.getInitialState();
-        swerve.setAngle(initialState.holonomicRotation.getDegrees());
-        poseEstimator.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), new Pose2d(
+        final Rotation2d initialHolonomicRotation = initialState.holonomicRotation;
+
+        swerve.setAngle(initialHolonomicRotation.getDegrees());
+        poseEstimator.resetPosition(initialHolonomicRotation, swerve.getModulePositions(), new Pose2d(
                 initialState.poseMeters.getTranslation(),
-                initialState.holonomicRotation
+                initialHolonomicRotation
         ));
 
 //        Logger.getInstance().recordOutput(
@@ -127,10 +129,14 @@ class TrajectoryFollower extends CommandBase {
         final PathPlannerTrajectory.PathPlannerState sample =
                 (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.sample(currentTime);
 
-        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        final Pose2d poseEstimatorPose = poseEstimator.getEstimatedPosition();
+        final Pose2d currentPose = new Pose2d(
+                poseEstimatorPose.getTranslation(),
+                swerve.getRotation2d()
+        );
 
         if (hasMarkers) {
-//            commander(currentPose, currentTime);
+            commander(currentPose, currentTime);
         }
 
         if (wheelX) {

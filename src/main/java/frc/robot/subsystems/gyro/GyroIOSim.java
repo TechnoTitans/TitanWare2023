@@ -13,7 +13,7 @@ public class GyroIOSim implements GyroIO {
     private final Pigeon2 pigeon;
     private final SwerveDriveKinematics kinematics;
     private final SwerveModuleIO[] swerveModules;
-    private final double[] lastSwerveModulePositionMeters = {0.0, 0.0, 0.0, 0.0};
+    private final double[] lastSwerveModulePositionRots = {0.0, 0.0, 0.0, 0.0};
     private Pose2d gyroUseOdometryPose = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
     public static final double USE_SIMULATED_PITCH = 0;
@@ -30,39 +30,28 @@ public class GyroIOSim implements GyroIO {
         pigeon.getSimState().setRoll(USE_SIMULATED_ROLL);
     }
 
-    //TODO: figure out why wheelDeltasTwist is a zero twist but still works
     private void updateGyro() {
         final SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[swerveModules.length];
         for (int i = 0; i < swerveModules.length; i++) {
             wheelDeltas[i] = new SwerveModulePosition(
-                    (swerveModules[i].getDrivePosition() - lastSwerveModulePositionMeters[i]),
+                    (swerveModules[i].getDrivePosition() - lastSwerveModulePositionRots[i]),
                     swerveModules[i].getAngle()
             );
-            lastSwerveModulePositionMeters[i] = swerveModules[i].getDrivePosition();
+            lastSwerveModulePositionRots[i] = swerveModules[i].getDrivePosition();
         }
 
         final Twist2d wheelDeltasTwist = kinematics.toTwist2d(wheelDeltas);
-
-//        final Twist2d zeroTwist = new Twist2d(0, 0, 0);
-//        final boolean isEqualToZero = wheelDeltasTwist.equals(zeroTwist);
+        gyroUseOdometryPose = gyroUseOdometryPose.exp(wheelDeltasTwist);
 
         Logger.getInstance().recordOutput("gyroUseOdometryPose", gyroUseOdometryPose);
         Logger.getInstance().recordOutput("wheelDeltasTwistDx", wheelDeltasTwist.dx);
         Logger.getInstance().recordOutput("wheelDeltasTwistDy", wheelDeltasTwist.dy);
         Logger.getInstance().recordOutput("wheelDeltasTwistDTheta", wheelDeltasTwist.dtheta);
-//        Logger.getInstance().recordOutput("wheelDeltasTwistIsZero", isEqualToZero);
+        Logger.getInstance().recordOutput("lastSwerveModulePositionRots", lastSwerveModulePositionRots);
 
-//        Logger.getInstance().recordOutput("isDxZero", wheelDeltasTwist.dx == 0);
-//        Logger.getInstance().recordOutput("isDyRZero", wheelDeltasTwist.dy == 0);
-//        Logger.getInstance().recordOutput("isDThetaZero", wheelDeltasTwist.dtheta == 0);
-
-        Logger.getInstance().recordOutput("lastSwerveModulePositionMeters", lastSwerveModulePositionMeters);
-
-        gyroUseOdometryPose = gyroUseOdometryPose.exp(wheelDeltasTwist);
-        setAngle(gyroUseOdometryPose.getRotation().getDegrees());
+        setAngleInternal(gyroUseOdometryPose.getRotation().getDegrees());
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final GyroIOInputs inputs) {
         updateGyro();
@@ -104,8 +93,12 @@ public class GyroIOSim implements GyroIO {
         return USE_SIMULATED_ROLL;
     }
 
+    private void setAngleInternal(final double angle) {
+        pigeon.getSimState().setRawYaw(angle);
+    }
+
     @Override
     public void setAngle(final double angle) {
-        pigeon.getSimState().setRawYaw(angle);
+        pigeon.setYaw(angle);
     }
 }

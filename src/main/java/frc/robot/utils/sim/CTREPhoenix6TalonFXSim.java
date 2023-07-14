@@ -7,7 +7,6 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
 
@@ -71,8 +70,8 @@ public class CTREPhoenix6TalonFXSim {
         final double wheelAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
 
         for (final TalonFXSimState simState : simStates) {
-            simState.setRawRotorPosition(wheelAngularPositionRots * gearRatio);
-            simState.setRotorVelocity(wheelAngularVelocityRotsPerSec * gearRatio);
+            simState.setRawRotorPosition(gearRatio * wheelAngularPositionRots);
+            simState.setRotorVelocity(gearRatio * wheelAngularVelocityRotsPerSec);
             simState.setSupplyVoltage(
                     12 - (simState.getSupplyCurrent() * Constants.Sim.FALCON_MOTOR_RESISTANCE)
             );

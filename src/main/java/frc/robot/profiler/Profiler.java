@@ -15,21 +15,22 @@ public class Profiler {
 
     private Profiler() {}
 
+    @SuppressWarnings("DuplicateBranchesInSwitch")
     public static Profiler getProfile() {
         Profiler newProfile = new Profiler();
         switch (profile) {
-            case DRIVER1:
+            case DRIVER1 -> {
                 newProfile.RotationalSensitivity = 1;
                 newProfile.ThrottleSensitivity = 1;
-                break;
-            case DRIVER2:
+            }
+            case DRIVER2 -> {
                 newProfile.RotationalSensitivity = 1.1;
                 newProfile.ThrottleSensitivity = 1.1;
-                break;
-            default:
+            }
+            default -> {
                 newProfile.RotationalSensitivity = 1;
                 newProfile.ThrottleSensitivity = 1;
-                break;
+            }
         }
         return newProfile;
     }
@@ -43,20 +44,20 @@ public class Profiler {
             currentState = state;
             switch (state) {
                 // wanted speed / Teleop max speed
-                case FAST:
+                case FAST -> {
                     ThrottleWeight = Units.feetToMeters(13) / Constants.Swerve.TELEOP_MAX_SPEED;
-                    RotateWeight = Math.PI / 2 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
-                    break;
-                case NORMAL:
+                    RotateWeight = Math.PI / 2 / Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
+                }
+                case NORMAL -> {
                     ThrottleWeight = Units.feetToMeters(6) / Constants.Swerve.TELEOP_MAX_SPEED;
-                    RotateWeight = Math.PI / 3 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
-                    break;
-                case SLOW:
+                    RotateWeight = Math.PI / 3 / Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
+                }
+                case SLOW -> {
                     ThrottleWeight = Units.feetToMeters(2) / Constants.Swerve.TELEOP_MAX_SPEED;
-                    RotateWeight = Math.PI / 4 /Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
-                    break;
-                default:
-                    break;
+                    RotateWeight = Math.PI / 4 / Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
+                }
+                default -> {
+                }
             }
         }
     }

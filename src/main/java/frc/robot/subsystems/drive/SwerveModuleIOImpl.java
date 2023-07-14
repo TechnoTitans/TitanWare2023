@@ -11,7 +11,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -20,7 +19,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
-import org.littletonrobotics.junction.Logger;
 
 public class SwerveModuleIOImpl implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
@@ -37,12 +35,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     private final boolean isReal;
 
     private SwerveModuleState lastDesiredState = new SwerveModuleState();
-
-    public double drivePositionRots = 0.0;
-    public double driveVelocityRotsPerSec = 0.0;
-
-    private double turnAbsolutePositionRots = 0.0;
-    private double turnVelocityRotsPerSec = 0.0;
 
     public SwerveModuleIOImpl(
             final TalonFX driveMotor,
@@ -101,7 +93,10 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.Slot0 = Constants.Modules.DRIVE_MOTOR_CONSTANTS;
+        driverConfig.Slot0 = isReal
+                ? Constants.Modules.DRIVE_MOTOR_CONSTANTS
+                : Constants.Sim.DRIVE_MOTOR_CONSTANTS;
+
         driverConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driverConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driverConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -113,7 +108,10 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         driveMotor.getConfigurator().apply(driverConfig);
 
         final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
+        turnerConfig.Slot0 = isReal
+                ? Constants.Modules.TURN_MOTOR_CONSTANTS
+                : Constants.Sim.TURN_MOTOR_CONSTANTS;
+
         turnerConfig.Voltage.PeakForwardVoltage = 6;
         turnerConfig.Voltage.PeakReverseVoltage = -6;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
@@ -132,22 +130,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         if (!isReal) {
             driveSim.update(Constants.LOOP_PERIOD_SECONDS);
             turnSim.update(Constants.LOOP_PERIOD_SECONDS);
-
-            driveVelocityRotsPerSec = driveSim.getAngularVelocityRotsPerSec();
-            drivePositionRots = driveSim.getAngularPositionRots();
-
-            turnVelocityRotsPerSec = turnSim.getAngularVelocityRotsPerSec();
-            turnAbsolutePositionRots = MathUtil.inputModulus(
-                    turnSim.getAngularPositionRots(), -0.5, 0.5
-            );
-
-            Logger.getInstance().recordOutput(
-                    "DriveVelocity_" + driveMotor.getDeviceID(), driveMotor.getVelocity().refresh().getValue()
-            );
-
-            Logger.getInstance().recordOutput(
-                    "DriveRotorVelocity_" + driveMotor.getDeviceID(), driveMotor.getRotorVelocity().refresh().getValue()
-            );
         }
     }
 
@@ -178,22 +160,14 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public double getDrivePosition() {
-        final double getPosition = driveMotor.getPosition().refresh().getValue();
-        Logger.getInstance().recordOutput("DrivePositionRots_" + driveMotor.getDeviceID(), drivePositionRots);
-        Logger.getInstance().recordOutput("DriveGetPositionRots_" + driveMotor.getDeviceID(), getPosition);
-
-//        return drivePositionRots;
         return BaseStatusSignal.getLatencyCompensatedValue(
                 driveMotor.getPosition().refresh(),
                 driveMotor.getVelocity().refresh()
         );
-//        return driveMotor.getPosition().refresh().getValue();
-//        return getPosition;
     }
 
     @Override
     public double getDriveVelocity() {
-//        return driveVelocityRotsPerSec;
         return driveMotor.getVelocity().refresh().getValue();
     }
 
@@ -226,7 +200,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     @Override
     public void setDesiredState(final SwerveModuleState state) {
         final Rotation2d currentWheelRotation = getAngle();
-//        final SwerveModuleState wantedState = state;
         final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
         final double desired_driver_velocity = compute_desired_driver_velocity(wantedState);
         final double desired_turner_rotations = compute_desired_turner_rotations(wantedState);

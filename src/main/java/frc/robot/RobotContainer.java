@@ -310,9 +310,9 @@ public class RobotContainer {
 //        );
 
         holonomicDriveController = new DriveController(
-                new PIDController(1, 0, 0),
-                new PIDController(1, 0, 0),
-                new PIDController(1, 0, 0)
+                new PIDController(4, 0, 0),
+                new PIDController(4, 0, 0),
+                new PIDController(2, 0, 0)
         );
 
         //Vision
@@ -322,7 +322,7 @@ public class RobotContainer {
         photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
         photonApriltags = new PhotonApriltags(photonApriltagCamera, swerve, poseEstimator, field);
 
-        //LEDS
+        //LEDs
         cANdle = new CANdle(RobotMap.CANdle_ID);
         candleController = new CandleController(cANdle);
 
@@ -368,6 +368,7 @@ public class RobotContainer {
         autoChooser.addOption("GoatedAuto", new AutoOption("GoatedAuto"));
         autoChooser.addOption("GoatedAutoV2", new AutoOption("GoatedAutoV2"));
         autoChooser.addOption("DriveStraight", new AutoOption("DriveStraight"));
+        autoChooser.addOption("Test3Piece", new AutoOption("Test3Piece"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Create Button Bindings

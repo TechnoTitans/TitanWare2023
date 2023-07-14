@@ -41,6 +41,8 @@ public class Robot extends LoggedRobot {
                     Constants.CURRENT_MODE,
                     RobotBase.getRuntimeType().toString()
             ), true);
+
+            throw new RuntimeException("Potentially incorrect CURRENT_MODE specified!");
         }
 
         // we practically never use LiveWindow, and apparently this causes loop overruns so disable it
