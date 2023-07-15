@@ -2,6 +2,7 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -167,7 +168,10 @@ class TrajectoryFollower extends CommandBase {
             ), currentPose);
         }
 
-        Logger.getInstance().recordOutput("Auto/EstimatedPose", currentPose);
+        Logger.getInstance().recordOutput("Auto/EstimatedPose", new Pose2d(
+                currentPose.getTranslation(),
+                Rotation2d.fromRadians(MathUtil.angleModulus(currentPose.getRotation().getRadians()))
+        ));
         Logger.getInstance().recordOutput("Auto/WantedState", new Pose2d(
                 state.poseMeters.getX(),
                 state.poseMeters.getY(),

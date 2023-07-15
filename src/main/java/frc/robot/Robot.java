@@ -127,9 +127,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        Logger.getInstance().recordOutput("IsTrajectoryFollowerScheduled", CommandScheduler.getInstance()
-                .isScheduled(robotContainer.getAutonomousCommand())
-        );
     }
 
     @Override
