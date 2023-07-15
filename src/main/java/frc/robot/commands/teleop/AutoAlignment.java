@@ -69,17 +69,15 @@ public class AutoAlignment extends CommandBase {
         }
 
         switch (state) {
-            case LEFT:
-                targetPose = DriverStation.getAlliance() == DriverStation.Alliance.Blue ? LEFT : RIGHT; // LEFT CONE OF SELECTED GRID AREA
-                break;
-            case CENTER:
-                targetPose = CENTER; // CENTER CUBE OF SELECTED GRID AREA
-                break;
-            case RIGHT:
-                targetPose = DriverStation.getAlliance() == DriverStation.Alliance.Blue ? RIGHT : LEFT; // LEFT CONE OF SELECTED GRID AREA
-                break;
-            default:
+            case LEFT ->
+                    targetPose = DriverStation.getAlliance() == DriverStation.Alliance.Blue ? LEFT : RIGHT; // LEFT CONE OF SELECTED GRID AREA
+            case CENTER ->
+                    targetPose = CENTER; // CENTER CUBE OF SELECTED GRID AREA
+            case RIGHT ->
+                    targetPose = DriverStation.getAlliance() == DriverStation.Alliance.Blue ? RIGHT : LEFT; // LEFT CONE OF SELECTED GRID AREA
+            default -> {
                 return;
+            }
         }
 
         targetPose = PoseUtils.transformGridPose(targetPose);

@@ -43,7 +43,10 @@ public interface GyroIO {
      */
     double getHeading();
 
-    //TODO: I DONT WANNA DO SO HARRY WILL MAKE AP~LANG DOCUMENTATION HERE!!!
+    /**
+     * Get the current heading (yaw) reported by the Gyro as a blocking call (waits for an update until timeout)
+     * @return the current heading (deg)
+     */
     double getHeadingBlocking();
 
     /**
@@ -65,7 +68,12 @@ public interface GyroIO {
      */
     Rotation2d getRotation2d();
 
-    //TODO: HARRINTGTON PLS DOCUMMENT
+    /**
+     * Get the current heading (yaw) as a {@link Rotation2d} by the Gyro
+     * as a blocking call (waits for an update until timeout)
+     * @return the {@link Rotation2d} of the current heading
+     * @see Rotation2d
+     */
     Rotation2d getRotation2dBlocking();
 
     /**
