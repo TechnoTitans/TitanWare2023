@@ -70,7 +70,6 @@ class TrajectoryFollower extends CommandBase {
         this.claw = claw;
         this.elevator = elevator;
 
-        reset();
         addRequirements(swerve);
     }
 
@@ -103,10 +102,6 @@ class TrajectoryFollower extends CommandBase {
                 initialHolonomicRotation
         ));
 
-//        Logger.getInstance().recordOutput(
-//                "Auto/Trajectory", SimUtils.LoggableTrajectory.fromTrajectory(transformedTrajectory)
-//        );
-
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
         }
@@ -129,12 +124,7 @@ class TrajectoryFollower extends CommandBase {
         final double currentTime = timer.get();
         final PathPlannerTrajectory.PathPlannerState sample =
                 (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.sample(currentTime);
-
-        final Pose2d poseEstimatorPose = poseEstimator.getEstimatedPosition();
-        final Pose2d currentPose = new Pose2d(
-                poseEstimatorPose.getTranslation(),
-                swerve.getRotation2d()
-        );
+        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
 
         if (hasMarkers) {
             commander(currentPose, currentTime);

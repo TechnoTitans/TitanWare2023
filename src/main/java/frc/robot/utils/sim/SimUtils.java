@@ -1,6 +1,5 @@
 package frc.robot.utils.sim;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import org.littletonrobotics.junction.Logger;
 
@@ -33,11 +34,13 @@ public class GyroIOSim implements GyroIO {
     private void updateGyro() {
         final SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[swerveModules.length];
         for (int i = 0; i < swerveModules.length; i++) {
+            final double currentSwervePosition = swerveModules[i].getDrivePosition();
+
             wheelDeltas[i] = new SwerveModulePosition(
-                    (swerveModules[i].getDrivePosition() - lastSwerveModulePositionRots[i]),
+                    (currentSwervePosition - lastSwerveModulePositionRots[i]),
                     swerveModules[i].getAngle()
             );
-            lastSwerveModulePositionRots[i] = swerveModules[i].getDrivePosition();
+            lastSwerveModulePositionRots[i] = currentSwervePosition;
         }
 
         final Twist2d wheelDeltasTwist = kinematics.toTwist2d(wheelDeltas);
@@ -58,13 +61,13 @@ public class GyroIOSim implements GyroIO {
 
         inputs.hasHardwareFault = pigeon.getFault_Hardware().refresh().getValue();
 
-        inputs.rollPositionDeg = getRoll();
-        inputs.pitchPositionDeg = -getPitch();
         inputs.yawPositionDeg = getHeading();
+        inputs.pitchPositionDeg = -getPitch();
+        inputs.rollPositionDeg = getRoll();
 
-        inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
-        inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
         inputs.yawVelocityDegPerSec = pigeon.getAngularVelocityZ().refresh().getValue();
+        inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
+        inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
     }
 
     @Override
@@ -82,6 +85,12 @@ public class GyroIOSim implements GyroIO {
     }
 
     @Override
+    public double getHeadingBlocking() {
+        updateGyro();
+        return pigeon.getYaw().waitForUpdate(Constants.LOOP_PERIOD_SECONDS).getValue();
+    }
+
+    @Override
     public double getPitch() {
         // pigeon is in simulation, pitch is not going to work, so just assume 0
         return USE_SIMULATED_PITCH;
@@ -91,6 +100,16 @@ public class GyroIOSim implements GyroIO {
     public double getRoll() {
         // pigeon is in simulation, roll is not going to work, so just assume 0
         return USE_SIMULATED_ROLL;
+    }
+
+    @Override
+    public Rotation2d getRotation2d() {
+        return pigeon.getRotation2d();
+    }
+
+    @Override
+    public Rotation2d getRotation2dBlocking() {
+        return Rotation2d.fromDegrees(getHeadingBlocking());
     }
 
     private void setAngleInternal(final double angle) {

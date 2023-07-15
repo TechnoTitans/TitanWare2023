@@ -98,7 +98,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         driverConfig.Slot0 = isReal
                 ? Constants.Modules.DRIVE_MOTOR_CONSTANTS
                 : Constants.Sim.DRIVE_MOTOR_CONSTANTS;
-
         driverConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driverConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driverConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -113,7 +112,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnerConfig.Slot0 = isReal
                 ? Constants.Modules.TURN_MOTOR_CONSTANTS
                 : Constants.Sim.TURN_MOTOR_CONSTANTS;
-
         turnerConfig.Voltage.PeakForwardVoltage = 6;
         turnerConfig.Voltage.PeakReverseVoltage = -6;
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
@@ -144,7 +142,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
 
         inputs.turnAbsolutePositionRots = getAngle().getRotations();
-        inputs.turnDesiredAbsolutePositionRotsPerSec = compute_desired_turner_rotations(getLastDesiredState());
+        inputs.turnDesiredAbsolutePositionRots = compute_desired_turner_rotations(getLastDesiredState());
         inputs.turnVelocityRotsPerSec = turnEncoder.getVelocity().refresh().getValue();
         inputs.turnCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
         inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();

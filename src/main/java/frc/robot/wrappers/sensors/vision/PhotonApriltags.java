@@ -86,11 +86,7 @@ public class PhotonApriltags extends SubsystemBase {
                 swerve.getModulePositions()
         );
 
-        Pose2d dashboardPose = poseEstimator.getEstimatedPosition();
-        //TODO: this thing is suspicious!
-//        if (robotOriginPosition == AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide) {
-//            dashboardPose = PoseUtils.flipAlliancePose(dashboardPose);
-//        }
+        final Pose2d dashboardPose = poseEstimator.getEstimatedPosition();
 
         field2d.setRobotPose(dashboardPose);
         Logger.getInstance().recordOutput("Odometry/Robot", dashboardPose);

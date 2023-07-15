@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoAlignment;
 import frc.robot.commands.teleop.ElevatorTeleop;
@@ -25,7 +25,9 @@ import frc.robot.commands.teleop.IntakeTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOReal;
-import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.drive.Swerve;
+import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModuleIOImpl;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -35,8 +37,7 @@ import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.pathplanner.AutoOption;
-import frc.robot.wrappers.control.OI;
-import frc.robot.wrappers.control.TitanButton;
+import frc.robot.wrappers.control.RobotStateCommand;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
@@ -45,9 +46,6 @@ import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
-    //OI
-    public final OI oi;
-
     //Motors
     public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
     public final TalonFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
@@ -101,11 +99,8 @@ public class RobotContainer {
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
-    //Buttons
-    //Main Driver
-    public final TitanButton resetGyroBtn, alignLeftBtn, alignRightBtn;
-    //Co Driver
-    public final TitanButton candleYellowBtn, candlePurpleBtn;
+    //Controllers
+    public final CommandXboxController driverController, coDriverController;
 
     //Autonomous Commands
     public final TrajectoryManager trajectoryManager;
@@ -115,9 +110,6 @@ public class RobotContainer {
     public final SendableChooser<AutoOption> autoChooser;
 
     public RobotContainer() {
-        //OI
-        oi = new OI();
-
         //Power Distribution Hub
         powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
         powerDistribution.clearStickyFaults();
@@ -141,47 +133,6 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-//        switch (Constants.CURRENT_MODE) {
-//            case REAL -> {
-//                frontLeft = new SwerveModuleIOReal(
-//                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-//                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
-//                );
-//                frontRight = new SwerveModuleIOReal(
-//                        frontRightDrive, frontRightTurn, frontRightEncoder,
-//                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
-//                );
-//                backLeft = new SwerveModuleIOReal(
-//                        backLeftDrive, backLeftTurn, backLeftEncoder,
-//                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
-//                );
-//                backRight = new SwerveModuleIOReal(
-//                        backRightDrive, backRightTurn, backRightEncoder,
-//                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
-//                );
-//            }
-//            case SIM -> {
-//                frontLeft = new SwerveModuleIOSim(
-//                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-//                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
-//                );
-//                frontRight = new SwerveModuleIOSim(
-//                        frontRightDrive, frontRightTurn, frontRightEncoder,
-//                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
-//                );
-//                backLeft = new SwerveModuleIOSim(
-//                        backLeftDrive, backLeftTurn, backLeftEncoder,
-//                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
-//                );
-//                backRight = new SwerveModuleIOSim(
-//                        backRightDrive, backRightTurn, backRightEncoder,
-//                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
-//                );
-//            }
-//            case REPLAY -> throw new RuntimeException("this isn't possible");
-//            default -> throw new RuntimeException("invalid CURRENT_MODE");
-//        }
-
         frontLeft = new SwerveModuleIOImpl(
                 frontLeftDrive, frontLeftTurn, frontLeftEncoder,
                 RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
@@ -301,6 +252,7 @@ public class RobotContainer {
                 Constants.Vision.stateStdDevs,
                 Constants.Vision.visionMeasurementStdDevs
         );
+
         field = new Field2d();
 
 //        holonomicDriveController = new DriveController(
@@ -311,8 +263,8 @@ public class RobotContainer {
 
         holonomicDriveController = new DriveController(
                 new PIDController(6, 0, 0),
-                new PIDController(10, 0, 0),
-                new PIDController(2, 0, 0),
+                new PIDController(11, 0, 0),
+                new PIDController(3.4, 0, 0),
                 true,
                 true,
                 true,
@@ -330,19 +282,15 @@ public class RobotContainer {
         cANdle = new CANdle(RobotMap.CANdle_ID);
         candleController = new CandleController(cANdle);
 
+        //Controllers
+        driverController = new CommandXboxController(RobotMap.MainController);
+        coDriverController = new CommandXboxController(RobotMap.CoController);
+
         //Teleop Commands
-        swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, oi.getXboxMain());
-        autoAlignment = new AutoAlignment(swerve, poseEstimator, oi.getXboxMain(), field);
-        intakeTeleop = new IntakeTeleop(claw, elevator, oi.getXboxMain(), oi.getXboxCo());
-        elevatorTeleop = new ElevatorTeleop(elevator, claw, oi.getXboxCo());
-
-        //Buttons
-        resetGyroBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_Y);
-        alignLeftBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_LEFT);
-        alignRightBtn = new TitanButton(oi.getXboxMain(), OI.XBOX_BUMPER_RIGHT);
-
-        candleYellowBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_Y);
-        candlePurpleBtn = new TitanButton(oi.getXboxCo(), OI.XBOX_X);
+        swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, driverController.getHID());
+        autoAlignment = new AutoAlignment(swerve, poseEstimator, driverController.getHID(), field);
+        intakeTeleop = new IntakeTeleop(claw, elevator, driverController.getHID(), coDriverController.getHID());
+        elevatorTeleop = new ElevatorTeleop(elevator, claw, coDriverController.getHID());
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator);
@@ -356,12 +304,14 @@ public class RobotContainer {
         //Autonomous Selector
         autoChooser = new SendableChooser<>();
         autoChooser.setDefaultOption("DropAndMobility", new AutoOption("DropAndMobility"));
-        autoChooser.addOption("CubeAndChargeBack", new AutoOption("CubeAndChargeBack", 2, 1));
+        autoChooser.addOption("CubeAndChargeBack",
+                new AutoOption("CubeAndChargeBack", 2, 1)
+        );
         autoChooser.addOption("DropAndCharge", new AutoOption("DropAndCharge"));
         autoChooser.addOption("2PieceBump", new AutoOption("2PieceBump", 2, 1));
         autoChooser.addOption("2.5PieceNoBalTurns",
                 new AutoOption(
-                        "2.5PieceNoBalTurns", 
+                        "2.5PieceNoBalTurns",
                         Units.feetToMeters(13),
                         Units.feetToMeters(13)*2
                 )
@@ -375,19 +325,22 @@ public class RobotContainer {
         autoChooser.addOption("Test3Piece", new AutoOption("Test3Piece"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        //Create Button Bindings
         configureButtonBindings();
     }
 
     private void configureButtonBindings() {
         // Main Driver
-        resetGyroBtn.onTrue(Commands.runOnce(swerve::zeroRotation));
-        alignLeftBtn.whileTrue(Commands.runOnce(() -> autoAlignment.setState(Enums.GridPositions.LEFT)));
-        alignRightBtn.whileTrue(Commands.runOnce(() -> autoAlignment.setState(Enums.GridPositions.RIGHT)));
+        driverController.y().onTrue(new RobotStateCommand(() -> swerve.zeroRotation(poseEstimator)));
+        driverController.leftBumper().whileTrue(
+                new RobotStateCommand(() -> autoAlignment.setState(Enums.GridPositions.LEFT))
+        );
+        driverController.rightBumper().whileTrue(
+                new RobotStateCommand(() -> autoAlignment.setState(Enums.GridPositions.RIGHT))
+        );
 
         // Co Driver
-        candleYellowBtn.onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.YELLOW)));
-        candlePurpleBtn.onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.PURPLE)));
+        coDriverController.y().onTrue(new RobotStateCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
+        coDriverController.x().onTrue(new RobotStateCommand(() -> candleController.setState(Enums.CANdleState.PURPLE)));
     }
 
     public Command getAutonomousCommand() {

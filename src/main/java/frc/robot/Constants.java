@@ -55,9 +55,8 @@ public interface Constants {
 
         double ELEVATOR_VERTICAL_EXT_MOI = 0.1937598419; // moi is in kg/m^2
 
-//        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.8, 0, 0, 0.97);
         Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0.913);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(20, 0, 1, 0);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(20, 0, 0, 0);
     }
 
     interface Modules {
@@ -71,7 +70,7 @@ public interface Constants {
         double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
         Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(50, 0, 0, 2);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0.5, 0);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(10, 0, 0, 0.2);
     }
 
     interface Swerve {

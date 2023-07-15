@@ -43,6 +43,9 @@ public interface GyroIO {
      */
     double getHeading();
 
+    //TODO: I DONT WANNA DO SO HARRY WILL MAKE AP~LANG DOCUMENTATION HERE!!!
+    double getHeadingBlocking();
+
     /**
      * Get the current pitch reported by the Gyro
      * @return the current pitch (deg)
@@ -60,9 +63,10 @@ public interface GyroIO {
      * @return the {@link Rotation2d} of the current heading
      * @see Rotation2d
      */
-    default Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
-    }
+    Rotation2d getRotation2d();
+
+    //TODO: HARRINTGTON PLS DOCUMMENT
+    Rotation2d getRotation2dBlocking();
 
     /**
      * Set the currently observed angle of the Gyro

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -33,7 +34,7 @@ public class Swerve extends SubsystemBase {
             final SwerveModuleIO frontRightIO,
             final SwerveModuleIO backLeftIO,
             final SwerveModuleIO backRightIO
-    ) {
+        ) {
         this.gyroIO = gyroIO;
         this.gyroInputs = new GyroIOInputsAutoLogged();
 
@@ -126,8 +127,13 @@ public class Swerve extends SubsystemBase {
         gyroIO.setAngle(angle);
     }
 
-    public void zeroRotation() {
+    public void zeroRotation(final SwerveDrivePoseEstimator poseEstimator) {
         gyroIO.zeroRotation();
+        poseEstimator.resetPosition(
+                Rotation2d.fromDegrees(0),
+                getModulePositions(),
+                poseEstimator.getEstimatedPosition()
+        );
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -188,7 +194,7 @@ public class Swerve extends SubsystemBase {
             final double rot,
             final boolean fieldRelative
     ) {
-        final ChassisSpeeds speeds = (fieldRelative)
+        final ChassisSpeeds speeds = fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
 

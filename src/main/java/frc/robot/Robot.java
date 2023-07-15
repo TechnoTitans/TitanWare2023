@@ -131,6 +131,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
+        CommandScheduler.getInstance().removeDefaultCommand(robotContainer.swerve);
         robotContainer.candleController.setState(Enums.CANdleState.OFF);
     }
 

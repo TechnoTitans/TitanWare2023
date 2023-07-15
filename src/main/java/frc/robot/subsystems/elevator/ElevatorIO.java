@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.utils.Enums;
 import org.littletonrobotics.junction.AutoLog;
 
