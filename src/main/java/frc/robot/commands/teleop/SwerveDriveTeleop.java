@@ -1,5 +1,6 @@
 package frc.robot.commands.teleop;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -13,7 +14,6 @@ public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
     private final Elevator elevator;
     private final XboxController controller;
-    private Profiler driverProfile;
 
     public SwerveDriveTeleop(
             final Swerve swerve,
@@ -27,40 +27,64 @@ public class SwerveDriveTeleop extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-        this.driverProfile = Profiler.getProfile();
-    }
+    public void initialize() {}
 
     @Override
     public void execute() {
-        final double frontBack = -MathUtils.deadband(controller.getLeftY(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
-        final double leftRight = -MathUtils.deadband(controller.getLeftX(), 0.01) * Constants.Swerve.TELEOP_MAX_SPEED * driverProfile.getThrottleSensitivity();
-
         if (!elevator.verticalIsExtended()) {
             if (controller.getLeftTriggerAxis() > 0.5) {
-                Profiler.setWeights(Enums.SwerveSpeeds.SLOW);
+                Profiler.setSwerveSpeed(Enums.SwerveSpeed.SLOW);
             } else if (controller.getRightTriggerAxis() > 0.5) {
-                Profiler.setWeights(Enums.SwerveSpeeds.FAST);
+                Profiler.setSwerveSpeed(Enums.SwerveSpeed.FAST);
             } else {
-                Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
+                Profiler.setSwerveSpeed(Enums.SwerveSpeed.NORMAL);
             }
         } else {
             if (controller.getRightTriggerAxis() > 0.5) {
-                Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
+                Profiler.setSwerveSpeed(Enums.SwerveSpeed.NORMAL);
             } else {
-                Profiler.setWeights(Enums.SwerveSpeeds.SLOW);
+                Profiler.setSwerveSpeed(Enums.SwerveSpeed.SLOW);
             }
         }
 
-        final double throttleWeight = driverProfile.getThrottleWeight();
-        final double rotWeight = driverProfile.getRotateWeight();
+        final Enums.DriverProfile driverProfile = Profiler.getDriverProfile();
+        final Enums.SwerveSpeed swerveSpeed = Profiler.getSwerveSpeed();
+
+        final double frontBack = -MathUtils.deadband(controller.getLeftY(), 0.01)
+                * Constants.Swerve.TELEOP_MAX_SPEED
+                * driverProfile.getThrottleSensitivity();
+
+        final double leftRight = -MathUtils.deadband(controller.getLeftX(), 0.01)
+                * Constants.Swerve.TELEOP_MAX_SPEED
+                * driverProfile.getThrottleSensitivity();
+
+        final double throttleWeight = swerveSpeed.getThrottleWeight();
+        final double rotWeight = swerveSpeed.getRotateWeight();
 
         if (controller.getRightStickButton()) {
-            final double angle = -Math.toDegrees(Math.atan2(-controller.getRightY(), controller.getRightX())) + 90;
-            swerve.faceDirection(frontBack * throttleWeight, leftRight * throttleWeight, angle, true, 1);
+            final double angle = -Units.radiansToDegrees(
+                    Math.atan2(-controller.getRightY(), controller.getRightX())
+            ) + 90;
+
+            swerve.faceDirection(
+                    frontBack * throttleWeight,
+                    leftRight * throttleWeight,
+                    angle,
+                    true,
+                    1
+            );
         } else {
-            final double rot = -MathUtils.deadband(controller.getRightX(), 0.01) * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED * driverProfile.getRotationalSensitivity();
-            swerve.drive(frontBack * throttleWeight, leftRight * throttleWeight, rot * rotWeight, true);
+            final double rot =
+                    -MathUtils.deadband(controller.getRightX(), 0.01)
+                            * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED
+                            * driverProfile.getRotationalSensitivity();
+
+            swerve.drive(
+                    frontBack * throttleWeight,
+                    leftRight * throttleWeight,
+                    rot * rotWeight,
+                    true
+            );
         }
     }
 
@@ -72,6 +96,6 @@ public class SwerveDriveTeleop extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.stop();
-        Profiler.setWeights(Enums.SwerveSpeeds.NORMAL);
+        Profiler.setSwerveSpeed(Enums.SwerveSpeed.NORMAL);
     }
 }

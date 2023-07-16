@@ -3,7 +3,6 @@ package frc.robot.wrappers.leds;
 import com.ctre.phoenix.led.CANdle;
 import frc.robot.utils.Enums;
 
-@SuppressWarnings("unused")
 public class CandleController {
     private final CANdle caNdle;
     private Enums.CANdleState state;
@@ -16,18 +15,8 @@ public class CandleController {
         return state;
     }
 
-    public void setState(Enums.CANdleState state) {
+    public void setState(final Enums.CANdleState state) {
+        caNdle.setLEDs(state.getR(), state.getG(), state.getB());
         this.state = state;
-        switch (state) {
-            case OFF:
-                caNdle.setLEDs(0, 0, 0);
-                break;
-            case YELLOW:
-                caNdle.setLEDs(200, 100, 0);
-                break;
-            case PURPLE:
-                caNdle.setLEDs(200, 0, 150);
-                break;
-        }
     }
 }

@@ -1,12 +1,8 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
+import frc.robot.utils.auto.PathPlannerUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -23,6 +20,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import java.io.File;
+import java.util.List;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
@@ -92,33 +90,13 @@ public class Robot extends LoggedRobot {
 
         SmartDashboard.putData("Field", robotContainer.field);
 
-        TitanBoard.addDouble("Yaw", () -> robotContainer.swerve.getHeading() % 360);
+        TitanBoard.addDouble("Yaw",
+                () -> MathUtil.inputModulus(robotContainer.swerve.getHeading(), 0, 360)
+        );
         TitanBoard.addDouble("Pitch", robotContainer.swerve::getPitch);
-        TitanBoard.addEncoder("EVertical Enc",
-                () -> robotContainer.elevatorVerticalEncoder.getPosition().refresh().getValue(),
-                () -> robotContainer.elevatorVerticalEncoder.getVelocity().refresh().getValue()
-        );
-        TitanBoard.addEncoder("EHorizontal Enc",
-                () -> robotContainer.elevatorHorizontalEncoder.getPosition().refresh().getValue(),
-                () -> robotContainer.elevatorHorizontalEncoder.getVelocity().refresh().getValue()
-        );
-        TitanBoard.addEncoder("Tilt Enc",
-                () -> robotContainer.clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
-                () -> robotContainer.clawTiltEncoder.getVelocity().refresh().getValue()
-        );
-        TitanBoard.addEncoder("OpenClose Enc",
-                robotContainer.clawOpenCloseEncoder::getAbsolutePosition, robotContainer.clawOpenCloseEncoder::getVelocity
-        );
+        TitanBoard.addDouble("Roll", robotContainer.swerve::getRoll);
 
         TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
-
-        TitanBoard.addSwerveModuleStates("FL", robotContainer.frontLeft);
-        TitanBoard.addSwerveModuleStates("FR", robotContainer.frontRight);
-        TitanBoard.addSwerveModuleStates("BL", robotContainer.backLeft);
-        TitanBoard.addSwerveModuleStates("BR", robotContainer.backRight);
-
-        TitanBoard.addBoolean("Vertical Elevator LS", robotContainer.elevatorVerticalLimitSwitch::get);
-        TitanBoard.addBoolean("Horizontal Elevator Back LS", robotContainer.elevatorHorizontalLimitSwitch::get);
 
         logger.start();
         TitanBoard.start();
@@ -141,6 +119,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        //TODO: this causes loop overruns in sim, either check in real or address this issue
+        // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (autonomousCommand != null) {
@@ -149,15 +129,13 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() {
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
         robotContainer.photonApriltags.refreshAlliance();
 
-        //Set Profile
-        Profiler.setProfile(robotContainer.profileChooser.getSelected());
+        Profiler.setDriverProfile(robotContainer.profileChooser.getSelected());
 
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
@@ -169,21 +147,18 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void teleopPeriodic() {
-    }
+    public void teleopPeriodic() {}
 
     @Override
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
-        final File[] paths = new File(
-                Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()
-        ).listFiles();
-
-        if (paths == null || Constants.CURRENT_MODE == Constants.RobotMode.SIM) {
+        if (Constants.CURRENT_MODE == Constants.RobotMode.SIM) {
+            // if we're in sim, don't delete the paths on the local computer
             return;
         }
 
+        final List<File> paths = PathPlannerUtil.getAllPathPlannerPaths();
         for (final File path : paths) {
             final boolean deleteSuccess = path.delete();
             DriverStation.reportWarning(
@@ -193,14 +168,11 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void testPeriodic() {
-    }
+    public void testPeriodic() {}
 
     @Override
-    public void simulationInit() {
-    }
+    public void simulationInit() {}
 
     @Override
-    public void simulationPeriodic() {
-    }
+    public void simulationPeriodic() {}
 }

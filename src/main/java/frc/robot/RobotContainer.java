@@ -13,10 +13,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.AutoAlignment;
@@ -36,7 +38,9 @@ import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
-import frc.robot.utils.pathplanner.AutoOption;
+import frc.robot.utils.auto.AutoChooser;
+import frc.robot.utils.auto.AutoOption;
+import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.wrappers.control.RobotStateCommand;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanMAX;
@@ -106,8 +110,8 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    public final SendableChooser<Enums.DriverProfiles> profileChooser;
-    public final SendableChooser<AutoOption> autoChooser;
+    public final SendableChooser<Enums.DriverProfile> profileChooser;
+    public final AutoChooser<String, AutoOption> autoChooser;
 
     public RobotContainer() {
         //Power Distribution Hub
@@ -288,7 +292,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, driverController.getHID());
-        autoAlignment = new AutoAlignment(swerve, poseEstimator, driverController.getHID(), field);
+        autoAlignment = new AutoAlignment(swerve, poseEstimator, driverController.getHID());
         intakeTeleop = new IntakeTeleop(claw, elevator, driverController.getHID(), coDriverController.getHID());
         elevatorTeleop = new ElevatorTeleop(elevator, claw, coDriverController.getHID());
 
@@ -297,32 +301,48 @@ public class RobotContainer {
 
         //Driver Profile Selector
         profileChooser = new SendableChooser<>();
-        profileChooser.setDefaultOption("Driver1", Enums.DriverProfiles.DRIVER1);
-        profileChooser.addOption("Driver2", Enums.DriverProfiles.DRIVER2);
+        profileChooser.setDefaultOption("Driver1", Enums.DriverProfile.DRIVER1);
+        profileChooser.addOption("Driver2", Enums.DriverProfile.DRIVER2);
         SmartDashboard.putData("Profile Chooser", profileChooser);
 
         //Autonomous Selector
-        autoChooser = new SendableChooser<>();
-        autoChooser.setDefaultOption("DropAndMobility", new AutoOption("DropAndMobility"));
-        autoChooser.addOption("CubeAndChargeBack",
-                new AutoOption("CubeAndChargeBack", 2, 1)
+        autoChooser = new AutoChooser<>();
+        //Add paths that are specifically for one competition type here
+        autoChooser.setDefaultAutoOption(
+                new AutoOption("DropAndMobility", Constants.CompetitionType.COMPETITION)
         );
-        autoChooser.addOption("DropAndCharge", new AutoOption("DropAndCharge"));
-        autoChooser.addOption("2PieceBump", new AutoOption("2PieceBump", 2, 1));
-        autoChooser.addOption("2.5PieceNoBalTurns",
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "CubeAndChargeBack",
+                        2,
+                        1,
+                        Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(new AutoOption("DropAndCharge", Constants.CompetitionType.COMPETITION));
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(
                 new AutoOption(
                         "2.5PieceNoBalTurns",
                         Units.feetToMeters(13),
-                        Units.feetToMeters(13)*2
+                        2 * Units.feetToMeters(13),
+                        Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addOption("3PieceAuton", new AutoOption("3PieceAuton"));
-        autoChooser.addOption("3PieceAutonV2", new AutoOption("3PieceAutonV2"));
-        autoChooser.addOption("FULLSPEEDACROSSTHEFIELD", new AutoOption("FULLSPEEDACROSSTHEFIELD"));
-        autoChooser.addOption("GoatedAuto", new AutoOption("GoatedAuto"));
-        autoChooser.addOption("GoatedAutoV2", new AutoOption("GoatedAutoV2"));
-        autoChooser.addOption("DriveStraight", new AutoOption("DriveStraight"));
-        autoChooser.addOption("Test3Piece", new AutoOption("Test3Piece"));
+        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
+        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+
+        //Add the remaining paths automatically
+        autoChooser.addOptionsIfNotPresent(
+                AutoOption::pathName,
+                AutoOption::new,
+                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
+        );
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         configureButtonBindings();
@@ -344,6 +364,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return trajectoryManager.getCommand(autoChooser.getSelected());
+        final AutoOption selectedAutoOption = autoChooser.getSelected();
+        return selectedAutoOption != null
+                ? trajectoryManager.getCommand(selectedAutoOption)
+                : Commands.waitUntil(() -> !RobotState.isAutonomous());
     }
 }

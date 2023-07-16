@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
@@ -18,10 +17,8 @@ import frc.robot.utils.TitanBoard;
 
 public class AutoAlignment extends CommandBase {
     private final Swerve swerve;
-    private final Field2d field2d;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final XboxController mainController;
-    private final Profiler driverProfile;
     private final PIDController alignPIDController;
     private Pose2d targetPose;
 
@@ -30,14 +27,11 @@ public class AutoAlignment extends CommandBase {
     public AutoAlignment(
             final Swerve swerve,
             final SwerveDrivePoseEstimator poseEstimator,
-            final XboxController mainController,
-            final Field2d field2d
+            final XboxController mainController
     ) {
         this.swerve = swerve;
-        this.field2d = field2d;
         this.mainController = mainController;
         this.poseEstimator = poseEstimator;
-        this.driverProfile = Profiler.getProfile();
         this.alignPIDController = new PIDController(0.7, 0, 0);
 
         TitanBoard.addString("gridSection", () -> gridSectionName);
@@ -97,10 +91,10 @@ public class AutoAlignment extends CommandBase {
 
         final double frontBack = MathUtils.deadband(mainController.getLeftY(), 0.01) *
                 Constants.Swerve.TELEOP_MAX_SPEED *
-                driverProfile.getThrottleSensitivity();
+                Profiler.getDriverProfile().getThrottleSensitivity();
 
         swerve.faceDirection(
-                frontBack * driverProfile.getThrottleWeight(),
+                frontBack * Profiler.getSwerveSpeed().getThrottleWeight(),
                 ((DriverStation.getAlliance() == DriverStation.Alliance.Red) ? -1 : 1) * alignPIDController.calculate(poseError.getY()),
                 180,
                 true

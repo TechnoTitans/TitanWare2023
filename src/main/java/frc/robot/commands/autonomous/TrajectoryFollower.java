@@ -19,7 +19,7 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
-import frc.robot.utils.pathplanner.TitanTrajectory;
+import frc.robot.utils.auto.TitanTrajectory;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;

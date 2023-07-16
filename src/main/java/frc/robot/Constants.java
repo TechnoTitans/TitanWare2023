@@ -10,12 +10,18 @@ import frc.robot.wrappers.api.Slot0Configs;
 @SuppressWarnings("unused")
 public interface Constants {
     RobotMode CURRENT_MODE = RobotMode.SIM;
+    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
 
     enum RobotMode {
         REAL,
         SIM,
         REPLAY
+    }
+
+    enum CompetitionType {
+        TESTING,
+        COMPETITION
     }
 
     interface CTRE {
@@ -32,7 +38,10 @@ public interface Constants {
 
         //TODO: it would be better if we could check if we're in a real match
         // and only start the PathPlannerServer if we're not, but DSData delays are annoying to deal with
-        boolean IS_USING_PATH_PLANNER_SERVER = USE_PATH_PLANNER_SERVER && CURRENT_MODE == RobotMode.SIM;
+        // for now, this is addressed by CURRENT_COMPETITION_TYPE
+        boolean IS_USING_PATH_PLANNER_SERVER =
+                USE_PATH_PLANNER_SERVER
+                        && CURRENT_COMPETITION_TYPE != CompetitionType.COMPETITION;
     }
 
     interface Sim {
@@ -70,7 +79,7 @@ public interface Constants {
         double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
         Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(50, 0, 0, 2);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(10, 0, 0, 0.2);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0.5, 0);
     }
 
     interface Swerve {

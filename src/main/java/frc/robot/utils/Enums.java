@@ -1,6 +1,9 @@
 package frc.robot.utils;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.Constants;
 
 public class Enums {
     public enum ElevatorState {
@@ -93,7 +96,7 @@ public class Enums {
     public enum ElevatorMode {
         POSITION,
         MOTION_MAGIC,
-        DUTY_CYCLE;
+        DUTY_CYCLE
     }
 
     public enum ClawControlMode {
@@ -242,20 +245,94 @@ public class Enums {
     }
 
     public enum CANdleState {
-        OFF,
-        YELLOW,
-        PURPLE
+        OFF(),
+        YELLOW(200, 100, 0),
+        PURPLE(200, 0, 150);
+
+        final Color color;
+        CANdleState(final Color color) {
+            this.color = color;
+        }
+
+        CANdleState(final int r, final int g, final int b) {
+            this(new Color(r, g, b));
+        }
+
+        CANdleState() {
+            this(Color.kBlack);
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        /**
+         * Get the Red component of the color RGB
+         * @return the Red component [0, 255]
+         */
+        public int getR() {
+            return (int)(getColor().red * 255);
+        }
+
+        /**
+         * Get the Green component of the color RGB
+         * @return the Green component [0, 255]
+         */
+        public int getG() {
+            return (int)(getColor().green * 255);
+        }
+
+        /**
+         * Get the Blue component of the color RGB
+         * @return the Blue component [0, 255]
+         */
+        public int getB() {
+            return (int)(getColor().blue * 255);
+        }
     }
 
-    public enum DriverProfiles {
-        DRIVER1,
-        DRIVER2
+    public enum DriverProfile {
+        DRIVER1(1, 1),
+        DRIVER2(1.1, 1.1),
+        DEFAULT(1, 1);
+
+        final double throttleSensitivity;
+        final double rotationalSensitivity;
+
+        DriverProfile(final double throttleSensitivity, final double rotationalSensitivity) {
+            this.throttleSensitivity = throttleSensitivity;
+            this.rotationalSensitivity = rotationalSensitivity;
+        }
+
+        public double getThrottleSensitivity() {
+            return throttleSensitivity;
+        }
+
+        public double getRotationalSensitivity() {
+            return rotationalSensitivity;
+        }
     }
 
-    public enum SwerveSpeeds {
-        FAST,
-        NORMAL,
-        SLOW,
+    public enum SwerveSpeed {
+        FAST(Units.feetToMeters(13), 0.5),
+        NORMAL(Units.feetToMeters(6), 0.35),
+        SLOW(Units.feetToMeters(2), 0.25);
+
+        final double throttleWeight;
+        final double rotateWeight;
+
+        SwerveSpeed(final double throttleWeight, final double rotateWeight) {
+            this.throttleWeight = throttleWeight / Constants.Swerve.TELEOP_MAX_SPEED;
+            this.rotateWeight = (Math.PI * rotateWeight) / Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
+        }
+
+        public double getThrottleWeight() {
+            return throttleWeight;
+        }
+
+        public double getRotateWeight() {
+            return rotateWeight;
+        }
     }
 
     public enum GridPositions {
