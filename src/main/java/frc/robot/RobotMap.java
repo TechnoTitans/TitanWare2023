@@ -13,7 +13,8 @@ public interface RobotMap {
 
     //Vision
     String PhotonVision_Driver_Cam = "drivercam1";
-    String PhotonVision_AprilTag_Cam = "apriltag1";
+    String PhotonVision_AprilTag_Cam_Right = "FR_Apriltag_R";
+    String PhotonVision_AprilTag_Cam_Forward = "FR_Apriltag_F";
 
     //Canivore
     int CANIVORE_ID = 1;

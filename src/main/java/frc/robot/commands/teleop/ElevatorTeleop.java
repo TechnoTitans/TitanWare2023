@@ -30,28 +30,26 @@ public class ElevatorTeleop extends CommandBase {
     @Override
     public void execute() {
         switch (controller.getPOV()) {
-            case 0:
-                Commands.sequence(
-                        Commands.runOnce(() -> elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH)),
-                        Commands.waitSeconds(0.3),
-                        Commands.runOnce(() -> claw.setDesiredState(Enums.ClawState.CLAW_DROP))
-                ).schedule();
-                break;
-            case 90:
+            case 0 -> Commands.sequence(
+                    Commands.runOnce(() -> elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH)),
+                    Commands.waitSeconds(0.3),
+                    Commands.runOnce(() -> claw.setDesiredState(Enums.ClawState.CLAW_DROP))
+            ).schedule();
+            case 90 -> {
                 elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_EXTENDED_MID);
                 claw.setDesiredState(Enums.ClawState.CLAW_DROP);
-                break;
-            case 180:
+            }
+            case 180 -> {
                 elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_STANDBY);
                 claw.setDesiredState(Enums.ClawState.CLAW_HOLDING);
-                break;
-            case 270:
+            }
+            case 270 -> {
                 elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_EXTENDED_PLATFORM);
                 Commands.sequence(
                         Commands.waitSeconds(0.1),
                         Commands.runOnce(() -> claw.setDesiredState(Enums.ClawState.CLAW_INTAKING_CONE))
                 ).schedule();
-                break;
+            }
         }
 
     }

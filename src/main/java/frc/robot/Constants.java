@@ -9,7 +9,7 @@ import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
 
@@ -107,9 +107,16 @@ public interface Constants {
     }
 
     interface Vision {
-        Transform3d robotToCam = new Transform3d( //x, y, z
-                new Translation3d(Units.inchesToMeters(0.5), Units.inchesToMeters(-12.625), Units.inchesToMeters(25)),
-                new Rotation3d(0, 0, 0));
+        //TODO: check these numbers
+        Transform3d robotToFR_Apriltag_R = new Transform3d( //x, y, z
+                new Translation3d(Units.inchesToMeters(13.5), Units.inchesToMeters(-13.75), Units.inchesToMeters(8)),
+                new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(-70)));
+
+        //TODO: check these numbers
+        Transform3d robotToFR_Apriltag_F = new Transform3d( //x, y, z
+                new Translation3d(Units.inchesToMeters(13.75), Units.inchesToMeters(-12), Units.inchesToMeters(10)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(25)));
+
         Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
         Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
         double singleTagMaxAmbiguity = 0.2;

@@ -9,7 +9,7 @@ public class ControllerUtils {
             final double scalar,
             final double sensitivity
     ) {
-        return -MathUtil.applyDeadband(input, Math.abs(deadband)) * scalar * sensitivity;
+        return MathUtil.applyDeadband(input, Math.abs(deadband)) * scalar * sensitivity;
     }
 
     public static double getStickInputWithWeight(

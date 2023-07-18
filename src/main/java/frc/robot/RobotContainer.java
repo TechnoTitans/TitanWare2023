@@ -49,6 +49,8 @@ import frc.robot.wrappers.sensors.vision.PhotonApriltags;
 import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
 import org.photonvision.PhotonCamera;
 
+import java.util.Map;
+
 public class RobotContainer {
     //Motors
     public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
@@ -84,7 +86,7 @@ public class RobotContainer {
     public final GyroIO gyroIO;
 
     //Vision
-    public final PhotonCamera photonDriveCamera, photonApriltagCamera;
+    public final PhotonCamera photonDriveCamera, photonApriltagCameraRight, photonApriltagCameraForward;
     public final PhotonDriverCam photonDriverCam;
     public final PhotonApriltags photonApriltags;
 
@@ -279,8 +281,17 @@ public class RobotContainer {
         photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
         photonDriverCam = new PhotonDriverCam(photonDriveCamera);
 
-        photonApriltagCamera = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam);
-        photonApriltags = new PhotonApriltags(photonApriltagCamera, swerve, poseEstimator, field);
+        photonApriltagCameraRight = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam_Right);
+        photonApriltagCameraForward = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam_Forward);
+        photonApriltags = new PhotonApriltags(
+                swerve, poseEstimator, field,
+                Map.of(
+                        photonApriltagCameraRight,
+                        Constants.Vision.robotToFR_Apriltag_R,
+                        photonApriltagCameraForward,
+                        Constants.Vision.robotToFR_Apriltag_F
+                )
+        );
 
         //LEDs
         cANdle = new CANdle(RobotMap.CANdle_ID);

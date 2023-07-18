@@ -3,6 +3,7 @@ package frc.robot.wrappers.sensors.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -12,31 +13,31 @@ import frc.robot.utils.PoseUtils;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
 
-@SuppressWarnings("unused")
+import java.util.List;
+import java.util.Map;
+
 public class PhotonApriltags extends SubsystemBase {
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d;
     private final PhotonRunnable photonEstimator;
     private final Notifier photonNotifier;
-    private AprilTagFieldLayout fieldLayout;
-    private PhotonPoseEstimator photonPoseEstimator;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
 
     public PhotonApriltags(
-            final PhotonCamera apriltagCamera,
             final Swerve swerve,
             final SwerveDrivePoseEstimator poseEstimator,
-            final Field2d field2d
+            final Field2d field2d,
+            final Map<PhotonCamera, Transform3d> apriltagCameras
     ) {
-        apriltagCamera.setDriverMode(false);
+        apriltagCameras.keySet().forEach(camera -> camera.setDriverMode(false));
+
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
         this.field2d = field2d;
 
-        this.photonEstimator = new PhotonRunnable(apriltagCamera);
+        this.photonEstimator = new PhotonRunnable(apriltagCameras);
 
         refreshAlliance();
 
@@ -69,8 +70,9 @@ public class PhotonApriltags extends SubsystemBase {
 
     @Override
     public void periodic() {
-        final EstimatedRobotPose estimatedRobotPose = photonEstimator.grabLatestEstimatedPose();
-        if (estimatedRobotPose != null) {
+        final List<EstimatedRobotPose> estimatedRobotPoses = photonEstimator.grabLatestEstimatedPoseRight();
+
+        for (final EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
             Pose2d estimatedPose2d = estimatedRobotPose.estimatedPose.toPose2d();
             if (robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) {
                 estimatedPose2d = PoseUtils.flipPose(estimatedPose2d);

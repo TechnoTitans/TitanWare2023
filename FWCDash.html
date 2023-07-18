@@ -2,6 +2,7 @@
     tab-name="Main"
     slot="tab"
     source-provider="NetworkTables"
+    selected=""
 >
     <frc-basic-fms-info
         source-provider="NetworkTables"
@@ -43,90 +44,23 @@
         <frc-field-robot
             source-key="/SmartDashboard/Field/Robot"
             source-provider="NetworkTables"
-            style="width: 0px; height: 0px; transform: translate(0px, 0px) rotate(127.412deg);"
+            style="width: 33.1816px; height: 49.7725px; transform: translate(23.794px, 449.898px) rotate(90deg);"
             opacity="100"
             pose="[0,0,0]"
         ></frc-field-robot>
         <frc-field-robot
             source-key="/SmartDashboard/Field/visionAlignTarget"
             source-provider="NetworkTables"
-            style="width: 0px; height: 0px; transform: translate(0px, 0px) rotate(90deg);"
+            style="width: 33.1816px; height: 49.7725px; transform: translate(23.794px, 449.898px) rotate(90deg);"
             opacity="100"
             pose="[0,0,0]"
         ></frc-field-robot>
         <frc-field-robot
             source-key="/SmartDashboard/Field/wantedState"
             source-provider="NetworkTables"
-            style="width: 0px; height: 0px; transform: translate(0px, 0px) rotate(90deg);"
+            style="width: 33.1816px; height: 49.7725px; transform: translate(23.794px, 449.898px) rotate(90deg);"
             opacity="100"
             pose="[0,0,0]"
         ></frc-field-robot>
     </frc-field>
-</dashboard-tab>
-<dashboard-tab
-    tab-name="Debug"
-    slot="tab"
-    source-provider="NetworkTables"
-    source-key="/TitanBoard/EH Enc"
-    selected=""
->
-
-    <frc-encoder
-        source-provider="NetworkTables"
-        style="transform: translate(1033.6px, 260.8px);"
-        source-key="/TitanBoard/EVertical Enc"
-    ></frc-encoder>
-    <frc-encoder
-        source-provider="NetworkTables"
-        style="transform: translate(1041.4px, 101.4px);"
-        source-key="/TitanBoard/OpenClose Enc"
-    ></frc-encoder>
-    <frc-encoder
-        source-provider="NetworkTables"
-        style="transform: translate(616.6px, 95.4px);"
-        source-key="/TitanBoard/Tilt Enc"
-    ></frc-encoder>
-    <frc-encoder
-        source-provider="NetworkTables"
-        style="transform: translate(618.4px, 264.4px);"
-        source-key="/TitanBoard/EHorizontal Enc"
-    ></frc-encoder>
-
-
-    <frc-label
-        text="Tilt Encoder:"
-        source-provider="NetworkTables"
-        style="width: 115.413px; height: 44.8px; transform: translate(707.2px, 63.2px);"
-    ></frc-label>
-    <frc-label
-        text="Horizontal Encoder:"
-        source-provider="NetworkTables"
-        style="transform: translate(700px, 234.2px);"
-    ></frc-label>
-    <frc-label
-        text="Open Close Encoder:"
-        source-provider="NetworkTables"
-        style="transform: translate(1104.8px, 70.2px);"
-    ></frc-label>
-    <frc-label
-        text="Elevator Vertical Encoder:"
-        source-provider="NetworkTables"
-        style="transform: translate(1077.2px, 236px);"
-    ></frc-label>
-    <frc-boolean-box
-        source-provider="NetworkTables"
-        style="transform: translate(106.4px, 83.2px); width: 148px; height: 97.6px;"
-        source-key="/TitanBoard/Vertical Elevator LS"
-        label="Vert Elev LS"
-    ></frc-boolean-box>
-
-
-
-
-    <frc-boolean-box
-        source-provider="NetworkTables"
-        style="transform: translate(107.2px, 188px); width: 146.4px; height: 96.8px;"
-        source-key="/TitanBoard/Horizontal Elevator Back LS"
-        label="Horizontal Elev Back LS"
-    ></frc-boolean-box>
 </dashboard-tab>
