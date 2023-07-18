@@ -110,6 +110,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.swerve);
+        CommandScheduler.getInstance().getActiveButtonLoop().clear();
+
         robotContainer.candleController.setState(Enums.CANdleState.OFF);
     }
 
@@ -119,8 +121,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        //TODO: this causes loop overruns in sim, either check in real or address this issue
-        // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (autonomousCommand != null) {
@@ -133,6 +133,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        robotContainer.configureButtonBindings();
         robotContainer.photonApriltags.refreshAlliance();
 
         Profiler.setDriverProfile(robotContainer.profileChooser.getSelected());

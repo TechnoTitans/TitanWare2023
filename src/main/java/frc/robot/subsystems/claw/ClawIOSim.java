@@ -109,6 +109,11 @@ public class ClawIOSim implements ClawIO {
                 new TrapezoidProfile.Constraints(3, 5)
         );
 
+        this.tiltPID.reset(
+                clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
+                clawTiltEncoder.getVelocity().refresh().getValue()
+        );
+
         config();
         setDesiredState(Enums.ClawState.CLAW_STANDBY);
     }
@@ -218,11 +223,11 @@ public class ClawIOSim implements ClawIO {
         } else {
             //TODO: figure out what units are where
             final boolean isAtDesired =
-                    MathUtils.withinRange(
+                    MathUtils.withinTolerance(
                             clawOpenCloseMotor.getSelectedSensorPosition(),
                             desiredOpenClosePositionRots,
                             5
-                    ) && MathUtils.withinRange(
+                    ) && MathUtils.withinTolerance(
                             clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
                             desiredTiltPositionRots,
                             5

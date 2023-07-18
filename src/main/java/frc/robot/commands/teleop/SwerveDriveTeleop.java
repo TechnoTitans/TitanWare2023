@@ -8,7 +8,8 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathUtils;
+import frc.robot.utils.teleop.ControllerUtils;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
@@ -50,16 +51,25 @@ public class SwerveDriveTeleop extends CommandBase {
         final Enums.DriverProfile driverProfile = Profiler.getDriverProfile();
         final Enums.SwerveSpeed swerveSpeed = Profiler.getSwerveSpeed();
 
-        final double frontBack = -MathUtils.deadband(controller.getLeftY(), 0.01)
-                * Constants.Swerve.TELEOP_MAX_SPEED
-                * driverProfile.getThrottleSensitivity();
-
-        final double leftRight = -MathUtils.deadband(controller.getLeftX(), 0.01)
-                * Constants.Swerve.TELEOP_MAX_SPEED
-                * driverProfile.getThrottleSensitivity();
-
         final double throttleWeight = swerveSpeed.getThrottleWeight();
         final double rotWeight = swerveSpeed.getRotateWeight();
+
+        final double xSpeed = ControllerUtils.getStickInputWithWeight(
+                controller.getLeftY(),
+                0.01,
+                Constants.Swerve.TELEOP_MAX_SPEED,
+                driverProfile.getThrottleSensitivity(),
+                throttleWeight
+        );
+
+        final double ySpeed = ControllerUtils.getStickInputWithWeight(
+                controller.getLeftX(),
+                0.01,
+                Constants.Swerve.TELEOP_MAX_SPEED,
+                driverProfile.getThrottleSensitivity(),
+                throttleWeight
+        );
+
 
         if (controller.getRightStickButton()) {
             final double angle = -Units.radiansToDegrees(
@@ -67,22 +77,29 @@ public class SwerveDriveTeleop extends CommandBase {
             ) + 90;
 
             swerve.faceDirection(
-                    frontBack * throttleWeight,
-                    leftRight * throttleWeight,
+                    xSpeed,
+                    ySpeed,
                     angle,
                     true,
                     1
             );
         } else {
-            final double rot =
-                    -MathUtils.deadband(controller.getRightX(), 0.01)
-                            * Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED
-                            * driverProfile.getRotationalSensitivity();
+            final double rot = ControllerUtils.getStickInputWithWeight(
+                    controller.getRightX(),
+                    0.01,
+                    Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED,
+                    driverProfile.getRotationalSensitivity(),
+                    rotWeight
+            );
+
+            Logger.getInstance().recordOutput("Controller/XInput", xSpeed);
+            Logger.getInstance().recordOutput("Controller/YInput", ySpeed);
+            Logger.getInstance().recordOutput("Controller/RotationInput", rot);
 
             swerve.drive(
-                    frontBack * throttleWeight,
-                    leftRight * throttleWeight,
-                    rot * rotWeight,
+                    xSpeed,
+                    ySpeed,
+                    rot,
                     true
             );
         }

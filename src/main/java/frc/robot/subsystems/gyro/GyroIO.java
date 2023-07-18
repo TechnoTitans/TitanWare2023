@@ -38,16 +38,16 @@ public interface GyroIO {
     boolean isReal();
 
     /**
-     * Get the current heading (yaw) reported by the Gyro
-     * @return the current heading (deg)
+     * Get the current yaw (heading) reported by the Gyro
+     * @return the current yaw (deg)
      */
-    double getHeading();
+    double getYaw();
 
     /**
-     * Get the current heading (yaw) reported by the Gyro as a blocking call (waits for an update until timeout)
-     * @return the current heading (deg)
+     * Get the current yaw (heading) reported by the Gyro as a blocking call (waits for an update until timeout)
+     * @return the current yaw (deg)
      */
-    double getHeadingBlocking();
+    double getYawBlocking();
 
     /**
      * Get the current pitch reported by the Gyro
@@ -66,7 +66,7 @@ public interface GyroIO {
      * @return the {@link Rotation2d} of the current heading
      * @see Rotation2d
      */
-    Rotation2d getRotation2d();
+    Rotation2d getYawRotation2d();
 
     /**
      * Get the current heading (yaw) as a {@link Rotation2d} by the Gyro

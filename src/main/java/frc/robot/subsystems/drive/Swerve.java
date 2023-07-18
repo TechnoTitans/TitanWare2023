@@ -76,6 +76,17 @@ public class Swerve extends SubsystemBase {
         return swerveModuleStates;
     }
 
+    private double[] getChassisSpeedsAsDoubleArray(final ChassisSpeeds chassisSpeeds) {
+        //I wish I could name these somehow, but this is acceptable for now
+        return new double[] {
+                chassisSpeeds.vxMetersPerSecond,
+                chassisSpeeds.vyMetersPerSecond,
+                chassisSpeeds.omegaRadiansPerSecond,
+                // this is the magnitude of the velocity (basically the speed of the swerve)
+                Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)
+        };
+    }
+
     @Override
     public void periodic() {
         gyroIO.updateInputs(gyroInputs);
@@ -85,6 +96,11 @@ public class Swerve extends SubsystemBase {
         frontRight.periodic();
         backLeft.periodic();
         backRight.periodic();
+
+        //log current swerve chassis speeds
+        Logger.getInstance().recordOutput(
+                "SwerveStates/ChassisSpeeds", getChassisSpeedsAsDoubleArray(getRobotRelativeSpeeds())
+        );
 
         //prep states for display
         final SwerveModuleState[] lastDesiredStates = modifyModuleStatesForDisplay(getModuleLastDesiredStates());
@@ -105,7 +121,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public double getHeading() {
-        return gyroIO.getHeading();
+        return gyroIO.getYaw();
     }
 
     public double getPitch() {
@@ -116,8 +132,8 @@ public class Swerve extends SubsystemBase {
         return gyroIO.getRoll();
     }
 
-    public Rotation2d getRotation2d() {
-        return gyroIO.getRotation2d();
+    public Rotation2d getYawRotation2d() {
+        return gyroIO.getYawRotation2d();
     }
 
     /**
@@ -195,7 +211,7 @@ public class Swerve extends SubsystemBase {
             final boolean fieldRelative
     ) {
         final ChassisSpeeds speeds = fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getRotation2d())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getYawRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
         final ChassisSpeeds correctedSpeeds;
@@ -236,7 +252,7 @@ public class Swerve extends SubsystemBase {
             final double theta,
             final boolean fieldRelative
     ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getRotation2d());
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYawRotation2d());
         final double rotPower = error.getRadians() * Constants.Swerve.ROTATE_P;
         drive(dx, dy, rotPower, fieldRelative);
     }
@@ -248,7 +264,7 @@ public class Swerve extends SubsystemBase {
             final boolean fieldRelative,
             final double rotation_kP
     ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getRotation2d());
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYawRotation2d());
         final double rotPower = error.getRadians() * rotation_kP;
         drive(dx, dy, rotPower, fieldRelative);
     }

@@ -96,6 +96,8 @@ class TrajectoryFollower extends CommandBase {
         final PathPlannerTrajectory.PathPlannerState initialState = transformedTrajectory.getInitialState();
         final Rotation2d initialHolonomicRotation = initialState.holonomicRotation;
 
+        //TODO: this setAngle call causes loop overruns in sim - seems to be a CTRE implementation issue?
+        // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
         swerve.setAngle(initialHolonomicRotation.getDegrees());
         poseEstimator.resetPosition(initialHolonomicRotation, swerve.getModulePositions(), new Pose2d(
                 initialState.poseMeters.getTranslation(),

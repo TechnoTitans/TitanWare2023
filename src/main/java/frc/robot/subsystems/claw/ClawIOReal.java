@@ -67,6 +67,11 @@ public class ClawIOReal implements ClawIO {
                 new TrapezoidProfile.Constraints(20, 30)
         );
 
+        this.tiltPID.reset(
+                clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
+                clawTiltEncoder.getVelocity().refresh().getValue()
+        );
+
         config();
         setDesiredState(Enums.ClawState.CLAW_STANDBY);
     }
@@ -163,11 +168,11 @@ public class ClawIOReal implements ClawIO {
             return true;
         } else {
             final boolean isAtDesired =
-                    MathUtils.withinRange(
+                    MathUtils.withinTolerance(
                             clawOpenCloseEncoder.getAbsolutePosition(),
                             desiredOpenClosePositionRots,
                             5
-                    ) && MathUtils.withinRange(
+                    ) && MathUtils.withinTolerance(
                             clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
                             desiredTiltPositionRots,
                             5

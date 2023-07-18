@@ -62,8 +62,8 @@ public class PhotonApriltags extends SubsystemBase {
         }
 
         if (allianceChanged) {
-            final Pose2d newPose = PoseUtils.flipAlliancePose(poseEstimator.getEstimatedPosition());
-            poseEstimator.resetPosition(swerve.getRotation2d(), swerve.getModulePositions(), newPose);
+            final Pose2d newPose = PoseUtils.flipPose(poseEstimator.getEstimatedPosition());
+            poseEstimator.resetPosition(swerve.getYawRotation2d(), swerve.getModulePositions(), newPose);
         }
     }
 
@@ -73,7 +73,7 @@ public class PhotonApriltags extends SubsystemBase {
         if (estimatedRobotPose != null) {
             Pose2d estimatedPose2d = estimatedRobotPose.estimatedPose.toPose2d();
             if (robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) {
-                estimatedPose2d = PoseUtils.flipAlliancePose(estimatedPose2d);
+                estimatedPose2d = PoseUtils.flipPose(estimatedPose2d);
             }
             poseEstimator.addVisionMeasurement(
                     estimatedPose2d,
@@ -82,7 +82,7 @@ public class PhotonApriltags extends SubsystemBase {
         }
 
         poseEstimator.update(
-                swerve.getRotation2d(),
+                swerve.getYawRotation2d(),
                 swerve.getModulePositions()
         );
 
@@ -91,7 +91,7 @@ public class PhotonApriltags extends SubsystemBase {
         field2d.setRobotPose(dashboardPose);
         Logger.getInstance().recordOutput("Odometry/Robot", dashboardPose);
         Logger.getInstance().recordOutput("PoseEstimatorRotation_Rad", dashboardPose.getRotation().getRadians());
-        Logger.getInstance().recordOutput("SwerveRotation_Rad", swerve.getRotation2d().getRadians());
+        Logger.getInstance().recordOutput("SwerveRotation_Rad", swerve.getYawRotation2d().getRadians());
     }
 
     public Notifier getPhotonNotifier() {

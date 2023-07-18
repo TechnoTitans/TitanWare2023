@@ -38,10 +38,10 @@ import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
+import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.AutoChooser;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.PathPlannerUtil;
-import frc.robot.wrappers.control.RobotStateCommand;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
@@ -250,7 +250,7 @@ public class RobotContainer {
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,
-                swerve.getRotation2d(),
+                swerve.getYawRotation2d(),
                 swerve.getModulePositions(),
                 new Pose2d(),
                 Constants.Vision.stateStdDevs,
@@ -344,23 +344,27 @@ public class RobotContainer {
         );
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-
-        configureButtonBindings();
     }
 
-    private void configureButtonBindings() {
+    public void configureButtonBindings() {
         // Main Driver
-        driverController.y().onTrue(new RobotStateCommand(() -> swerve.zeroRotation(poseEstimator)));
+        driverController.y().onTrue(Commands.runOnce(() -> swerve.zeroRotation(poseEstimator)));
         driverController.leftBumper().whileTrue(
-                new RobotStateCommand(() -> autoAlignment.setState(Enums.GridPositions.LEFT))
+                Commands.runOnce(() -> {
+                    autoAlignment.setDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT);
+                    autoAlignment.schedule();
+                })
         );
         driverController.rightBumper().whileTrue(
-                new RobotStateCommand(() -> autoAlignment.setState(Enums.GridPositions.RIGHT))
+                Commands.runOnce(() -> {
+                    autoAlignment.setDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT);
+                    autoAlignment.schedule();
+                })
         );
 
         // Co Driver
-        coDriverController.y().onTrue(new RobotStateCommand(() -> candleController.setState(Enums.CANdleState.YELLOW)));
-        coDriverController.x().onTrue(new RobotStateCommand(() -> candleController.setState(Enums.CANdleState.PURPLE)));
+        coDriverController.y().onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.YELLOW)));
+        coDriverController.x().onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.PURPLE)));
     }
 
     public Command getAutonomousCommand() {

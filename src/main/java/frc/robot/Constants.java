@@ -64,8 +64,9 @@ public interface Constants {
 
         double ELEVATOR_VERTICAL_EXT_MOI = 0.1937598419; // moi is in kg/m^2
 
-        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0.913);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(20, 0, 0, 0);
+//        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0.913);
+        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0, 0, 0, 0.913);
+        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(40, 0, 0, 0);
     }
 
     interface Modules {
@@ -115,40 +116,15 @@ public interface Constants {
     }
 
     interface Field {
-        Translation2d LEFT_BOTTOM = new Translation2d(1, 3.6);
-        Translation2d LEFT_TOP = new Translation2d(3.35, 5.26);
-        Translation2d CENTER_BOTTOM = new Translation2d(1, 1.91);
-        Translation2d CENTER_TOP = new Translation2d(3.35, 3.58);
-        Translation2d RIGHT_BOTTOM = new Translation2d(1, 0);
-        Translation2d RIGHT_TOP = new Translation2d(3.35, 1.89);
-
-        double DISTANCE_FROM_GRID = 1.84;
+        double GRID_SCORING_X_POSITION = 1.84;
+        double SUBSTATION_PICKUP_X_POSITION = 15.8;
         double FIELD_LENGTH_X_METERS = 16.54175;
         double FIELD_WIDTH_Y_METERS = 8.0137;
+        double LOADING_ZONE_WIDTH_Y_METERS = 2.52;
+        double BARRIER_WIDTH_Y_METERS = 0.1985;
 
         Pose2d FLIPPING_POSE = new Pose2d(
                 new Translation2d(FIELD_LENGTH_X_METERS, FIELD_WIDTH_Y_METERS),
                 new Rotation2d(Math.PI));
-
-        interface LEFT {
-            // 4.98
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 5.045), Rotation2d.fromDegrees(180));
-            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
-            // 3.8
-            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.84), Rotation2d.fromDegrees(180));
-        }
-        interface CENTER {
-            // 3.34
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3.38), Rotation2d.fromDegrees(180));
-            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
-            // 2.13
-            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 2.2), Rotation2d.fromDegrees(180));
-        }
-        interface RIGHT {
-            // 1.6
-            Pose2d LEFT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 1.63), Rotation2d.fromDegrees(180));
-            Pose2d CUBE = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 3), Rotation2d.fromDegrees(180));
-            Pose2d RIGHT = new Pose2d(new Translation2d(DISTANCE_FROM_GRID, 0.47), Rotation2d.fromDegrees(180));
-        }
     }
 }

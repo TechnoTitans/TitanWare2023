@@ -44,7 +44,7 @@ public class AutoBalance extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return flag && MathUtils.withinRange(swerve.getPitch() + swerve.getRoll(), 0, 2);
+        return flag && MathUtils.withinTolerance(swerve.getPitch() + swerve.getRoll(), 0, 2);
     }
 
     @Override

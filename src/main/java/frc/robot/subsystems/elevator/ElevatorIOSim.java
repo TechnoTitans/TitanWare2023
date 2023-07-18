@@ -94,7 +94,13 @@ public class ElevatorIOSim implements ElevatorIO {
         config();
 
         this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
-                new TrapezoidProfile.Constraints(10, 20));
+                new TrapezoidProfile.Constraints(10, 20)
+        );
+
+        this.horizontalElevatorPID.reset(
+                horizontalElevatorEncoder.getPosition().refresh().getValue(),
+                horizontalElevatorEncoder.getVelocity().refresh().getValue()
+        );
 
         this.positionVoltage = new PositionVoltage(
                 0, true, 0, 0, false);

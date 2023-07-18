@@ -71,7 +71,13 @@ public class ElevatorIOReal implements ElevatorIO {
         config();
 
         this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
-                new TrapezoidProfile.Constraints(30, 40));
+                new TrapezoidProfile.Constraints(30, 40)
+        );
+
+        this.horizontalElevatorPID.reset(
+                horizontalElevatorEncoder.getPosition().refresh().getValue(),
+                horizontalElevatorEncoder.getVelocity().refresh().getValue()
+        );
 
         this.positionVoltage = new PositionVoltage(0);
         this.motionMagicVoltage = new MotionMagicVoltage(0);

@@ -17,7 +17,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
         inputs.rollPositionDeg = getRoll();
         inputs.pitchPositionDeg = -getPitch();
-        inputs.yawPositionDeg = getHeading();
+        inputs.yawPositionDeg = getYaw();
 
         inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
         inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
@@ -33,12 +33,12 @@ public class GyroIOPigeon2 implements GyroIO {
     public boolean isReal() { return true; }
 
     @Override
-    public double getHeading() {
+    public double getYaw() {
         return pigeon.getYaw().refresh().getValue();
     }
 
     @Override
-    public double getHeadingBlocking() {
+    public double getYawBlocking() {
         return pigeon.getYaw().waitForUpdate(Constants.LOOP_PERIOD_SECONDS).getValue();
     }
 
@@ -53,13 +53,13 @@ public class GyroIOPigeon2 implements GyroIO {
     }
 
     @Override
-    public Rotation2d getRotation2d() {
-        return pigeon.getRotation2d();
+    public Rotation2d getYawRotation2d() {
+        return Rotation2d.fromDegrees(getYaw());
     }
 
     @Override
     public Rotation2d getRotation2dBlocking() {
-        return Rotation2d.fromDegrees(getHeadingBlocking());
+        return Rotation2d.fromDegrees(getYawBlocking());
     }
 
     @Override

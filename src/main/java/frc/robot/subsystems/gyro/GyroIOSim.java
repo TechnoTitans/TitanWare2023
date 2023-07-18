@@ -61,7 +61,7 @@ public class GyroIOSim implements GyroIO {
 
         inputs.hasHardwareFault = pigeon.getFault_Hardware().refresh().getValue();
 
-        inputs.yawPositionDeg = getHeading();
+        inputs.yawPositionDeg = getYaw();
         inputs.pitchPositionDeg = -getPitch();
         inputs.rollPositionDeg = getRoll();
 
@@ -79,37 +79,35 @@ public class GyroIOSim implements GyroIO {
     public boolean isReal() { return false; }
 
     @Override
-    public double getHeading() {
+    public double getYaw() {
         updateGyro();
         return pigeon.getYaw().refresh().getValue();
     }
 
     @Override
-    public double getHeadingBlocking() {
+    public double getYawBlocking() {
         updateGyro();
         return pigeon.getYaw().waitForUpdate(Constants.LOOP_PERIOD_SECONDS).getValue();
     }
 
     @Override
     public double getPitch() {
-        // pigeon is in simulation, pitch is not going to work, so just assume 0
-        return USE_SIMULATED_PITCH;
+        return pigeon.getPitch().refresh().getValue();
     }
 
     @Override
     public double getRoll() {
-        // pigeon is in simulation, roll is not going to work, so just assume 0
-        return USE_SIMULATED_ROLL;
+        return pigeon.getRoll().refresh().getValue();
     }
 
     @Override
-    public Rotation2d getRotation2d() {
-        return pigeon.getRotation2d();
+    public Rotation2d getYawRotation2d() {
+       return Rotation2d.fromDegrees(getYaw());
     }
 
     @Override
     public Rotation2d getRotation2dBlocking() {
-        return Rotation2d.fromDegrees(getHeadingBlocking());
+        return Rotation2d.fromDegrees(getYawBlocking());
     }
 
     private void setAngleInternal(final double angle) {
