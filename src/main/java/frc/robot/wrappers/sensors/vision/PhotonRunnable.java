@@ -1,76 +1,80 @@
 package frc.robot.wrappers.sensors.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
+import frc.robot.utils.PoseUtils;
+import frc.robot.utils.vision.TitanCamera;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class PhotonRunnable implements Runnable {
-    private final Map<PhotonCamera, PhotonPoseEstimator> photonPoseCameraEstimatorMap;
-    private final AtomicReference<List<EstimatedRobotPose>> photonEstimatedPoses = new AtomicReference<>(new ArrayList<>());
+    private final PhotonCamera photonCamera;
+    private final PhotonPoseEstimator poseEstimator;
+    private final AtomicReference<EstimatedRobotPose> atomicEstimatedPose = new AtomicReference<>();
 
-    public PhotonRunnable(final Map<PhotonCamera, Transform3d> apriltagCameras) {
-        Map<PhotonCamera, PhotonPoseEstimator> tempPhotonPoseCameraEstimatorMap;
-        try {
-            final AprilTagFieldLayout layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
-            layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+    public PhotonRunnable(final TitanCamera titanCamera, final AprilTagFieldLayout fieldLayout) {
+        this.photonCamera = titanCamera.photonCamera();
+        this.poseEstimator = new PhotonPoseEstimator(
+                fieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, titanCamera.robotRelativeToCameraTransform()
+        );
 
-            tempPhotonPoseCameraEstimatorMap = apriltagCameras.entrySet().stream().collect(
-                    Collectors.toUnmodifiableMap(
-                            Map.Entry::getKey,
-                            cameraEntry -> {
-                                final PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(
-                                        layout, PoseStrategy.MULTI_TAG_PNP, cameraEntry.getKey(), cameraEntry.getValue()
-                                );
-                                photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                                return photonPoseEstimator;
-                            }
-                    )
-            );
-        } catch (final IOException e) {
-            tempPhotonPoseCameraEstimatorMap = Map.of();
-            DriverStation.reportError("Failed to load AprilTagFieldLayout", e.getStackTrace());
-        }
-        this.photonPoseCameraEstimatorMap = tempPhotonPoseCameraEstimatorMap;
+        this.poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    }
+
+    private void updatePoseEstimator(final PhotonPipelineResult photonPipelineResult) {
+        poseEstimator.update(photonPipelineResult).ifPresent(estimatedRobotPose -> {
+            final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
+            if (PoseUtils.isInField(estimatedPose)) {
+                atomicEstimatedPose.set(estimatedRobotPose);
+            }
+        });
+    }
+
+    public PhotonCamera getPhotonCamera() {
+        return photonCamera;
     }
 
     @Override
     public void run() {
-        for (final Map.Entry<PhotonCamera, PhotonPoseEstimator> cameraEntry : photonPoseCameraEstimatorMap.entrySet()) {
-            final PhotonPipelineResult photonResults = cameraEntry.getKey().getLatestResult();
+        final PhotonPipelineResult photonResult = photonCamera.getLatestResult();
+        if (!photonResult.hasTargets()) {
+            return;
+        }
 
-            if (photonResults.hasTargets()
-                    && (photonResults.targets.size() > 1
-                    || photonResults.targets.get(0).getPoseAmbiguity() < Constants.Vision.singleTagMaxAmbiguity)
-            ) {
-                cameraEntry.getValue().update(photonResults).ifPresent(estimatedRobotPose -> {
-                    final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
-                    if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Constants.Field.FIELD_LENGTH_X_METERS
-                            && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Constants.Field.FIELD_WIDTH_Y_METERS) {
+        final List<PhotonTrackedTarget> targets = photonResult.targets;
+        final int nTargets = targets.size();
 
-                        photonEstimatedPoses.get().add(estimatedRobotPose);
-                    }
-                });
+        if (nTargets == 1) {
+            // single-tag
+            final PhotonTrackedTarget firstTarget = targets.get(0);
+            if (firstTarget.getPoseAmbiguity() <= Constants.Vision.SINGLE_TAG_MAX_AMBIGUITY) {
+                updatePoseEstimator(photonResult);
             }
+        } else {
+            // multi-tag
+            final List<PhotonTrackedTarget> filteredTargets = photonResult.getTargets()
+                    .stream()
+                    .filter(
+                            photonTrackedTarget ->
+                                    photonTrackedTarget.getPoseAmbiguity() <= Constants.Vision.MULTI_TAG_MAX_AMBIGUITY
+                    )
+                    .toList();
+
+            updatePoseEstimator(new PhotonPipelineResult(
+                    photonResult.getLatencyMillis(), filteredTargets
+            ));
         }
     }
 
-    public List<EstimatedRobotPose> grabLatestEstimatedPoseRight() {
-        return photonEstimatedPoses.getAndSet(new ArrayList<>());
+    public EstimatedRobotPose getLatestEstimatedPose() {
+        return atomicEstimatedPose.getAndSet(null);
     }
 }

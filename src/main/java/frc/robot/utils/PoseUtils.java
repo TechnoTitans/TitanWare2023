@@ -1,9 +1,6 @@
 package frc.robot.utils;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.utils.alignment.AlignmentZone;
@@ -197,6 +194,13 @@ public class PoseUtils {
         } else {
             return originalPose;
         }
+    }
+
+    public static boolean isInField(final Pose3d pose3d) {
+        return pose3d.getX() >= 0
+                && pose3d.getY() >= 0
+                && pose3d.getX() <= Constants.Field.FIELD_LENGTH_X_METERS
+                && pose3d.getY() <= Constants.Field.FIELD_WIDTH_Y_METERS;
     }
 
     public static Twist2d log(final Pose2d transform) {

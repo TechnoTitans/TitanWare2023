@@ -3,47 +3,57 @@ package frc.robot.wrappers.sensors.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.utils.PoseUtils;
+import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PhotonApriltags extends SubsystemBase {
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d;
-    private final PhotonRunnable photonEstimator;
-    private final Notifier photonNotifier;
+    private final Map<PhotonRunnable, Notifier> photonRunnableNotifierMap;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
 
     public PhotonApriltags(
             final Swerve swerve,
             final SwerveDrivePoseEstimator poseEstimator,
             final Field2d field2d,
-            final Map<PhotonCamera, Transform3d> apriltagCameras
+            final List<TitanCamera> apriltagCameras
     ) {
-        apriltagCameras.keySet().forEach(camera -> camera.setDriverMode(false));
-
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
         this.field2d = field2d;
 
-        this.photonEstimator = new PhotonRunnable(apriltagCameras);
+        if (TitanCamera.apriltagFieldLayout == null) {
+            this.photonRunnableNotifierMap = Map.of();
+            return;
+        }
+
+        this.photonRunnableNotifierMap = apriltagCameras
+                .stream()
+                .map(titanCamera -> new PhotonRunnable(titanCamera, TitanCamera.apriltagFieldLayout))
+                .collect(Collectors.toUnmodifiableMap(
+                        photonRunnable -> photonRunnable,
+                        photonRunnable -> {
+                            final Notifier notifier = new Notifier(photonRunnable);
+                            notifier.setName(photonRunnable.getPhotonCamera().getName());
+                            notifier.startPeriodic(Constants.LOOP_PERIOD_SECONDS);
+                            return notifier;
+                        }
+                ));
 
         refreshAlliance();
-
-        photonNotifier = new Notifier(photonEstimator);
-        photonNotifier.setName("PhotonRunnable");
-        photonNotifier.startPeriodic(0.02);
     }
 
     public void refreshAlliance() {
@@ -68,17 +78,30 @@ public class PhotonApriltags extends SubsystemBase {
         }
     }
 
+    public static Pose2d flipPose2dByOriginPosition(
+            final Pose2d pose2d, final AprilTagFieldLayout.OriginPosition originPosition
+    ) {
+        return originPosition == AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide
+                ? pose2d
+                : PoseUtils.flipPose(pose2d);
+    }
+
     @Override
     public void periodic() {
-        final List<EstimatedRobotPose> estimatedRobotPoses = photonEstimator.grabLatestEstimatedPoseRight();
-
-        for (final EstimatedRobotPose estimatedRobotPose : estimatedRobotPoses) {
-            Pose2d estimatedPose2d = estimatedRobotPose.estimatedPose.toPose2d();
-            if (robotOriginPosition != AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide) {
-                estimatedPose2d = PoseUtils.flipPose(estimatedPose2d);
+        for (final PhotonRunnable photonRunnable : photonRunnableNotifierMap.keySet()) {
+            final EstimatedRobotPose estimatedRobotPose = photonRunnable.getLatestEstimatedPose();
+            if (estimatedRobotPose == null) {
+                continue;
             }
+            
+            //TODO: do we need to do flipPose
+            final Pose2d flippedEstimatedPose = flipPose2dByOriginPosition(
+                    estimatedRobotPose.estimatedPose.toPose2d(), robotOriginPosition
+            );
+
+            //TODO: consider only adding a vision measurement if its somewhat close to the already existing odometry
             poseEstimator.addVisionMeasurement(
-                    estimatedPose2d,
+                    flippedEstimatedPose,
                     estimatedRobotPose.timestampSeconds
             );
         }
@@ -88,15 +111,9 @@ public class PhotonApriltags extends SubsystemBase {
                 swerve.getModulePositions()
         );
 
-        final Pose2d dashboardPose = poseEstimator.getEstimatedPosition();
+        final Pose2d estimatedPosition = poseEstimator.getEstimatedPosition();
 
-        field2d.setRobotPose(dashboardPose);
-        Logger.getInstance().recordOutput("Odometry/Robot", dashboardPose);
-        Logger.getInstance().recordOutput("PoseEstimatorRotation_Rad", dashboardPose.getRotation().getRadians());
-        Logger.getInstance().recordOutput("SwerveRotation_Rad", swerve.getYawRotation2d().getRadians());
-    }
-
-    public Notifier getPhotonNotifier() {
-        return photonNotifier;
+        field2d.setRobotPose(estimatedPosition);
+        Logger.getInstance().recordOutput("Odometry/Robot", estimatedPosition);
     }
 }

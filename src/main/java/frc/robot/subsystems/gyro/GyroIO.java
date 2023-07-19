@@ -25,6 +25,11 @@ public interface GyroIO {
     void updateInputs(final GyroIOInputs inputs);
 
     /**
+     * Call to configure the Pigeon, should only be called once on init
+     */
+    void config();
+
+    /**
      * Get the underlying Pigeon object from CTRE (no guarantees are made about real/sim)
      * @return the {@link Pigeon2}
      * @see Pigeon2

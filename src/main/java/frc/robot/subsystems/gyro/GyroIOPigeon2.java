@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gyro;
 
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
@@ -22,6 +23,15 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
         inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
         inputs.yawVelocityDegPerSec = pigeon.getAngularVelocityZ().refresh().getValue();
+    }
+
+    @Override
+    public void config() {
+        final Pigeon2Configuration pigeon2Configuration = new Pigeon2Configuration();
+        //TODO: do we need to use MountPose? if so, check that this mount pose is correct
+        pigeon2Configuration.MountPose.MountPoseYaw = -90;
+
+        pigeon.getConfigurator().apply(pigeon2Configuration);
     }
 
     @Override

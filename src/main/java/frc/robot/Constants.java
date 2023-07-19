@@ -9,7 +9,7 @@ import frc.robot.wrappers.api.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
 
@@ -108,23 +108,28 @@ public interface Constants {
 
     interface Vision {
         //L = Left, R = Right, F = Forward, B = Backward (Facing)
-        //TODO: check these numbers
-        Transform3d robotToFR_Apriltag_R = new Transform3d( //x, y, z
+        Transform3d ROBOT_TO_FR_APRILTAG_CAM_R = new Transform3d(
                 new Translation3d(Units.inchesToMeters(13.449), Units.inchesToMeters(-13.762), Units.inchesToMeters(7.922)),
-                new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(-70)));
+                new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(-70))
+        );
 
-        //TODO: check these numbers
-        Transform3d robotToFR_Apriltag_F = new Transform3d( //x, y, z
+        Transform3d ROBOT_TO_FR_APRILTAG_CAM_F = new Transform3d(
                 new Translation3d(Units.inchesToMeters(14.465), Units.inchesToMeters(-11.907), Units.inchesToMeters(9.67)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(25)));
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(25))
+        );
 
-        Transform3d robotToBR_Apriltag_B = new Transform3d( //x, y, z
+        Transform3d ROBOT_TO_BR_APRILTAG_CAM_B = new Transform3d(
                 new Translation3d(Units.inchesToMeters(12.002), Units.inchesToMeters(11.349), Units.inchesToMeters(9.151)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(30)));
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(30))
+        );
 
-        Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-        Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
-        double singleTagMaxAmbiguity = 0.2;
+        /**
+         * Standard deviations of the supplied pose estimate (before vision, likely to be solely wheel odometry)
+         */
+        Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1);
+        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(1.5, 1.5, 1.5);
+        double MULTI_TAG_MAX_AMBIGUITY = 0.3;
+        double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
     }
 
     interface Field {

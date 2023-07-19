@@ -13,8 +13,8 @@ public interface RobotMap {
 
     //Vision
     String PhotonVision_Driver_Cam = "drivercam1";
-    String PhotonVision_AprilTag_Cam_Right = "FR_Apriltag_R";
-    String PhotonVision_AprilTag_Cam_Forward = "FR_Apriltag_F";
+    String PhotonVision_FR_Apriltag_R = "FR_Apriltag_R";
+    String PhotonVision_FR_Apriltag_F = "FR_Apriltag_F";
 
     //Canivore
     int CANIVORE_ID = 1;
@@ -28,7 +28,9 @@ public interface RobotMap {
     int frontLeftDrive = 1;
     int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
-    InvertedValue frontLeftDriveR = InvertedValue.Clockwise_Positive;
+//    InvertedValue frontLeftDriveR = InvertedValue.Clockwise_Positive;
+    //TODO: check CCW+ vs CW+ for drive motors on real
+    InvertedValue frontLeftDriveR = InvertedValue.CounterClockwise_Positive;
     InvertedValue frontLeftTurnR = InvertedValue.Clockwise_Positive;
 
     int frontRightDrive = 3;
@@ -46,7 +48,9 @@ public interface RobotMap {
     int backLeftDrive = 7;
     int backLeftTurn = 8;
     int backLeftEncoder = 4;
-    InvertedValue backLeftDriveR = InvertedValue.Clockwise_Positive;
+//        InvertedValue backLeftDriveR = InvertedValue.Clockwise_Positive;
+    //TODO: check CCW+ vs CW+ for drive motors on real
+    InvertedValue backLeftDriveR = InvertedValue.CounterClockwise_Positive;
     InvertedValue backLeftTurnR = InvertedValue.Clockwise_Positive;
 
     //Elevator

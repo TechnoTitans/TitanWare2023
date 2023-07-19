@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -42,14 +43,13 @@ import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.AutoChooser;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.PathPlannerUtil;
+import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonApriltags;
-import frc.robot.wrappers.sensors.vision.PhotonDriverCam;
-import org.photonvision.PhotonCamera;
 
-import java.util.Map;
+import java.util.List;
 
 public class RobotContainer {
     //Motors
@@ -86,8 +86,7 @@ public class RobotContainer {
     public final GyroIO gyroIO;
 
     //Vision
-    public final PhotonCamera photonDriveCamera, photonApriltagCameraRight, photonApriltagCameraForward;
-    public final PhotonDriverCam photonDriverCam;
+    public final TitanCamera photonDriveCamera, photonFR_Apriltag_R, photonFR_Apriltag_F;
     public final PhotonApriltags photonApriltags;
 
     //Candle
@@ -139,17 +138,19 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
+        //TODO: check +0.5 offsets when we can use real
         frontLeft = new SwerveModuleIOImpl(
                 frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322
+                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322 + 0.5
         );
         frontRight = new SwerveModuleIOImpl(
                 frontRightDrive, frontRightTurn, frontRightEncoder,
                 RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
         );
+        //TODO: check +0.5 offsets when we can use real
         backLeft = new SwerveModuleIOImpl(
                 backLeftDrive, backLeftTurn, backLeftEncoder,
-                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05
+                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05 + 0.5
         );
         backRight = new SwerveModuleIOImpl(
                 backRightDrive, backRightTurn, backRightEncoder,
@@ -255,8 +256,8 @@ public class RobotContainer {
                 swerve.getYawRotation2d(),
                 swerve.getModulePositions(),
                 new Pose2d(),
-                Constants.Vision.stateStdDevs,
-                Constants.Vision.visionMeasurementStdDevs
+                Constants.Vision.STATE_STD_DEVS,
+                Constants.Vision.VISION_MEASUREMENT_STD_DEVS
         );
 
         field = new Field2d();
@@ -278,19 +279,17 @@ public class RobotContainer {
         );
 
         //Vision
-        photonDriveCamera = new PhotonCamera(RobotMap.PhotonVision_Driver_Cam);
-        photonDriverCam = new PhotonDriverCam(photonDriveCamera);
+        photonDriveCamera = new TitanCamera(RobotMap.PhotonVision_Driver_Cam, new Transform3d(), true);
+        photonFR_Apriltag_F = new TitanCamera(
+                RobotMap.PhotonVision_FR_Apriltag_F, Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F
+        );
+        photonFR_Apriltag_R = new TitanCamera(
+                RobotMap.PhotonVision_FR_Apriltag_R, Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_R
+        );
 
-        photonApriltagCameraRight = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam_Right);
-        photonApriltagCameraForward = new PhotonCamera(RobotMap.PhotonVision_AprilTag_Cam_Forward);
         photonApriltags = new PhotonApriltags(
                 swerve, poseEstimator, field,
-                Map.of(
-                        photonApriltagCameraRight,
-                        Constants.Vision.robotToFR_Apriltag_R,
-                        photonApriltagCameraForward,
-                        Constants.Vision.robotToFR_Apriltag_F
-                )
+                List.of(photonFR_Apriltag_R, photonFR_Apriltag_F)
         );
 
         //LEDs

@@ -117,8 +117,8 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
-        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
+        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnerConfig.MotorOutput.Inverted = turnInvertedValue;
 
         SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);

@@ -70,7 +70,6 @@ public class SwerveDriveTeleop extends CommandBase {
                 throttleWeight
         );
 
-
         if (controller.getRightStickButton()) {
             final double angle = -Units.radiansToDegrees(
                     Math.atan2(-controller.getRightY(), controller.getRightX())
