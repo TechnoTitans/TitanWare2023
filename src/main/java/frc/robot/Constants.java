@@ -107,15 +107,20 @@ public interface Constants {
     }
 
     interface Vision {
+        //L = Left, R = Right, F = Forward, B = Backward (Facing)
         //TODO: check these numbers
         Transform3d robotToFR_Apriltag_R = new Transform3d( //x, y, z
-                new Translation3d(Units.inchesToMeters(13.5), Units.inchesToMeters(-13.75), Units.inchesToMeters(8)),
+                new Translation3d(Units.inchesToMeters(13.449), Units.inchesToMeters(-13.762), Units.inchesToMeters(7.922)),
                 new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(-70)));
 
         //TODO: check these numbers
         Transform3d robotToFR_Apriltag_F = new Transform3d( //x, y, z
-                new Translation3d(Units.inchesToMeters(13.75), Units.inchesToMeters(-12), Units.inchesToMeters(10)),
+                new Translation3d(Units.inchesToMeters(14.465), Units.inchesToMeters(-11.907), Units.inchesToMeters(9.67)),
                 new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(25)));
+
+        Transform3d robotToBR_Apriltag_B = new Transform3d( //x, y, z
+                new Translation3d(Units.inchesToMeters(12.002), Units.inchesToMeters(11.349), Units.inchesToMeters(9.151)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(30)));
 
         Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
         Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
