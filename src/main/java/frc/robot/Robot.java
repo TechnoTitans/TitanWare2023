@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -109,6 +110,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
+        robotContainer.swerve.setNeutralMode(NeutralModeValue.Brake);
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.swerve);
         CommandScheduler.getInstance().getActiveButtonLoop().clear();
 
@@ -117,11 +119,16 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
+
     }
 
     @Override
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
+
+        robotContainer.photonApriltags.refreshAlliance();
+
+        robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
@@ -135,6 +142,8 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         robotContainer.configureButtonBindings();
         robotContainer.photonApriltags.refreshAlliance();
+
+        robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 
         Profiler.setDriverProfile(robotContainer.profileChooser.getSelected());
 

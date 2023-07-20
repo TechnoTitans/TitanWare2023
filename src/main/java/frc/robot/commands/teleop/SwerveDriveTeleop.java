@@ -1,6 +1,7 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -15,6 +16,7 @@ public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
     private final Elevator elevator;
     private final XboxController controller;
+
 
     public SwerveDriveTeleop(
             final Swerve swerve,
@@ -32,6 +34,13 @@ public class SwerveDriveTeleop extends CommandBase {
 
     @Override
     public void execute() {
+        final double matchTime = DriverStation.getMatchTime();
+        if (matchTime >= 0 && matchTime < Constants.MATCH_END_THRESHOLD_SEC) {
+            swerve.wheelX();
+            Logger.getInstance().recordOutput("timeLeft", matchTime);
+            return;
+        }
+
         if (!elevator.verticalIsExtended()) {
             if (controller.getLeftTriggerAxis() > 0.5) {
                 Profiler.setSwerveSpeed(Enums.SwerveSpeed.SLOW);

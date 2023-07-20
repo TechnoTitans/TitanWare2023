@@ -9,53 +9,53 @@ public class Enums {
     public enum ElevatorState {
         //DutyCycle back to limit switch to reset encoder
         ELEVATOR_RESET(
+                -0.25,
                 Enums.ElevatorMode.MOTION_MAGIC,
                 -0.25,
-                false,
-                -0.3
+                false
         ),
         //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_HIGH(
-                Enums.ElevatorMode.POSITION,
                 5,
-                true,
-                3
+                Enums.ElevatorMode.POSITION,
+                3,
+                true
         ),
         ELEVATOR_EXTENDED_MID(
-                Enums.ElevatorMode.POSITION,
                 3.2,
-                true,
-                0.9
+                Enums.ElevatorMode.POSITION,
+                0.9,
+                true
         ), //Elevator Mid and Horizontal extended
         ELEVATOR_EXTENDED_PLATFORM(
-                Enums.ElevatorMode.POSITION,
                 4.3,
-                true,
-                0
+                Enums.ElevatorMode.POSITION,
+                0,
+                true
         ), //Elevator Platform and Horizontal extended
         ELEVATOR_STANDBY(
+                0, // -0.25,
                 ElevatorMode.MOTION_MAGIC,
-                -0.25,
-                true,
-                0
+                0,
+                true
         ), //Elevator at normal height
         ELEVATOR_CUBE(
-                Enums.ElevatorMode.POSITION,
                 1.3,
-                false,
-                -0.3
+                Enums.ElevatorMode.POSITION,
+                -0.3,
+                false
         ),
         SINGLE_SUB(
-                Enums.ElevatorMode.POSITION,
                 2.1,
-                true,
-                0
+                Enums.ElevatorMode.POSITION,
+                0,
+                true
         ),
         ELEVATOR_TIPPED_CONE(
-                Enums.ElevatorMode.POSITION,
                 1.55,
-                true,
-                0.2
+                Enums.ElevatorMode.POSITION,
+                0.2,
+                true
         );
 
         final ElevatorMode verticalElevatorMode;
@@ -80,15 +80,15 @@ public class Enums {
         }
 
         ElevatorState(
-                final ElevatorMode verticalElevatorMode,
                 final double VEPositionRotations,
-                final boolean horizontalPositionalControl,
-                final double HEPositionRotation
+                final ElevatorMode verticalElevatorMode,
+                final double HEPositionRotation,
+                final boolean horizontalPositionalControl
         ) {
-            this.verticalElevatorMode = verticalElevatorMode;
             this.VEPositionRotations = VEPositionRotations;
-            this.horizontalPositionalControl = horizontalPositionalControl;
+            this.verticalElevatorMode = verticalElevatorMode;
             this.HEPositionRotation = HEPositionRotation;
+            this.horizontalPositionalControl = horizontalPositionalControl;
 
         }
     }
@@ -133,7 +133,7 @@ public class Enums {
         CLAW_INTAKING_CONE(
                 0.5,
                 ClawControlMode.POSITION,
-                0.31,
+                0.3,
                 ControlMode.Position,
                 100
         ),
@@ -150,8 +150,8 @@ public class Enums {
                 0.2,
                 ClawControlMode.POSITION,
                 0,
-                ControlMode.PercentOutput,
-                -0.37
+                ControlMode.Position,
+                0
         ),
         //Drop claw to outtake height
         CLAW_DROP(
@@ -333,11 +333,5 @@ public class Enums {
         public double getRotateWeight() {
             return rotateWeight;
         }
-    }
-
-    public enum GridPositions {
-        LEFT,
-        CENTER,
-        RIGHT,
     }
 }

@@ -9,9 +9,10 @@ import frc.robot.wrappers.pid.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
+    double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
 
     enum RobotMode {
         REAL,

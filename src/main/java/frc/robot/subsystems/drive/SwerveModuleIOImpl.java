@@ -26,7 +26,10 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     private final CTREPhoenix6TalonFXSim driveSim, turnSim;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
+
     private final InvertedValue driveInvertedValue, turnInvertedValue;
+    private final TalonFXConfiguration driveTalonFXConfiguration = new TalonFXConfiguration();
+    private final TalonFXConfiguration turnTalonFXConfiguration = new TalonFXConfiguration();
 
     private final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
     private final VelocityVoltage velocityVoltage;
@@ -94,35 +97,33 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         canCoderConfiguration.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
-        final TalonFXConfiguration driverConfig = new TalonFXConfiguration();
-        driverConfig.Slot0 = isReal
+        driveTalonFXConfiguration.Slot0 = isReal
                 ? Constants.Modules.DRIVE_MOTOR_CONSTANTS
                 : Constants.Sim.DRIVE_MOTOR_CONSTANTS;
-        driverConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
-        driverConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
-        driverConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
-        driverConfig.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
-        driverConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        driverConfig.MotorOutput.Inverted = driveInvertedValue;
+        driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
+        driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
+        driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
+        driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
+        driveTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
 
         SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
-        driveMotor.getConfigurator().apply(driverConfig);
+        driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
-        final TalonFXConfiguration turnerConfig = new TalonFXConfiguration();
-        turnerConfig.Slot0 = isReal
+        turnTalonFXConfiguration.Slot0 = isReal
                 ? Constants.Modules.TURN_MOTOR_CONSTANTS
                 : Constants.Sim.TURN_MOTOR_CONSTANTS;
-        turnerConfig.Voltage.PeakForwardVoltage = 6;
-        turnerConfig.Voltage.PeakReverseVoltage = -6;
-        turnerConfig.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
-        turnerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        turnerConfig.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
-        turnerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        turnerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        turnerConfig.MotorOutput.Inverted = turnInvertedValue;
+        turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
+        turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
+        turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
+        turnTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
+        turnTalonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+        turnTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        turnTalonFXConfiguration.MotorOutput.Inverted = turnInvertedValue;
 
         SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
-        turnMotor.getConfigurator().apply(turnerConfig);
+        turnMotor.getConfigurator().apply(turnTalonFXConfiguration);
     }
 
     @Override
@@ -223,5 +224,13 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     @Override
     public SwerveModuleState getLastDesiredState() {
         return lastDesiredState;
+    }
+
+    @Override
+    public void setNeutralMode(final NeutralModeValue neutralMode) {
+        driveMotor.getConfigurator().refresh(turnTalonFXConfiguration);
+        turnTalonFXConfiguration.MotorOutput.NeutralMode = neutralMode;
+
+        driveMotor.getConfigurator().apply(turnTalonFXConfiguration);
     }
 }

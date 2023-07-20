@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -102,5 +103,9 @@ public class SwerveModule {
      */
     public SwerveModuleState getLastDesiredState() {
         return moduleIO.getLastDesiredState();
+    }
+
+    public void setNeutralMode(final NeutralModeValue neutralMode) {
+        moduleIO.setNeutralMode(neutralMode);
     }
 }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -292,6 +293,13 @@ public class Swerve extends SubsystemBase {
     }
 
     public void wheelX() {
-        rawSet(0, 0, 0, 0, 45, -45, 45, -45);
+        rawSet(0, 0, 0, 0, 45, -45, -45, 45);
+    }
+
+    public void setNeutralMode(final NeutralModeValue neutralMode) {
+        frontLeft.setNeutralMode(neutralMode);
+        frontRight.setNeutralMode(neutralMode);
+        backLeft.setNeutralMode(neutralMode);
+        backRight.setNeutralMode(neutralMode);
     }
 }

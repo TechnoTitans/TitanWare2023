@@ -29,7 +29,7 @@ public class GyroIOPigeon2 implements GyroIO {
     public void config() {
         final Pigeon2Configuration pigeon2Configuration = new Pigeon2Configuration();
         //TODO: do we need to use MountPose? if so, check that this mount pose is correct
-        pigeon2Configuration.MountPose.MountPoseYaw = -90;
+        pigeon2Configuration.MountPose.MountPoseYaw = 0;
 
         pigeon.getConfigurator().apply(pigeon2Configuration);
     }

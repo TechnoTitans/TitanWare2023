@@ -33,8 +33,8 @@ public class AutoAlignment extends CommandBase {
         this.mainController = mainController;
         this.poseEstimator = poseEstimator;
         this.alignPIDController = new ProfiledPIDController(
-                11, 0, 0,
-                new TrapezoidProfile.Constraints(4, 8)
+                5, 0, 0,
+                new TrapezoidProfile.Constraints(4, 4)
         );
         this.alignPIDController.setTolerance(0.1, 0.1);
 
@@ -52,7 +52,7 @@ public class AutoAlignment extends CommandBase {
     public void initialize() {
         final ChassisSpeeds swerveChassisSpeeds = swerve.getRobotRelativeSpeeds();
         this.alignPIDController.reset(
-                poseEstimator.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
+                poseEstimator.getEstimatedPosition().getY()
         );
 
         if (desiredAlignmentPosition == null) {

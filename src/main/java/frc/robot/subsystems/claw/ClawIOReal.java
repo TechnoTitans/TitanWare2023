@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.utils.Enums;
@@ -126,7 +127,7 @@ public class ClawIOReal implements ClawIO {
         clawOpenCloseEncoderConfig.sensorDirection = false;
         clawOpenCloseEncoderConfig.sensorCoefficient = Constants.CTRE.PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS;
         clawOpenCloseEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        clawOpenCloseEncoderConfig.magnetOffsetDegrees = -81.387;
+        clawOpenCloseEncoderConfig.magnetOffsetDegrees = -Units.rotationsToDegrees(0.19);
 
         clawOpenCloseEncoder.configFactoryDefault();
         clawOpenCloseEncoder.configAllSettings(clawOpenCloseEncoderConfig);

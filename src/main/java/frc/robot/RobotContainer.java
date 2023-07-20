@@ -100,7 +100,6 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final AutoAlignment autoAlignment;
     public final IntakeTeleop intakeTeleop;
     public final ElevatorTeleop elevatorTeleop;
 
@@ -141,20 +140,20 @@ public class RobotContainer {
         //TODO: check +0.5 offsets when we can use real
         frontLeft = new SwerveModuleIOImpl(
                 frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.322 + 0.5
+                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
         );
         frontRight = new SwerveModuleIOImpl(
                 frontRightDrive, frontRightTurn, frontRightEncoder,
-                RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, -0.168
+                RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
         );
         //TODO: check +0.5 offsets when we can use real
         backLeft = new SwerveModuleIOImpl(
                 backLeftDrive, backLeftTurn, backLeftEncoder,
-                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.05 + 0.5
+                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
         );
         backRight = new SwerveModuleIOImpl(
                 backRightDrive, backRightTurn, backRightEncoder,
-                RobotMap.backRightDriveR, RobotMap.backRightTurnR, -0.216
+                RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
         );
 
         final SwerveModuleIO[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
@@ -303,7 +302,6 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, driverController.getHID());
-        autoAlignment = new AutoAlignment(swerve, poseEstimator, driverController.getHID());
         intakeTeleop = new IntakeTeleop(claw, elevator, driverController.getHID(), coDriverController.getHID());
         elevatorTeleop = new ElevatorTeleop(elevator, claw, coDriverController.getHID());
 
@@ -334,6 +332,11 @@ public class RobotContainer {
         autoChooser.addAutoOption(
                 new AutoOption(
                         "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
                 )
         );
         autoChooser.addAutoOption(
