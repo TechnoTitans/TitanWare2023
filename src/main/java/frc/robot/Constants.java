@@ -5,7 +5,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import frc.robot.wrappers.api.Slot0Configs;
+import frc.robot.wrappers.pid.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {

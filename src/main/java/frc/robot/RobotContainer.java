@@ -268,10 +268,11 @@ public class RobotContainer {
 //                new PIDController(12, 0, 0)
 //        );
 
+        //3.4
         holonomicDriveController = new DriveController(
                 new PIDController(6, 0, 0),
                 new PIDController(11, 0, 0),
-                new PIDController(3.4, 0, 0),
+                new PIDController(3.2, 0, 0),
                 true,
                 true,
                 true,
@@ -359,17 +360,15 @@ public class RobotContainer {
     public void configureButtonBindings() {
         // Main Driver
         driverController.y().onTrue(Commands.runOnce(() -> swerve.zeroRotation(poseEstimator)));
+        //TODO: check that this method of making auto alignment commands still works in ALL cases
+        // from limited testing in sim, it does seem to work
         driverController.leftBumper().whileTrue(
-                Commands.runOnce(() -> {
-                    autoAlignment.setDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT);
-                    autoAlignment.schedule();
-                })
+                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
+                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
         );
         driverController.rightBumper().whileTrue(
-                Commands.runOnce(() -> {
-                    autoAlignment.setDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT);
-                    autoAlignment.schedule();
-                })
+                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
+                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
         );
 
         // Co Driver

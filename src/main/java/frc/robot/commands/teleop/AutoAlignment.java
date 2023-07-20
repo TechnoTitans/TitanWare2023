@@ -19,6 +19,9 @@ public class AutoAlignment extends CommandBase {
     private final SwerveDrivePoseEstimator poseEstimator;
     private final XboxController mainController;
     private final ProfiledPIDController alignPIDController;
+
+    private AlignmentZone.GenericDesiredAlignmentPosition desiredAlignmentPosition;
+    private AlignmentZone desiredAlignmentZone;
     private Pose2d targetPose;
 
     public AutoAlignment(
@@ -38,27 +41,11 @@ public class AutoAlignment extends CommandBase {
         addRequirements(swerve);
     }
 
-    public void setDesiredAlignmentPosition(
+    public AutoAlignment withDesiredAlignmentPosition(
             final AlignmentZone.GenericDesiredAlignmentPosition genericDesiredAlignmentPosition
     ) {
-        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
-        final AlignmentZone currentAlignmentZone =
-                AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose);
-        final AlignmentZone currentLoggedAlignmentZone =
-                AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose, true);
-
-        if (currentAlignmentZone == null || currentLoggedAlignmentZone == null) {
-            // if we're not in any alignment zone, then there's no point in doing anything so just ignore
-            return;
-        }
-
-        targetPose = currentAlignmentZone.getAlignmentPosition(genericDesiredAlignmentPosition, currentAlignmentZone);
-
-        Logger.getInstance().recordOutput("AutoAlign/AlignmentZone", currentLoggedAlignmentZone.toString());
-        Logger.getInstance().recordOutput("AutoAlign/WantedPose", targetPose);
-        Logger.getInstance().recordOutput(
-                "AutoAlign/AlignmentZoneTrajectory", currentLoggedAlignmentZone.getLoggablePoseRegionArray()
-        );
+        this.desiredAlignmentPosition = genericDesiredAlignmentPosition;
+        return this;
     }
 
     @Override
@@ -68,7 +55,32 @@ public class AutoAlignment extends CommandBase {
                 poseEstimator.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
         );
 
+        if (desiredAlignmentPosition == null) {
+            this.end(true);
+            return;
+        }
+
+        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        final AlignmentZone currentAlignmentZone =
+                AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose);
+        final AlignmentZone currentLoggedAlignmentZone =
+                AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose, true);
+
+        if (currentAlignmentZone == null || currentLoggedAlignmentZone == null) {
+            // if we're not in any alignment zone, then there's no point in doing anything so just ignore
+            this.end(true);
+            return;
+        }
+
+        desiredAlignmentZone = currentAlignmentZone;
+        targetPose = currentAlignmentZone.getAlignmentPosition(desiredAlignmentPosition);
+
         Logger.getInstance().recordOutput("AutoAlign/IsActive", true);
+        Logger.getInstance().recordOutput("AutoAlign/AlignmentZone", currentLoggedAlignmentZone.toString());
+        Logger.getInstance().recordOutput("AutoAlign/WantedPose", targetPose);
+        Logger.getInstance().recordOutput(
+                "AutoAlign/AlignmentZoneTrajectory", currentLoggedAlignmentZone.getLoggablePoseRegionArray()
+        );
     }
 
     @Override
@@ -86,6 +98,7 @@ public class AutoAlignment extends CommandBase {
                 Profiler.getSwerveSpeed().getThrottleWeight()
         );
 
+        final double controlEffort = alignPIDController.calculate(currentPose.getY(), targetPose.getY());
         swerve.faceDirection(
                 xSpeed,
                 alignPIDController.calculate(currentPose.getY(), targetPose.getY()),
@@ -93,6 +106,7 @@ public class AutoAlignment extends CommandBase {
                 true
         );
 
+        Logger.getInstance().recordOutput("AutoAlign/ControlEffort", controlEffort);
         Logger.getInstance().recordOutput("AutoAlign/PositionError", alignPIDController.getPositionError());
         Logger.getInstance().recordOutput("AutoAlign/VelocityError", alignPIDController.getVelocityError());
     }
@@ -101,7 +115,13 @@ public class AutoAlignment extends CommandBase {
     public boolean isFinished() {
         Logger.getInstance().recordOutput("AutoAlign/TargetPoseIsNull", targetPose == null);
         Logger.getInstance().recordOutput("AutoAlign/AtGoal", alignPIDController.atGoal());
-        return targetPose == null || alignPIDController.atGoal();
+
+        if (targetPose == null || alignPIDController.atGoal()) {
+            return true;
+        }
+
+        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        return !AlignmentZone.isPoseInAlignmentZone(currentPose, desiredAlignmentZone);
     }
 
     @Override

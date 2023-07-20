@@ -165,6 +165,8 @@ public enum AlignmentZone {
     public static final double GRID_CENTER_Y_BLUE = LOADING_ZONE_WIDTH_Y_METERS + GRID_CENTER_Y;
     public static final double GRID_CENTER_Y_RED = GRID_CENTER_Y_BLUE + GRID_CENTER_Y;
 
+    public static final AlignmentZone[] cachedValues = values();
+
     private final Translation2d cornerBLBounds;
     private final Translation2d cornerTRBounds;
 
@@ -305,12 +307,9 @@ public enum AlignmentZone {
         return mirroringBehavior;
     }
 
-    public Pose2d getAlignmentPosition(
-            final GenericDesiredAlignmentPosition genericDesiredAlignmentPosition,
-            final AlignmentZone alignmentZone
-    ) {
+    public Pose2d getAlignmentPosition(final GenericDesiredAlignmentPosition genericDesiredAlignmentPosition) {
         final NodePosition nodePosition = NodePosition.getFromAlignmentPositionAndZoneType(
-                genericDesiredAlignmentPosition, alignmentZone.getAlignmentZoneType()
+                genericDesiredAlignmentPosition, getAlignmentZoneType()
         );
 
         return switch (nodePosition) {
@@ -362,7 +361,7 @@ public enum AlignmentZone {
 
     public static AlignmentZone getAlignmentZoneFromCurrentPose(final Pose2d currentPose, final boolean ignoreMapping) {
         final DriverStation.Alliance alliance = DriverStation.getAlliance();
-        for (final AlignmentZone zone : values()) {
+        for (final AlignmentZone zone : cachedValues) {
             if (PoseUtils.poseWithinArea(
                     currentPose, zone.getCornerBLBounds(), zone.getCornerTRBounds(), zone.getMirroringBehavior()
             )) {
@@ -375,5 +374,14 @@ public enum AlignmentZone {
 
     public static AlignmentZone getAlignmentZoneFromCurrentPose(final Pose2d currentPose) {
         return getAlignmentZoneFromCurrentPose(currentPose, false);
+    }
+
+    public static boolean isPoseInAlignmentZone(final Pose2d currentPose, final AlignmentZone alignmentZone) {
+        return PoseUtils.poseWithinArea(
+                currentPose,
+                alignmentZone.getCornerBLBounds(),
+                alignmentZone.getCornerTRBounds(),
+                alignmentZone.getMirroringBehavior()
+        );
     }
 }
