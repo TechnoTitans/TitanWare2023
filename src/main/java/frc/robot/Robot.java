@@ -147,6 +147,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         robotContainer.configureButtonBindings();
+
         final PhotonVisionIO photonVisionIO = robotContainer.photonVision.getPhotonVisionIO();
         photonVisionIO.refreshAlliance(
                 photonVisionIO.getRobotOriginPosition(),

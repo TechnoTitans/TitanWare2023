@@ -10,26 +10,26 @@ public class Enums {
         //DutyCycle back to limit switch to reset encoder
         ELEVATOR_RESET(
                 -0.25,
-                Enums.ElevatorMode.MOTION_MAGIC,
+                ElevatorMode.MOTION_MAGIC,
                 -0.25,
                 false
         ),
         //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_HIGH(
-                5,
-                Enums.ElevatorMode.POSITION,
+                4.9,
+                ElevatorMode.MOTION_MAGIC,
                 3,
                 true
         ),
         ELEVATOR_EXTENDED_MID(
                 3.2,
-                Enums.ElevatorMode.POSITION,
+                ElevatorMode.MOTION_MAGIC,
                 0.9,
                 true
         ), //Elevator Mid and Horizontal extended
         ELEVATOR_EXTENDED_PLATFORM(
                 4.3,
-                Enums.ElevatorMode.POSITION,
+                ElevatorMode.MOTION_MAGIC,
                 0,
                 true
         ), //Elevator Platform and Horizontal extended
@@ -41,19 +41,19 @@ public class Enums {
         ), //Elevator at normal height
         ELEVATOR_CUBE(
                 1.3,
-                Enums.ElevatorMode.POSITION,
+                ElevatorMode.MOTION_MAGIC,
                 -0.3,
                 false
         ),
         SINGLE_SUB(
                 2.1,
-                Enums.ElevatorMode.POSITION,
+                ElevatorMode.POSITION,
                 0,
                 true
         ),
         ELEVATOR_TIPPED_CONE(
                 1.55,
-                Enums.ElevatorMode.POSITION,
+                ElevatorMode.MOTION_MAGIC,
                 0.2,
                 true
         );

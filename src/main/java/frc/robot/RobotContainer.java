@@ -217,8 +217,7 @@ public class RobotContainer {
                         RobotMap.verticalElevatorEncoderR,
                         elevatorHorizontalNeo,
                         elevatorVerticalLimitSwitch,
-                        elevatorHorizontalLimitSwitch,
-                        elevatorHorizontalHighLimitSwitch
+                        elevatorHorizontalLimitSwitch
                 ));
             case SIM:
                 yield new Elevator(new ElevatorIOSim(
@@ -388,14 +387,14 @@ public class RobotContainer {
         driverController.y().onTrue(Commands.runOnce(() -> swerve.zeroRotation(poseEstimator)));
         //TODO: check that this method of making auto alignment commands still works in ALL cases
         // from limited testing in sim, it does seem to work
-        driverController.leftBumper().whileTrue(
-                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
-                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
-        );
-        driverController.rightBumper().whileTrue(
-                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
-                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
-        );
+//        driverController.leftBumper().whileTrue(
+//                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
+//                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
+//        );
+//        driverController.rightBumper().whileTrue(
+//                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
+//                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
+//        );
 
         // Co Driver
         coDriverController.y().onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.YELLOW)));

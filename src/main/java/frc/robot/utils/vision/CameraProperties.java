@@ -1,8 +1,8 @@
 package frc.robot.utils.vision;
 
 public enum CameraProperties {
-    ARDUCAM_B0332_OV9281(90, 1280, 800, 10),
-    SPINEL_UC10MPC_ND_OV9281(80, 1280, 720, 10),
+    ARDUCAM_B0332_OV9281(80.36, 1280, 800, 100),
+    SPINEL_UC10MPC_ND_OV9281(89.88, 1280, 720, 100),
     MICROSOFT_LIFECAM_HD3000(68.5, 1280, 720, 10);
 
     private final double camDiagonalFOVDeg;

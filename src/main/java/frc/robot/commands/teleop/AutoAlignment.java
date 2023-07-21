@@ -117,6 +117,7 @@ public class AutoAlignment extends CommandBase {
         Logger.getInstance().recordOutput("AutoAlign/TargetPoseIsNull", targetPose == null);
         Logger.getInstance().recordOutput("AutoAlign/AtGoal", alignPIDController.atGoal());
 
+
         if (targetPose == null) {
             return true;
         }

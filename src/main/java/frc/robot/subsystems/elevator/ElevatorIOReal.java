@@ -26,7 +26,7 @@ public class ElevatorIOReal implements ElevatorIO {
     private final SensorDirectionValue verticalElevatorEncoderR;
     private final TitanMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
-    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch, horizontalElevatorFrontLimitSwitch;
+    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
 
     private Enums.ElevatorState desiredState = Enums.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
@@ -52,8 +52,7 @@ public class ElevatorIOReal implements ElevatorIO {
             final SensorDirectionValue verticalElevatorEncoderR,
             final TitanMAX horizontalElevatorMotor,
             final DigitalInput verticalElevatorLimitSwitch,
-            final DigitalInput horizontalElevatorRearLimitSwitch,
-            final DigitalInput horizontalElevatorFrontLimitSwitch
+            final DigitalInput horizontalElevatorRearLimitSwitch
     ) {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.verticalElevatorMotorR = verticalElevatorMotorR;
@@ -65,11 +64,10 @@ public class ElevatorIOReal implements ElevatorIO {
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
         this.horizontalElevatorRearLimitSwitch = horizontalElevatorRearLimitSwitch;
-        this.horizontalElevatorFrontLimitSwitch = horizontalElevatorFrontLimitSwitch;
 
         config();
 
-        this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
+        this.horizontalElevatorPID = new ProfiledPIDController(0.5, 0, 0,
                 new TrapezoidProfile.Constraints(10, 13)
         );
 
@@ -178,15 +176,15 @@ public class ElevatorIOReal implements ElevatorIO {
         verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
 
         final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.Slot0 = new Slot0Configs(9, 0.15, 0.15925, 1.4126);
+        VEConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         VEConfig.Feedback.RotorToSensorRatio = 1/0.0938;
         VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         VEConfig.MotorOutput.Inverted = verticalElevatorMotorR;
-        VEConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
-        VEConfig.MotionMagic.MotionMagicAcceleration = 25;
-        VEConfig.MotionMagic.MotionMagicJerk = 40;
+        VEConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
+        VEConfig.MotionMagic.MotionMagicAcceleration = 40;
+        VEConfig.MotionMagic.MotionMagicJerk = 100;
         verticalElevatorMotor.getConfigurator().apply(VEConfig);
 
         final TalonFXConfiguration VEFConfig = new TalonFXConfiguration();

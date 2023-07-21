@@ -19,6 +19,13 @@ public class PhotonRunnable implements Runnable {
     private final PhotonCamera photonCamera;
     private final PhotonPoseEstimator poseEstimator;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedPose = new AtomicReference<>();
+    /**
+     * A stable {@link AtomicReference} to a {@link EstimatedRobotPose}, this does NOT get set to null after we get
+     * the estimated pose, thus, it is stable and represents the last estimated pose.
+     * <p>
+     * Do <b>NOT</b> use this {@link EstimatedRobotPose} to feed into vision adjustments.
+     */
+    private final AtomicReference<EstimatedRobotPose> atomicLastStableEstimatedPose = new AtomicReference<>();
 
     public PhotonRunnable(final TitanCamera titanCamera, final AprilTagFieldLayout fieldLayout) {
         this.photonCamera = titanCamera.photonCamera();
@@ -34,6 +41,7 @@ public class PhotonRunnable implements Runnable {
             final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
             if (PoseUtils.isInField(estimatedPose)) {
                 atomicEstimatedPose.set(estimatedRobotPose);
+                atomicLastStableEstimatedPose.set(estimatedRobotPose);
             }
         });
     }
@@ -46,6 +54,7 @@ public class PhotonRunnable implements Runnable {
     public void run() {
         final PhotonPipelineResult photonResult = photonCamera.getLatestResult();
         if (!photonResult.hasTargets()) {
+            atomicLastStableEstimatedPose.set(null);
             return;
         }
 
@@ -76,5 +85,9 @@ public class PhotonRunnable implements Runnable {
 
     public EstimatedRobotPose getLatestEstimatedPose() {
         return atomicEstimatedPose.getAndSet(null);
+    }
+
+    public EstimatedRobotPose getStableLastEstimatedPose() {
+        return atomicLastStableEstimatedPose.get();
     }
 }

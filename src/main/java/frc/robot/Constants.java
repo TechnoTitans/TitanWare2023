@@ -9,7 +9,7 @@ import frc.robot.wrappers.control.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -80,6 +80,7 @@ public interface Constants {
 
         double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
+        //TODO: tune for no kv
         Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(50, 0, 0, 2);
         Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0.5, 0);
     }
@@ -128,7 +129,7 @@ public interface Constants {
          * Standard deviations of the supplied pose estimate (before vision, likely to be solely wheel odometry)
          */
         Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1);
-        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(1.5, 1.5, 1.5);
+        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(1, 1, 1);
         double MULTI_TAG_MAX_AMBIGUITY = 0.3;
         double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
     }

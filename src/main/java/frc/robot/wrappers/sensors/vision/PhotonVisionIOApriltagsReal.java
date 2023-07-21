@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Map<PhotonRunnable, Notifier> photonRunnableNotifierMap;
-    private AprilTagFieldLayout.OriginPosition robotOriginPosition;
+    private AprilTagFieldLayout.OriginPosition robotOriginPosition = AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
 
     private final EstimatedRobotPose[] lastEstimatedPosesByCamera;
 
@@ -114,9 +114,11 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
         ) {
             final int index = runnableIterator.nextIndex();
             final PhotonRunnable photonRunnable = runnableIterator.next();
+
+            final EstimatedRobotPose lastStableEstimatedRobotPose = photonRunnable.getStableLastEstimatedPose();
             final EstimatedRobotPose estimatedRobotPose = photonRunnable.getLatestEstimatedPose();
 
-            lastEstimatedPosesByCamera[index] = estimatedRobotPose;
+            lastEstimatedPosesByCamera[index] = lastStableEstimatedRobotPose;
             if (estimatedRobotPose == null) {
                 continue;
             }
