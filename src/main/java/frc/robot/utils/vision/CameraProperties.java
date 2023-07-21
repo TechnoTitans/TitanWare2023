@@ -1,6 +1,8 @@
 package frc.robot.utils.vision;
 
 public enum CameraProperties {
+
+    //todo: calculate min target area
     ARDUCAM_B0332_OV9281(80.36, 1280, 800, 100),
     SPINEL_UC10MPC_ND_OV9281(89.88, 1280, 720, 100),
     MICROSOFT_LIFECAM_HD3000(68.5, 1280, 720, 10);
