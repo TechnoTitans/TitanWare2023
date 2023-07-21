@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.drive.Swerve;
+import frc.robot.utils.MathUtils;
 import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.teleop.ControllerUtils;
 import org.littletonrobotics.junction.Logger;
@@ -116,7 +117,13 @@ public class AutoAlignment extends CommandBase {
         Logger.getInstance().recordOutput("AutoAlign/TargetPoseIsNull", targetPose == null);
         Logger.getInstance().recordOutput("AutoAlign/AtGoal", alignPIDController.atGoal());
 
-        if (targetPose == null || alignPIDController.atGoal()) {
+        if (targetPose == null) {
+            return true;
+        }
+
+        if (alignPIDController.atGoal()
+                && MathUtils.withinTolerance(swerve.getYaw(), targetPose.getRotation().getRotations(), 0.1)
+        ) {
             return true;
         }
 

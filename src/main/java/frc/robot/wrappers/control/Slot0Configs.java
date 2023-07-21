@@ -1,4 +1,4 @@
-package frc.robot.wrappers.pid;
+package frc.robot.wrappers.control;
 
 public class Slot0Configs extends com.ctre.phoenix6.configs.Slot0Configs {
     public Slot0Configs(

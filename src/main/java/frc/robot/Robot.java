@@ -13,6 +13,7 @@ import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
 import frc.robot.utils.auto.PathPlannerUtil;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -92,7 +93,7 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putData("Field", robotContainer.field);
 
         TitanBoard.addDouble("Yaw",
-                () -> MathUtil.inputModulus(robotContainer.swerve.getHeading(), 0, 360)
+                () -> MathUtil.inputModulus(robotContainer.swerve.getYaw(), 0, 360)
         );
         TitanBoard.addDouble("Pitch", robotContainer.swerve::getPitch);
         TitanBoard.addDouble("Roll", robotContainer.swerve::getRoll);
@@ -126,7 +127,12 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        robotContainer.photonApriltags.refreshAlliance();
+        final PhotonVisionIO photonVisionIO = robotContainer.photonVision.getPhotonVisionIO();
+        photonVisionIO.refreshAlliance(
+                photonVisionIO.getRobotOriginPosition(),
+                robotContainer.swerve,
+                robotContainer.poseEstimator
+        );
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 
@@ -141,7 +147,12 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         robotContainer.configureButtonBindings();
-        robotContainer.photonApriltags.refreshAlliance();
+        final PhotonVisionIO photonVisionIO = robotContainer.photonVision.getPhotonVisionIO();
+        photonVisionIO.refreshAlliance(
+                photonVisionIO.getRobotOriginPosition(),
+                robotContainer.swerve,
+                robotContainer.poseEstimator
+        );
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 

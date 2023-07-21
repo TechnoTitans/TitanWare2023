@@ -43,11 +43,14 @@ import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.AutoChooser;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.PathPlannerUtil;
+import frc.robot.utils.vision.CameraProperties;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
-import frc.robot.wrappers.sensors.vision.PhotonApriltags;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsSim;
 
 import java.util.List;
 
@@ -87,7 +90,7 @@ public class RobotContainer {
 
     //Vision
     public final TitanCamera photonDriveCamera, photonFR_Apriltag_R, photonFR_Apriltag_F;
-    public final PhotonApriltags photonApriltags;
+    public final PhotonVision photonVision;
 
     //Candle
     public final CANdle cANdle;
@@ -279,18 +282,38 @@ public class RobotContainer {
         );
 
         //Vision
-        photonDriveCamera = new TitanCamera(RobotMap.PhotonVision_Driver_Cam, new Transform3d(), true);
+        photonDriveCamera = new TitanCamera(
+                RobotMap.PhotonVision_Driver_Cam,
+                new Transform3d(),
+                CameraProperties.MICROSOFT_LIFECAM_HD3000,
+                true
+        );
         photonFR_Apriltag_F = new TitanCamera(
-                RobotMap.PhotonVision_FR_Apriltag_F, Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F
+                RobotMap.PhotonVision_FR_Apriltag_F,
+                Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F,
+                CameraProperties.SPINEL_UC10MPC_ND_OV9281
         );
         photonFR_Apriltag_R = new TitanCamera(
-                RobotMap.PhotonVision_FR_Apriltag_R, Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_R
+                RobotMap.PhotonVision_FR_Apriltag_R,
+                Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_R,
+                CameraProperties.ARDUCAM_B0332_OV9281
         );
 
-        photonApriltags = new PhotonApriltags(
-                swerve, poseEstimator, field,
-                List.of(photonFR_Apriltag_R, photonFR_Apriltag_F)
-        );
+        final List<TitanCamera> apriltagCameras = List.of(photonFR_Apriltag_R, photonFR_Apriltag_F);
+        photonVision = switch (Constants.CURRENT_MODE) {
+            case REAL:
+                yield new PhotonVision(
+                        new PhotonVisionIOApriltagsReal(swerve, poseEstimator, apriltagCameras),
+                        swerve, poseEstimator, field
+                );
+            case SIM:
+                yield new PhotonVision(
+                        new PhotonVisionIOApriltagsSim(swerve, poseEstimator, apriltagCameras),
+                        swerve, poseEstimator, field
+                );
+            case REPLAY:
+                throw new RuntimeException("this isn't possible");
+        };
 
         //LEDs
         cANdle = new CANdle(RobotMap.CANdle_ID);

@@ -12,6 +12,8 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/FR_Apriltag_F Sim Field": "Field2d",
+      "/SmartDashboard/FR_Apriltag_R Sim Field": "Field2d",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Profile Chooser": "String Chooser"
     }

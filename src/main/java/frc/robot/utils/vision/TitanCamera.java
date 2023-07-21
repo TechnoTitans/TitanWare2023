@@ -8,7 +8,15 @@ import org.photonvision.PhotonCamera;
 
 import java.io.IOException;
 
-public record TitanCamera(PhotonCamera photonCamera, Transform3d robotRelativeToCameraTransform, boolean driverCam) {
+public record TitanCamera(
+        PhotonCamera photonCamera,
+        Transform3d robotRelativeToCameraTransform,
+        double camDiagonalFOVDeg,
+        int camResolutionWidthPx,
+        int camResolutionHeightPx,
+        double minTargetArea,
+        boolean driverCam
+) {
     public static final AprilTagFieldLayout apriltagFieldLayout;
 
     static {
@@ -30,23 +38,87 @@ public record TitanCamera(PhotonCamera photonCamera, Transform3d robotRelativeTo
     public TitanCamera(
             final PhotonCamera photonCamera,
             final Transform3d robotRelativeToCameraTransform,
-            final boolean driverCam) {
+            final double camDiagonalFOVDeg,
+            final int camResolutionWidthPx,
+            final int camResolutionHeightPx,
+            final double minTargetArea,
+            final boolean driverCam
+    ) {
         this.photonCamera = photonCamera;
         this.robotRelativeToCameraTransform = robotRelativeToCameraTransform;
+        this.camDiagonalFOVDeg = camDiagonalFOVDeg;
+        this.camResolutionWidthPx = camResolutionWidthPx;
+        this.camResolutionHeightPx = camResolutionHeightPx;
+        this.minTargetArea = minTargetArea;
         this.driverCam = driverCam;
 
         this.photonCamera.setDriverMode(driverCam);
     }
 
-    public TitanCamera(final String photonCameraName, final Transform3d robotRelativeToCameraTransform, final boolean driverCam) {
-        this(new PhotonCamera(photonCameraName), robotRelativeToCameraTransform, driverCam);
+    public TitanCamera(final String photonCameraName,
+                       final Transform3d robotRelativeToCameraTransform,
+                       final double camDiagonalFOVDeg,
+                       final int camResolutionWidthPx,
+                       final int camResolutionHeightPx,
+                       final double minTargetArea,
+                       final boolean driverCam) {
+        this(
+                new PhotonCamera(photonCameraName),
+                robotRelativeToCameraTransform,
+                camDiagonalFOVDeg,
+                camResolutionWidthPx,
+                camResolutionHeightPx,
+                minTargetArea,
+                driverCam
+        );
     }
 
-    public TitanCamera(final PhotonCamera photonCamera, final Transform3d robotRelativeToCameraTransform) {
-        this(photonCamera, robotRelativeToCameraTransform, false);
+    public TitanCamera(
+            final PhotonCamera photonCamera,
+            final Transform3d robotRelativeToCameraTransform,
+            final double camDiagonalFOVDeg,
+            final int camResolutionWidthPx,
+            final int camResolutionHeightPx,
+            final double minTargetArea
+    ) {
+        this(
+                photonCamera,
+                robotRelativeToCameraTransform,
+                camDiagonalFOVDeg,
+                camResolutionWidthPx,
+                camResolutionHeightPx,
+                minTargetArea,
+                false
+        );
     }
 
-    public TitanCamera(final String photonCameraName, final Transform3d robotRelativeToCameraTransform) {
-        this(new PhotonCamera(photonCameraName), robotRelativeToCameraTransform);
+    public TitanCamera(
+            final String photonCameraName,
+            final Transform3d robotRelativeToCameraTransform,
+            final CameraProperties cameraProperties,
+            final boolean driverCam) {
+        this(
+                new PhotonCamera(photonCameraName),
+                robotRelativeToCameraTransform,
+                cameraProperties.getCamDiagonalFOVDeg(),
+                cameraProperties.getCamResolutionWidthPx(),
+                cameraProperties.getCamResolutionHeightPx(),
+                cameraProperties.getMinTargetArea(),
+                driverCam
+        );
+    }
+
+    public TitanCamera(
+            final String photonCameraName,
+            final Transform3d robotRelativeToCameraTransform,
+            final CameraProperties cameraProperties) {
+        this(
+                new PhotonCamera(photonCameraName),
+                robotRelativeToCameraTransform,
+                cameraProperties.getCamDiagonalFOVDeg(),
+                cameraProperties.getCamResolutionWidthPx(),
+                cameraProperties.getCamResolutionHeightPx(),
+                cameraProperties.getMinTargetArea()
+        );
     }
 }

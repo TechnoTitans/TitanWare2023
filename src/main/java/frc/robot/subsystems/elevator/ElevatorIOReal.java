@@ -17,8 +17,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.utils.Enums;
+import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanMAX;
-import frc.robot.wrappers.pid.Slot0Configs;
 
 public class ElevatorIOReal implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;

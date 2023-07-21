@@ -17,9 +17,6 @@ import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.PoseUtils;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.function.Consumer;
-
-@SuppressWarnings("unused")
 public class Swerve extends SubsystemBase {
     private GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs;
@@ -121,7 +118,7 @@ public class Swerve extends SubsystemBase {
         );
     }
 
-    public double getHeading() {
+    public double getYaw() {
         return gyroIO.getYaw();
     }
 
@@ -187,14 +184,6 @@ public class Swerve extends SubsystemBase {
                 backLeft.getPosition(),
                 backRight.getPosition()
         };
-    }
-
-    public Consumer<SwerveModuleState[]> getModuleStateConsumer() {
-        return this::drive;
-    }
-
-    public Consumer<ChassisSpeeds> getChassisSpeedsConsumer() {
-        return this::drive;
     }
 
     public void drive(final SwerveModuleState[] states) {
@@ -288,6 +277,7 @@ public class Swerve extends SubsystemBase {
         });
     }
 
+    @SuppressWarnings("unused")
     public void zero() {
         rawSet(0, 0, 0, 0, 0, 0, 0, 0);
     }
