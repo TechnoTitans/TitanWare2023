@@ -55,10 +55,39 @@ public interface GyroIO {
     double getYawBlocking();
 
     /**
+     * Get the current yaw (heading) as a {@link Rotation2d}
+     * @return the {@link Rotation2d} of the current yaw
+     * @see Rotation2d
+     */
+    default Rotation2d getYawRotation2d() {
+        return Rotation2d.fromDegrees(getYaw());
+    }
+
+
+    /**
+     * Get the current yaw (heading) as a {@link Rotation2d} by the Gyro
+     * as a blocking call (waits for an update until timeout)
+     * @return the {@link Rotation2d} of the current yaw
+     * @see Rotation2d
+     */
+    default Rotation2d getYawRotation2dBlocking() {
+        return Rotation2d.fromDegrees(getYawBlocking());
+    }
+
+    /**
      * Get the current pitch reported by the Gyro
      * @return the current pitch (deg)
      */
     double getPitch();
+
+    /**
+     * Get the current pitch as a {@link Rotation2d}
+     * @return the {@link Rotation2d} of the current pitch
+     * @see Rotation2d
+     */
+    default Rotation2d getPitchRotation2d() {
+        return Rotation2d.fromDegrees(getPitch());
+    }
 
     /**
      * Get the current roll reported by the Gyro
@@ -67,19 +96,13 @@ public interface GyroIO {
     double getRoll();
 
     /**
-     * Get the current heading (yaw) as a {@link Rotation2d}
-     * @return the {@link Rotation2d} of the current heading
+     * Get the current pitch as a {@link Rotation2d}
+     * @return the {@link Rotation2d} of the current pitch
      * @see Rotation2d
      */
-    Rotation2d getYawRotation2d();
-
-    /**
-     * Get the current heading (yaw) as a {@link Rotation2d} by the Gyro
-     * as a blocking call (waits for an update until timeout)
-     * @return the {@link Rotation2d} of the current heading
-     * @see Rotation2d
-     */
-    Rotation2d getRotation2dBlocking();
+    default Rotation2d getRollRotation2d() {
+        return Rotation2d.fromDegrees(getPitch());
+    }
 
     /**
      * Set the currently observed angle of the Gyro

@@ -40,7 +40,7 @@ public class PhotonVision extends SubsystemBase {
         photonVisionIO.periodic();
 
         poseEstimator.update(
-                swerve.getYawRotation2d(),
+                swerve.getYaw(),
                 swerve.getModulePositions()
         );
 

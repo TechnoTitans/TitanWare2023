@@ -65,6 +65,7 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
 
     @Override
     public void updateInputs(final PhotonVisionIOInputsAutoLogged inputs) {
+        //TODO: address duplicated code issue (probably by merging sim and real impls)
         final Set<Integer> apriltagIds = new HashSet<>(lastEstimatedPosesByCamera.length);
         final List<Pose3d> estimatedPoses = new ArrayList<>(lastEstimatedPosesByCamera.length);
         final List<Pose3d> apriltagPoses = new ArrayList<>(lastEstimatedPosesByCamera.length);
@@ -103,7 +104,6 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
 
     @Override
     public void periodic() {
-        //TODO: address duplicated code issue
         for (
                 final ListIterator<PhotonRunnable> runnableIterator = photonRunnableNotifierMap
                         .keySet()

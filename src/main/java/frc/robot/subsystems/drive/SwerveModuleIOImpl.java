@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -18,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
+import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
 
@@ -151,20 +151,16 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public Rotation2d getAngle() {
-        final double compensatedValue = BaseStatusSignal.getLatencyCompensatedValue(
-                turnEncoder.getAbsolutePosition().refresh(),
-                turnEncoder.getVelocity().refresh()
+        return Rotation2d.fromRotations(
+                Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                        turnEncoder.getAbsolutePosition(), turnEncoder.getVelocity()
+                )
         );
-
-        return Rotation2d.fromRotations(compensatedValue);
     }
 
     @Override
     public double getDrivePosition() {
-        return BaseStatusSignal.getLatencyCompensatedValue(
-                driveMotor.getPosition().refresh(),
-                driveMotor.getVelocity().refresh()
-        );
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(driveMotor.getPosition(), driveMotor.getVelocity());
     }
 
     @Override

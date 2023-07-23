@@ -118,19 +118,15 @@ public class Swerve extends SubsystemBase {
         );
     }
 
-    public double getYaw() {
-        return gyroIO.getYaw();
+    public Rotation2d getPitch() {
+        return gyroIO.getPitchRotation2d();
     }
 
-    public double getPitch() {
-        return gyroIO.getPitch();
+    public Rotation2d getRoll() {
+        return gyroIO.getRollRotation2d();
     }
 
-    public double getRoll() {
-        return gyroIO.getRoll();
-    }
-
-    public Rotation2d getYawRotation2d() {
+    public Rotation2d getYaw() {
         return gyroIO.getYawRotation2d();
     }
 
@@ -201,7 +197,7 @@ public class Swerve extends SubsystemBase {
             final boolean fieldRelative
     ) {
         final ChassisSpeeds speeds = fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getYawRotation2d())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getYaw())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
         final ChassisSpeeds correctedSpeeds;
@@ -242,7 +238,7 @@ public class Swerve extends SubsystemBase {
             final double theta,
             final boolean fieldRelative
     ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYawRotation2d());
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYaw());
         final double rotPower = error.getRadians() * Constants.Swerve.ROTATE_P;
         drive(dx, dy, rotPower, fieldRelative);
     }
@@ -254,7 +250,7 @@ public class Swerve extends SubsystemBase {
             final boolean fieldRelative,
             final double rotation_kP
     ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYawRotation2d());
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYaw());
         final double rotPower = error.getRadians() * rotation_kP;
         drive(dx, dy, rotPower, fieldRelative);
     }

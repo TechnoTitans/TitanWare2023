@@ -28,8 +28,6 @@ public interface RobotMap {
     int frontLeftDrive = 1;
     int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
-//    InvertedValue frontLeftDriveR = InvertedValue.Clockwise_Positive;
-    //TODO: check CCW+ vs CW+ for drive motors on real
     InvertedValue frontLeftDriveR = InvertedValue.CounterClockwise_Positive;
     InvertedValue frontLeftTurnR = InvertedValue.Clockwise_Positive;
 
@@ -48,8 +46,6 @@ public interface RobotMap {
     int backLeftDrive = 7;
     int backLeftTurn = 8;
     int backLeftEncoder = 4;
-//        InvertedValue backLeftDriveR = InvertedValue.Clockwise_Positive;
-    //TODO: check CCW+ vs CW+ for drive motors on real
     InvertedValue backLeftDriveR = InvertedValue.CounterClockwise_Positive;
     InvertedValue backLeftTurnR = InvertedValue.Clockwise_Positive;
 

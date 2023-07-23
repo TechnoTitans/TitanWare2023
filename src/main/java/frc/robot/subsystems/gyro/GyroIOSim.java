@@ -110,16 +110,6 @@ public class GyroIOSim implements GyroIO {
         return pigeon.getRoll().refresh().getValue();
     }
 
-    @Override
-    public Rotation2d getYawRotation2d() {
-       return Rotation2d.fromDegrees(getYaw());
-    }
-
-    @Override
-    public Rotation2d getRotation2dBlocking() {
-        return Rotation2d.fromDegrees(getYawBlocking());
-    }
-
     private void setAngleInternal(final double angle) {
         pigeon.getSimState().setRawYaw(angle);
     }

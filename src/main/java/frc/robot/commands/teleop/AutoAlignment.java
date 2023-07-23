@@ -53,7 +53,7 @@ public class AutoAlignment extends CommandBase {
     public void initialize() {
         final ChassisSpeeds swerveChassisSpeeds = swerve.getRobotRelativeSpeeds();
         this.alignPIDController.reset(
-                poseEstimator.getEstimatedPosition().getY()
+                poseEstimator.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
         );
 
         if (desiredAlignmentPosition == null) {
@@ -115,19 +115,23 @@ public class AutoAlignment extends CommandBase {
     @Override
     public boolean isFinished() {
         Logger.getInstance().recordOutput("AutoAlign/TargetPoseIsNull", targetPose == null);
-        Logger.getInstance().recordOutput("AutoAlign/AtGoal", alignPIDController.atGoal());
+        Logger.getInstance().recordOutput("AutoAlign/AlignPIDAtGoal", alignPIDController.atGoal());
 
-
+        // check targetPose first as it should be the least expensive check
         if (targetPose == null) {
             return true;
         }
 
+        // check the pid and rotation after targetPose check so that we aren't unnecessarily calling these
+        // they should remain mostly inexpensive to call though, still
         if (alignPIDController.atGoal()
-                && MathUtils.withinTolerance(swerve.getYaw(), targetPose.getRotation().getRotations(), 0.1)
+                && MathUtils.withinTolerance(
+                        swerve.getYaw().getRotations(), targetPose.getRotation().getRotations(), 0.1)
         ) {
             return true;
         }
 
+        // check this last so that we're only checking the pose against the alignment zone if we absolutely need to
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
         return !AlignmentZone.isPoseInAlignmentZone(currentPose, desiredAlignmentZone);
     }

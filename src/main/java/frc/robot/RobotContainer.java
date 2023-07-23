@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -37,20 +36,18 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
-import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
 import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.AutoChooser;
 import frc.robot.utils.auto.AutoOption;
+import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.PathPlannerUtil;
-import frc.robot.utils.vision.CameraProperties;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsSim;
 
 import java.util.List;
 
@@ -140,7 +137,6 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        //TODO: check +0.5 offsets when we can use real
         frontLeft = new SwerveModuleIOImpl(
                 frontLeftDrive, frontLeftTurn, frontLeftEncoder,
                 RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
@@ -149,7 +145,6 @@ public class RobotContainer {
                 frontRightDrive, frontRightTurn, frontRightEncoder,
                 RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
         );
-        //TODO: check +0.5 offsets when we can use real
         backLeft = new SwerveModuleIOImpl(
                 backLeftDrive, backLeftTurn, backLeftEncoder,
                 RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
@@ -254,7 +249,7 @@ public class RobotContainer {
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,
-                swerve.getYawRotation2d(),
+                swerve.getYaw(),
                 swerve.getModulePositions(),
                 new Pose2d(),
                 Constants.Vision.STATE_STD_DEVS,
@@ -281,22 +276,9 @@ public class RobotContainer {
         );
 
         //Vision
-        photonDriveCamera = new TitanCamera(
-                RobotMap.PhotonVision_Driver_Cam,
-                new Transform3d(),
-                CameraProperties.MICROSOFT_LIFECAM_HD3000,
-                true
-        );
-        photonFR_Apriltag_F = new TitanCamera(
-                RobotMap.PhotonVision_FR_Apriltag_F,
-                Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F,
-                CameraProperties.SPINEL_UC10MPC_ND_OV9281
-        );
-        photonFR_Apriltag_R = new TitanCamera(
-                RobotMap.PhotonVision_FR_Apriltag_R,
-                Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_R,
-                CameraProperties.ARDUCAM_B0332_OV9281
-        );
+        photonDriveCamera = TitanCamera.DRIVER_CAM;
+        photonFR_Apriltag_F = TitanCamera.PHOTON_FR_APRILTAG_F;
+        photonFR_Apriltag_R = TitanCamera.PHOTON_FR_Apriltag_R;
 
         final List<TitanCamera> apriltagCameras = List.of(photonFR_Apriltag_R, photonFR_Apriltag_F);
         photonVision = switch (Constants.CURRENT_MODE) {
@@ -306,8 +288,15 @@ public class RobotContainer {
                         swerve, poseEstimator, field
                 );
             case SIM:
+//                yield new PhotonVision(
+//                        new PhotonVisionIOApriltagsSim(swerve, poseEstimator, apriltagCameras),
+//                        swerve, poseEstimator, field
+//                );
+                // yield new real for now as sim is not working, will need to address this sooner rather than later
+                //TODO: fix simulated vision (solvePnP/sqPNP doesn't seem to work in sim just yet...
+                // or maybe we're doing something wrong as it seemed to work in certain examples before)
                 yield new PhotonVision(
-                        new PhotonVisionIOApriltagsSim(swerve, poseEstimator, apriltagCameras),
+                        new PhotonVisionIOApriltagsReal(swerve, poseEstimator, apriltagCameras),
                         swerve, poseEstimator, field
                 );
             case REPLAY:
@@ -387,14 +376,14 @@ public class RobotContainer {
         driverController.y().onTrue(Commands.runOnce(() -> swerve.zeroRotation(poseEstimator)));
         //TODO: check that this method of making auto alignment commands still works in ALL cases
         // from limited testing in sim, it does seem to work
-//        driverController.leftBumper().whileTrue(
-//                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
-//                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
-//        );
-//        driverController.rightBumper().whileTrue(
-//                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
-//                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
-//        );
+        driverController.leftBumper().whileTrue(
+                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
+                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
+        );
+        driverController.rightBumper().whileTrue(
+                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
+                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
+        );
 
         // Co Driver
         coDriverController.y().onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.YELLOW)));

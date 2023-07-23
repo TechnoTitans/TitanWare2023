@@ -9,7 +9,7 @@ import frc.robot.wrappers.control.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -49,7 +49,7 @@ public interface Constants {
         // Assume 2mOhm resistance for voltage drop calculation
         double FALCON_MOTOR_RESISTANCE = 0.002;
 
-        // According to ben (that one CTRE intern), adding VelocityTorqueCurrentFOC support is "very low priority"
+        // According to ben (a CTRE intern), adding VelocityTorqueCurrentFOC support is "very low priority"
         // setting this to true configures the swerve to use VelocityVoltage instead when in simulation
         // - keep this true until CTRE adds support for VelocityTorqueCurrentFOC
         boolean USE_VELOCITY_VOLTAGE_IN_SIM = true;

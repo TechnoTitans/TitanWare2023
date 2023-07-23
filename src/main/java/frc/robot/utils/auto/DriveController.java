@@ -1,4 +1,4 @@
-package frc.robot.utils;
+package frc.robot.utils.auto;
 
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.controller.PIDController;

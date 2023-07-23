@@ -9,12 +9,7 @@ public class ControllerUtils {
             final double scalar,
             final double sensitivity
     ) {
-        //TODO: figure out if we need to negate this value here...
-        // it seems like when we push the sticks on an xbox controller UP, the actual reflected value of the stick axis
-        // is -1
-
-        //TODO: update -> negating the stick input seems correct and we *should* continue doing it to make UP positive
-        // (1) instead of negative (-1), the direction issue likely lies within motor inverts - check those
+        // yes, this negative sign does need to exist because controller stick up is -1 not 1
         return -MathUtil.applyDeadband(input, Math.abs(deadband)) * scalar * sensitivity;
     }
 

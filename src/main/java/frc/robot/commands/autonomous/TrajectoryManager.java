@@ -5,8 +5,8 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.DriveController;
 import frc.robot.utils.auto.AutoOption;
+import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
 
 public class TrajectoryManager {

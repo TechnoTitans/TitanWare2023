@@ -376,6 +376,14 @@ public enum AlignmentZone {
         return getAlignmentZoneFromCurrentPose(currentPose, false);
     }
 
+    /**
+     * Check if a provided {@link Pose2d} is inside a specified {@link AlignmentZone}
+     * <p>
+     * Note that this function is potentially somewhat expensive to call within a tight loop depending on its impl
+     * @param currentPose the current {@link Pose2d} to check against
+     * @param alignmentZone the {@link AlignmentZone} to check the pose against
+     * @return true if the {@link Pose2d} is inside the {@link AlignmentZone}, false if not
+     */
     public static boolean isPoseInAlignmentZone(final Pose2d currentPose, final AlignmentZone alignmentZone) {
         return PoseUtils.poseWithinArea(
                 currentPose,

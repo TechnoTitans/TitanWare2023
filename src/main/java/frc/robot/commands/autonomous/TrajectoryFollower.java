@@ -17,8 +17,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.DriveController;
 import frc.robot.utils.Enums;
+import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
 import org.littletonrobotics.junction.Logger;
 

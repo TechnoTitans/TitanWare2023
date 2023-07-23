@@ -60,7 +60,7 @@ public interface PhotonVisionIO {
     ) {
         refreshAlliance(robotOriginPosition, (originPosition) -> {
             final Pose2d newPose = PoseUtils.flipPose(poseEstimator.getEstimatedPosition());
-            poseEstimator.resetPosition(swerve.getYawRotation2d(), swerve.getModulePositions(), newPose);
+            poseEstimator.resetPosition(swerve.getYaw(), swerve.getModulePositions(), newPose);
 
             setRobotOriginPosition(originPosition);
         });

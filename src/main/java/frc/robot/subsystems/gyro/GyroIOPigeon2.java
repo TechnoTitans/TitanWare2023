@@ -2,7 +2,6 @@ package frc.robot.subsystems.gyro;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
 
 public class GyroIOPigeon2 implements GyroIO {
@@ -60,16 +59,6 @@ public class GyroIOPigeon2 implements GyroIO {
     @Override
     public double getRoll() {
         return pigeon.getRoll().refresh().getValue();
-    }
-
-    @Override
-    public Rotation2d getYawRotation2d() {
-        return Rotation2d.fromDegrees(getYaw());
-    }
-
-    @Override
-    public Rotation2d getRotation2dBlocking() {
-        return Rotation2d.fromDegrees(getYawBlocking());
     }
 
     @Override

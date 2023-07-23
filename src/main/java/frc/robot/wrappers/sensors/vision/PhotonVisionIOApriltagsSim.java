@@ -4,11 +4,12 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
+import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.vision.TitanCamera;
+import frc.robot.wrappers.sensors.vision.replacements.SimTitanVisionSystem;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -19,11 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
-    public static final double NO_LED_MAX_LED_RANGE = 1000;
-
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final AprilTagFieldLayout aprilTagFieldLayout;
     private final Map<PhotonCamera, SimVisionSystem> cameraSimVisionSystemMap;
     private final Map<PhotonRunnable, Notifier> photonRunnableNotifierMap;
     private AprilTagFieldLayout.OriginPosition robotOriginPosition;
@@ -38,8 +36,8 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
 
-        this.aprilTagFieldLayout = TitanCamera.apriltagFieldLayout;
-        if (aprilTagFieldLayout == null) {
+        final AprilTagFieldLayout apriltagFieldLayout = TitanCamera.apriltagFieldLayout;
+        if (apriltagFieldLayout == null) {
             this.photonRunnableNotifierMap = Map.of();
             this.cameraSimVisionSystemMap = Map.of();
             this.lastEstimatedPosesByCamera = new EstimatedRobotPose[0];
@@ -48,7 +46,7 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
 
         this.photonRunnableNotifierMap = apriltagCameras
                 .stream()
-                .map(titanCamera -> new PhotonRunnable(titanCamera, TitanCamera.apriltagFieldLayout))
+                .map(titanCamera -> new PhotonRunnable(titanCamera, apriltagFieldLayout))
                 .collect(Collectors.toUnmodifiableMap(
                         photonRunnable -> photonRunnable,
                         photonRunnable -> {
@@ -61,19 +59,11 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
 
 
         this.cameraSimVisionSystemMap = apriltagCameras.stream().collect(Collectors.toUnmodifiableMap(
-                TitanCamera::photonCamera,
+                TitanCamera::getPhotonCamera,
                 titanCamera -> {
-                    final SimVisionSystem simVisionSystem = new SimVisionSystem(
-                        titanCamera.photonCamera().getName(),
-                        titanCamera.camDiagonalFOVDeg(),
-                        titanCamera.robotRelativeToCameraTransform(),
-                        NO_LED_MAX_LED_RANGE,
-                        titanCamera.camResolutionWidthPx(),
-                        titanCamera.camResolutionHeightPx(),
-                        titanCamera.minTargetArea()
-                    );
+                    final SimTitanVisionSystem simVisionSystem = new SimTitanVisionSystem(titanCamera);
 
-                    simVisionSystem.addVisionTargets(TitanCamera.apriltagFieldLayout);
+                    simVisionSystem.addVisionTargets(apriltagFieldLayout);
                     return simVisionSystem;
                 }
         ));
@@ -95,63 +85,35 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
 
     @Override
     public void updateInputs(final PhotonVisionIOInputsAutoLogged inputs) {
-        //TODO: probably use the code in Real instead of this stream stuff, its actually fairly messy and seems like it
-        // could be done better with just 1 for loop
+        //TODO: address duplicated code (probably by merging sim and real when sim is finished and working)
+        final Set<Integer> apriltagIds = new HashSet<>(lastEstimatedPosesByCamera.length);
+        final List<Pose3d> estimatedPoses = new ArrayList<>(lastEstimatedPosesByCamera.length);
+        final List<Pose3d> apriltagPoses = new ArrayList<>(lastEstimatedPosesByCamera.length);
+
+        for (final EstimatedRobotPose estimatedRobotPose : lastEstimatedPosesByCamera) {
+            if (estimatedRobotPose == null) {
+                continue;
+            }
+
+            final Set<Integer> ids = estimatedRobotPose.targetsUsed.stream()
+                    .map(PhotonTrackedTarget::getFiducialId)
+                    .collect(Collectors.toSet());
+
+            estimatedPoses.add(estimatedRobotPose.estimatedPose);
+            apriltagIds.addAll(ids);
+            apriltagPoses.addAll(
+                    ids.stream().map(id -> TitanCamera.apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())).toList()
+            );
+        }
+
         Logger.getInstance().recordOutput(
                 "Vision/EstimatedRobotPosesByCamera",
-                Arrays.stream(lastEstimatedPosesByCamera)
-                    .filter(Objects::nonNull)
-                    .map(estimatedRobotPose -> estimatedRobotPose.estimatedPose)
-                    .toArray(Pose3d[]::new)
+                estimatedPoses.toArray(Pose3d[]::new)
         );
-
-        final Set<Integer> canSeeApriltagIds = Arrays.stream(lastEstimatedPosesByCamera)
-                .filter(Objects::nonNull)
-                .map(estimatedRobotPose -> estimatedRobotPose.targetsUsed)
-                .reduce(
-                        new HashSet<>(),
-                        (tagIds, photonTrackedTargets) -> {
-                            tagIds.addAll(
-                                    photonTrackedTargets
-                                            .stream()
-                                            .map(PhotonTrackedTarget::getFiducialId)
-                                            .collect(Collectors.toUnmodifiableSet())
-                            );
-                            return tagIds;
-                        },
-                        (tagIds, nextTagIds) -> {
-                            tagIds.addAll(nextTagIds);
-                            return tagIds;
-                        }
-                );
-
-        final ArrayList<Pose3d> apriltagPoses = Arrays.stream(lastEstimatedPosesByCamera)
-                .filter(Objects::nonNull)
-                .map(estimatedRobotPose -> estimatedRobotPose.targetsUsed)
-                .reduce(
-                        new ArrayList<>(),
-                        (tagIds, photonTrackedTargets) -> {
-                            tagIds.addAll(
-                                    photonTrackedTargets
-                                            .stream()
-                                            .map(photonTrackedTarget ->
-                                                            aprilTagFieldLayout.getTagPose(
-                                                                    photonTrackedTarget.getFiducialId()
-                                                            ).orElse(new Pose3d())
-                                            )
-                                            .collect(Collectors.toUnmodifiableSet())
-                            );
-                            return tagIds;
-                        },
-                        (tagIds, nextTagIds) -> {
-                            tagIds.addAll(nextTagIds);
-                            return tagIds;
-                        }
-                );
 
         Logger.getInstance().recordOutput(
                 "Vision/ApriltagIds",
-                canSeeApriltagIds.stream().mapToLong(Number::longValue).toArray()
+                apriltagIds.stream().mapToLong(Number::longValue).toArray()
         );
 
         Logger.getInstance().recordOutput(
@@ -166,7 +128,8 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
         for (final SimVisionSystem simVisionSystem : cameraSimVisionSystemMap.values()) {
             simVisionSystem.processFrame(
                     new Pose3d(estimatedPose.getX(), estimatedPose.getY(), 0,
-                            new Rotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw()))
+                            GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
+                    )
             );
         }
 
@@ -195,10 +158,10 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
             );
 
             //TODO: consider only adding a vision measurement if its somewhat close to the already existing odometry
-            poseEstimator.addVisionMeasurement(
-                    flippedEstimatedPose,
-                    estimatedRobotPose.timestampSeconds
-            );
+//            poseEstimator.addVisionMeasurement(
+//                    flippedEstimatedPose,
+//                    estimatedRobotPose.timestampSeconds
+//            );
         }
     }
 }

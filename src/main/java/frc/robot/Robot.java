@@ -2,7 +2,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -13,6 +12,7 @@ import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
 import frc.robot.utils.auto.PathPlannerUtil;
+import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -73,7 +73,7 @@ public class Robot extends LoggedRobot {
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
-                //TODO: figure out which port is occupied, use sda1 if sda2 is used
+                // figure out which port is occupied, use sda1 if sda2 is used
                 logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
                 logger.addDataReceiver(new NT4Publisher());
             }
@@ -92,11 +92,9 @@ public class Robot extends LoggedRobot {
 
         SmartDashboard.putData("Field", robotContainer.field);
 
-        TitanBoard.addDouble("Yaw",
-                () -> MathUtil.inputModulus(robotContainer.swerve.getYaw(), 0, 360)
-        );
-        TitanBoard.addDouble("Pitch", robotContainer.swerve::getPitch);
-        TitanBoard.addDouble("Roll", robotContainer.swerve::getRoll);
+        TitanBoard.addDouble("Yaw", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getYaw));
+        TitanBoard.addDouble("Pitch", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getPitch));
+        TitanBoard.addDouble("Roll", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getRoll));
 
         TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
 
