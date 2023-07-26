@@ -14,7 +14,6 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.Enums;
@@ -99,6 +98,7 @@ public class ClawIOSim implements ClawIO {
         );
 
         //TODO: something wrong with reset here I think
+        // solved/mitigated for now (but untested) using waitForUpdate, check that this actually fixes the issue
         PIDUtils.resetProfiledPIDControllerWithStatusSignal(
                 tiltPID,
                 clawTiltEncoder.getAbsolutePosition().waitForUpdate(0.25),
