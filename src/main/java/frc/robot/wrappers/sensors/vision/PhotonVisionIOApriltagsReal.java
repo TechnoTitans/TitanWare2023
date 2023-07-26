@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
+import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -44,6 +45,10 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
                             final Notifier notifier = new Notifier(photonRunnable);
                             notifier.setName(photonRunnable.getPhotonCamera().getName());
                             notifier.startPeriodic(Constants.LOOP_PERIOD_SECONDS);
+
+                            // add notifiers to close hook
+                            ToClose.add(notifier);
+
                             return notifier;
                         }
                 ));

@@ -220,4 +220,27 @@ public class PoseUtils {
 
         return new Twist2d(translation_part.getX(), translation_part.getY(), dTheta);
     }
+
+    public enum Axis {
+        X(new Transform3d(new Translation3d(1, 0, 0), new Rotation3d())),
+        Y(new Transform3d(new Translation3d(0, 1, 0), new Rotation3d())),
+        Z(new Transform3d(new Translation3d(0, 0, 1), new Rotation3d())),
+        Roll(new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(1, 0, 0))),
+        Pitch(new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 1, 0))),
+        Yaw(new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 1)));
+
+        private final Transform3d axisUnitTransform;
+
+        Axis(final Transform3d axisUnitTransform) {
+            this.axisUnitTransform = axisUnitTransform;
+        }
+
+        public Transform3d getWithScalarOffset(final double scalarOffset) {
+            return axisUnitTransform.times(scalarOffset);
+        }
+    }
+
+    public static Pose3d withAxisOffset(final Pose3d pose3d, final Axis axis, final double offset) {
+        return pose3d.plus(axis.getWithScalarOffset(offset));
+    }
 }

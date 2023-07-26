@@ -10,7 +10,6 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.teleop.ControllerUtils;
-import org.littletonrobotics.junction.Logger;
 
 public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
@@ -37,7 +36,6 @@ public class SwerveDriveTeleop extends CommandBase {
         final double matchTime = DriverStation.getMatchTime();
         if (matchTime >= 0 && matchTime < Constants.MATCH_END_THRESHOLD_SEC) {
             swerve.wheelX();
-            Logger.getInstance().recordOutput("timeLeft", matchTime);
             return;
         }
 
@@ -99,10 +97,6 @@ public class SwerveDriveTeleop extends CommandBase {
                     driverProfile.getRotationalSensitivity(),
                     rotWeight
             );
-
-            Logger.getInstance().recordOutput("Controller/XInput", xSpeed);
-            Logger.getInstance().recordOutput("Controller/YInput", ySpeed);
-            Logger.getInstance().recordOutput("Controller/RotationInput", rot);
 
             swerve.drive(
                     xSpeed,

@@ -105,6 +105,9 @@ public class SwerveModule {
         return moduleIO.getLastDesiredState();
     }
 
+    /**
+     * @see SwerveModuleIO#setNeutralMode(NeutralModeValue)
+     */
     public void setNeutralMode(final NeutralModeValue neutralMode) {
         moduleIO.setNeutralMode(neutralMode);
     }

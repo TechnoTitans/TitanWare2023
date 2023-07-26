@@ -6,7 +6,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.trajectory.Trajectory;
-import frc.robot.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,9 +113,5 @@ public class SimUtils {
             case CounterClockwise_Positive ->
                     canCoder.getSimState().Orientation = ChassisReference.CounterClockwise_Positive;
         }
-    }
-
-    public static int rotationsToCTREPhoenix5NativeUnits(final double rotations) {
-        return (int)(rotations * Constants.CTRE.PHOENIX_5_CANCODER_TICKS_PER_ROTATION);
     }
 }

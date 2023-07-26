@@ -120,5 +120,10 @@ public interface SwerveModuleIO {
      */
     SwerveModuleState getLastDesiredState();
 
+    /**
+     * Set the desired {@link NeutralModeValue} of the drive motor on this module
+     * @param neutralMode the desired {@link NeutralModeValue}
+     * @see NeutralModeValue
+     */
     void setNeutralMode(final NeutralModeValue neutralMode);
 }

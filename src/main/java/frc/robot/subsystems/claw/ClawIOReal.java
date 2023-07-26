@@ -12,47 +12,47 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.utils.Enums;
 import frc.robot.utils.MathUtils;
-import frc.robot.wrappers.motors.TitanMAX;
+import frc.robot.utils.control.PIDUtils;
+import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.wrappers.motors.TitanSRX;
+import frc.robot.wrappers.motors.TitanSparkMAX;
 
 public class ClawIOReal implements ClawIO {
     private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
     private final TitanSRX clawOpenCloseMotor;
     private final CANCoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
-    private final TitanMAX clawTiltNeo;
-    private final DigitalInput clawTiltLimitSwitch;
+    private final TitanSparkMAX clawTiltNeo;
 
     private final ProfiledPIDController tiltPID;
 
-    private Enums.ClawState desiredState;
-    private Enums.ClawState currentState;
+    private Enums.ClawState desiredState = Enums.ClawState.CLAW_STANDBY;
+    private Enums.ClawState currentState = desiredState;
 
-    private ControlMode openCloseControlMode;
-    private Enums.ClawControlMode clawControlMode;
+    private ControlMode openCloseControlMode = currentState.getClawOpenCloseControlMode();
+    private Enums.ClawTiltControlMode clawTiltControlMode = currentState.getClawTiltControlMode();
 
-    //Claw Intake Wheel Speed
-    private double desiredIntakeWheelsPercentOutput = 0;
-    //Claw Tilt Rotations
-    private double desiredTiltPositionRots = 0;
-    //Claw Open Close Ticks
-    private double desiredOpenClosePositionRots = 0;
+    //Claw Intake Wheel Percent Output
+    private double desiredIntakeWheelsPercentOutput = currentState.getIntakeWheelsPercentOutput();
+    //Claw Tilt Control Input
+    private double desiredTiltControlInput = currentState.getTiltControlInput();
+    //Claw Open Close Control Input
+    private double desiredOpenCloseControlInput = currentState.getOpenCloseControlInput();
 
     public ClawIOReal(
             final TitanSRX clawMainWheelBag,
             final TitanSRX clawFollowerWheelBag,
             final TitanSRX clawOpenCloseMotor,
             final CANCoder clawOpenCloseEncoder,
-            final TitanMAX clawTiltNeo,
-            final CANcoder clawTiltEncoder,
-            final DigitalInput clawTiltLimitSwitch
+            final TitanSparkMAX clawTiltNeo,
+            final CANcoder clawTiltEncoder
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
@@ -60,7 +60,9 @@ public class ClawIOReal implements ClawIO {
         this.clawTiltEncoder = clawTiltEncoder;
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
-        this.clawTiltLimitSwitch = clawTiltLimitSwitch;
+
+        config();
+        setDesiredState(Enums.ClawState.CLAW_STANDBY);
 
         //TODO: tune pid
         this.tiltPID = new ProfiledPIDController(
@@ -68,34 +70,27 @@ public class ClawIOReal implements ClawIO {
                 new TrapezoidProfile.Constraints(20, 30)
         );
 
-        this.tiltPID.reset(
-                clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
-                clawTiltEncoder.getVelocity().refresh().getValue()
+        PIDUtils.resetProfiledPIDControllerWithStatusSignal(
+                tiltPID,
+                clawTiltEncoder.getAbsolutePosition().waitForUpdate(0.25),
+                clawTiltEncoder.getVelocity().waitForUpdate(0.25)
         );
-
-        config();
-        setDesiredState(Enums.ClawState.CLAW_STANDBY);
     }
 
     @Override
     public void periodic() {
-        if (clawTiltLimitSwitch.get() && clawControlMode == Enums.ClawControlMode.DUTY_CYCLE) {
-            clawTiltEncoder.setPosition(0);
-            desiredTiltPositionRots = 0.1;
-        }
-
-        clawMainWheelBag.set(
-                ControlMode.PercentOutput,
-                desiredIntakeWheelsPercentOutput);
-
+        clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
         clawOpenCloseMotor.set(
                 openCloseControlMode,
-                desiredOpenClosePositionRots);
+                Phoenix5Utils.getPhoenix6To5ControlInput(
+                        openCloseControlMode, desiredOpenCloseControlInput
+                )
+        );
 
-        switch (clawControlMode) {
+        switch (clawTiltControlMode) {
             case POSITION -> clawTiltNeo.set(tiltPID.calculate(
-                    clawTiltEncoder.getAbsolutePosition().refresh().getValue(), desiredTiltPositionRots));
-            case DUTY_CYCLE -> clawTiltNeo.set(desiredTiltPositionRots);
+                    clawTiltEncoder.getAbsolutePosition().refresh().getValue(), desiredTiltControlInput));
+            case DUTY_CYCLE -> clawTiltNeo.set(desiredTiltControlInput);
         }
     }
 
@@ -103,17 +98,22 @@ public class ClawIOReal implements ClawIO {
     public void updateInputs(final ClawIOInputs inputs) {
         isAtDesiredState();
 
-        inputs.currentTiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
-        inputs.desiredTiltPositionRots = desiredTiltPositionRots;
-        inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
-        inputs.desiredOpenClosePositionRots = desiredOpenClosePositionRots;
-        inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
-        inputs.openCloseCurrentAmps = clawOpenCloseMotor.getCurrent();
-        inputs.openCloseControlMode = openCloseControlMode.toString();
-        inputs.tiltClawControlMode = clawControlMode.toString();
         inputs.desiredState = desiredState.toString();
         inputs.currentState = currentState.toString();
-        inputs.tiltLimitSwitch = clawTiltLimitSwitch.get();
+
+        inputs.tiltClawControlMode = clawTiltControlMode.toString();
+        inputs.currentTiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
+        inputs.currentTiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.desiredTiltControlInput = desiredTiltControlInput;
+        inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
+
+        inputs.openCloseControlMode = openCloseControlMode.toString();
+        inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
+        inputs.currentOpenCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
+        inputs.desiredOpenCloseControlInput = desiredOpenCloseControlInput;
+        inputs.openCloseCurrentAmps = clawOpenCloseMotor.getCurrent();
+
+        inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
     }
 
     public void config() {
@@ -121,6 +121,7 @@ public class ClawIOReal implements ClawIO {
         clawFollowerWheelBag.configFactoryDefault();
         clawFollowerWheelBag.follow(clawMainWheelBag);
 
+        // THIS IS PHOENIX 5
         final CANCoderConfiguration clawOpenCloseEncoderConfig = new CANCoderConfiguration();
         clawOpenCloseEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         clawOpenCloseEncoderConfig.unitString = Constants.CTRE.PHOENIX_5_CANCODER_UNIT_STRING_ROTS;
@@ -132,20 +133,21 @@ public class ClawIOReal implements ClawIO {
         clawOpenCloseEncoder.configFactoryDefault();
         clawOpenCloseEncoder.configAllSettings(clawOpenCloseEncoderConfig);
 
-        final TalonSRXConfiguration CCConfig = new TalonSRXConfiguration();
-        CCConfig.slot0.kP = 2;
-        CCConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
-        CCConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
-        CCConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-        CCConfig.continuousCurrentLimit = 10;
+        final TalonSRXConfiguration clawOpenCloseMotorConfig = new TalonSRXConfiguration();
+        clawOpenCloseMotorConfig.slot0.kP = 2;
+        clawOpenCloseMotorConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
+        clawOpenCloseMotorConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
+        clawOpenCloseMotorConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
+        clawOpenCloseMotorConfig.continuousCurrentLimit = 10;
 
         clawOpenCloseMotor.configFactoryDefault();
-        clawOpenCloseMotor.configAllSettings(CCConfig);
+        clawOpenCloseMotor.configAllSettings(clawOpenCloseMotorConfig);
         clawOpenCloseMotor.brake();
 
-        clawTiltNeo.brake();
-        clawTiltNeo.currentLimit(25);
+        clawTiltNeo.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        clawTiltNeo.setSmartCurrentLimit(25);
 
+        // THIS IS PHOENIX 6
         final CANcoderConfiguration clawTiltEncoderConfig = new CANcoderConfiguration();
         clawTiltEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         clawTiltEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
@@ -158,10 +160,10 @@ public class ClawIOReal implements ClawIO {
         desiredState = state;
 
         desiredIntakeWheelsPercentOutput = state.getIntakeWheelsPercentOutput();
-        clawControlMode = state.getClawControlMode();
-        desiredTiltPositionRots = state.getTiltPositionRots();
-        openCloseControlMode = state.getOpenCloseControlMode();
-        desiredOpenClosePositionRots = state.getOpenCloseRots();
+        clawTiltControlMode = state.getClawTiltControlMode();
+        desiredTiltControlInput = state.getTiltControlInput();
+        openCloseControlMode = state.getClawOpenCloseControlMode();
+        desiredOpenCloseControlInput = state.getOpenCloseControlInput();
     }
 
     public boolean isAtDesiredState() {
@@ -171,12 +173,12 @@ public class ClawIOReal implements ClawIO {
             final boolean isAtDesired =
                     MathUtils.withinTolerance(
                             clawOpenCloseEncoder.getAbsolutePosition(),
-                            desiredOpenClosePositionRots,
-                            5
+                            desiredOpenCloseControlInput,
+                            0.05
                     ) && MathUtils.withinTolerance(
                             clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
-                            desiredTiltPositionRots,
-                            5
+                            desiredTiltControlInput,
+                            0.05
                     );
 
             if (isAtDesired) {

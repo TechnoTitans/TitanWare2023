@@ -19,11 +19,11 @@
 
 ## Drivetrain (Swerve):
 - [x] Set Module Offsets
-- [x] Config Odomety/Kinematics
+- [x] Config Odometry/Kinematics
 - [x] Tune PID
 - [x] Run path planning paths
 - [x] Locking System
-- [x] Vison alignment 
+- [x] Vision alignment 
 
 ## Elevator:
 - [x] Tune PID

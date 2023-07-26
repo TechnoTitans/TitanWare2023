@@ -5,6 +5,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -21,12 +22,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
-import frc.robot.commands.teleop.AutoAlignment;
-import frc.robot.commands.teleop.ElevatorTeleop;
-import frc.robot.commands.teleop.IntakeTeleop;
+import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOReal;
+import frc.robot.subsystems.claw.ClawIOSim;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOImpl;
@@ -37,15 +37,14 @@ import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.Enums;
-import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.AutoChooser;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
-import frc.robot.wrappers.motors.TitanMAX;
 import frc.robot.wrappers.motors.TitanSRX;
+import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
 
@@ -60,14 +59,14 @@ public class RobotContainer {
     //Elevator
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
     public final CANcoder elevatorVerticalEncoder, elevatorHorizontalEncoder;
-    public final TitanMAX elevatorHorizontalNeo;
+    public final TitanSparkMAX elevatorHorizontalNeo;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
     public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     public final CANCoder clawOpenCloseEncoder;
     public final CANcoder clawTiltEncoder;
-    public final TitanMAX clawTiltNeo;
+    public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
     //PoseEstimation
@@ -100,8 +99,7 @@ public class RobotContainer {
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
-    public final IntakeTeleop intakeTeleop;
-    public final ElevatorTeleop elevatorTeleop;
+    public final ElevatorClawTeleop elevatorClawTeleop;
 
     //Controllers
     public final CommandXboxController driverController, coDriverController;
@@ -171,8 +169,8 @@ public class RobotContainer {
         clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
         clawOpenCloseEncoder = new CANCoder(RobotMap.clawOpenCloseEncoder);
 
-        elevatorHorizontalNeo = new TitanMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawTiltNeo = new TitanMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        elevatorHorizontalNeo = new TitanSparkMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltNeo = new TitanSparkMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
         clawTiltEncoder = new CANcoder(RobotMap.clawTiltEncoder);
         clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
@@ -221,28 +219,40 @@ public class RobotContainer {
                         elevatorVerticalMotorFollower,
                         RobotMap.followerVerticalFalconR,
                         elevatorVerticalEncoder,
-                        elevatorHorizontalEncoder,
                         RobotMap.verticalElevatorEncoderR,
+                        elevatorHorizontalEncoder,
+                        SensorDirectionValue.Clockwise_Positive,
                         elevatorHorizontalNeo,
                         elevatorVerticalLimitSwitch,
-                        elevatorHorizontalLimitSwitch,
-                        elevatorHorizontalHighLimitSwitch
+                        elevatorHorizontalLimitSwitch
                 ));
             case REPLAY:
                 throw new RuntimeException("this isn't possible");
         };
 
-        claw = new Claw(
-                new ClawIOReal(
+        claw = switch (Constants.CURRENT_MODE) {
+            case REAL:
+                yield new Claw(new ClawIOReal(
+                        clawMainWheelsMotor,
+                        clawFollowerWheelsMotor,
+                        clawOpenCloseMotor,
+                        clawOpenCloseEncoder,
+                        clawTiltNeo,
+                        clawTiltEncoder
+                ));
+            case SIM:
+                yield new Claw(new ClawIOSim(
                         clawMainWheelsMotor,
                         clawFollowerWheelsMotor,
                         clawOpenCloseMotor,
                         clawOpenCloseEncoder,
                         clawTiltNeo,
                         clawTiltEncoder,
-                        clawTiltLimitSwitch
-                )
-        );
+                        elevator::getElevatorSimState
+                ));
+            case REPLAY:
+                throw new RuntimeException("this isn't possible");
+        };
 
         //Swerve
         swerve = new Swerve(gyroIO, kinematics, frontLeft, frontRight, backLeft, backRight);
@@ -313,8 +323,7 @@ public class RobotContainer {
 
         //Teleop Commands
         swerveDriveTeleop = new SwerveDriveTeleop(swerve, elevator, driverController.getHID());
-        intakeTeleop = new IntakeTeleop(claw, elevator, driverController.getHID(), coDriverController.getHID());
-        elevatorTeleop = new ElevatorTeleop(elevator, claw, coDriverController.getHID());
+        elevatorClawTeleop = new ElevatorClawTeleop(elevator, claw);
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator);
@@ -369,25 +378,6 @@ public class RobotContainer {
         );
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-    }
-
-    public void configureButtonBindings() {
-        // Main Driver
-        driverController.y().onTrue(Commands.runOnce(() -> swerve.zeroRotation(poseEstimator)));
-        //TODO: check that this method of making auto alignment commands still works in ALL cases
-        // from limited testing in sim, it does seem to work
-        driverController.leftBumper().whileTrue(
-                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
-                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
-        );
-        driverController.rightBumper().whileTrue(
-                new AutoAlignment(swerve, poseEstimator, driverController.getHID())
-                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
-        );
-
-        // Co Driver
-        coDriverController.y().onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.YELLOW)));
-        coDriverController.x().onTrue(Commands.runOnce(() -> candleController.setState(Enums.CANdleState.PURPLE)));
     }
 
     public Command getAutonomousCommand() {

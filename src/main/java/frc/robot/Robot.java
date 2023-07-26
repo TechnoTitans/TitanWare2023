@@ -12,7 +12,9 @@ import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
 import frc.robot.utils.auto.PathPlannerUtil;
+import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
+import frc.robot.utils.teleop.ButtonBindings;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -30,9 +32,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        final Logger logger = Logger.getInstance();
-        robotContainer = new RobotContainer();
-
         if ((RobotBase.isReal() && Constants.CURRENT_MODE != Constants.RobotMode.REAL)
                 || (RobotBase.isSimulation() && Constants.CURRENT_MODE == Constants.RobotMode.REAL)
         ) {
@@ -45,6 +44,9 @@ public class Robot extends LoggedRobot {
             throw new RuntimeException("Potentially incorrect CURRENT_MODE specified!");
         }
 
+        final Logger logger = Logger.getInstance();
+        robotContainer = new RobotContainer();
+
         // we practically never use LiveWindow, and apparently this causes loop overruns so disable it
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
@@ -53,6 +55,9 @@ public class Robot extends LoggedRobot {
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.startServer(Constants.PathPlanner.SERVER_PORT);
         }
+
+        // register shutdown hook
+        ToClose.hook();
 
         // disable joystick not found warnings when in sim
         DriverStation.silenceJoystickConnectionWarning(Constants.CURRENT_MODE == Constants.RobotMode.SIM);
@@ -111,7 +116,10 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Brake);
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.swerve);
-        CommandScheduler.getInstance().getActiveButtonLoop().clear();
+        CommandScheduler.getInstance().removeDefaultCommand(robotContainer.elevator);
+        CommandScheduler.getInstance().removeDefaultCommand(robotContainer.claw);
+
+        ButtonBindings.clear();
 
         robotContainer.candleController.setState(Enums.CANdleState.OFF);
     }
@@ -144,7 +152,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        robotContainer.configureButtonBindings();
+        ButtonBindings.bindAll(robotContainer);
 
         final PhotonVisionIO photonVisionIO = robotContainer.photonVision.getPhotonVisionIO();
         photonVisionIO.refreshAlliance(
@@ -162,8 +170,8 @@ public class Robot extends LoggedRobot {
         }
 
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
-        robotContainer.elevatorTeleop.schedule();
-        robotContainer.intakeTeleop.schedule();
+        CommandScheduler.getInstance().setDefaultCommand(robotContainer.elevator, robotContainer.elevatorClawTeleop);
+        CommandScheduler.getInstance().setDefaultCommand(robotContainer.claw, robotContainer.elevatorClawTeleop);
     }
 
     @Override
@@ -189,10 +197,4 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testPeriodic() {}
-
-    @Override
-    public void simulationInit() {}
-
-    @Override
-    public void simulationPeriodic() {}
 }

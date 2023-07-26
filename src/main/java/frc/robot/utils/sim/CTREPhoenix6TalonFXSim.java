@@ -59,27 +59,36 @@ public class CTREPhoenix6TalonFXSim {
     }
 
     public void update(final double dt) {
-        final double motorVoltage = isSingularTalonFX
-                ? simStates.get(0).getMotorVoltage()
-                : simStates.stream().mapToDouble(TalonFXSimState::getMotorVoltage).average().orElseThrow();
-
+        final double motorVoltage = getMotorVoltage();
         dcMotorSim.setInputVoltage(motorVoltage);
         dcMotorSim.update(dt);
 
-        final double wheelAngularPositionRots = getAngularPositionRots();
-        final double wheelAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
+        final double mechanismAngularPositionRots = getAngularPositionRots();
+        final double mechanismAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
 
         for (final TalonFXSimState simState : simStates) {
-            simState.setRawRotorPosition(gearRatio * wheelAngularPositionRots);
-            simState.setRotorVelocity(gearRatio * wheelAngularVelocityRotsPerSec);
+            simState.setRawRotorPosition(gearRatio * mechanismAngularPositionRots);
+            simState.setRotorVelocity(gearRatio * mechanismAngularVelocityRotsPerSec);
             simState.setSupplyVoltage(
                     12 - (simState.getSupplyCurrent() * Constants.Sim.FALCON_MOTOR_RESISTANCE)
             );
         }
 
         if (hasRemoteSensor) {
-            cancoderSimState.setRawPosition(wheelAngularPositionRots);
-            cancoderSimState.setVelocity(wheelAngularVelocityRotsPerSec);
+            cancoderSimState.setRawPosition(mechanismAngularPositionRots);
+            cancoderSimState.setVelocity(mechanismAngularVelocityRotsPerSec);
+        }
+    }
+
+    public void rawUpdate(final double mechanismPositionRots, final double mechanismVelocityRotsPerSec) {
+        for (final TalonFXSimState simState : simStates) {
+            simState.setRawRotorPosition(gearRatio * mechanismPositionRots);
+            simState.setRotorVelocity(gearRatio * mechanismVelocityRotsPerSec);
+        }
+
+        if (hasRemoteSensor) {
+            cancoderSimState.setRawPosition(mechanismPositionRots);
+            cancoderSimState.setVelocity(mechanismVelocityRotsPerSec);
         }
     }
 
@@ -97,5 +106,15 @@ public class CTREPhoenix6TalonFXSim {
      */
     public double getAngularVelocityRotsPerSec() {
         return Units.radiansToRotations(dcMotorSim.getAngularVelocityRadPerSec());
+    }
+
+    /**
+     * Get the output voltage of the motor(s)
+     * @return the output voltage (in volts)
+     */
+    public double getMotorVoltage() {
+        return isSingularTalonFX
+                ? simStates.get(0).getMotorVoltage()
+                : simStates.stream().mapToDouble(TalonFXSimState::getMotorVoltage).average().orElseThrow();
     }
 }

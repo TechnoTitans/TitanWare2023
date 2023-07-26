@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.utils.ctre.Phoenix6Utils;
@@ -224,7 +226,23 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public void setNeutralMode(final NeutralModeValue neutralMode) {
-        driveMotor.getConfigurator().refresh(turnTalonFXConfiguration);
+        final StatusCode refreshCode = driveMotor.getConfigurator().refresh(turnTalonFXConfiguration);
+        if (!refreshCode.isOK()) {
+            // only warn if in real, there seems to be an issue with calling refresh while disabled in sim
+            // TODO: investigate this further
+            if (isReal) {
+                DriverStation.reportWarning(
+                        String.format(
+                                "Failed to set NeutralMode on TalonFX %s (%s)",
+                                driveMotor.getDeviceID(),
+                                driveMotor.getCANBus()
+                        ), false
+                );
+            }
+
+            return;
+        }
+
         turnTalonFXConfiguration.MotorOutput.NeutralMode = neutralMode;
 
         driveMotor.getConfigurator().apply(turnTalonFXConfiguration);

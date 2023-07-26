@@ -232,6 +232,13 @@ public class Swerve extends SubsystemBase {
         backRight.stop();
     }
 
+    /**
+     * Drive with dx and dy while facing a specified (non)holonomic rotation theta
+     * @param dx the desired dx component
+     * @param dy the desired dy component
+     * @param theta the desired holonomic (if fieldRelative) or non-holonomic (if not fieldRelative) rotation (deg)
+     * @param fieldRelative true if driving should be field relative, false if not
+     */
     public void faceDirection(
             final double dx,
             final double dy,
@@ -243,6 +250,14 @@ public class Swerve extends SubsystemBase {
         drive(dx, dy, rotPower, fieldRelative);
     }
 
+    /**
+     * Drive with dx and dy while facing a specified (non)holonomic rotation theta with a custom rotation kP
+     * @param dx the desired dx component
+     * @param dy the desired dy component
+     * @param theta the desired holonomic (if fieldRelative) or non-holonomic (if not fieldRelative) rotation (deg)
+     * @param fieldRelative true if driving should be field relative, false if not
+     * @param rotation_kP additional custom kP component of the rotation
+     */
     public void faceDirection(
             final double dx,
             final double dy,
@@ -255,6 +270,19 @@ public class Swerve extends SubsystemBase {
         drive(dx, dy, rotPower, fieldRelative);
     }
 
+    /**
+     * Drive all modules to a raw {@link SwerveModuleState}
+     * @param s1 speed of module 1 (m/s)
+     * @param s2 speed of module 2 (m/s)
+     * @param s3 speed of module 3 (m/s)
+     * @param s4 speed of module 4 (m/s)
+     * @param a1 angle of module 1 (deg)
+     * @param a2 angle of module 2 (deg)
+     * @param a3 angle of module 3 (deg)
+     * @param a4 angle of module 4 (deg)
+     * @see Swerve#drive(SwerveModuleState[])
+     * @see SwerveModuleState
+     */
     public void rawSet(
             final double s1,
             final double s2,
@@ -273,15 +301,28 @@ public class Swerve extends SubsystemBase {
         });
     }
 
+    /**
+     * Zero all modules
+     * @see Swerve#rawSet(double, double, double, double, double, double, double, double)
+     */
     @SuppressWarnings("unused")
     public void zero() {
         rawSet(0, 0, 0, 0, 0, 0, 0, 0);
     }
 
+    /**
+     * Put modules into an X pattern (significantly reduces the swerve's ability to coast/roll)
+     * @see Swerve#rawSet(double, double, double, double, double, double, double, double)
+     */
     public void wheelX() {
         rawSet(0, 0, 0, 0, 45, -45, -45, 45);
     }
 
+    /**
+     * Set the desired {@link NeutralModeValue} of all module drive motors
+     * @param neutralMode the desired {@link NeutralModeValue}
+     * @see SwerveModule#setNeutralMode(NeutralModeValue)
+     */
     public void setNeutralMode(final NeutralModeValue neutralMode) {
         frontLeft.setNeutralMode(neutralMode);
         frontRight.setNeutralMode(neutralMode);

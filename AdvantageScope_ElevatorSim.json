@@ -1,0 +1,462 @@
+{
+  "version": "2.3.0",
+  "layout": [
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageOneBackBoundPose/0",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageOneCenterPose/0",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageOneFrontBoundPose/0",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageTwoBackBoundPose/0",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageTwoCenterPose/0",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageTwoFrontBoundPose/0",
+              "color": "#aacaee",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalElevatorSimPosition",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalElevatorSimVelocity",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalComputedEncoderPosition",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalComputedPosition",
+              "color": "#aacaee",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalComputedEncoderVelocity",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Elevator/HEPositionRotations",
+              "color": "#858584",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalStageOneExtension",
+              "color": "#af2437",
+              "show": false
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalStageTwoExtension",
+              "color": "#80588e",
+              "show": false
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalMotorVoltage",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalBusVoltage",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/HorizontalMotorAppliedOutput",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageOneLowerBoundPose/2",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageOneCenterPose/2",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageOneUpperBoundPose/2",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageTwoLowerBoundPose/2",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageTwoUpperBoundPose/2",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageTwoCenterPose/2",
+              "color": "#aacaee",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalClosedLoopReference",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalComputedEncoderPosition",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalComputedEncoderVelocity",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalComputedPosition",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalElevatorSimPosition",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalElevatorSimVelocity",
+              "color": "#aacaee",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Elevator/VEPositionRotations",
+              "color": "#3b875a",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalStageOneExtension",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/VerticalStageTwoExtension",
+              "color": "#858584",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltEncoderPosition",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltEncoderVelocity",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Claw/DesiredTiltControlInput",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Claw/TiltClawControlMode",
+              "color": "#80588e",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltMotorVoltage",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltMotorAppliedOutput",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltMotorBusVoltage",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 5,
+      "fields": [],
+      "listFields": [
+        [
+          {
+            "type": "Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "game": "2023",
+        "unitDistance": "meters",
+        "unitRotation": "radians",
+        "origin": "right",
+        "size": 0.75,
+        "allianceBumpers": "auto",
+        "allianceOrigin": "auto",
+        "orientation": "blue left, red right"
+      },
+      "title": "Odometry"
+    },
+    {
+      "type": 6,
+      "fields": [],
+      "listFields": [
+        [
+          {
+            "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageOneCenterPose",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/VerticalStageTwoCenterPose",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalRootPose",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageOneCenterPose",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageTwoCenterPose",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ClawSimState/ClawPose",
+            "fieldTypeIndex": 0
+          }
+        ],
+        [
+          {
+            "type": "Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "field": "2023",
+        "alliance": "auto",
+        "robot": "Odin",
+        "unitDistance": "meters",
+        "unitRotation": "radians"
+      },
+      "title": "3D Field"
+    }
+  ]
+}

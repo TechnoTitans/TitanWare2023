@@ -19,6 +19,8 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         elevatorIO.updateInputs(inputs);
         Logger.getInstance().processInputs("Elevator", inputs);
+
+        elevatorIO.periodic();
     }
 
     private void config() {
@@ -31,6 +33,10 @@ public class Elevator extends SubsystemBase {
 
     public Enums.ElevatorState getDesiredState() {
         return elevatorIO.getDesiredState();
+    }
+
+    public ElevatorSimSolver.ElevatorSimState getElevatorSimState() {
+        return elevatorIO.getElevatorSimState();
     }
 
     public boolean verticalIsExtended() {

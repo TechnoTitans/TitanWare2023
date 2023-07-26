@@ -14,12 +14,12 @@
             {
               "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#e5b31b",
-              "show": false
+              "show": true
             },
             {
               "key": "NT:/AdvantageKit/Drive/Module_FrontLeft/DriveVelocityRotsPerSec",
               "color": "#af2437",
-              "show": false
+              "show": true
             }
           ]
         },
@@ -455,7 +455,7 @@
       "fields": [
         "NT:/AdvantageKit/RealOutputs/SwerveStates/CurrentStates",
         "NT:/AdvantageKit/RealOutputs/SwerveStates/DesiredStates",
-        null
+        "NT:/AdvantageKit/RealOutputs/Odometry/Robot/2"
       ],
       "listFields": [],
       "options": {
