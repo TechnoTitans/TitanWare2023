@@ -317,6 +317,16 @@
               "key": "NT:/AdvantageKit/Claw/DesiredTiltControlInput",
               "color": "#af2437",
               "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ArmSimPosition",
+              "color": "#c0b487",
+              "show": false
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/ArmSimVelocity",
+              "color": "#858584",
+              "show": false
             }
           ]
         },
@@ -325,6 +335,79 @@
             {
               "key": "NT:/AdvantageKit/Claw/TiltClawControlMode",
               "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Claw/CurrentState",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Claw/DesiredState",
+              "color": "#aacaee",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/SparkMAXAppliedOutput",
+              "color": "#eb987e",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/SparkMAXBusVoltage",
+              "color": "#5d4f92",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/SparkMAXMotorVoltage",
+              "color": "#a64b6b",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Claw/DesiredOpenCloseControlInput",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/Claw/CurrentOpenCloseEncoderPositionRots",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/OpenCloseControlInput",
+              "color": "#80588e",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/Claw/OpenCloseControlMode",
+              "color": "#e5b31b",
               "show": true
             }
           ]
@@ -351,17 +434,17 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltMotorVoltage",
+              "key": "NT:/AdvantageKit/RealOutputs/PercentOutputFollower",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltMotorAppliedOutput",
+              "key": "NT:/AdvantageKit/RealOutputs/PercentOutputMain",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/ClawTiltMotorBusVoltage",
+              "key": "NT:/AdvantageKit/Claw/DesiredIntakeWheelsPercentOutput",
               "color": "#af2437",
               "show": true
             }
