@@ -1,8 +1,7 @@
 package frc.robot.subsystems.claw;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
+import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -21,12 +20,13 @@ import frc.robot.utils.Enums;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
-import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
 public class ClawIOReal implements ClawIO {
-    private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
-    private final TitanSRX clawOpenCloseMotor;
+    private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
+    private final InvertType clawMainWheelBagInverted;
+    private final TalonSRX clawOpenCloseMotor;
+    private final InvertType clawOpenCloseMotorInverted;
     private final CANCoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
@@ -47,19 +47,25 @@ public class ClawIOReal implements ClawIO {
     private double desiredOpenCloseControlInput = currentState.getOpenCloseControlInput();
 
     public ClawIOReal(
-            final TitanSRX clawMainWheelBag,
-            final TitanSRX clawFollowerWheelBag,
-            final TitanSRX clawOpenCloseMotor,
+            final TalonSRX clawMainWheelBag,
+            final TalonSRX clawFollowerWheelBag,
+            final InvertType clawMainWheelBagInverted,
+            final TalonSRX clawOpenCloseMotor,
+            final InvertType clawOpenCloseMotorInverted,
             final CANCoder clawOpenCloseEncoder,
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder
     ) {
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
+        this.clawMainWheelBagInverted = clawMainWheelBagInverted;
+
         this.clawTiltNeo = clawTiltNeo;
         this.clawTiltEncoder = clawTiltEncoder;
+
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
+        this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
 
         config();
         setDesiredState(Enums.ClawState.CLAW_STANDBY);
@@ -111,17 +117,21 @@ public class ClawIOReal implements ClawIO {
         inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.currentOpenCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
         inputs.desiredOpenCloseControlInput = desiredOpenCloseControlInput;
-        inputs.openCloseCurrentAmps = clawOpenCloseMotor.getCurrent();
+        inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
 
         inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
     }
 
     public void config() {
+        // Bag Motors
         clawMainWheelBag.configFactoryDefault();
-        clawFollowerWheelBag.configFactoryDefault();
-        clawFollowerWheelBag.follow(clawMainWheelBag);
+        clawMainWheelBag.setInverted(clawMainWheelBagInverted);
 
-        // THIS IS PHOENIX 5
+        clawFollowerWheelBag.configFactoryDefault();
+        clawFollowerWheelBag.set(ControlMode.Follower, clawMainWheelBag.getDeviceID());
+        clawFollowerWheelBag.setInverted(InvertType.OpposeMaster);
+
+        // Claw Open Close Encoder
         final CANCoderConfiguration clawOpenCloseEncoderConfig = new CANCoderConfiguration();
         clawOpenCloseEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         clawOpenCloseEncoderConfig.unitString = Constants.CTRE.PHOENIX_5_CANCODER_UNIT_STRING_ROTS;
@@ -133,6 +143,7 @@ public class ClawIOReal implements ClawIO {
         clawOpenCloseEncoder.configFactoryDefault();
         clawOpenCloseEncoder.configAllSettings(clawOpenCloseEncoderConfig);
 
+        // Claw Open Close Motor
         final TalonSRXConfiguration clawOpenCloseMotorConfig = new TalonSRXConfiguration();
         clawOpenCloseMotorConfig.slot0.kP = 2;
         clawOpenCloseMotorConfig.remoteFilter0.remoteSensorDeviceID = clawOpenCloseEncoder.getDeviceID();
@@ -142,12 +153,13 @@ public class ClawIOReal implements ClawIO {
 
         clawOpenCloseMotor.configFactoryDefault();
         clawOpenCloseMotor.configAllSettings(clawOpenCloseMotorConfig);
-        clawOpenCloseMotor.brake();
+        clawOpenCloseMotor.setInverted(clawOpenCloseMotorInverted);
+        clawOpenCloseMotor.setNeutralMode(NeutralMode.Brake);
 
+        // Claw Tilt Neo
         clawTiltNeo.setIdleMode(CANSparkMax.IdleMode.kBrake);
         clawTiltNeo.setSmartCurrentLimit(25);
 
-        // THIS IS PHOENIX 6
         final CANcoderConfiguration clawTiltEncoderConfig = new CANcoderConfiguration();
         clawTiltEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         clawTiltEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
@@ -166,6 +178,7 @@ public class ClawIOReal implements ClawIO {
         desiredOpenCloseControlInput = state.getOpenCloseControlInput();
     }
 
+    // TODO: bring over the isAtDesiredState impl from Sim and test
     public boolean isAtDesiredState() {
         if (currentState == desiredState) {
             return true;

@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -43,7 +44,6 @@ import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
-import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
@@ -63,7 +63,7 @@ public class RobotContainer {
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
-    public final TitanSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
+    public final TalonSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
     public final CANCoder clawOpenCloseEncoder;
     public final CANcoder clawTiltEncoder;
     public final TitanSparkMAX clawTiltNeo;
@@ -164,9 +164,9 @@ public class RobotContainer {
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
         elevatorHorizontalHighLimitSwitch = new DigitalInput(RobotMap.horizontalLimitHighSwitch);
 
-        clawMainWheelsMotor = new TitanSRX(RobotMap.clawMainWheelsMotor, RobotMap.clawMainWheelsMotorR);
-        clawFollowerWheelsMotor = new TitanSRX(RobotMap.clawFollowerWheelsMotor, RobotMap.clawFollowerWheelsMotorR);
-        clawOpenCloseMotor = new TitanSRX(RobotMap.clawOpenCloseMotor, RobotMap.clawOpenCloseMotorR);
+        clawMainWheelsMotor = new TalonSRX(RobotMap.clawMainWheelsMotor);
+        clawFollowerWheelsMotor = new TalonSRX(RobotMap.clawFollowerWheelsMotor);
+        clawOpenCloseMotor = new TalonSRX(RobotMap.clawOpenCloseMotor);
         clawOpenCloseEncoder = new CANCoder(RobotMap.clawOpenCloseEncoder);
 
         elevatorHorizontalNeo = new TitanSparkMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -235,7 +235,9 @@ public class RobotContainer {
                 yield new Claw(new ClawIOReal(
                         clawMainWheelsMotor,
                         clawFollowerWheelsMotor,
+                        RobotMap.clawMainWheelsMotorInverted,
                         clawOpenCloseMotor,
+                        RobotMap.clawOpenCloseMotorInverted,
                         clawOpenCloseEncoder,
                         clawTiltNeo,
                         clawTiltEncoder
@@ -244,7 +246,9 @@ public class RobotContainer {
                 yield new Claw(new ClawIOSim(
                         clawMainWheelsMotor,
                         clawFollowerWheelsMotor,
+                        RobotMap.clawMainWheelsMotorInverted,
                         clawOpenCloseMotor,
+                        RobotMap.clawOpenCloseMotorInverted,
                         clawOpenCloseEncoder,
                         clawTiltNeo,
                         clawTiltEncoder,

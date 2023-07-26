@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
@@ -65,15 +66,14 @@ public interface RobotMap {
     //Claw Motors
     int clawTiltNeo = 3;
     int clawOpenCloseMotor = 6;
-    boolean clawOpenCloseMotorR = false;
+    InvertType clawOpenCloseMotorInverted = InvertType.None;
     int clawOpenCloseEncoder = 9;
     int clawTiltEncoder = 14;
     int clawLimitSwitch = 7;
 
     int clawMainWheelsMotor = 7;
-    boolean clawMainWheelsMotorR = false;
+    InvertType clawMainWheelsMotorInverted = InvertType.None;
     int clawFollowerWheelsMotor = 8;
-    boolean clawFollowerWheelsMotorR = true;
 
     //Controllers
     int MainController = 0;

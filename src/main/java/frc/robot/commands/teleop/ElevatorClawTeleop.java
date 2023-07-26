@@ -1,6 +1,8 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
@@ -58,14 +60,29 @@ public class ElevatorClawTeleop extends CommandBase {
         if (clawState != Enums.ClawState.CLAW_STANDBY) {
             claw.setDesiredState(Enums.ClawState.CLAW_STANDBY);
         }
+
+        // TODO: make sure this solution works as its mostly untested, even in sim
+        for (final Map.Entry<Trigger, ElevatorClawCommand> mapping : controllerMappings.entrySet()) {
+            final Trigger mappedTrigger = mapping.getKey();
+            final ElevatorClawCommand mappedCommand = mapping.getValue();
+
+            mappedTrigger.onTrue(Commands.runOnce(() -> {
+                if (!CommandScheduler.getInstance().isScheduled(mappedCommand)) {
+                    mappedCommand.schedule();
+                }
+            }));
+        }
     }
 
     @Override
     public void execute() {
-        for (final Map.Entry<Trigger, ElevatorClawCommand> mapping : controllerMappings.entrySet()) {
-            if (mapping.getKey().getAsBoolean()) {
-                mapping.getValue().schedule();
-            }
-        }
+//        for (final Map.Entry<Trigger, ElevatorClawCommand> mapping : controllerMappings.entrySet()) {
+//            if (mapping.getKey().getAsBoolean()) {
+//                final ElevatorClawCommand mappedCommand = mapping.getValue();
+//                if (!CommandScheduler.getInstance().isScheduled(mappedCommand)) {
+//                    mappedCommand.schedule();
+//                }
+//            }
+//        }
     }
 }

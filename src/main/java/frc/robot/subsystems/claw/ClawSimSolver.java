@@ -1,5 +1,6 @@
 package frc.robot.subsystems.claw;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
@@ -18,16 +19,15 @@ import frc.robot.utils.sim.RevSparkMAXSim;
 import frc.robot.utils.sim.state.Computed;
 import frc.robot.utils.sim.state.State;
 import frc.robot.utils.sim.state.Value;
-import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.Sim.Claw;
 
 public class ClawSimSolver {
-    private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
+    private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
     private final CTREPhoenix5TalonSRXSim clawMainWheelSim, clawFollowerWheelSim;
-    private final TitanSRX clawOpenCloseMotor;
+    private final TalonSRX clawOpenCloseMotor;
     private final CTREPhoenix5TalonSRXSim clawOpenCloseSim;
     private final CANCoder clawOpenCloseEncoder;
 
@@ -41,9 +41,9 @@ public class ClawSimSolver {
     private final Computed<Pose3d> clawPose;
 
     public ClawSimSolver(
-            final TitanSRX clawMainWheelBag,
-            final TitanSRX clawFollowerWheelBag,
-            final TitanSRX clawOpenCloseMotor,
+            final TalonSRX clawMainWheelBag,
+            final TalonSRX clawFollowerWheelBag,
+            final TalonSRX clawOpenCloseMotor,
             final CANCoder clawOpenCloseEncoder,
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder
@@ -142,10 +142,15 @@ public class ClawSimSolver {
     private void updateIntakeWheelsInternal(final double dt) {
         clawMainWheelSim.update(dt);
         clawFollowerWheelSim.update(dt);
+
+        Logger.getInstance().recordOutput("PercentOutputMain", clawMainWheelBag.getMotorOutputPercent());
+        Logger.getInstance().recordOutput("PercentOutputFollower", clawFollowerWheelBag.getMotorOutputPercent());
     }
 
     private void updateOpenCloseInternal(final double dt) {
         clawOpenCloseSim.update(dt);
+
+
     }
 
     private void updateTiltInternal(final double dt, final ElevatorSimSolver.ElevatorSimState elevatorSimState) {

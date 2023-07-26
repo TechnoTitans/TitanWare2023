@@ -1,8 +1,7 @@
 package frc.robot.subsystems.claw;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
+import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -15,6 +14,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.Enums;
@@ -23,7 +23,6 @@ import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.SimUtils;
-import frc.robot.wrappers.motors.TitanSRX;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
@@ -32,8 +31,10 @@ import java.util.function.Supplier;
 public class ClawIOSim implements ClawIO {
     private final ClawSimSolver clawSimSolver;
 
-    private final TitanSRX clawMainWheelBag, clawFollowerWheelBag;
-    private final TitanSRX clawOpenCloseMotor;
+    private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
+    private final InvertType clawMainWheelBagInverted;
+    private final TalonSRX clawOpenCloseMotor;
+    private final InvertType clawOpenCloseMotorInverted;
     private final CANCoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
@@ -56,9 +57,11 @@ public class ClawIOSim implements ClawIO {
     private double desiredOpenCloseControlInput = currentState.getOpenCloseControlInput();
 
     public ClawIOSim(
-            final TitanSRX clawMainWheelBag,
-            final TitanSRX clawFollowerWheelBag,
-            final TitanSRX clawOpenCloseMotor,
+            final TalonSRX clawMainWheelBag,
+            final TalonSRX clawFollowerWheelBag,
+            final InvertType clawMainWheelBagInverted,
+            final TalonSRX clawOpenCloseMotor,
+            final InvertType clawOpenCloseMotorInverted,
             final CANCoder clawOpenCloseEncoder,
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder,
@@ -75,12 +78,14 @@ public class ClawIOSim implements ClawIO {
 
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
+        this.clawMainWheelBagInverted = clawMainWheelBagInverted;
 
         this.clawTiltNeo = clawTiltNeo;
         this.clawTiltEncoder = clawTiltEncoder;
 
         this.clawOpenCloseMotor = clawOpenCloseMotor;
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
+        this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
 
         this.elevatorSimStateSupplier = elevatorSimStateSupplier;
 
@@ -106,11 +111,16 @@ public class ClawIOSim implements ClawIO {
         clawSimSolver.update(Constants.LOOP_PERIOD_SECONDS, elevatorSimStateSupplier.get());
 
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
+
+        final double controlInput = Phoenix5Utils.getPhoenix6To5ControlInput(
+                openCloseControlMode, desiredOpenCloseControlInput
+        );
+
+        Logger.getInstance().recordOutput("OpenCloseControlInput", controlInput);
+
         clawOpenCloseMotor.set(
                 openCloseControlMode,
-                Phoenix5Utils.getPhoenix6To5ControlInput(
-                        openCloseControlMode, desiredOpenCloseControlInput
-                )
+                controlInput
         );
 
         Logger.getInstance().recordOutput("ClawTiltPIDPositionError", tiltPID.getPositionError());
@@ -160,7 +170,7 @@ public class ClawIOSim implements ClawIO {
         inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.currentOpenCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
         inputs.desiredOpenCloseControlInput = desiredOpenCloseControlInput;
-        inputs.openCloseCurrentAmps = clawOpenCloseMotor.getCurrent();
+        inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
 
         inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
     }
@@ -168,8 +178,11 @@ public class ClawIOSim implements ClawIO {
     public void config() {
         // Bag Motors
         clawMainWheelBag.configFactoryDefault();
+        clawMainWheelBag.setInverted(clawMainWheelBagInverted);
+
         clawFollowerWheelBag.configFactoryDefault();
-        clawFollowerWheelBag.follow(clawMainWheelBag);
+        clawFollowerWheelBag.set(ControlMode.Follower, clawMainWheelBag.getDeviceID());
+        clawFollowerWheelBag.setInverted(InvertType.OpposeMaster);
 
         // Claw Open Close Encoder
         final CANCoderConfiguration clawOpenCloseEncoderConfig = new CANCoderConfiguration();
@@ -178,7 +191,7 @@ public class ClawIOSim implements ClawIO {
         clawOpenCloseEncoderConfig.sensorDirection = false;
         clawOpenCloseEncoderConfig.sensorCoefficient = Constants.CTRE.PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS;
         clawOpenCloseEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        clawOpenCloseEncoderConfig.magnetOffsetDegrees = -81.387;
+        clawOpenCloseEncoderConfig.magnetOffsetDegrees = 0;
 
         clawOpenCloseEncoder.configFactoryDefault();
         clawOpenCloseEncoder.configAllSettings(clawOpenCloseEncoderConfig);
@@ -193,7 +206,8 @@ public class ClawIOSim implements ClawIO {
 
         clawOpenCloseMotor.configFactoryDefault();
         clawOpenCloseMotor.configAllSettings(clawOpenCloseMotorConfig);
-        clawOpenCloseMotor.brake();
+        clawOpenCloseMotor.setInverted(clawOpenCloseMotorInverted);
+        clawOpenCloseMotor.setNeutralMode(NeutralMode.Brake);
 
         // Claw Tilt Neo
         clawTiltNeo.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -227,6 +241,10 @@ public class ClawIOSim implements ClawIO {
         } else {
             final boolean isAtDesired =
                     MathUtils.withinTolerance(
+                            clawMainWheelBag.getMotorOutputPercent(),
+                            desiredIntakeWheelsPercentOutput,
+                            0.05
+                    ) && MathUtils.withinTolerance(
                             clawOpenCloseEncoder.getAbsolutePosition(),
                             desiredOpenCloseControlInput,
                             0.05

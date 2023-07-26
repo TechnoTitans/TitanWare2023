@@ -17,65 +17,80 @@ public class Enums {
         DUTY_CYCLE
     }
 
+    public enum ElevatorStateType {
+        STANDBY,
+        INTAKING,
+        SCORING
+    }
+
     public enum ElevatorState {
         //DutyCycle back to limit switch to reset encoder
         ELEVATOR_RESET(
                 -0.25,
                 VerticalElevatorMode.MOTION_MAGIC,
                 -0.25,
-                HorizontalElevatorMode.DUTY_CYCLE
+                HorizontalElevatorMode.DUTY_CYCLE,
+                ElevatorStateType.STANDBY
         ),
         //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_HIGH(
                 4.9,
                 VerticalElevatorMode.MOTION_MAGIC,
                 3,
-                HorizontalElevatorMode.POSITION
+                HorizontalElevatorMode.POSITION,
+                ElevatorStateType.SCORING
         ),
         //Elevator Mid and Horizontal extended
         ELEVATOR_EXTENDED_MID(
                 3.2,
                 VerticalElevatorMode.MOTION_MAGIC,
                 0.9,
-                HorizontalElevatorMode.POSITION
+                HorizontalElevatorMode.POSITION,
+                ElevatorStateType.SCORING
         ),
         //Elevator Platform and Horizontal extended
         ELEVATOR_DOUBLE_SUB(
                 4.3,
                 VerticalElevatorMode.MOTION_MAGIC,
                 0,
-                HorizontalElevatorMode.POSITION
+                HorizontalElevatorMode.POSITION,
+                ElevatorStateType.INTAKING
         ),
         //Elevator at normal height
         ELEVATOR_STANDBY(
                 0, // -0.25,
                 VerticalElevatorMode.MOTION_MAGIC,
                 0,
-                HorizontalElevatorMode.POSITION
+                HorizontalElevatorMode.POSITION,
+                ElevatorStateType.STANDBY
         ),
         ELEVATOR_CUBE(
                 1.3,
                 VerticalElevatorMode.MOTION_MAGIC,
                 -0.3,
-                HorizontalElevatorMode.DUTY_CYCLE
+                HorizontalElevatorMode.DUTY_CYCLE,
+                ElevatorStateType.INTAKING
         ),
         ELEVATOR_SINGLE_SUB(
                 2.1,
                 VerticalElevatorMode.POSITION,
                 0,
-                HorizontalElevatorMode.POSITION
+                HorizontalElevatorMode.POSITION,
+                ElevatorStateType.INTAKING
         ),
         ELEVATOR_TIPPED_CONE(
                 1.55,
                 VerticalElevatorMode.MOTION_MAGIC,
                 0.2,
-                HorizontalElevatorMode.POSITION
+                HorizontalElevatorMode.POSITION,
+                ElevatorStateType.INTAKING
         );
 
         final VerticalElevatorMode verticalElevatorMode;
         final double VEControlInput;
         final HorizontalElevatorMode horizontalElevatorMode;
         final double HEControlInput;
+        final ElevatorStateType elevatorStateType;
 
         public VerticalElevatorMode getVerticalElevatorMode() {
             return verticalElevatorMode;
@@ -93,17 +108,22 @@ public class Enums {
             return HEControlInput;
         }
 
+        public ElevatorStateType getElevatorStateType() {
+            return elevatorStateType;
+        }
+
         ElevatorState(
                 final double VEControlInput,
                 final VerticalElevatorMode verticalElevatorMode,
                 final double HEControlInput,
-                final HorizontalElevatorMode horizontalElevatorMode
+                final HorizontalElevatorMode horizontalElevatorMode,
+                final ElevatorStateType elevatorStateType
         ) {
             this.VEControlInput = VEControlInput;
             this.verticalElevatorMode = verticalElevatorMode;
             this.HEControlInput = HEControlInput;
             this.horizontalElevatorMode = horizontalElevatorMode;
-
+            this.elevatorStateType = elevatorStateType;
         }
     }
 

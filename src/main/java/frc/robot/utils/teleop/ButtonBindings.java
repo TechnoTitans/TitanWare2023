@@ -42,6 +42,8 @@ public class ButtonBindings {
         );
 
         // ElevatorClawTeleop
+        // TODO: make these cleaner, more builder methods have been added since original bindings were made
+        //  and some, if not most, bindings can be simplified now
         ElevatorClawTeleop.addMapping(
                 driverController.a(),
                 new ElevatorClawCommand.Builder(elevator, claw)
@@ -52,6 +54,7 @@ public class ButtonBindings {
                         .build()
         );
 
+        // Driver Controller
         ElevatorClawTeleop.addMapping(
                 driverController.b(),
                 new ElevatorClawCommand.Builder(elevator, claw)
@@ -62,6 +65,10 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 driverController.x(),
                 new ElevatorClawCommand.Builder(elevator, claw)
+                        .withNotStateEndCondition(Enums.ElevatorStateType.INTAKING)
+                        .withClawState(Enums.ClawState.CLAW_HOLDING)
+                        .withConditionalWait(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB, 0.3)
+                        .withElevatorState(Enums.ElevatorState.ELEVATOR_STANDBY)
                         .build()
         );
 
@@ -72,6 +79,7 @@ public class ButtonBindings {
                         .build()
         );
 
+        // CoDriver Controller
         ElevatorClawTeleop.addMapping(
                 coDriverController.a(),
                 new ElevatorClawCommand.Builder(elevator, claw)
@@ -89,20 +97,22 @@ public class ButtonBindings {
         );
 
         ElevatorClawTeleop.addMapping(
-                coDriverController.rightBumper(),
+                coDriverController.leftBumper(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withConditionalClawState(Enums.ClawState.CLAW_ANGLE_SHOOT, Enums.ClawState.CLAW_SHOOT_LOW)
-                        .withConditionalWait(Enums.ClawState.CLAW_SHOOT_LOW, 0.4)
-                        .withConditionalClawState(Enums.ClawState.CLAW_SHOOT_LOW, Enums.ClawState.CLAW_STANDBY)
+                        .withNotStateEndCondition(Enums.ClawState.CLAW_ANGLE_SHOOT)
+                        .withClawState(Enums.ClawState.CLAW_SHOOT_HIGH)
+                        .withWait(0.4)
+                        .withClawState(Enums.ClawState.CLAW_STANDBY)
                         .build()
         );
 
         ElevatorClawTeleop.addMapping(
-                coDriverController.leftBumper(),
+                coDriverController.rightBumper(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withConditionalClawState(Enums.ClawState.CLAW_ANGLE_SHOOT, Enums.ClawState.CLAW_SHOOT_HIGH)
-                        .withConditionalWait(Enums.ClawState.CLAW_SHOOT_HIGH, 0.4)
-                        .withConditionalClawState(Enums.ClawState.CLAW_SHOOT_HIGH, Enums.ClawState.CLAW_STANDBY)
+                        .withNotStateEndCondition(Enums.ClawState.CLAW_ANGLE_SHOOT)
+                        .withClawState(Enums.ClawState.CLAW_SHOOT_LOW)
+                        .withWait(0.4)
+                        .withClawState(Enums.ClawState.CLAW_STANDBY)
                         .build()
         );
 
