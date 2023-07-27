@@ -77,6 +77,5 @@ public interface RobotMap {
 
     //Controllers
     int MainController = 0;
-    // TODO: DO NOT PUSH change this id back to 1 before pushing
-    int CoController = 0;
+    int CoController = 1;
 }
