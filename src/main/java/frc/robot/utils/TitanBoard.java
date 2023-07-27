@@ -5,7 +5,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.wpilibj.Notifier;
-import frc.robot.subsystems.drive.SwerveModuleIO;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -36,7 +36,6 @@ import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.subsystems.gyro.Gyro;
-import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.Enums;
@@ -49,7 +48,6 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsSim;
 
 import java.util.List;
 
