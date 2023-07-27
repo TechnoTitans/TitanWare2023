@@ -37,8 +37,6 @@ public class ElevatorIOReal implements ElevatorIO {
     private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
-    private final boolean isReal;
-
     private Enums.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
     private double VEControlInput = desiredState.getVEControlInput(); //Vertical Elevator Target Rotations
     private Enums.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
@@ -82,13 +80,6 @@ public class ElevatorIOReal implements ElevatorIO {
         this.positionVoltage = new PositionVoltage(0);
         this.motionMagicVoltage = new MotionMagicVoltage(0);
         this.dutyCycleOut = new DutyCycleOut(0);
-
-        this.isReal = Constants.CURRENT_MODE == Constants.RobotMode.REAL;
-    }
-
-    @Override
-    public boolean isReal() {
-        return isReal;
     }
 
     private boolean resetElevator() {
@@ -160,17 +151,14 @@ public class ElevatorIOReal implements ElevatorIO {
 
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
-        inputs.desiredState = desiredState.toString();
-
-        inputs.verticalElevatorMode = verticalElevatorMode.toString();
         inputs.VEControlInput = VEControlInput;
-
-        inputs.horizontalElevatorMode = horizontalElevatorMode.toString();
         inputs.HEControlInput = HEControlInput;
 
+        inputs.verticalElevatorMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
         inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
         inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
 
+        inputs.horizontalElevatorMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
         inputs.horizontalElevatorEncoderPosition = horizontalElevatorEncoder.getPosition().refresh().getValue();
         inputs.horizontalElevatorEncoderVelocity = horizontalElevatorEncoder.getVelocity().refresh().getValue();
 
@@ -215,21 +203,11 @@ public class ElevatorIOReal implements ElevatorIO {
     }
 
     @Override
-    public void setDesiredState(final Enums.ElevatorState state) {
-        this.desiredState = state;
-        this.verticalElevatorMode = state.getVerticalElevatorMode();
-        this.VEControlInput = state.getVEControlInput();
-        this.horizontalElevatorMode = state.getHorizontalElevatorMode();
-        this.HEControlInput = state.getHEControlInput();
-    }
-
-    @Override
-    public Enums.ElevatorState getDesiredState() {
-        return desiredState;
-    }
-
-    @Override
-    public ElevatorSimSolver.ElevatorSimState getElevatorSimState() {
-        throw new UnsupportedOperationException("cannot get ElevatorSimState outside of sim");
+    public void setDesiredState(final Enums.ElevatorState desiredState) {
+        this.desiredState = desiredState;
+        this.verticalElevatorMode = desiredState.getVerticalElevatorMode();
+        this.VEControlInput = desiredState.getVEControlInput();
+        this.horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
+        this.HEControlInput = desiredState.getHEControlInput();
     }
 }

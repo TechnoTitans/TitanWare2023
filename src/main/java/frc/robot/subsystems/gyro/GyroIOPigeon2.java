@@ -1,14 +1,17 @@
 package frc.robot.subsystems.gyro;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.Constants;
+import frc.robot.utils.ctre.Phoenix6Utils;
 
 public class GyroIOPigeon2 implements GyroIO {
     private final Pigeon2 pigeon;
 
     public GyroIOPigeon2(final Pigeon2 pigeon) {
         this.pigeon = pigeon;
+        config();
     }
 
     @Override
@@ -16,12 +19,12 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.hasHardwareFault = pigeon.getFault_Hardware().refresh().getValue();
 
         inputs.rollPositionDeg = getRoll();
-        inputs.pitchPositionDeg = -getPitch();
+        inputs.pitchPositionDeg = getPitch();
         inputs.yawPositionDeg = getYaw();
 
-        inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
-        inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
-        inputs.yawVelocityDegPerSec = pigeon.getAngularVelocityZ().refresh().getValue();
+        inputs.rollVelocityDegPerSec = getRollVelocitySignal().refresh().getValue();
+        inputs.pitchVelocityDegPerSec = getPitchVelocitySignal().refresh().getValue();
+        inputs.yawVelocityDegPerSec = getYawVelocitySignal().refresh().getValue();
     }
 
     @Override
@@ -33,32 +36,37 @@ public class GyroIOPigeon2 implements GyroIO {
         pigeon.getConfigurator().apply(pigeon2Configuration);
     }
 
-    @Override
-    public Pigeon2 getPigeon() {
-        return pigeon;
-    }
-
-    @Override
-    public boolean isReal() { return true; }
-
-    @Override
     public double getYaw() {
-        return pigeon.getYaw().refresh().getValue();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                pigeon.getYaw(),
+                getYawVelocitySignal()
+        );
     }
 
-    @Override
-    public double getYawBlocking() {
-        return pigeon.getYaw().waitForUpdate(Constants.LOOP_PERIOD_SECONDS).getValue();
+    public StatusSignal<Double> getYawVelocitySignal() {
+        return pigeon.getAngularVelocityZ();
     }
 
-    @Override
     public double getPitch() {
-        return pigeon.getPitch().refresh().getValue();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                pigeon.getPitch(),
+                getPitchVelocitySignal()
+        );
     }
 
-    @Override
+    public StatusSignal<Double> getPitchVelocitySignal() {
+        return pigeon.getAngularVelocityX();
+    }
+
     public double getRoll() {
-        return pigeon.getRoll().refresh().getValue();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                pigeon.getRoll(),
+                getRollVelocitySignal()
+        );
+    }
+
+    public StatusSignal<Double> getRollVelocitySignal() {
+        return pigeon.getAngularVelocityY();
     }
 
     @Override

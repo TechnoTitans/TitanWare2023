@@ -10,6 +10,7 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.teleop.ControllerUtils;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
@@ -77,17 +78,27 @@ public class SwerveDriveTeleop extends CommandBase {
                 throttleWeight
         );
 
+
+
         if (controller.getRightStickButton()) {
-            final double angle = -Units.radiansToDegrees(
-                    Math.atan2(-controller.getRightY(), controller.getRightX())
-            ) + 90;
+            final double rightStickXInput = ControllerUtils.getStickInput(controller.getRightX(), 0.01);
+            final double rightStickYInput = ControllerUtils.getStickInput(controller.getRightY(), 0.01);
+
+            final double rightStickAngleDeg =
+                    ControllerUtils.getFieldRelativeAngleFromStickInputs(rightStickXInput, rightStickYInput)
+                            .getDegrees();
+
+            Logger.getInstance().recordOutput("RightStickAngleDeg", rightStickAngleDeg);
+
+//                    -Units.radiansToDegrees(
+//                    Math.atan2(-controller.getRightY(), controller.getRightX())
+//            ) + 90;
 
             swerve.faceDirection(
                     xSpeed,
                     ySpeed,
-                    angle,
-                    true,
-                    1
+                    rightStickAngleDeg,
+                    true
             );
         } else {
             final double rot = ControllerUtils.getStickInputWithWeight(

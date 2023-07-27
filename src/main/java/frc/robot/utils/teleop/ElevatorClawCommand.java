@@ -63,16 +63,18 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
         private final Claw claw;
 
         private final Function<Enums.ElevatorState, Boolean> isElevatorState;
-        private final Function<Enums.ElevatorStateType, Boolean> isElevatorStateType;
+        private final Function<Enums.ElevatorClawStateType, Boolean> isElevatorClawStateType;
         private final Function<Enums.ClawState, Boolean> isClawState;
 
         public Builder(final Elevator elevator, final Claw claw) {
             this.elevator = elevator;
             this.claw = claw;
 
-            this.isElevatorState = (state) -> elevator.getDesiredState() == state;
-            this.isElevatorStateType = (state) -> elevator.getDesiredState().getElevatorStateType() == state;
+            this.isElevatorState = (state) -> elevator.getCurrentState() == state;
             this.isClawState = (state) -> claw.getCurrentState() == state;
+            this.isElevatorClawStateType = (state) ->
+                    elevator.getCurrentState().getElevatorStateType() == state
+                            || claw.getCurrentState().getElevatorStateType() == state;
 
             this.commands = new ArrayList<>();
         }
@@ -91,7 +93,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ElevatorState
          */
-        public Builder withStateEndCondition(final Enums.ElevatorState endConditionElevatorState) {
+        public Builder endIfInState(final Enums.ElevatorState endConditionElevatorState) {
             commands.add(new CancelSequentialCommand(() -> isElevatorState.apply(endConditionElevatorState)));
             return this;
         }
@@ -110,27 +112,30 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ClawState
          */
-        public Builder withStateEndCondition(final Enums.ClawState endConditionClawState) {
+        public Builder endIfInState(final Enums.ClawState endConditionClawState) {
             commands.add(new CancelSequentialCommand(() -> isClawState.apply(endConditionClawState)));
             return this;
         }
 
         /**
-         * Adds a {@link frc.robot.utils.Enums.ElevatorStateType} as an end condition.
+         * Adds a {@link Enums.ElevatorClawStateType} as an end condition.
          *
          * <p>More formally, invokes the end condition when and only when the current
-         * {@link frc.robot.utils.Enums.ElevatorStateType} (at the current invocation time)
+         * {@link Enums.ElevatorClawStateType} (at the current invocation time)
          * matches the supplied end condition state.</p>
          *
          * <p>An end condition is specified by a condition in which all remaining commands (that have yet to run)
          * are cancelled if the condition is met.</p>
          *
-         * @param endConditionElevatorStateType the {@link frc.robot.utils.Enums.ElevatorStateType} end condition
+         * @param endConditionElevatorClawStateType the {@link Enums.ElevatorClawStateType} end condition
          * @return this {@link Builder}
-         * @see frc.robot.utils.Enums.ElevatorStateType
+         * @see Enums.ElevatorClawStateType
          */
-        public Builder withStateEndCondition(final Enums.ElevatorStateType endConditionElevatorStateType) {
-            commands.add(new CancelSequentialCommand(() -> isElevatorStateType.apply(endConditionElevatorStateType)));
+        public Builder endIfInState(final Enums.ElevatorClawStateType endConditionElevatorClawStateType) {
+            commands.add(
+                    new CancelSequentialCommand(() -> isElevatorClawStateType.apply(endConditionElevatorClawStateType))
+            );
+
             return this;
         }
 
@@ -148,7 +153,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ElevatorState
          */
-        public Builder withNotStateEndCondition(final Enums.ElevatorState endConditionElevatorState) {
+        public Builder endIfNotInState(final Enums.ElevatorState endConditionElevatorState) {
             commands.add(new CancelSequentialCommand(() -> !isElevatorState.apply(endConditionElevatorState)));
             return this;
         }
@@ -167,27 +172,29 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ClawState
          */
-        public Builder withNotStateEndCondition(final Enums.ClawState endConditionClawState) {
+        public Builder endIfNotInState(final Enums.ClawState endConditionClawState) {
             commands.add(new CancelSequentialCommand(() -> !isClawState.apply(endConditionClawState)));
             return this;
         }
 
         /**
-         * Adds all states except a single {@link frc.robot.utils.Enums.ElevatorStateType} as an end condition.
+         * Adds all states except a single {@link Enums.ElevatorClawStateType} as an end condition.
          *
          * <p>More formally, invokes the end condition when and only when the current
-         * {@link frc.robot.utils.Enums.ElevatorStateType} (at the current invocation time)
+         * {@link Enums.ElevatorClawStateType} (at the current invocation time)
          * does <b>NOT</b> match the supplied end condition state.</p>
          *
          * <p>An end condition is specified by a condition in which all remaining commands (that have yet to run)
          * are cancelled if the condition is met.</p>
          *
-         * @param endConditionElevatorStateType the {@link frc.robot.utils.Enums.ElevatorStateType} end condition
+         * @param endConditionElevatorClawStateType the {@link Enums.ElevatorClawStateType} end condition
          * @return this {@link Builder}
-         * @see frc.robot.utils.Enums.ElevatorStateType
+         * @see Enums.ElevatorClawStateType
          */
-        public Builder withNotStateEndCondition(final Enums.ElevatorStateType endConditionElevatorStateType) {
-            commands.add(new CancelSequentialCommand(() -> !isElevatorStateType.apply(endConditionElevatorStateType)));
+        public Builder endIfNotInState(final Enums.ElevatorClawStateType endConditionElevatorClawStateType) {
+            commands.add(
+                    new CancelSequentialCommand(() -> !isElevatorClawStateType.apply(endConditionElevatorClawStateType))
+            );
             return this;
         }
 
@@ -197,7 +204,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @return this {@link Builder}
          * @see WaitCommand
          */
-        public Builder withWait(final double waitSeconds) {
+        public Builder wait(final double waitSeconds) {
             commands.add(Commands.waitSeconds(waitSeconds));
             return this;
         }
@@ -214,7 +221,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @see frc.robot.utils.Enums.ElevatorState
          * @see WaitCommand
          */
-        public Builder withConditionalWait(
+        public Builder waitIfState(
                 final Enums.ElevatorState conditionalElevatorState,
                 final double waitSeconds
         ) {
@@ -238,7 +245,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * @see frc.robot.utils.Enums.ClawState
          * @see WaitCommand
          */
-        public Builder withConditionalWait(
+        public Builder waitIfState(
                 final Enums.ClawState conditionalClawState,
                 final double waitSeconds
         ) {
@@ -272,17 +279,17 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * {@link Builder#withConditionalNotElevatorState(Enums.ElevatorState, Enums.ElevatorState)}</p>
          *
          * @param conditionalElevatorState the conditional {@link frc.robot.utils.Enums.ElevatorState}
-         * @param onConditionalElevatorState the desired {@link frc.robot.utils.Enums.ElevatorState}
+         * @param desiredElevatorState the desired {@link frc.robot.utils.Enums.ElevatorState}
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ElevatorState
          */
         public Builder withConditionalElevatorState(
                 final Enums.ElevatorState conditionalElevatorState,
-                final Enums.ElevatorState onConditionalElevatorState
+                final Enums.ElevatorState desiredElevatorState
         ) {
             commands.add(Commands.runOnce(() -> {
                 if (isElevatorState.apply(conditionalElevatorState)) {
-                    elevator.setDesiredState(onConditionalElevatorState);
+                    elevator.setDesiredState(desiredElevatorState);
                 }
             }));
             return this;
@@ -299,17 +306,17 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * {@link Builder#withConditionalElevatorState(Enums.ElevatorState, Enums.ElevatorState)}</p>
          *
          * @param conditionalElevatorState the conditional {@link frc.robot.utils.Enums.ElevatorState}
-         * @param onConditionalElevatorState the desired {@link frc.robot.utils.Enums.ElevatorState}
+         * @param desiredElevatorState the desired {@link frc.robot.utils.Enums.ElevatorState}
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ElevatorState
          */
         public Builder withConditionalNotElevatorState(
                 final Enums.ElevatorState conditionalElevatorState,
-                final Enums.ElevatorState onConditionalElevatorState
+                final Enums.ElevatorState desiredElevatorState
         ) {
             commands.add(Commands.runOnce(() -> {
                 if (!isElevatorState.apply(conditionalElevatorState)) {
-                    elevator.setDesiredState(onConditionalElevatorState);
+                    elevator.setDesiredState(desiredElevatorState);
                 }
             }));
             return this;
@@ -337,17 +344,17 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * {@link Builder#withConditionalNotClawState(Enums.ClawState, Enums.ClawState)}</p>
          *
          * @param conditionalClawState the conditional {@link frc.robot.utils.Enums.ClawState}
-         * @param onConditionalClawState the desired {@link frc.robot.utils.Enums.ClawState}
+         * @param desiredClawState the desired {@link frc.robot.utils.Enums.ClawState}
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ClawState
          */
         public Builder withConditionalClawState(
                 final Enums.ClawState conditionalClawState,
-                final Enums.ClawState onConditionalClawState
+                final Enums.ClawState desiredClawState
         ) {
             commands.add(Commands.runOnce(() -> {
                 if (isClawState.apply(conditionalClawState)) {
-                    claw.setDesiredState(onConditionalClawState);
+                    claw.setDesiredState(desiredClawState);
                 }
             }));
             return this;
@@ -364,17 +371,17 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          * {@link Builder#withConditionalClawState(Enums.ClawState, Enums.ClawState)}</p>
          *
          * @param conditionalClawState the conditional {@link frc.robot.utils.Enums.ClawState}
-         * @param onConditionalClawState the desired {@link frc.robot.utils.Enums.ClawState}
+         * @param desiredClawState the desired {@link frc.robot.utils.Enums.ClawState}
          * @return this {@link Builder}
          * @see frc.robot.utils.Enums.ClawState
          */
         public Builder withConditionalNotClawState(
                 final Enums.ClawState conditionalClawState,
-                final Enums.ClawState onConditionalClawState
+                final Enums.ClawState desiredClawState
         ) {
             commands.add(Commands.runOnce(() -> {
                 if (!isClawState.apply(conditionalClawState)) {
-                    claw.setDesiredState(onConditionalClawState);
+                    claw.setDesiredState(desiredClawState);
                 }
             }));
             return this;

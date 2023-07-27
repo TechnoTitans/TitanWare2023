@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gyro;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -7,14 +8,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import frc.robot.Constants;
-import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModule;
+import frc.robot.utils.ctre.Phoenix6Utils;
 import org.littletonrobotics.junction.Logger;
 
 public class GyroIOSim implements GyroIO {
     private final Pigeon2 pigeon;
     private final SwerveDriveKinematics kinematics;
-    private final SwerveModuleIO[] swerveModules;
+    private final SwerveModule[] swerveModules;
     private final double[] lastSwerveModulePositionRots = {0.0, 0.0, 0.0, 0.0};
     private Pose2d gyroUseOdometryPose = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
@@ -22,10 +23,12 @@ public class GyroIOSim implements GyroIO {
     public static final double USE_SIMULATED_ROLL = 0;
 
 
-    public GyroIOSim(final Pigeon2 pigeon, final SwerveDriveKinematics kinematics, final SwerveModuleIO[] swerveModules) {
+    public GyroIOSim(final Pigeon2 pigeon, final SwerveDriveKinematics kinematics, final SwerveModule[] swerveModules) {
         this.pigeon = pigeon;
         this.kinematics = kinematics;
         this.swerveModules = swerveModules;
+
+        config();
 
         pigeon.getSimState().setSupplyVoltage(12);
         pigeon.getSimState().setPitch(USE_SIMULATED_PITCH);
@@ -59,8 +62,8 @@ public class GyroIOSim implements GyroIO {
     @Override
     public void config() {
         final Pigeon2Configuration pigeon2Configuration = new Pigeon2Configuration();
-        //TODO: do we need to use MountPose? if so, check that this mount pose is correct
-        pigeon2Configuration.MountPose.MountPoseYaw = -90;
+        //TODO: do we need to use MountPose?
+        pigeon2Configuration.MountPose.MountPoseYaw = 0;
 
         pigeon.getConfigurator().apply(pigeon2Configuration);
     }
@@ -72,42 +75,48 @@ public class GyroIOSim implements GyroIO {
         inputs.hasHardwareFault = pigeon.getFault_Hardware().refresh().getValue();
 
         inputs.yawPositionDeg = getYaw();
-        inputs.pitchPositionDeg = -getPitch();
+        inputs.pitchPositionDeg = getPitch();
         inputs.rollPositionDeg = getRoll();
 
-        inputs.yawVelocityDegPerSec = pigeon.getAngularVelocityZ().refresh().getValue();
-        inputs.pitchVelocityDegPerSec = -pigeon.getAngularVelocityX().refresh().getValue();
-        inputs.rollVelocityDegPerSec = pigeon.getAngularVelocityY().refresh().getValue();
+        inputs.yawVelocityDegPerSec = getYawVelocitySignal().refresh().getValue();
+        inputs.pitchVelocityDegPerSec = getPitchVelocitySignal().refresh().getValue();
+        inputs.rollVelocityDegPerSec = getRollVelocitySignal().refresh().getValue();
     }
 
-    @Override
-    public Pigeon2 getPigeon() {
-        return pigeon;
-    }
-
-    @Override
-    public boolean isReal() { return false; }
-
-    @Override
     public double getYaw() {
         updateGyro();
-        return pigeon.getYaw().refresh().getValue();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                pigeon.getYaw(),
+                getYawVelocitySignal()
+        );
     }
 
-    @Override
-    public double getYawBlocking() {
-        updateGyro();
-        return pigeon.getYaw().waitForUpdate(Constants.LOOP_PERIOD_SECONDS).getValue();
+    public StatusSignal<Double> getYawVelocitySignal() {
+        return pigeon.getAngularVelocityZ();
     }
 
-    @Override
     public double getPitch() {
-        return pigeon.getPitch().refresh().getValue();
+        updateGyro();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                pigeon.getPitch(),
+                getPitchVelocitySignal()
+        );
     }
 
-    @Override
+    public StatusSignal<Double> getPitchVelocitySignal() {
+        return pigeon.getAngularVelocityX();
+    }
+
     public double getRoll() {
-        return pigeon.getRoll().refresh().getValue();
+        updateGyro();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                pigeon.getRoll(),
+                getRollVelocitySignal()
+        );
+    }
+
+    public StatusSignal<Double> getRollVelocitySignal() {
+        return pigeon.getAngularVelocityY();
     }
 
     private void setAngleInternal(final double angle) {

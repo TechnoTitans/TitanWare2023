@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.utils.ctre.Phoenix6Utils;
+import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
 
@@ -88,11 +89,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     }
 
     @Override
-    public boolean isReal() {
-        return isReal;
-    }
-
-    @Override
     public void config() {
         final CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();
         canCoderConfiguration.MagnetSensor.MagnetOffset = -magnetOffset;
@@ -138,6 +134,8 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
+        inputs.lastDesiredStates = LogUtils.toDoubleArray(getLastDesiredState());
+
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
         inputs.driveDesiredVelocityRotsPerSec = compute_desired_driver_velocity(getLastDesiredState());
@@ -151,7 +149,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();
     }
 
-    @Override
     public Rotation2d getAngle() {
         return Rotation2d.fromRotations(
                 Phoenix6Utils.latencyCompensateIfSignalIsGood(
@@ -160,38 +157,32 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         );
     }
 
-    @Override
     public double getDrivePosition() {
         return Phoenix6Utils.latencyCompensateIfSignalIsGood(driveMotor.getPosition(), driveMotor.getVelocity());
     }
 
-    @Override
     public double getDriveVelocity() {
         return driveMotor.getVelocity().refresh().getValue();
     }
 
-    @Override
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(
-                getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
-                getAngle()
-        );
-    }
-
-    @Override
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(
-                getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
-                getAngle()
-        );
-    }
-
-    @Override
+    /**
+     * Compute the desired drive motor velocity given a desired {@link SwerveModuleState}
+     * i.e. the rotor velocity given wheel velocity (rps)
+     * @param wantedState the wanted state of the module
+     * @return the desired rotor velocity
+     * @see SwerveModuleState
+     */
     public double compute_desired_driver_velocity(final SwerveModuleState wantedState) {
         return wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
     }
 
-    @Override
+    /**
+     * Compute the desired turn motor velocity given a desired {@link SwerveModuleState}
+     * i.e. the rotor position given wheel rotational position (rots)
+     * @param wantedState the wanted state of the module
+     * @return the desired rotor position
+     * @see SwerveModuleState
+     */
     public double compute_desired_turner_rotations(final SwerveModuleState wantedState) {
         return wantedState.angle.getRotations();
     }
@@ -219,7 +210,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnMotor.set(0);
     }
 
-    @Override
     public SwerveModuleState getLastDesiredState() {
         return lastDesiredState;
     }

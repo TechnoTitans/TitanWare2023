@@ -1,28 +1,25 @@
 package frc.robot.subsystems.claw;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import frc.robot.utils.Enums;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ClawIO {
     @AutoLog
     class ClawIOInputs {
-        String desiredState = Enums.ClawState.CLAW_STANDBY.toString();
-        String currentState = desiredState;
-
-        String tiltClawControlMode = Enums.ClawTiltControlMode.POSITION.toString();
+        double currentTiltPercentOutput = 0.0;
         double currentTiltEncoderPositionRots = 0.0;
         double currentTiltEncoderVelocityRotsPerSec = 0.0;
         double desiredTiltControlInput = 0.0;
         double tiltCurrentAmps = 0.0;
 
-        String openCloseControlMode = ControlMode.Position.toString();
+        double currentOpenClosePercentOutput = 0.0;
         double currentOpenCloseEncoderPositionRots = 0.0;
         double currentOpenCloseEncoderVelocityRotsPerSec = 0.0;
         double desiredOpenCloseControlInput = 0.0;
         double openCloseCurrentAmps = 0.0;
 
         double desiredIntakeWheelsPercentOutput = 0.0;
+        double currentIntakeWheelsPercentOutput = 0.0;
     }
 
     /**
@@ -31,17 +28,11 @@ public interface ClawIO {
      * @see ClawIOInputs
      * @see AutoLog
      */
-    void updateInputs(final ClawIOInputs inputs);
+    default void updateInputs(final ClawIOInputs inputs) {}
 
-    void periodic();
+    default void periodic() {}
 
-    void config();
+    default void config() {}
 
-    void setDesiredState(final Enums.ClawState state);
-
-    boolean isAtDesiredState();
-
-    Enums.ClawState getDesiredState();
-
-    Enums.ClawState getCurrentState();
+    default void setDesiredState(final Enums.ClawState desiredState) {}
 }

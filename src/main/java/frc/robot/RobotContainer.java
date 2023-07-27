@@ -29,11 +29,13 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIOReal;
 import frc.robot.subsystems.claw.ClawIOSim;
 import frc.robot.subsystems.drive.Swerve;
-import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.SwerveModuleIOImpl;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorSimSolver;
+import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
@@ -74,7 +76,7 @@ public class RobotContainer {
     public final SwerveDrivePoseEstimator poseEstimator;
 
     //Swerve
-    public final SwerveModuleIO frontLeft, frontRight, backLeft, backRight;
+    public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
     public final Field2d field;
@@ -83,7 +85,8 @@ public class RobotContainer {
     public final PowerDistribution powerDistribution;
 
     //Sensors
-    public final GyroIO gyroIO;
+    public final Pigeon2 pigeon2;
+    public final Gyro gyro;
 
     //Vision
     public final TitanCamera photonDriveCamera, photonFR_Apriltag_R, photonFR_Apriltag_F;
@@ -136,24 +139,39 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        frontLeft = new SwerveModuleIOImpl(
-                frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
-        );
-        frontRight = new SwerveModuleIOImpl(
-                frontRightDrive, frontRightTurn, frontRightEncoder,
-                RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
-        );
-        backLeft = new SwerveModuleIOImpl(
-                backLeftDrive, backLeftTurn, backLeftEncoder,
-                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
-        );
-        backRight = new SwerveModuleIOImpl(
-                backRightDrive, backRightTurn, backRightEncoder,
-                RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
+        frontLeft = new SwerveModule(
+                new SwerveModuleIOImpl(
+                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
+                ),
+                "FrontLeft"
         );
 
-        final SwerveModuleIO[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
+        frontRight = new SwerveModule(
+                new SwerveModuleIOImpl(
+                        frontRightDrive, frontRightTurn, frontRightEncoder,
+                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
+                ),
+                "FrontRight"
+        );
+
+        backLeft = new SwerveModule(
+                new SwerveModuleIOImpl(
+                        backLeftDrive, backLeftTurn, backLeftEncoder,
+                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
+                ),
+                "BackLeft"
+        );
+
+        backRight = new SwerveModule(
+                new SwerveModuleIOImpl(
+                        backRightDrive, backRightTurn, backRightEncoder,
+                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
+                ),
+                "BackRight"
+        );
+
+        final SwerveModule[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
 
         //Elevator Motors
         elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
@@ -184,16 +202,12 @@ public class RobotContainer {
         );
 
         //Sensors
-        gyroIO = switch (Constants.CURRENT_MODE) {
+        pigeon2 = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
+        gyro = switch (Constants.CURRENT_MODE) {
             case REAL:
-                yield new GyroIOPigeon2(new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME));
+                yield new Gyro(new GyroIOPigeon2(pigeon2), pigeon2);
             case SIM:
-                yield new GyroIOSim(
-                        new Pigeon2(
-                                RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME
-                        ),
-                        kinematics, swerveModules
-                );
+                yield new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
             case REPLAY:
                 throw new RuntimeException("this isn't possible");
         };
@@ -214,19 +228,31 @@ public class RobotContainer {
                         elevatorHorizontalLimitSwitch
                 ));
             case SIM:
-                yield new Elevator(new ElevatorIOSim(
+                final ElevatorSimSolver elevatorSimSolver = new ElevatorSimSolver(
                         elevatorVerticalMotorMain,
-                        RobotMap.mainVerticalFalconR,
                         elevatorVerticalMotorFollower,
-                        RobotMap.followerVerticalFalconR,
                         elevatorVerticalEncoder,
-                        RobotMap.verticalElevatorEncoderR,
                         elevatorHorizontalEncoder,
-                        SensorDirectionValue.Clockwise_Positive,
-                        elevatorHorizontalNeo,
-                        elevatorVerticalLimitSwitch,
-                        elevatorHorizontalLimitSwitch
-                ));
+                        elevatorHorizontalNeo
+                );
+
+                yield new Elevator(
+                        new ElevatorIOSim(
+                                elevatorVerticalMotorMain,
+                                RobotMap.mainVerticalFalconR,
+                                elevatorVerticalMotorFollower,
+                                RobotMap.followerVerticalFalconR,
+                                elevatorVerticalEncoder,
+                                RobotMap.verticalElevatorEncoderR,
+                                elevatorHorizontalEncoder,
+                                SensorDirectionValue.Clockwise_Positive,
+                                elevatorHorizontalNeo,
+                                elevatorVerticalLimitSwitch,
+                                elevatorHorizontalLimitSwitch,
+                                elevatorSimSolver
+                        ),
+                        elevatorSimSolver
+                );
             case REPLAY:
                 throw new RuntimeException("this isn't possible");
         };
@@ -260,7 +286,7 @@ public class RobotContainer {
         };
 
         //Swerve
-        swerve = new Swerve(gyroIO, kinematics, frontLeft, frontRight, backLeft, backRight);
+        swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
 
         poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,38 +12,41 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.gyro.GyroIO;
+import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.PoseUtils;
+import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
-    private GyroIO gyroIO;
+    protected static final String logKey = "Swerve";
+
+    private Gyro gyro;
     private final GyroIOInputsAutoLogged gyroInputs;
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule frontLeft, frontRight, backLeft, backRight;
 
-    private final SwerveModuleIO[] swerveModuleIOs;
+    private final SwerveModule[] swerveModules;
 
     public Swerve(
-            final GyroIO gyroIO,
+            final Gyro gyro,
             final SwerveDriveKinematics kinematics,
-            final SwerveModuleIO frontLeftIO,
-            final SwerveModuleIO frontRightIO,
-            final SwerveModuleIO backLeftIO,
-            final SwerveModuleIO backRightIO
+            final SwerveModule frontLeft,
+            final SwerveModule frontRight,
+            final SwerveModule backLeft,
+            final SwerveModule backRight
         ) {
-        this.gyroIO = gyroIO;
+        this.gyro = gyro;
         this.gyroInputs = new GyroIOInputsAutoLogged();
 
         this.kinematics = kinematics;
-        this.frontLeft = new SwerveModule(frontLeftIO, "FrontLeft");
-        this.frontRight = new SwerveModule(frontRightIO, "FrontRight");
-        this.backLeft = new SwerveModule(backLeftIO, "BackLeft");
-        this.backRight = new SwerveModule(backRightIO, "BackRight");
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.backLeft = backLeft;
+        this.backRight = backRight;
 
-        this.swerveModuleIOs = new SwerveModuleIO[] {frontLeftIO, frontRightIO, backLeftIO, backRightIO};
+        this.swerveModules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
     }
 
     /**
@@ -74,21 +78,9 @@ public class Swerve extends SubsystemBase {
         return swerveModuleStates;
     }
 
-    private double[] getChassisSpeedsAsDoubleArray(final ChassisSpeeds chassisSpeeds) {
-        //I wish I could name these somehow, but this is acceptable for now
-        return new double[] {
-                chassisSpeeds.vxMetersPerSecond,
-                chassisSpeeds.vyMetersPerSecond,
-                chassisSpeeds.omegaRadiansPerSecond,
-                // this is the magnitude of the velocity (basically the speed of the swerve)
-                Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)
-        };
-    }
-
     @Override
     public void periodic() {
-        gyroIO.updateInputs(gyroInputs);
-        Logger.getInstance().processInputs("Drive/Gyro", gyroInputs);
+        gyro.periodic();
 
         frontLeft.periodic();
         frontRight.periodic();
@@ -96,49 +88,55 @@ public class Swerve extends SubsystemBase {
         backRight.periodic();
 
         //log current swerve chassis speeds
+        final ChassisSpeeds robotRelativeSpeeds = getRobotRelativeSpeeds();
         Logger.getInstance().recordOutput(
-                "SwerveStates/ChassisSpeeds", getChassisSpeedsAsDoubleArray(getRobotRelativeSpeeds())
+                logKey + "/ChassisSpeed",
+                Math.hypot(robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
+        );
+        Logger.getInstance().recordOutput(
+                logKey + "/ChassisSpeeds", LogUtils.toDoubleArray(getRobotRelativeSpeeds())
         );
 
         //prep states for display
         final SwerveModuleState[] lastDesiredStates = modifyModuleStatesForDisplay(getModuleLastDesiredStates());
         final SwerveModuleState[] currentStates = modifyModuleStatesForDisplay(getModuleStates());
 
-        Logger.getInstance().recordOutput("SwerveStates/DesiredStates", lastDesiredStates);
-        Logger.getInstance().recordOutput("SwerveStates/CurrentStates", currentStates);
+        Logger.getInstance().recordOutput(logKey + "/DesiredStates", lastDesiredStates);
+        Logger.getInstance().recordOutput(logKey + "/CurrentStates", currentStates);
 
         // only update gyro from wheel odometry if we're not simulating and the gyro has failed
-        if (Constants.CURRENT_MODE == Constants.RobotMode.REAL && gyroInputs.hasHardwareFault && gyroIO.isReal()) {
-            gyroIO = new GyroIOSim(gyroIO.getPigeon(), kinematics, swerveModuleIOs);
+        if (Constants.CURRENT_MODE == Constants.RobotMode.REAL && gyroInputs.hasHardwareFault && gyro.isReal()) {
+            final Pigeon2 pigeon2 = gyro.getPigeon();
+            gyro = new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
         }
 
         Logger.getInstance().recordOutput(
-                "State/IsUsingFallbackSimGyro",
-               Constants.CURRENT_MODE == Constants.RobotMode.REAL && !gyroIO.isReal()
+               logKey + "/IsUsingFallbackSimGyro",
+               Constants.CURRENT_MODE == Constants.RobotMode.REAL && !gyro.isReal()
         );
     }
 
     public Rotation2d getPitch() {
-        return gyroIO.getPitchRotation2d();
+        return gyro.getPitchRotation2d();
     }
 
     public Rotation2d getRoll() {
-        return gyroIO.getRollRotation2d();
+        return gyro.getRollRotation2d();
     }
 
     public Rotation2d getYaw() {
-        return gyroIO.getYawRotation2d();
+        return gyro.getYawRotation2d();
     }
 
     /**
-     * @see GyroIO#setAngle(double)
+     * @see Gyro#setAngle(double)
      */
     public void setAngle(final double angle) {
-        gyroIO.setAngle(angle);
+        gyro.setAngle(angle);
     }
 
     public void zeroRotation(final SwerveDrivePoseEstimator poseEstimator) {
-        gyroIO.zeroRotation();
+        gyro.zeroRotation();
         poseEstimator.resetPosition(
                 Rotation2d.fromDegrees(0),
                 getModulePositions(),
@@ -233,6 +231,27 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
+     * Drive with dx and dy while facing a specified (non)holonomic rotation theta with a custom rotation kP
+     * @param dx the desired dx component
+     * @param dy the desired dy component
+     * @param theta the desired holonomic (if fieldRelative) or non-holonomic (if not fieldRelative) rotation (deg)
+     * @param fieldRelative true if driving should be field relative, false if not
+     * @param rotation_kP custom kP component of the rotation
+     */
+    public void faceDirection(
+            final double dx,
+            final double dy,
+            final double theta,
+            final boolean fieldRelative,
+            final double rotation_kP
+    ) {
+        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYaw());
+        final Rotation2d rotPower = error.times(rotation_kP);
+
+        drive(dx, dy, rotPower.getRadians(), fieldRelative);
+    }
+
+    /**
      * Drive with dx and dy while facing a specified (non)holonomic rotation theta
      * @param dx the desired dx component
      * @param dy the desired dy component
@@ -245,30 +264,9 @@ public class Swerve extends SubsystemBase {
             final double theta,
             final boolean fieldRelative
     ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYaw());
-        final double rotPower = error.getRadians() * Constants.Swerve.ROTATE_P;
-        drive(dx, dy, rotPower, fieldRelative);
+        faceDirection(dx, dy, theta, fieldRelative, Constants.Swerve.ROTATE_P);
     }
 
-    /**
-     * Drive with dx and dy while facing a specified (non)holonomic rotation theta with a custom rotation kP
-     * @param dx the desired dx component
-     * @param dy the desired dy component
-     * @param theta the desired holonomic (if fieldRelative) or non-holonomic (if not fieldRelative) rotation (deg)
-     * @param fieldRelative true if driving should be field relative, false if not
-     * @param rotation_kP additional custom kP component of the rotation
-     */
-    public void faceDirection(
-            final double dx,
-            final double dy,
-            final double theta,
-            final boolean fieldRelative,
-            final double rotation_kP
-    ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYaw());
-        final double rotPower = error.getRadians() * rotation_kP;
-        drive(dx, dy, rotPower, fieldRelative);
-    }
 
     /**
      * Drive all modules to a raw {@link SwerveModuleState}

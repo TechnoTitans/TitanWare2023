@@ -66,9 +66,9 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 driverController.x(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withNotStateEndCondition(Enums.ElevatorStateType.INTAKING)
+                        .endIfNotInState(Enums.ElevatorClawStateType.INTAKING)
                         .withClawState(Enums.ClawState.CLAW_HOLDING)
-                        .withConditionalWait(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB, 0.3)
+                        .waitIfState(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB, 0.3)
                         .withElevatorState(Enums.ElevatorState.ELEVATOR_STANDBY)
                         .build()
         );
@@ -84,9 +84,9 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 coDriverController.a(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withNotStateEndCondition(Enums.ElevatorStateType.SCORING)
+                        .endIfNotInState(Enums.ElevatorClawStateType.SCORING)
                         .withClawState(Enums.ClawState.CLAW_OUTTAKE)
-                        .withWait(0.7)
+                        .wait(0.7)
                         .withElevatorClawStates(Enums.ElevatorState.ELEVATOR_STANDBY, Enums.ClawState.CLAW_STANDBY)
                         .build()
         );
@@ -101,9 +101,9 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 coDriverController.leftBumper(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withNotStateEndCondition(Enums.ClawState.CLAW_ANGLE_SHOOT)
+                        .endIfNotInState(Enums.ClawState.CLAW_ANGLE_SHOOT)
                         .withClawState(Enums.ClawState.CLAW_SHOOT_HIGH)
-                        .withWait(0.4)
+                        .wait(0.4)
                         .withClawState(Enums.ClawState.CLAW_STANDBY)
                         .build()
         );
@@ -111,9 +111,9 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 coDriverController.rightBumper(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withNotStateEndCondition(Enums.ClawState.CLAW_ANGLE_SHOOT)
+                        .endIfNotInState(Enums.ClawState.CLAW_ANGLE_SHOOT)
                         .withClawState(Enums.ClawState.CLAW_SHOOT_LOW)
-                        .withWait(0.4)
+                        .wait(0.4)
                         .withClawState(Enums.ClawState.CLAW_STANDBY)
                         .build()
         );
@@ -128,11 +128,11 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 coDriverController.rightBumper(),
                 new ElevatorClawCommand.Builder(elevator, claw)
-                        .withStateEndCondition(Enums.ClawState.CLAW_ANGLE_SHOOT)
+                        .endIfInState(Enums.ClawState.CLAW_ANGLE_SHOOT)
                         .withClawState(Enums.ClawState.CLAW_DROP)
-                        .withWait(0.25)
+                        .wait(0.25)
                         .withClawState(Enums.ClawState.CLAW_OUTTAKE_HYBRID)
-                        .withWait(0.65)
+                        .wait(0.65)
                         .withClawState(Enums.ClawState.CLAW_STANDBY)
                         .build()
         );
@@ -141,7 +141,7 @@ public class ButtonBindings {
                 coDriverController.povUp(),
                 new ElevatorClawCommand.Builder(elevator, claw)
                         .withElevatorState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH)
-                        .withWait(0.3)
+                        .wait(0.3)
                         .withClawState(Enums.ClawState.CLAW_DROP)
                         .build()
         );
@@ -164,7 +164,7 @@ public class ButtonBindings {
                 coDriverController.povLeft(),
                 new ElevatorClawCommand.Builder(elevator, claw)
                         .withElevatorState(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB)
-                        .withWait(0.1)
+                        .wait(0.1)
                         .withClawState(Enums.ClawState.CLAW_INTAKING_CONE)
                         .build()
         );

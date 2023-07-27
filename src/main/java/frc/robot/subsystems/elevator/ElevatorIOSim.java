@@ -43,8 +43,6 @@ public class ElevatorIOSim implements ElevatorIO {
     private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
-    private final boolean isReal;
-
     private Enums.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
     /**
      * Horizontal Elevator Control Input
@@ -71,15 +69,10 @@ public class ElevatorIOSim implements ElevatorIO {
             final SensorDirectionValue horizontalElevatorEncoderSensorDirection,
             final TitanSparkMAX horizontalElevatorMotor,
             final DigitalInput verticalElevatorLimitSwitch,
-            final DigitalInput horizontalElevatorRearLimitSwitch
+            final DigitalInput horizontalElevatorRearLimitSwitch,
+            final ElevatorSimSolver elevatorSimSolver
     ) {
-        this.elevatorSimSolver = new ElevatorSimSolver(
-                verticalElevatorMotor,
-                verticalElevatorMotorFollower,
-                verticalElevatorEncoder,
-                horizontalElevatorEncoder,
-                horizontalElevatorMotor
-        );
+        this.elevatorSimSolver = elevatorSimSolver;
 
         // Vertical Elevator
         this.verticalElevatorMotor = verticalElevatorMotor;
@@ -116,13 +109,6 @@ public class ElevatorIOSim implements ElevatorIO {
         this.positionVoltage = new PositionVoltage(0);
         this.motionMagicVoltage = new MotionMagicVoltage(0);
         this.dutyCycleOut = new DutyCycleOut(0);
-
-        this.isReal = Constants.CURRENT_MODE == Constants.RobotMode.REAL;
-    }
-
-    @Override
-    public boolean isReal() {
-        return isReal;
     }
 
     private boolean resetElevator() {
@@ -156,15 +142,13 @@ public class ElevatorIOSim implements ElevatorIO {
         return verticalDidReset && horizontalDidReset;
     }
 
-    private void simulationPeriodic() {
-        if (!isReal) {
-            elevatorSimSolver.update(Constants.LOOP_PERIOD_SECONDS);
-        }
+    private void updateSimulation() {
+        elevatorSimSolver.update(Constants.LOOP_PERIOD_SECONDS);
     }
 
     @Override
     public void periodic() {
-        simulationPeriodic();
+        updateSimulation();
 
         if (desiredState == Enums.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
             elevatorsHaveReset = resetElevator();
@@ -213,14 +197,9 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
         final ElevatorSimSolver.ElevatorSimState simState = elevatorSimSolver.getElevatorSimState();
-        simState.log("ElevatorSimState");
+        simState.log(Elevator.logKey + "SimState");
 
-        inputs.desiredState = desiredState.toString();
-
-        inputs.verticalElevatorMode = verticalElevatorMode.toString();
         inputs.VEControlInput = VEControlInput;
-
-        inputs.horizontalElevatorMode = horizontalElevatorMode.toString();
         inputs.HEControlInput = HEControlInput;
 
         inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
@@ -299,15 +278,5 @@ public class ElevatorIOSim implements ElevatorIO {
         this.VEControlInput = state.getVEControlInput();
         this.horizontalElevatorMode = state.getHorizontalElevatorMode();
         this.HEControlInput = state.getHEControlInput();
-    }
-
-    @Override
-    public Enums.ElevatorState getDesiredState() {
-        return desiredState;
-    }
-
-    @Override
-    public ElevatorSimSolver.ElevatorSimState getElevatorSimState() {
-        return elevatorSimSolver.getElevatorSimState();
     }
 }

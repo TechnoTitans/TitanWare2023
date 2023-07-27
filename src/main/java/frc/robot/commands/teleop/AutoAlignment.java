@@ -5,6 +5,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -126,7 +127,7 @@ public class AutoAlignment extends CommandBase {
         // they should remain mostly inexpensive to call though, still
         if (alignPIDController.atGoal()
                 && MathUtils.withinTolerance(
-                        swerve.getYaw().getRotations(), targetPose.getRotation().getRotations(), 0.1)
+                        swerve.getYaw().getRadians(), targetPose.getRotation().getRadians(), Units.degreesToRadians(5))
         ) {
             return true;
         }

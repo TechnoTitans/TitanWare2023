@@ -17,7 +17,7 @@ public class Enums {
         DUTY_CYCLE
     }
 
-    public enum ElevatorStateType {
+    public enum ElevatorClawStateType {
         STANDBY,
         INTAKING,
         SCORING
@@ -30,7 +30,7 @@ public class Enums {
                 VerticalElevatorMode.MOTION_MAGIC,
                 -0.25,
                 HorizontalElevatorMode.DUTY_CYCLE,
-                ElevatorStateType.STANDBY
+                ElevatorClawStateType.STANDBY
         ),
         //Elevator High and Horizontal extended
         ELEVATOR_EXTENDED_HIGH(
@@ -38,7 +38,7 @@ public class Enums {
                 VerticalElevatorMode.MOTION_MAGIC,
                 3,
                 HorizontalElevatorMode.POSITION,
-                ElevatorStateType.SCORING
+                ElevatorClawStateType.SCORING
         ),
         //Elevator Mid and Horizontal extended
         ELEVATOR_EXTENDED_MID(
@@ -46,7 +46,7 @@ public class Enums {
                 VerticalElevatorMode.MOTION_MAGIC,
                 0.9,
                 HorizontalElevatorMode.POSITION,
-                ElevatorStateType.SCORING
+                ElevatorClawStateType.SCORING
         ),
         //Elevator Platform and Horizontal extended
         ELEVATOR_DOUBLE_SUB(
@@ -54,7 +54,7 @@ public class Enums {
                 VerticalElevatorMode.MOTION_MAGIC,
                 0,
                 HorizontalElevatorMode.POSITION,
-                ElevatorStateType.INTAKING
+                ElevatorClawStateType.INTAKING
         ),
         //Elevator at normal height
         ELEVATOR_STANDBY(
@@ -62,35 +62,35 @@ public class Enums {
                 VerticalElevatorMode.MOTION_MAGIC,
                 0,
                 HorizontalElevatorMode.POSITION,
-                ElevatorStateType.STANDBY
+                ElevatorClawStateType.STANDBY
         ),
         ELEVATOR_CUBE(
                 1.3,
                 VerticalElevatorMode.MOTION_MAGIC,
                 -0.3,
                 HorizontalElevatorMode.DUTY_CYCLE,
-                ElevatorStateType.INTAKING
+                ElevatorClawStateType.INTAKING
         ),
         ELEVATOR_SINGLE_SUB(
                 2.1,
                 VerticalElevatorMode.POSITION,
                 0,
                 HorizontalElevatorMode.POSITION,
-                ElevatorStateType.INTAKING
+                ElevatorClawStateType.INTAKING
         ),
         ELEVATOR_TIPPED_CONE(
                 1.55,
                 VerticalElevatorMode.MOTION_MAGIC,
                 0.2,
                 HorizontalElevatorMode.POSITION,
-                ElevatorStateType.INTAKING
+                ElevatorClawStateType.INTAKING
         );
 
         final VerticalElevatorMode verticalElevatorMode;
         final double VEControlInput;
         final HorizontalElevatorMode horizontalElevatorMode;
         final double HEControlInput;
-        final ElevatorStateType elevatorStateType;
+        final ElevatorClawStateType elevatorClawStateType;
 
         public VerticalElevatorMode getVerticalElevatorMode() {
             return verticalElevatorMode;
@@ -108,8 +108,8 @@ public class Enums {
             return HEControlInput;
         }
 
-        public ElevatorStateType getElevatorStateType() {
-            return elevatorStateType;
+        public ElevatorClawStateType getElevatorStateType() {
+            return elevatorClawStateType;
         }
 
         ElevatorState(
@@ -117,13 +117,13 @@ public class Enums {
                 final VerticalElevatorMode verticalElevatorMode,
                 final double HEControlInput,
                 final HorizontalElevatorMode horizontalElevatorMode,
-                final ElevatorStateType elevatorStateType
+                final ElevatorClawStateType elevatorClawStateType
         ) {
             this.VEControlInput = VEControlInput;
             this.verticalElevatorMode = verticalElevatorMode;
             this.HEControlInput = HEControlInput;
             this.horizontalElevatorMode = horizontalElevatorMode;
-            this.elevatorStateType = elevatorStateType;
+            this.elevatorClawStateType = elevatorClawStateType;
         }
     }
 
@@ -132,111 +132,139 @@ public class Enums {
         DUTY_CYCLE
     }
 
+    public enum ClawOpenCloseControlMode {
+        POSITION(ControlMode.Position),
+        DUTY_CYCLE(ControlMode.PercentOutput);
+
+        private final ControlMode controlMode;
+        ClawOpenCloseControlMode(final ControlMode controlMode) {
+            this.controlMode = controlMode;
+        }
+
+        public ControlMode getControlMode() {
+            return controlMode;
+        }
+    }
+
     public enum ClawState {
         //Claw shoot cube
         CLAW_OUTTAKE(
                 -0.1,
                 ClawTiltControlMode.POSITION,
                 0.295,
-                ControlMode.PercentOutput,
-                0.2
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                0.2,
+                ElevatorClawStateType.SCORING
         ),
         //Claw shoot cube
         CLAW_OUTTAKE_HYBRID(
                 -0.2,
                 ClawTiltControlMode.POSITION,
                 .295,
-                ControlMode.PercentOutput,
-                .3
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                .3,
+                ElevatorClawStateType.SCORING
         ),
         //Claw tilted down and closed
         CLAW_HOLDING(
                 0.2,
                 ClawTiltControlMode.POSITION,
                 0,
-                ControlMode.PercentOutput,
-                -0.37
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                -0.37,
+                ElevatorClawStateType.STANDBY
         ),
         //Claw tilted down and open cone
         CLAW_INTAKING_CONE(
                 0.5,
                 ClawTiltControlMode.POSITION,
                 0.3,
-                ControlMode.Position,
-                0.024
+                ClawOpenCloseControlMode.POSITION,
+                0.024,
+                ElevatorClawStateType.INTAKING
         ),
         //Claw tilted down and open cube
         CLAW_INTAKING_CUBE(
                 0.5,
                 ClawTiltControlMode.POSITION,
                 0.3,
-                ControlMode.Position,
-                0.171
+                ClawOpenCloseControlMode.POSITION,
+                0.171,
+                ElevatorClawStateType.INTAKING
         ),
         //Claw tilted down and standby wheel speed
         CLAW_STANDBY(
                 0.2,
                 ClawTiltControlMode.POSITION,
                 0,
-                ControlMode.Position,
-                0
+                ClawOpenCloseControlMode.POSITION,
+                0,
+                ElevatorClawStateType.STANDBY
         ),
         //Drop claw to outtake height
         CLAW_DROP(
                 0.3,
                 ClawTiltControlMode.POSITION,
                 0.2,
-                ControlMode.PercentOutput,
-                -0.37
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                -0.37,
+                ElevatorClawStateType.SCORING
         ),
         CLAW_ANGLE_SHOOT(
                 0.2,
                 ClawTiltControlMode.POSITION,
                 0.12,
-                ControlMode.PercentOutput,
-                -0.37
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                -0.37,
+                ElevatorClawStateType.SCORING
         ),
         CLAW_SHOOT_HIGH(
                 -0.8,
                 ClawTiltControlMode.POSITION,
                 0.12,
-                ControlMode.PercentOutput,
-                -0.37
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                -0.37,
+                ElevatorClawStateType.SCORING
         ),
         CLAW_SHOOT_LOW(
                 -0.3,
                 ClawTiltControlMode.POSITION,
                 0.12,
-                ControlMode.PercentOutput,
-                -0.37
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                -0.37,
+                ElevatorClawStateType.SCORING
         ),
         CLAW_ANGLE_CUBE(
                 0.6,
                 ClawTiltControlMode.POSITION,
                 0.4,
-                ControlMode.Position,
-                0.171
+                ClawOpenCloseControlMode.POSITION,
+                0.171,
+                ElevatorClawStateType.INTAKING
         ),
         SINGLE_SUB(
                 0.5,
                 ClawTiltControlMode.POSITION,
                 0.2,
-                ControlMode.Position,
-                0.049
+                ClawOpenCloseControlMode.POSITION,
+                0.049,
+                ElevatorClawStateType.INTAKING
         ),
         TIPPED_CONE(
                 0.5,
                 ClawTiltControlMode.POSITION,
                 0.45,
-                ControlMode.Position,
-                0.024
+                ClawOpenCloseControlMode.POSITION,
+                0.024,
+                ElevatorClawStateType.INTAKING
         );
 
         final double intakeWheelsPercentOutput;
         final ClawTiltControlMode clawTiltControlMode;
         final double tiltControlInput;
-        final ControlMode clawOpenCloseControlMode;
+        final ClawOpenCloseControlMode clawOpenCloseControlMode;
         final double openCloseControlInput;
+        final ElevatorClawStateType elevatorClawStateType;
 
         public double getIntakeWheelsPercentOutput() {
             return intakeWheelsPercentOutput;
@@ -250,7 +278,7 @@ public class Enums {
             return tiltControlInput;
         }
 
-        public ControlMode getClawOpenCloseControlMode() {
+        public ClawOpenCloseControlMode getClawOpenCloseControlMode() {
             return clawOpenCloseControlMode;
         }
 
@@ -258,17 +286,23 @@ public class Enums {
             return openCloseControlInput;
         }
 
+        public ElevatorClawStateType getElevatorStateType() {
+            return elevatorClawStateType;
+        }
+
         ClawState(final double intakeWheelsPercentOutput,
                   final ClawTiltControlMode clawTiltControlMode,
                   final double tiltControlInput,
-                  final ControlMode clawOpenCloseControlMode,
-                  final double openCloseControlInput
+                  final ClawOpenCloseControlMode clawOpenCloseControlMode,
+                  final double openCloseControlInput,
+                  final ElevatorClawStateType elevatorClawStateType
         ) {
             this.intakeWheelsPercentOutput = intakeWheelsPercentOutput;
             this.clawTiltControlMode = clawTiltControlMode;
             this.tiltControlInput = tiltControlInput;
             this.clawOpenCloseControlMode = clawOpenCloseControlMode;
             this.openCloseControlInput = openCloseControlInput;
+            this.elevatorClawStateType = elevatorClawStateType;
         }
     }
 

@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public record AutoOption(
         String pathName, double maxVelocity, double maxAcceleration, HashSet<Constants.CompetitionType> competitionTypes
 ) {
-    public static List<Constants.CompetitionType> defaultCompetitionTypes = List.of(Constants.CompetitionType.TESTING);
+    public static final List<Constants.CompetitionType> defaultCompetitionTypes = List.of(Constants.CompetitionType.TESTING);
 
     public AutoOption(final String pathName, final double maxVelocity, final double maxAcceleration) {
         this(

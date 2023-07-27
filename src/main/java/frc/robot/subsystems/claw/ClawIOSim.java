@@ -17,7 +17,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.Enums;
-import frc.robot.utils.MathUtils;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.utils.rev.RevUtils;
@@ -42,18 +41,15 @@ public class ClawIOSim implements ClawIO {
 
     private final ProfiledPIDController tiltPID;
 
-    private Enums.ClawState desiredState = Enums.ClawState.CLAW_STANDBY;
-    private Enums.ClawState currentState = desiredState;
-
-    private ControlMode openCloseControlMode = currentState.getClawOpenCloseControlMode();
-    private Enums.ClawTiltControlMode clawTiltControlMode = currentState.getClawTiltControlMode();
+    private Enums.ClawOpenCloseControlMode openCloseControlMode;
+    private Enums.ClawTiltControlMode clawTiltControlMode;
 
     //Claw Intake Wheel Percent Output
-    private double desiredIntakeWheelsPercentOutput = currentState.getIntakeWheelsPercentOutput();
+    private double desiredIntakeWheelsPercentOutput;
     //Claw Tilt Control Input
-    private double desiredTiltControlInput = currentState.getTiltControlInput();
+    private double desiredTiltControlInput;
     //Claw Open Close Control Input
-    private double desiredOpenCloseControlInput = currentState.getOpenCloseControlInput();
+    private double desiredOpenCloseControlInput;
 
     public ClawIOSim(
             final TalonSRX clawMainWheelBag,
@@ -89,7 +85,6 @@ public class ClawIOSim implements ClawIO {
         this.elevatorSimStateSupplier = elevatorSimStateSupplier;
 
         config();
-        setDesiredState(Enums.ClawState.CLAW_STANDBY);
 
         //TODO: tune pid
         this.tiltPID = new ProfiledPIDController(
@@ -113,13 +108,13 @@ public class ClawIOSim implements ClawIO {
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
 
         final double controlInput = Phoenix5Utils.getPhoenix6To5ControlInput(
-                openCloseControlMode, desiredOpenCloseControlInput
+                openCloseControlMode.getControlMode(), desiredOpenCloseControlInput
         );
 
         Logger.getInstance().recordOutput("OpenCloseControlInput", controlInput);
 
         clawOpenCloseMotor.set(
-                openCloseControlMode,
+                openCloseControlMode.getControlMode(),
                 controlInput
         );
 
@@ -153,26 +148,22 @@ public class ClawIOSim implements ClawIO {
     @Override
     public void updateInputs(final ClawIO.ClawIOInputs inputs) {
         final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
-        clawSimState.log("ClawSimState");
+        clawSimState.log(Claw.logKey + "SimState");
 
-        isAtDesiredState();
-
-        inputs.desiredState = desiredState.toString();
-        inputs.currentState = currentState.toString();
-
-        inputs.tiltClawControlMode = clawTiltControlMode.toString();
+        inputs.currentTiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.currentTiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.currentTiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
         inputs.desiredTiltControlInput = desiredTiltControlInput;
         inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
 
-        inputs.openCloseControlMode = openCloseControlMode.toString();
+        inputs.currentOpenClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.currentOpenCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
         inputs.desiredOpenCloseControlInput = desiredOpenCloseControlInput;
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
 
         inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
+        inputs.currentIntakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
     public void config() {
@@ -226,47 +217,10 @@ public class ClawIOSim implements ClawIO {
     }
 
     public void setDesiredState(final Enums.ClawState state) {
-        desiredState = state;
-
         desiredIntakeWheelsPercentOutput = state.getIntakeWheelsPercentOutput();
         clawTiltControlMode = state.getClawTiltControlMode();
         desiredTiltControlInput = state.getTiltControlInput();
         openCloseControlMode = state.getClawOpenCloseControlMode();
         desiredOpenCloseControlInput = state.getOpenCloseControlInput();
-    }
-
-    public boolean isAtDesiredState() {
-        if (currentState == desiredState) {
-            return true;
-        } else {
-            final boolean isAtDesired =
-                    MathUtils.withinTolerance(
-                            clawMainWheelBag.getMotorOutputPercent(),
-                            desiredIntakeWheelsPercentOutput,
-                            0.05
-                    ) && MathUtils.withinTolerance(
-                            clawOpenCloseEncoder.getAbsolutePosition(),
-                            desiredOpenCloseControlInput,
-                            0.05
-                    ) && MathUtils.withinTolerance(
-                            clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
-                            desiredTiltControlInput,
-                            0.05
-                    );
-
-            if (isAtDesired) {
-                currentState = desiredState;
-            }
-
-            return isAtDesired;
-        }
-    }
-
-    public Enums.ClawState getDesiredState() {
-        return desiredState;
-    }
-
-    public Enums.ClawState getCurrentState() {
-        return currentState;
     }
 }
