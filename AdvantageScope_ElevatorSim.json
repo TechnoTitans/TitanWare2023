@@ -93,8 +93,8 @@
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Elevator/HEPositionRotations",
-              "color": "#858584",
+              "key": "NT:/AdvantageKit/Elevator/HEControlInput",
+              "color": "#3b875a",
               "show": true
             }
           ]
@@ -262,8 +262,8 @@
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Elevator/VEPositionRotations",
-              "color": "#3b875a",
+              "key": "NT:/AdvantageKit/Elevator/VEControlInput",
+              "color": "#d993aa",
               "show": true
             }
           ]
@@ -333,18 +333,18 @@
         "discrete": {
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Claw/TiltClawControlMode",
+              "key": "NT:/AdvantageKit/RealOutputs/Claw/TiltControlMode",
+              "color": "#3b875a",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/Claw/CurrentState",
               "color": "#80588e",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Claw/CurrentState",
+              "key": "NT:/AdvantageKit/RealOutputs/Claw/DesiredState",
               "color": "#e48b32",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/Claw/DesiredState",
-              "color": "#aacaee",
               "show": true
             }
           ]
@@ -406,8 +406,8 @@
         "discrete": {
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Claw/OpenCloseControlMode",
-              "color": "#e5b31b",
+              "key": "NT:/AdvantageKit/RealOutputs/Claw/OpenCloseControlMode",
+              "color": "#e48b32",
               "show": true
             }
           ]

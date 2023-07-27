@@ -12,12 +12,12 @@
           },
           "fields": [
             {
-              "key": "/Drive/Module_FrontLeft/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "/Drive/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             }
@@ -34,12 +34,12 @@
           },
           "fields": [
             {
-              "key": "/Drive/Module_FrontLeft/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "/Drive/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#80588e",
               "show": true
             }
@@ -62,22 +62,22 @@
           },
           "fields": [
             {
-              "key": "/Drive/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "/Drive/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackRight/DriveDesiredVelocityRotsPerSec",
+              "key": "/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
               "color": "#80588e",
               "show": true
             }
@@ -97,22 +97,22 @@
           },
           "fields": [
             {
-              "key": "/Drive/Module_FrontLeft/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "/Drive/Module_FrontRight/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontRight/DriveVelocityRotsPerSec",
               "color": "#aacaee",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackLeft/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_BackLeft/DriveVelocityRotsPerSec",
               "color": "#c0b487",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackRight/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_BackRight/DriveVelocityRotsPerSec",
               "color": "#858584",
               "show": true
             }
@@ -132,22 +132,22 @@
           },
           "fields": [
             {
-              "key": "/Drive/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "/Drive/Module_FrontRight/TurnDesiredAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackRight/TurnDesiredAbsolutePositionRots",
+              "key": "/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
               "color": "#c0b487",
               "show": true
             }
@@ -167,22 +167,22 @@
           },
           "fields": [
             {
-              "key": "/Drive/Module_FrontLeft/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "/Drive/Module_FrontRight/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontRight/TurnAbsolutePositionRots",
               "color": "#80588e",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackLeft/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_BackLeft/TurnAbsolutePositionRots",
               "color": "#aacaee",
               "show": true
             },
             {
-              "key": "/Drive/Module_BackRight/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_BackRight/TurnAbsolutePositionRots",
               "color": "#858584",
               "show": true
             }
@@ -202,17 +202,17 @@
           },
           "fields": [
             {
-              "key": "/Drive/Gyro/PitchPositionDeg",
+              "key": "/Gyro/PitchPositionDeg",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "/Drive/Gyro/RollPositionDeg",
+              "key": "/Gyro/RollPositionDeg",
               "color": "#80588e",
               "show": true
             },
             {
-              "key": "/Drive/Gyro/YawPositionDeg",
+              "key": "/Gyro/YawPositionDeg",
               "color": "#e48b32",
               "show": true
             }
@@ -221,12 +221,12 @@
         "discrete": {
           "fields": [
             {
-              "key": "/Drive/Gyro/HasHardwareFault",
+              "key": "/Gyro/HasHardwareFault",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "/RealOutputs/State/IsUsingFallbackSimGyro",
+              "key": "/RealOutputs/Swerve/IsUsingFallbackSimGyro",
               "color": "#2b66a2",
               "show": true
             }
@@ -240,17 +240,17 @@
           },
           "fields": [
             {
-              "key": "/Drive/Gyro/PitchVelocityDegPerSec",
+              "key": "/Gyro/PitchVelocityDegPerSec",
               "color": "#aacaee",
               "show": true
             },
             {
-              "key": "/Drive/Gyro/RollVelocityDegPerSec",
+              "key": "/Gyro/RollVelocityDegPerSec",
               "color": "#c0b487",
               "show": true
             },
             {
-              "key": "/Drive/Gyro/YawVelocityDegPerSec",
+              "key": "/Gyro/YawVelocityDegPerSec",
               "color": "#858584",
               "show": true
             }
@@ -490,8 +490,8 @@
     {
       "type": 9,
       "fields": [
-        "/RealOutputs/SwerveStates/CurrentStates",
-        "/RealOutputs/SwerveStates/DesiredStates",
+        "/RealOutputs/Swerve/CurrentStates",
+        "/RealOutputs/Swerve/DesiredStates",
         "/RealOutputs/Odometry/Robot/2"
       ],
       "listFields": [],
