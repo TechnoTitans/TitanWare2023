@@ -149,8 +149,6 @@ public class ClawSimSolver {
 
     private void updateOpenCloseInternal(final double dt) {
         clawOpenCloseSim.update(dt);
-
-
     }
 
     private void updateTiltInternal(final double dt, final ElevatorSimSolver.ElevatorSimState elevatorSimState) {

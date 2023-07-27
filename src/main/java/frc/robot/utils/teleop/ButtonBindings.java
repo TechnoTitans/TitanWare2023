@@ -44,6 +44,8 @@ public class ButtonBindings {
         // ElevatorClawTeleop
         // TODO: make these cleaner, more builder methods have been added since original bindings were made
         //  and some, if not most, bindings can be simplified now
+
+        // Driver Controller
         ElevatorClawTeleop.addMapping(
                 driverController.a(),
                 new ElevatorClawCommand.Builder(elevator, claw)
@@ -54,7 +56,6 @@ public class ButtonBindings {
                         .build()
         );
 
-        // Driver Controller
         ElevatorClawTeleop.addMapping(
                 driverController.b(),
                 new ElevatorClawCommand.Builder(elevator, claw)
@@ -83,6 +84,7 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 coDriverController.a(),
                 new ElevatorClawCommand.Builder(elevator, claw)
+                        .withNotStateEndCondition(Enums.ElevatorStateType.SCORING)
                         .withClawState(Enums.ClawState.CLAW_OUTTAKE)
                         .withWait(0.7)
                         .withElevatorClawStates(Enums.ElevatorState.ELEVATOR_STANDBY, Enums.ClawState.CLAW_STANDBY)
@@ -126,6 +128,7 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 coDriverController.rightBumper(),
                 new ElevatorClawCommand.Builder(elevator, claw)
+                        .withStateEndCondition(Enums.ClawState.CLAW_ANGLE_SHOOT)
                         .withClawState(Enums.ClawState.CLAW_DROP)
                         .withWait(0.25)
                         .withClawState(Enums.ClawState.CLAW_OUTTAKE_HYBRID)

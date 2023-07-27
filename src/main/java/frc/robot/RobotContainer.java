@@ -47,6 +47,7 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsSim;
 
 import java.util.List;
 
