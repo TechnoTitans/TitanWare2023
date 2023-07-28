@@ -144,20 +144,17 @@ public class ClawIOSim implements ClawIO {
         final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
         clawSimState.log(Claw.logKey + "SimState");
 
-        inputs.currentTiltPercentOutput = clawTiltNeo.getAppliedOutput();
-        inputs.currentTiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
-        inputs.currentTiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
-        inputs.desiredTiltControlInput = desiredTiltControlInput;
+        inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
+        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
         inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
 
-        inputs.currentOpenClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
-        inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
-        inputs.currentOpenCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
-        inputs.desiredOpenCloseControlInput = desiredOpenCloseControlInput;
+        inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
+        inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
+        inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
 
-        inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
-        inputs.currentIntakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
+        inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
     public void config() {

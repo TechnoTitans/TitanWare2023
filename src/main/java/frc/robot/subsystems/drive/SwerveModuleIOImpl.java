@@ -13,13 +13,11 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
 
@@ -39,8 +37,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     private final PositionVoltage positionVoltage;
 
     private final boolean isReal;
-
-    private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
     public SwerveModuleIOImpl(
             final TalonFX driveMotor,
@@ -133,16 +129,12 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
-        inputs.lastDesiredStates = LogUtils.toDoubleArray(getLastDesiredState());
-
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
-        inputs.driveDesiredVelocityRotsPerSec = compute_desired_driver_velocity(getLastDesiredState());
         inputs.driveCurrentAmps = driveMotor.getTorqueCurrent().refresh().getValue();
         inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
 
         inputs.turnAbsolutePositionRots = getAngle().getRotations();
-        inputs.turnDesiredAbsolutePositionRots = compute_desired_turner_rotations(getLastDesiredState());
         inputs.turnVelocityRotsPerSec = turnEncoder.getVelocity().refresh().getValue();
         inputs.turnCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
         inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();
@@ -164,53 +156,21 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         return driveMotor.getVelocity().refresh().getValue();
     }
 
-    /**
-     * Compute the desired drive motor velocity given a desired {@link SwerveModuleState}
-     * i.e. the rotor velocity given wheel velocity (rps)
-     * @param wantedState the wanted state of the module
-     * @return the desired rotor velocity
-     * @see SwerveModuleState
-     */
-    public double compute_desired_driver_velocity(final SwerveModuleState wantedState) {
-        return wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
-    }
-
-    /**
-     * Compute the desired turn motor velocity given a desired {@link SwerveModuleState}
-     * i.e. the rotor position given wheel rotational position (rots)
-     * @param wantedState the wanted state of the module
-     * @return the desired rotor position
-     * @see SwerveModuleState
-     */
-    public double compute_desired_turner_rotations(final SwerveModuleState wantedState) {
-        return wantedState.angle.getRotations();
-    }
-
     @Override
-    public void setDesiredState(final SwerveModuleState state) {
-        final Rotation2d currentWheelRotation = getAngle();
-        final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
-        final double desired_driver_velocity = compute_desired_driver_velocity(wantedState);
-        final double desired_turner_rotations = compute_desired_turner_rotations(wantedState);
-        this.lastDesiredState = wantedState;
-
+    public void setInputs(final double desiredDriverVelocity, final double desiredTurnerRotations) {
         if (!isReal && Constants.Sim.USE_VELOCITY_VOLTAGE_IN_SIM) {
-            driveMotor.setControl(velocityVoltage.withVelocity(desired_driver_velocity));
+            driveMotor.setControl(velocityVoltage.withVelocity(desiredDriverVelocity));
         } else {
-            driveMotor.setControl(velocityTorqueCurrentFOC.withVelocity(desired_driver_velocity));
+            driveMotor.setControl(velocityTorqueCurrentFOC.withVelocity(desiredDriverVelocity));
         }
 
-        turnMotor.setControl(positionVoltage.withPosition(desired_turner_rotations));
+        turnMotor.setControl(positionVoltage.withPosition(desiredTurnerRotations));
     }
 
     @Override
     public void stop() {
         driveMotor.set(0);
         turnMotor.set(0);
-    }
-
-    public SwerveModuleState getLastDesiredState() {
-        return lastDesiredState;
     }
 
     @Override

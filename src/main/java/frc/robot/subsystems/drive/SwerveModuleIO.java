@@ -1,23 +1,17 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveModuleIO {
     @AutoLog
     class SwerveModuleIOInputs {
-        public double[] lastDesiredStates = new double[] {};
-
         public double drivePositionRots = 0.0;
         public double driveVelocityRotsPerSec = 0.0;
-        public double driveDesiredVelocityRotsPerSec = 0.0;
-
         public double driveCurrentAmps = 0.0;
         public double driveTempCelsius = 0.0;
 
         public double turnAbsolutePositionRots = 0.0;
-        public double turnDesiredAbsolutePositionRots = 0.0;
         public double turnVelocityRotsPerSec = 0.0;
         public double turnCurrentAmps = 0.0;
         public double turnTempCelsius = 0.0;
@@ -42,11 +36,11 @@ public interface SwerveModuleIO {
     default void config() {}
 
     /**
-     * Set the desired {@link SwerveModuleState} of the module
-     * @param state the desired {@link SwerveModuleState}
-     * @see SwerveModuleState
+     * Set the desired inputs of the {@link SwerveModuleIO}
+     * @param desiredDriverVelocity the desired driver motor velocity (in rotor rots/sec)
+     * @param desiredTurnerRotations the desired turner motor rotations (in rotor rotations)
      */
-    default void setDesiredState(final SwerveModuleState state) {}
+    default void setInputs(final double desiredDriverVelocity, final double desiredTurnerRotations) {}
 
     /**
      * Stop the module

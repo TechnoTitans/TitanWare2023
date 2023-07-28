@@ -5,16 +5,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
     private final String name;
+    private final String logKey;
     private final SwerveModuleIO moduleIO;
     private final SwerveModuleIOInputsAutoLogged inputs;
 
+    private SwerveModuleState lastDesiredState = new SwerveModuleState();
+
     public SwerveModule(final SwerveModuleIO moduleIO, final String name) {
         this.name = name;
+        this.logKey = String.format("%s/Module_%s", Swerve.logKey, name);
+
         this.moduleIO = moduleIO;
         this.inputs = new SwerveModuleIOInputsAutoLogged();
     }
@@ -23,15 +27,21 @@ public class SwerveModule {
 
     public void periodic() {
         moduleIO.periodic();
-        moduleIO.updateInputs(inputs);
-        Logger.getInstance().processInputs(String.format("%s/Module_%s", Swerve.logKey, name), inputs);
-    }
 
-    /**
-     * @see SwerveModuleIO#config()
-     */
-    private void config() {
-        moduleIO.config();
+        moduleIO.updateInputs(inputs);
+        Logger.getInstance().processInputs(logKey, inputs);
+
+        Logger.getInstance().recordOutput(logKey + "/CurrentState", getState());
+        Logger.getInstance().recordOutput(logKey + "/LastDesiredState", lastDesiredState);
+        Logger.getInstance().recordOutput(
+                logKey + "/DriveDesiredVelocityRotsPerSec",
+                computeDesiredDriverVelocity(lastDesiredState)
+        );
+
+        Logger.getInstance().recordOutput(
+                logKey + "/TurnDesiredAbsolutePositionRots",
+                computeDesiredTurnerRotations(lastDesiredState)
+        );
     }
 
     /**
@@ -86,10 +96,40 @@ public class SwerveModule {
     }
 
     /**
-     * @see SwerveModuleIO#setDesiredState(SwerveModuleState)
+     * Compute the desired drive motor velocity given a desired {@link SwerveModuleState}
+     * i.e. the rotor velocity given wheel velocity (rps)
+     * @param wantedState the wanted state of the module
+     * @return the desired rotor velocity
+     * @see SwerveModuleState
+     */
+    public double computeDesiredDriverVelocity(final SwerveModuleState wantedState) {
+        return wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
+    }
+
+    /**
+     * Compute the desired turn motor velocity given a desired {@link SwerveModuleState}
+     * i.e. the rotor position given wheel rotational position (rots)
+     * @param wantedState the wanted state of the module
+     * @return the desired rotor position
+     * @see SwerveModuleState
+     */
+    public double computeDesiredTurnerRotations(final SwerveModuleState wantedState) {
+        return wantedState.angle.getRotations();
+    }
+
+    /**
+     * Set the desired {@link SwerveModuleState} of the module
+     * @param state the desired {@link SwerveModuleState}
+     * @see SwerveModuleState
      */
     public void setDesiredState(final SwerveModuleState state) {
-        moduleIO.setDesiredState(state);
+        final Rotation2d currentWheelRotation = getAngle();
+        final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
+        final double desiredDriverVelocity = computeDesiredDriverVelocity(wantedState);
+        final double desiredTurnerRotations = computeDesiredTurnerRotations(wantedState);
+
+        this.lastDesiredState = wantedState;
+        moduleIO.setInputs(desiredDriverVelocity, desiredTurnerRotations);
     }
 
     /**
@@ -100,13 +140,13 @@ public class SwerveModule {
     }
 
     /**
-     * Get the last desired {@link SwerveModuleState} set in {@link SwerveModuleIO#setDesiredState(SwerveModuleState)}
+     * Get the last desired {@link SwerveModuleState} set in {@link SwerveModule#setDesiredState(SwerveModuleState)}
      * <p>
      * Note: this {@link SwerveModuleState} has been optimized and does not guarantee that it matches the last set state
      * @return the last desired {@link SwerveModuleState}
      */
     public SwerveModuleState getLastDesiredState() {
-        return LogUtils.fromDoubleArray(inputs.lastDesiredStates);
+        return lastDesiredState;
     }
 
     /**

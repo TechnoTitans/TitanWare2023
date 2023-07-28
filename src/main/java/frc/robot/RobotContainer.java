@@ -31,6 +31,7 @@ import frc.robot.subsystems.claw.ClawIOReal;
 import frc.robot.subsystems.claw.ClawIOSim;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
+import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOImpl;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.gyro.Gyro;
@@ -138,37 +139,49 @@ public class RobotContainer {
         backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
 
         //Swerve Modules
-        frontLeft = new SwerveModule(
-                new SwerveModuleIOImpl(
-                        frontLeftDrive, frontLeftTurn, frontLeftEncoder,
-                        RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
-                ),
-                "FrontLeft"
-        );
+        frontLeft = switch (Constants.CURRENT_MODE) {
+            case REAL, SIM -> new SwerveModule(
+                    new SwerveModuleIOImpl(
+                            frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+                            RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
+                    ),
+                    "FrontLeft"
+            );
+            case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "FrontLeft");
+        };
 
-        frontRight = new SwerveModule(
-                new SwerveModuleIOImpl(
-                        frontRightDrive, frontRightTurn, frontRightEncoder,
-                        RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
-                ),
-                "FrontRight"
-        );
+        frontRight = switch (Constants.CURRENT_MODE) {
+            case REAL, SIM -> new SwerveModule(
+                    new SwerveModuleIOImpl(
+                            frontRightDrive, frontRightTurn, frontRightEncoder,
+                            RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
+                    ),
+                    "FrontRight"
+            );
+            case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "FrontRight");
+        };
 
-        backLeft = new SwerveModule(
-                new SwerveModuleIOImpl(
-                        backLeftDrive, backLeftTurn, backLeftEncoder,
-                        RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
-                ),
-                "BackLeft"
-        );
+        backLeft = switch (Constants.CURRENT_MODE) {
+            case REAL, SIM -> new SwerveModule(
+                    new SwerveModuleIOImpl(
+                            backLeftDrive, backLeftTurn, backLeftEncoder,
+                            RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
+                    ),
+                    "BackLeft"
+            );
+            case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "BackLeft");
+        };
 
-        backRight = new SwerveModule(
-                new SwerveModuleIOImpl(
-                        backRightDrive, backRightTurn, backRightEncoder,
-                        RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
-                ),
-                "BackRight"
-        );
+        backRight = switch (Constants.CURRENT_MODE) {
+            case REAL, SIM -> new SwerveModule(
+                    new SwerveModuleIOImpl(
+                            backRightDrive, backRightTurn, backRightEncoder,
+                            RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
+                    ),
+                    "BackRight"
+            );
+            case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "BackRight");
+        };
 
         final SwerveModule[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
 
@@ -221,67 +234,61 @@ public class RobotContainer {
 
         //Elevator
         elevator = switch (Constants.CURRENT_MODE) {
-            case REAL:
-                yield new Elevator(new ElevatorIOReal(
-                        elevatorVerticalMotorMain,
-                        RobotMap.mainVerticalFalconR,
-                        elevatorVerticalMotorFollower,
-                        RobotMap.followerVerticalFalconR,
-                        elevatorVerticalEncoder,
-                        elevatorHorizontalEncoder,
-                        RobotMap.verticalElevatorEncoderR,
-                        elevatorHorizontalNeo,
-                        elevatorVerticalLimitSwitch,
-                        elevatorHorizontalLimitSwitch
-                ));
-            case SIM:
-                yield new Elevator(
-                        new ElevatorIOSim(
-                                elevatorVerticalMotorMain,
-                                RobotMap.mainVerticalFalconR,
-                                elevatorVerticalMotorFollower,
-                                RobotMap.followerVerticalFalconR,
-                                elevatorVerticalEncoder,
-                                RobotMap.verticalElevatorEncoderR,
-                                elevatorHorizontalEncoder,
-                                SensorDirectionValue.Clockwise_Positive,
-                                elevatorHorizontalNeo,
-                                elevatorVerticalLimitSwitch,
-                                elevatorHorizontalLimitSwitch,
-                                elevatorSimSolver
-                        ),
-                        elevatorSimSolver
-                );
-            case REPLAY:
-                yield new Elevator(new ElevatorIO() {}, elevatorSimSolver);
+            case REAL -> new Elevator(new ElevatorIOReal(
+                    elevatorVerticalMotorMain,
+                    RobotMap.mainVerticalFalconR,
+                    elevatorVerticalMotorFollower,
+                    RobotMap.followerVerticalFalconR,
+                    elevatorVerticalEncoder,
+                    elevatorHorizontalEncoder,
+                    RobotMap.verticalElevatorEncoderR,
+                    elevatorHorizontalNeo,
+                    elevatorVerticalLimitSwitch,
+                    elevatorHorizontalLimitSwitch
+            ));
+            case SIM -> new Elevator(
+                    new ElevatorIOSim(
+                            elevatorVerticalMotorMain,
+                            RobotMap.mainVerticalFalconR,
+                            elevatorVerticalMotorFollower,
+                            RobotMap.followerVerticalFalconR,
+                            elevatorVerticalEncoder,
+                            RobotMap.verticalElevatorEncoderR,
+                            elevatorHorizontalEncoder,
+                            SensorDirectionValue.Clockwise_Positive,
+                            elevatorHorizontalNeo,
+                            elevatorVerticalLimitSwitch,
+                            elevatorHorizontalLimitSwitch,
+                            elevatorSimSolver
+                    ),
+                    elevatorSimSolver
+            );
+            case REPLAY -> new Elevator(new ElevatorIO() {}, elevatorSimSolver);
         };
 
         claw = switch (Constants.CURRENT_MODE) {
-            case REAL:
-                yield new Claw(new ClawIOReal(
-                        clawMainWheelsMotor,
-                        clawFollowerWheelsMotor,
-                        RobotMap.clawMainWheelsMotorInverted,
-                        clawOpenCloseMotor,
-                        RobotMap.clawOpenCloseMotorInverted,
-                        clawOpenCloseEncoder,
-                        clawTiltNeo,
-                        clawTiltEncoder
-                ));
-            case SIM:
-                yield new Claw(new ClawIOSim(
-                        clawMainWheelsMotor,
-                        clawFollowerWheelsMotor,
-                        RobotMap.clawMainWheelsMotorInverted,
-                        clawOpenCloseMotor,
-                        RobotMap.clawOpenCloseMotorInverted,
-                        clawOpenCloseEncoder,
-                        clawTiltNeo,
-                        clawTiltEncoder,
-                        elevator::getElevatorSimState
-                ));
-            case REPLAY:
-                yield new Claw(new ClawIO() {});
+            case REAL -> new Claw(new ClawIOReal(
+                    clawMainWheelsMotor,
+                    clawFollowerWheelsMotor,
+                    RobotMap.clawMainWheelsMotorInverted,
+                    clawOpenCloseMotor,
+                    RobotMap.clawOpenCloseMotorInverted,
+                    clawOpenCloseEncoder,
+                    clawTiltNeo,
+                    clawTiltEncoder
+            ));
+            case SIM -> new Claw(new ClawIOSim(
+                    clawMainWheelsMotor,
+                    clawFollowerWheelsMotor,
+                    RobotMap.clawMainWheelsMotorInverted,
+                    clawOpenCloseMotor,
+                    RobotMap.clawOpenCloseMotorInverted,
+                    clawOpenCloseEncoder,
+                    clawTiltNeo,
+                    clawTiltEncoder,
+                    elevator::getElevatorSimState
+            ));
+            case REPLAY -> new Claw(new ClawIO() {});
         };
 
         //Swerve

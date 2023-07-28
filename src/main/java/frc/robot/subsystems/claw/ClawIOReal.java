@@ -97,17 +97,15 @@ public class ClawIOReal implements ClawIO {
 
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
-        inputs.currentTiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
-        inputs.currentTiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
-        inputs.desiredTiltControlInput = desiredTiltControlInput;
+        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
 
-        inputs.currentOpenCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
-        inputs.currentOpenCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
-        inputs.desiredOpenCloseControlInput = desiredOpenCloseControlInput;
+        inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
+        inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
 
-        inputs.desiredIntakeWheelsPercentOutput = desiredIntakeWheelsPercentOutput;
+        inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
     public void config() {

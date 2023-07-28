@@ -28,9 +28,6 @@ public class SwerveDriveTeleop extends CommandBase {
     }
 
     @Override
-    public void initialize() {}
-
-    @Override
     public void execute() {
         final double matchTime = DriverStation.getMatchTime();
         if (matchTime >= 0 && matchTime < Constants.MATCH_END_THRESHOLD_SEC) {
@@ -76,8 +73,6 @@ public class SwerveDriveTeleop extends CommandBase {
                 throttleWeight
         );
 
-
-
         if (controller.getRightStickButton()) {
             final double rightStickXInput = ControllerUtils.getStickInput(controller.getRightX(), 0.01);
             final double rightStickYInput = ControllerUtils.getStickInput(controller.getRightY(), 0.01);
@@ -108,11 +103,6 @@ public class SwerveDriveTeleop extends CommandBase {
                     true
             );
         }
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
     }
 
     @Override

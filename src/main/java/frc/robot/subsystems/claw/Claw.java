@@ -35,11 +35,20 @@ public class Claw extends SubsystemBase {
         Logger.getInstance().recordOutput(logKey + "/AtDesiredState", atDesiredState);
 
         Logger.getInstance().recordOutput(
-                logKey + "/TiltControlMode", currentState.getClawTiltControlMode().toString()
+                logKey + "/DesiredTiltControlInput", desiredState.getTiltControlInput()
+        );
+        Logger.getInstance().recordOutput(
+                logKey + "/DesiredOpenCloseControlInput", desiredState.getOpenCloseControlInput()
+        );
+        Logger.getInstance().recordOutput(
+                logKey + "/DesiredIntakeWheelsPercentOutput", desiredState.getIntakeWheelsPercentOutput()
         );
 
         Logger.getInstance().recordOutput(
-                logKey + "/OpenCloseControlMode", currentState.getClawOpenCloseControlMode().toString()
+                logKey + "/DesiredTiltControlMode", desiredState.getClawTiltControlMode().toString()
+        );
+        Logger.getInstance().recordOutput(
+                logKey + "/DesiredOpenCloseControlMode", desiredState.getClawOpenCloseControlMode().toString()
         );
     }
 
@@ -57,22 +66,22 @@ public class Claw extends SubsystemBase {
 
             final boolean isAtDesired =
                     MathUtils.withinTolerance(
-                            inputs.currentIntakeWheelsPercentOutput,
-                            inputs.desiredIntakeWheelsPercentOutput,
+                            inputs.intakeWheelsPercentOutput,
+                            currentState.getIntakeWheelsPercentOutput(),
                             0.05
                     ) && MathUtils.withinTolerance(
                             switch (openCloseControlMode) {
-                                case POSITION -> inputs.currentOpenCloseEncoderPositionRots;
-                                case DUTY_CYCLE -> inputs.currentOpenClosePercentOutput;
+                                case POSITION -> inputs.openCloseEncoderPositionRots;
+                                case DUTY_CYCLE -> inputs.openClosePercentOutput;
                             },
-                            inputs.desiredOpenCloseControlInput,
+                            currentState.getOpenCloseControlInput(),
                             0.05
                     ) && MathUtils.withinTolerance(
                             switch (tiltControlMode) {
-                                case POSITION -> inputs.currentTiltEncoderPositionRots;
-                                case DUTY_CYCLE -> inputs.currentTiltPercentOutput;
+                                case POSITION -> inputs.tiltEncoderPositionRots;
+                                case DUTY_CYCLE -> inputs.tiltPercentOutput;
                             },
-                            inputs.desiredTiltControlInput,
+                            currentState.getTiltControlInput(),
                             0.05
                     );
 
