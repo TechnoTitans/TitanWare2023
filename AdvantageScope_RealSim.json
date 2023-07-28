@@ -46,7 +46,7 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "Front_Left"
     },
     {
       "type": 1,
@@ -119,7 +119,7 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "Module_Drives"
     },
     {
       "type": 1,
@@ -192,7 +192,7 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "Module_Turns"
     },
     {
       "type": 1,
@@ -260,64 +260,7 @@
           ]
         }
       },
-      "title": "Line Graph"
-    },
-    {
-      "type": 1,
-      "legends": {
-        "left": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": [
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/gyroUseOdometryPose/0",
-              "color": "#e5b31b",
-              "show": false
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/gyroUseOdometryPose/1",
-              "color": "#2b66a2",
-              "show": false
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/gyroUseOdometryPose/2",
-              "color": "#af2437",
-              "show": false
-            }
-          ]
-        },
-        "discrete": {
-          "fields": []
-        },
-        "right": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": [
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDx",
-              "color": "#80588e",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDy",
-              "color": "#e48b32",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/wheelDeltasTwistDTheta",
-              "color": "#aacaee",
-              "show": true
-            }
-          ]
-        }
-      },
-      "title": "Line Graph"
+      "title": "Gyro"
     },
     {
       "type": 1,
@@ -377,7 +320,7 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "Auto"
     },
     {
       "type": 5,
@@ -402,6 +345,11 @@
           {
             "type": "Trajectory",
             "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentZoneTrajectory",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/WantedPose",
             "fieldTypeIndex": 0
           }
         ]

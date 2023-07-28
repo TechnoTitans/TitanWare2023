@@ -9,7 +9,6 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.teleop.ControllerUtils;
-import org.littletonrobotics.junction.Logger;
 
 public class SwerveDriveTeleop extends CommandBase {
     private final Swerve swerve;
@@ -86,12 +85,6 @@ public class SwerveDriveTeleop extends CommandBase {
             final double rightStickAngleDeg =
                     ControllerUtils.getFieldRelativeAngleFromStickInputs(rightStickXInput, rightStickYInput)
                             .getDegrees();
-
-            Logger.getInstance().recordOutput("RightStickAngleDeg", rightStickAngleDeg);
-
-//                    -Units.radiansToDegrees(
-//                    Math.atan2(-controller.getRightY(), controller.getRightX())
-//            ) + 90;
 
             swerve.faceDirection(
                     xSpeed,

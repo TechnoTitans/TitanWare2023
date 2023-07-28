@@ -15,6 +15,7 @@ import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.teleop.ButtonBindings;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -133,9 +134,9 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        final PhotonVisionIO photonVisionIO = robotContainer.photonVision.getPhotonVisionIO();
-        photonVisionIO.refreshAlliance(
-                photonVisionIO.getRobotOriginPosition(),
+        final PhotonVision photonVision = robotContainer.photonVision;
+        photonVision.refreshAlliance(
+                photonVision.getRobotOriginPosition(),
                 robotContainer.swerve,
                 robotContainer.poseEstimator
         );
@@ -154,9 +155,9 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         ButtonBindings.bindAll(robotContainer);
 
-        final PhotonVisionIO photonVisionIO = robotContainer.photonVision.getPhotonVisionIO();
-        photonVisionIO.refreshAlliance(
-                photonVisionIO.getRobotOriginPosition(),
+        final PhotonVision photonVision = robotContainer.photonVision;
+        photonVision.refreshAlliance(
+                photonVision.getRobotOriginPosition(),
                 robotContainer.swerve,
                 robotContainer.poseEstimator
         );

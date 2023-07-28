@@ -22,7 +22,6 @@ import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.SimUtils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
 
@@ -111,15 +110,10 @@ public class ClawIOSim implements ClawIO {
                 openCloseControlMode.getControlMode(), desiredOpenCloseControlInput
         );
 
-        Logger.getInstance().recordOutput("OpenCloseControlInput", controlInput);
-
         clawOpenCloseMotor.set(
                 openCloseControlMode.getControlMode(),
                 controlInput
         );
-
-        Logger.getInstance().recordOutput("ClawTiltPIDPositionError", tiltPID.getPositionError());
-        Logger.getInstance().recordOutput("ClawTiltPIDVelocityError", tiltPID.getVelocityError());
 
         switch (clawTiltControlMode) {
             case POSITION -> clawTiltNeo.set(

@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
@@ -242,5 +243,13 @@ public class PoseUtils {
 
     public static Pose3d withAxisOffset(final Pose3d pose3d, final Axis axis, final double offset) {
         return pose3d.plus(axis.getWithScalarOffset(offset));
+    }
+
+    public static Pose2d flipPose2dByOriginPosition(
+            final Pose2d pose2d, final AprilTagFieldLayout.OriginPosition originPosition
+    ) {
+        return originPosition == AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide
+                ? pose2d
+                : PoseUtils.flipPose(pose2d);
     }
 }

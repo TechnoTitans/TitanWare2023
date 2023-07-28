@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
+import frc.robot.utils.PoseUtils;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;
@@ -54,17 +55,10 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
                 ));
 
         this.lastEstimatedPosesByCamera = new EstimatedRobotPose[apriltagCameras.size()];
-
-        refreshAlliance(robotOriginPosition, swerve, poseEstimator);
     }
 
     @Override
-    public AprilTagFieldLayout.OriginPosition getRobotOriginPosition() {
-        return robotOriginPosition;
-    }
-
-    @Override
-    public void setRobotOriginPosition(AprilTagFieldLayout.OriginPosition robotOriginPosition) {
+    public void setRobotOriginPosition(final AprilTagFieldLayout.OriginPosition robotOriginPosition) {
         this.robotOriginPosition = robotOriginPosition;
     }
 
@@ -129,7 +123,7 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
             }
 
             //TODO: do we need to do flipPose
-            final Pose2d flippedEstimatedPose = flipPose2dByOriginPosition(
+            final Pose2d flippedEstimatedPose = PoseUtils.flipPose2dByOriginPosition(
                     estimatedRobotPose.estimatedPose.toPose2d(), robotOriginPosition
             );
 

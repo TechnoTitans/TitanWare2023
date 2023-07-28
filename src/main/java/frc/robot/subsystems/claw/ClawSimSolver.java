@@ -169,16 +169,6 @@ public class ClawSimSolver {
     }
 
     public void update(final double dt, final ElevatorSimSolver.ElevatorSimState elevatorSimState) {
-        Logger.getInstance().recordOutput("ClawTiltEncoderPosition", getClawTiltPosition());
-        Logger.getInstance().recordOutput("ClawTiltEncoderVelocity", clawTiltEncoder.getVelocity().refresh().getValue());
-
-        Logger.getInstance().recordOutput("ArmSimPosition", Units.radiansToRotations(clawTiltSim.getAngleRads()));
-        Logger.getInstance().recordOutput("ArmSimVelocity", Units.radiansToRotations(clawTiltSim.getVelocityRadPerSec()));
-
-        Logger.getInstance().recordOutput("SparkMAXMotorVoltage", clawTiltSimMotor.getMotorVoltage(CANSparkMax.ControlType.kVoltage));
-        Logger.getInstance().recordOutput("SparkMAXBusVoltage", clawTiltNeo.getBusVoltage());
-        Logger.getInstance().recordOutput("SparkMAXAppliedOutput", clawTiltNeo.getAppliedOutput());
-
         updateTiltInternal(dt, elevatorSimState);
         updateOpenCloseInternal(dt);
         updateIntakeWheelsInternal(dt);

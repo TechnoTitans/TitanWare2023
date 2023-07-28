@@ -23,7 +23,7 @@ public class AutoAlignment extends CommandBase {
     private final ProfiledPIDController alignPIDController;
 
     private AlignmentZone.GenericDesiredAlignmentPosition desiredAlignmentPosition;
-    private AlignmentZone desiredAlignmentZone;
+    private AlignmentZone desiredUnmappedAlignmentZone;
     private Pose2d targetPose;
 
     public AutoAlignment(
@@ -52,7 +52,7 @@ public class AutoAlignment extends CommandBase {
 
     @Override
     public void initialize() {
-        final ChassisSpeeds swerveChassisSpeeds = swerve.getRobotRelativeSpeeds();
+        final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
         this.alignPIDController.reset(
                 poseEstimator.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
         );
@@ -65,23 +65,23 @@ public class AutoAlignment extends CommandBase {
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
         final AlignmentZone currentAlignmentZone =
                 AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose);
-        final AlignmentZone currentLoggedAlignmentZone =
+        final AlignmentZone currentUnmappedAlignmentZone =
                 AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose, true);
 
-        if (currentAlignmentZone == null || currentLoggedAlignmentZone == null) {
+        if (currentAlignmentZone == null || currentUnmappedAlignmentZone == null) {
             // if we're not in any alignment zone, then there's no point in doing anything so just ignore
             this.end(true);
             return;
         }
 
-        desiredAlignmentZone = currentAlignmentZone;
+        desiredUnmappedAlignmentZone = currentUnmappedAlignmentZone;
         targetPose = currentAlignmentZone.getAlignmentPosition(desiredAlignmentPosition);
 
         Logger.getInstance().recordOutput("AutoAlign/IsActive", true);
-        Logger.getInstance().recordOutput("AutoAlign/AlignmentZone", currentLoggedAlignmentZone.toString());
+        Logger.getInstance().recordOutput("AutoAlign/DesiredAlignmentZone", desiredUnmappedAlignmentZone.toString());
         Logger.getInstance().recordOutput("AutoAlign/WantedPose", targetPose);
         Logger.getInstance().recordOutput(
-                "AutoAlign/AlignmentZoneTrajectory", currentLoggedAlignmentZone.getLoggablePoseRegionArray()
+                "AutoAlign/AlignmentZoneTrajectory", desiredUnmappedAlignmentZone.getLoggablePoseRegionArray()
         );
     }
 
@@ -115,17 +115,20 @@ public class AutoAlignment extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        Logger.getInstance().recordOutput("AutoAlign/TargetPoseIsNull", targetPose == null);
-        Logger.getInstance().recordOutput("AutoAlign/AlignPIDAtGoal", alignPIDController.atGoal());
+        final boolean targetPoseIsNull = targetPose == null;
+        final boolean isAtGoal = alignPIDController.atGoal();
+
+        Logger.getInstance().recordOutput("AutoAlign/TargetPoseIsNull", targetPoseIsNull);
+        Logger.getInstance().recordOutput("AutoAlign/AlignPIDAtGoal", isAtGoal);
 
         // check targetPose first as it should be the least expensive check
-        if (targetPose == null) {
+        if (targetPoseIsNull) {
             return true;
         }
 
         // check the pid and rotation after targetPose check so that we aren't unnecessarily calling these
         // they should remain mostly inexpensive to call though, still
-        if (alignPIDController.atGoal()
+        if (isAtGoal
                 && MathUtils.withinTolerance(
                         swerve.getYaw().getRadians(), targetPose.getRotation().getRadians(), Units.degreesToRadians(5))
         ) {
@@ -134,7 +137,10 @@ public class AutoAlignment extends CommandBase {
 
         // check this last so that we're only checking the pose against the alignment zone if we absolutely need to
         final Pose2d currentPose = poseEstimator.getEstimatedPosition();
-        return !AlignmentZone.isPoseInAlignmentZone(currentPose, desiredAlignmentZone);
+        return !AlignmentZone.isPoseInAlignmentZone(
+                currentPose,
+                desiredUnmappedAlignmentZone
+        );
     }
 
     @Override

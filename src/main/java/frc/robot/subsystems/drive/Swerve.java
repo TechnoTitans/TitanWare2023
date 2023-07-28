@@ -90,11 +90,14 @@ public class Swerve extends SubsystemBase {
         //log current swerve chassis speeds
         final ChassisSpeeds robotRelativeSpeeds = getRobotRelativeSpeeds();
         Logger.getInstance().recordOutput(
-                logKey + "/ChassisSpeed",
+                logKey + "/LinearSpeedMetersPerSecond",
                 Math.hypot(robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
         );
         Logger.getInstance().recordOutput(
-                logKey + "/ChassisSpeeds", LogUtils.toDoubleArray(getRobotRelativeSpeeds())
+                logKey + "/RobotRelativeChassisSpeeds", LogUtils.toDoubleArray(robotRelativeSpeeds)
+        );
+        Logger.getInstance().recordOutput(
+                logKey + "/FieldRelativeChassisSpeeds", LogUtils.toDoubleArray(getFieldRelativeSpeeds())
         );
 
         //prep states for display
@@ -146,10 +149,17 @@ public class Swerve extends SubsystemBase {
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return kinematics.toChassisSpeeds(
-                frontLeft.getState(),
-                frontRight.getState(),
-                backLeft.getState(),
-                backRight.getState()
+                    frontLeft.getState(),
+                    frontRight.getState(),
+                    backLeft.getState(),
+                    backRight.getState()
+        );
+    }
+
+    public ChassisSpeeds getFieldRelativeSpeeds() {
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                getRobotRelativeSpeeds(),
+                getYaw().times(-1)
         );
     }
 

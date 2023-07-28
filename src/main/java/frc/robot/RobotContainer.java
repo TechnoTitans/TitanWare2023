@@ -26,16 +26,15 @@ import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.ClawIO;
 import frc.robot.subsystems.claw.ClawIOReal;
 import frc.robot.subsystems.claw.ClawIOSim;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.SwerveModuleIOImpl;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIOReal;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.ElevatorSimSolver;
+import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.gyro.Gyro;
+import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.Enums;
@@ -47,6 +46,7 @@ import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
 
 import java.util.List;
@@ -96,6 +96,7 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
+    public final ElevatorSimSolver elevatorSimSolver;
     public final Elevator elevator;
     public final Claw claw;
 
@@ -207,8 +208,16 @@ public class RobotContainer {
             case SIM:
                 yield new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
             case REPLAY:
-                throw new RuntimeException("this isn't possible");
+                yield new Gyro(new GyroIO() {}, pigeon2);
         };
+
+        elevatorSimSolver = new ElevatorSimSolver(
+                elevatorVerticalMotorMain,
+                elevatorVerticalMotorFollower,
+                elevatorVerticalEncoder,
+                elevatorHorizontalEncoder,
+                elevatorHorizontalNeo
+        );
 
         //Elevator
         elevator = switch (Constants.CURRENT_MODE) {
@@ -226,14 +235,6 @@ public class RobotContainer {
                         elevatorHorizontalLimitSwitch
                 ));
             case SIM:
-                final ElevatorSimSolver elevatorSimSolver = new ElevatorSimSolver(
-                        elevatorVerticalMotorMain,
-                        elevatorVerticalMotorFollower,
-                        elevatorVerticalEncoder,
-                        elevatorHorizontalEncoder,
-                        elevatorHorizontalNeo
-                );
-
                 yield new Elevator(
                         new ElevatorIOSim(
                                 elevatorVerticalMotorMain,
@@ -252,7 +253,7 @@ public class RobotContainer {
                         elevatorSimSolver
                 );
             case REPLAY:
-                throw new RuntimeException("this isn't possible");
+                yield new Elevator(new ElevatorIO() {}, elevatorSimSolver);
         };
 
         claw = switch (Constants.CURRENT_MODE) {
@@ -280,7 +281,7 @@ public class RobotContainer {
                         elevator::getElevatorSimState
                 ));
             case REPLAY:
-                throw new RuntimeException("this isn't possible");
+                yield new Claw(new ClawIO() {});
         };
 
         //Swerve
@@ -339,7 +340,7 @@ public class RobotContainer {
                         swerve, poseEstimator, field
                 );
             case REPLAY:
-                throw new RuntimeException("this isn't possible");
+                yield new PhotonVision(new PhotonVisionIO() {}, swerve, poseEstimator, field);
         };
 
         //LEDs
