@@ -1,13 +1,9 @@
 package frc.robot.wrappers.sensors.vision;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
-import frc.robot.subsystems.drive.Swerve;
-import frc.robot.utils.PoseUtils;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;

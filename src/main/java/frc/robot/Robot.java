@@ -16,7 +16,6 @@ import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.teleop.ButtonBindings;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;

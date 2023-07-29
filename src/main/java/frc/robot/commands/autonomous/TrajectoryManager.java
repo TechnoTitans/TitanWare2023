@@ -1,7 +1,6 @@
 package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;

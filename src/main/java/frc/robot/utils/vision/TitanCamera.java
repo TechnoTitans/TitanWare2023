@@ -1,21 +1,14 @@
 package frc.robot.utils.vision;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N5;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
-import org.ejml.simple.SimpleMatrix;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.SimCameraProperties;
-
-import java.io.IOException;
 
 public enum TitanCamera {
     DRIVER_CAM(
