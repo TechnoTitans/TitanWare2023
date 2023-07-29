@@ -34,6 +34,24 @@ public enum TitanCamera {
             SimCameraProperties.PERFECT_90DEG().getIntrinsics(),
             SimCameraProperties.PERFECT_90DEG().getDistCoeffs(),
             false
+    ),
+    //TODO: put real numbers here -> get these fake intrinsics and distortion values out of here
+    PHOTON_FL_Apriltag_L(
+            RobotMap.PhotonVision_FL_Apriltag_L,
+            Constants.Vision.ROBOT_TO_FL_APRILTAG_CAM_L,
+            CameraProperties.ARDUCAM_B0332_OV9281,  //TODO: GET FOR NEW CAMERAS
+            SimCameraProperties.PERFECT_90DEG().getIntrinsics(),
+            SimCameraProperties.PERFECT_90DEG().getDistCoeffs(),
+            false
+    ),
+    //TODO: put real numbers here -> get these fake intrinsics and distortion values out of here
+    PHOTON_BR_Apriltag_B(
+            RobotMap.PhotonVision_BR_Apriltag_B,
+            Constants.Vision.ROBOT_TO_BR_APRILTAG_CAM_B,
+            CameraProperties.ARDUCAM_B0332_OV9281, //TODO: GET FOR NEW CAMERAS
+            SimCameraProperties.PERFECT_90DEG().getIntrinsics(),
+            SimCameraProperties.PERFECT_90DEG().getDistCoeffs(),
+            false
     );
 
     private final PhotonCamera photonCamera;

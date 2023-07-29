@@ -92,7 +92,7 @@ public class RobotContainer {
 
     //Vision
     public final TitanCamera photonDriveCamera;
-    public final TitanCamera photonFR_Apriltag_R, photonFR_Apriltag_F;
+    public final TitanCamera photonFR_Apriltag_R, photonFR_Apriltag_F, photonFL_Apriltag_L, photonBR_Apriltag_B;
     public final PhotonVision photonVision;
 
     //Candle
@@ -334,8 +334,16 @@ public class RobotContainer {
         photonDriveCamera = TitanCamera.DRIVER_CAM;
         photonFR_Apriltag_F = TitanCamera.PHOTON_FR_APRILTAG_F;
         photonFR_Apriltag_R = TitanCamera.PHOTON_FR_Apriltag_R;
+        photonFL_Apriltag_L = TitanCamera.PHOTON_FL_Apriltag_L;
+        photonBR_Apriltag_B = TitanCamera.PHOTON_BR_Apriltag_B;
 
-        final List<TitanCamera> apriltagCameras = List.of(photonFR_Apriltag_R, photonFR_Apriltag_F);
+        final List<TitanCamera> apriltagCameras = List.of(
+                photonFR_Apriltag_R,
+                photonFR_Apriltag_F,
+                photonFL_Apriltag_L,
+                photonBR_Apriltag_B
+        );
+
         photonVision = switch (Constants.CURRENT_MODE) {
             case REAL:
                 yield new PhotonVision(

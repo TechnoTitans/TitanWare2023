@@ -173,7 +173,7 @@ public interface Constants {
         //L = Left, R = Right, F = Forward, B = Backward (Facing)
         Transform3d ROBOT_TO_FR_APRILTAG_CAM_R = new Transform3d(
                 new Translation3d(Units.inchesToMeters(13.449), Units.inchesToMeters(-13.762), Units.inchesToMeters(7.922)),
-                new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(-70))
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(-70))
         );
 
         Transform3d ROBOT_TO_FR_APRILTAG_CAM_F = new Transform3d(
@@ -181,9 +181,14 @@ public interface Constants {
                 new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(25))
         );
 
+        Transform3d ROBOT_TO_FL_APRILTAG_CAM_L = new Transform3d(
+                new Translation3d(Units.inchesToMeters(12.78474), Units.inchesToMeters(13.52291), Units.inchesToMeters(9.43904)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(120))
+        );
+
         Transform3d ROBOT_TO_BR_APRILTAG_CAM_B = new Transform3d(
-                new Translation3d(Units.inchesToMeters(12.002), Units.inchesToMeters(11.349), Units.inchesToMeters(9.151)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(30))
+                new Translation3d(Units.inchesToMeters(-11.87298), Units.inchesToMeters(-11.36695), Units.inchesToMeters(9.151)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(205))
         );
 
         /**
