@@ -64,10 +64,9 @@ public class PhotonVision extends SubsystemBase {
 
         this.field2d = field2d;
 
-        refreshAlliance(swerve, poseEstimator);
+        refreshAlliance(poseEstimator);
 
         final Pose2d estimatedPose = poseEstimator.getEstimatedPosition();
-        visionIndependentOdometry.resetPosition(swerve.getYaw(), swerve.getModulePositions(), estimatedPose);
         resetPosition(estimatedPose);
     }
 
@@ -114,12 +113,11 @@ public class PhotonVision extends SubsystemBase {
     }
 
     public void refreshAlliance(
-            final Swerve swerve,
             final SwerveDrivePoseEstimator poseEstimator
     ) {
         refreshAlliance(originPosition, (originPosition) -> {
             final Pose2d newPose = PoseUtils.flipPose(poseEstimator.getEstimatedPosition());
-            poseEstimator.resetPosition(swerve.getYaw(), swerve.getModulePositions(), newPose);
+            resetPosition(newPose);
 
             setRobotOriginPosition(originPosition);
         });
@@ -133,12 +131,13 @@ public class PhotonVision extends SubsystemBase {
         return poseEstimator.getEstimatedPosition();
     }
 
-    public void resetPosition(final Pose2d robotPose, final Rotation2d holonomicRotation) {
-        poseEstimator.resetPosition(holonomicRotation, swerve.getModulePositions(), robotPose);
+    public void resetPosition(final Pose2d robotPose, final Rotation2d robotYaw) {
+        visionIndependentOdometry.resetPosition(robotYaw, swerve.getModulePositions(), robotPose);
+        poseEstimator.resetPosition(robotYaw, swerve.getModulePositions(), robotPose);
         photonVisionIO.resetRobotPose(new Pose3d(robotPose));
     }
 
     public void resetPosition(final Pose2d robotPose) {
-        resetPosition(robotPose, robotPose.getRotation());
+        resetPosition(robotPose, swerve.getYaw());
     }
 }

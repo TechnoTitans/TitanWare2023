@@ -147,8 +147,7 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
                 )
         );
 
-        for (
-                final ListIterator<PhotonRunnable> runnableIterator = photonRunnableNotifierMap
+        for (final ListIterator<PhotonRunnable> runnableIterator = photonRunnableNotifierMap
                         .keySet()
                         .stream()
                         .toList()
@@ -178,4 +177,5 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
     public void resetRobotPose(final Pose3d robotPose) {
         visionSystemSim.resetRobotPose(robotPose);
     }
+
 }

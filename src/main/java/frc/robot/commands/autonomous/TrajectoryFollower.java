@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,6 +30,7 @@ public class TrajectoryFollower extends CommandBase {
     public static final double MAX_TIME_DIFF_SECONDS = 0.1;
     public static final double MAX_DISTANCE_DIFF_METERS = 0.05;
     public static final boolean USE_ODOMETRY_FOR_MARKERS = true;
+    public static boolean HAS_AUTO_RAN = false;
 
     private final TitanTrajectory trajectory;
     private TitanTrajectory transformedTrajectory;
@@ -98,11 +98,14 @@ public class TrajectoryFollower extends CommandBase {
 
         //TODO: this setAngle call causes loop overruns in sim - seems to be a CTRE implementation issue?
         // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
-        swerve.setAngle(initialHolonomicRotation.getDegrees());
-        photonVision.resetPosition(
-                new Pose2d(initialState.poseMeters.getTranslation(), initialHolonomicRotation),
-                initialHolonomicRotation
-        );
+        if (!TrajectoryFollower.HAS_AUTO_RAN) {
+            photonVision.resetPosition(
+                    new Pose2d(initialState.poseMeters.getTranslation(), initialHolonomicRotation),
+                    initialHolonomicRotation
+            );
+            TrajectoryFollower.HAS_AUTO_RAN = true;
+        }
+
 
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
@@ -147,7 +150,8 @@ public class TrajectoryFollower extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return !RobotState.isAutonomous() || timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
+        return //!RobotState.isAutonomous() ||
+                timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
     }
 
     private void driveToState(final PathPlannerTrajectory.PathPlannerState state, final Pose2d currentPose) {

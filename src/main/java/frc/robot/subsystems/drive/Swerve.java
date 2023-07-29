@@ -2,7 +2,6 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -17,6 +16,7 @@ import frc.robot.subsystems.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.logging.LogUtils;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
@@ -138,12 +138,11 @@ public class Swerve extends SubsystemBase {
         gyro.setAngle(angle);
     }
 
-    public void zeroRotation(final SwerveDrivePoseEstimator poseEstimator) {
+    public void zeroRotation(final PhotonVision photonVision) {
         gyro.zeroRotation();
-        poseEstimator.resetPosition(
-                Rotation2d.fromDegrees(0),
-                getModulePositions(),
-                poseEstimator.getEstimatedPosition()
+        photonVision.resetPosition(
+                photonVision.getEstimatedPosition(),
+                Rotation2d.fromDegrees(0)
         );
     }
 
@@ -251,11 +250,11 @@ public class Swerve extends SubsystemBase {
     public void faceDirection(
             final double dx,
             final double dy,
-            final double theta,
+            final Rotation2d theta,
             final boolean fieldRelative,
             final double rotation_kP
     ) {
-        final Rotation2d error = Rotation2d.fromDegrees(theta).minus(getYaw());
+        final Rotation2d error = theta.minus(getYaw());
         final Rotation2d rotPower = error.times(rotation_kP);
 
         drive(dx, dy, rotPower.getRadians(), fieldRelative);
@@ -271,7 +270,7 @@ public class Swerve extends SubsystemBase {
     public void faceDirection(
             final double dx,
             final double dy,
-            final double theta,
+            final Rotation2d theta,
             final boolean fieldRelative
     ) {
         faceDirection(dx, dy, theta, fieldRelative, Constants.Swerve.ROTATE_P);

@@ -1,7 +1,6 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -14,11 +13,12 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.teleop.ControllerUtils;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoAlignment extends CommandBase {
     private final Swerve swerve;
-    private final SwerveDrivePoseEstimator poseEstimator;
+    private final PhotonVision photonVision;
     private final XboxController mainController;
     private final ProfiledPIDController alignPIDController;
 
@@ -28,12 +28,12 @@ public class AutoAlignment extends CommandBase {
 
     public AutoAlignment(
             final Swerve swerve,
-            final SwerveDrivePoseEstimator poseEstimator,
+            final PhotonVision photonVision,
             final XboxController mainController
     ) {
         this.swerve = swerve;
         this.mainController = mainController;
-        this.poseEstimator = poseEstimator;
+        this.photonVision = photonVision;
         this.alignPIDController = new ProfiledPIDController(
                 5, 0, 0,
                 new TrapezoidProfile.Constraints(4, 4)
@@ -54,7 +54,7 @@ public class AutoAlignment extends CommandBase {
     public void initialize() {
         final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
         this.alignPIDController.reset(
-                poseEstimator.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
+                photonVision.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
         );
 
         if (desiredAlignmentPosition == null) {
@@ -62,7 +62,7 @@ public class AutoAlignment extends CommandBase {
             return;
         }
 
-        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
         final AlignmentZone currentAlignmentZone =
                 AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose);
         final AlignmentZone currentUnmappedAlignmentZone =
@@ -91,7 +91,7 @@ public class AutoAlignment extends CommandBase {
             return;
         }
 
-        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
         final double xSpeed = ControllerUtils.getStickInputWithWeight(
                 mainController.getLeftY(),
                 0.01,
@@ -104,7 +104,7 @@ public class AutoAlignment extends CommandBase {
         swerve.faceDirection(
                 xSpeed,
                 alignPIDController.calculate(currentPose.getY(), targetPose.getY()),
-                targetPose.getRotation().getDegrees(),
+                targetPose.getRotation(),
                 true
         );
 
@@ -136,7 +136,7 @@ public class AutoAlignment extends CommandBase {
         }
 
         // check this last so that we're only checking the pose against the alignment zone if we absolutely need to
-        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
         return !AlignmentZone.isPoseInAlignmentZone(
                 currentPose,
                 desiredUnmappedAlignmentZone

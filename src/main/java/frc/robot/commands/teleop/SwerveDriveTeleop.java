@@ -1,5 +1,6 @@
 package frc.robot.commands.teleop;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -77,9 +78,8 @@ public class SwerveDriveTeleop extends CommandBase {
             final double rightStickXInput = ControllerUtils.getStickInput(controller.getRightX(), 0.01);
             final double rightStickYInput = ControllerUtils.getStickInput(controller.getRightY(), 0.01);
 
-            final double rightStickAngleDeg =
-                    ControllerUtils.getFieldRelativeAngleFromStickInputs(rightStickXInput, rightStickYInput)
-                            .getDegrees();
+            final Rotation2d rightStickAngleDeg =
+                    ControllerUtils.getFieldRelativeAngleFromStickInputs(rightStickXInput, rightStickYInput);
 
             swerve.faceDirection(
                     xSpeed,

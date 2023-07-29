@@ -1,6 +1,7 @@
 package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
@@ -53,6 +54,18 @@ public class TrajectoryManager {
         final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
         return new TrajectoryFollower(
                 swerve, controller, photonVision, trajectory, true, claw, elevator
+        );
+    }
+
+    public TrajectoryFollower getCommand(final PathPlannerTrajectory pathPlannerTrajectory) {
+        return new TrajectoryFollower(
+                swerve,
+                controller,
+                photonVision,
+                TitanTrajectory.fromPathPlannerTrajectory(pathPlannerTrajectory),
+                false,
+                claw,
+                elevator
         );
     }
 
