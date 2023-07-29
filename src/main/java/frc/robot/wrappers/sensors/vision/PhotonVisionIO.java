@@ -3,6 +3,7 @@ package frc.robot.wrappers.sensors.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.utils.PoseUtils;
@@ -24,5 +25,5 @@ public interface PhotonVisionIO {
 
     default void periodic() {}
 
-    default void setRobotOriginPosition(AprilTagFieldLayout.OriginPosition robotOriginPosition) {}
+    default void resetRobotPose(final Pose3d robotPose) {}
 }

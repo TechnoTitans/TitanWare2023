@@ -527,7 +527,7 @@
         [
           {
             "type": "Robot",
-            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot2d",
             "fieldTypeIndex": 0
           }
         ]

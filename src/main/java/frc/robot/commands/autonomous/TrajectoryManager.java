@@ -8,19 +8,26 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 public class TrajectoryManager {
     private final Swerve swerve;
     private final DriveController controller;
-    private final SwerveDrivePoseEstimator poseEstimator;
+    private final PhotonVision photonVision;
 
     private final Claw claw;
     private final Elevator elevator;
 
-    public TrajectoryManager(Swerve swerve, DriveController controller, SwerveDrivePoseEstimator poseEstimator, Claw claw, Elevator elevator) {
+    public TrajectoryManager(
+            final Swerve swerve,
+            final DriveController controller,
+            final PhotonVision photonVision,
+            final Claw claw,
+            final Elevator elevator
+    ) {
         this.swerve = swerve;
         this.controller = controller;
-        this.poseEstimator = poseEstimator;
+        this.photonVision = photonVision;
 
         this.claw = claw;
         this.elevator = elevator;
@@ -46,7 +53,7 @@ public class TrajectoryManager {
     public TrajectoryFollower getCommand(final AutoOption autoOption) {
         final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
         return new TrajectoryFollower(
-                swerve, controller, poseEstimator, trajectory, true, claw, elevator
+                swerve, controller, photonVision, trajectory, true, claw, elevator
         );
     }
 

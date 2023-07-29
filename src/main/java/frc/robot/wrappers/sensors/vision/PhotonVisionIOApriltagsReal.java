@@ -20,18 +20,16 @@ import java.util.stream.Collectors;
 public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Map<PhotonRunnable, Notifier> photonRunnableNotifierMap;
-    private AprilTagFieldLayout.OriginPosition robotOriginPosition = AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
 
     private final EstimatedRobotPose[] lastEstimatedPosesByCamera;
 
     public PhotonVisionIOApriltagsReal(
-            final Swerve swerve,
             final SwerveDrivePoseEstimator poseEstimator,
             final List<TitanCamera> apriltagCameras
     ) {
         this.poseEstimator = poseEstimator;
 
-        if (TitanCamera.apriltagFieldLayout == null) {
+        if (PhotonVision.apriltagFieldLayout == null) {
             this.photonRunnableNotifierMap = Map.of();
             this.lastEstimatedPosesByCamera = new EstimatedRobotPose[0];
             return;
@@ -39,7 +37,7 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
 
         this.photonRunnableNotifierMap = apriltagCameras
                 .stream()
-                .map(titanCamera -> new PhotonRunnable(titanCamera, TitanCamera.apriltagFieldLayout))
+                .map(titanCamera -> new PhotonRunnable(titanCamera, PhotonVision.apriltagFieldLayout))
                 .collect(Collectors.toUnmodifiableMap(
                         photonRunnable -> photonRunnable,
                         photonRunnable -> {
@@ -55,11 +53,6 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
                 ));
 
         this.lastEstimatedPosesByCamera = new EstimatedRobotPose[apriltagCameras.size()];
-    }
-
-    @Override
-    public void setRobotOriginPosition(final AprilTagFieldLayout.OriginPosition robotOriginPosition) {
-        this.robotOriginPosition = robotOriginPosition;
     }
 
     @Override
@@ -81,7 +74,7 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
             estimatedPoses.add(estimatedRobotPose.estimatedPose);
             apriltagIds.addAll(ids);
             apriltagPoses.addAll(
-                    ids.stream().map(id -> TitanCamera.apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())).toList()
+                    ids.stream().map(id -> PhotonVision.apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())).toList()
             );
         }
 
@@ -103,6 +96,11 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
 
     @Override
     public void periodic() {
+        if (ToClose.hasClosed()) {
+            // do not try to update if we've already closed
+            return;
+        }
+
         for (
                 final ListIterator<PhotonRunnable> runnableIterator = photonRunnableNotifierMap
                         .keySet()
@@ -122,14 +120,9 @@ public class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
                 continue;
             }
 
-            //TODO: do we need to do flipPose
-            final Pose2d flippedEstimatedPose = PoseUtils.flipPose2dByOriginPosition(
-                    estimatedRobotPose.estimatedPose.toPose2d(), robotOriginPosition
-            );
-
             //TODO: consider only adding a vision measurement if its somewhat close to the already existing odometry
             poseEstimator.addVisionMeasurement(
-                    flippedEstimatedPose,
+                    estimatedRobotPose.estimatedPose.toPose2d(),
                     estimatedRobotPose.timestampSeconds
             );
         }

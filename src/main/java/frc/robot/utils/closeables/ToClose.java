@@ -6,8 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ToClose {
+    private static boolean hasClosed = false;
+    private static boolean hasHooked = false;
+
     private static final List<AutoCloseable> toClose = new ArrayList<>();
     private static final Thread closingThread = new Thread(() -> {
+        if (hasClosed) {
+            return;
+        }
+        hasClosed = true;
+
         for (final AutoCloseable autoCloseable : toClose) {
             try {
                 autoCloseable.close();
@@ -18,8 +26,6 @@ public final class ToClose {
             }
         }
     });
-
-    private static boolean hasHooked = false;
 
     private ToClose() {}
 
@@ -34,5 +40,9 @@ public final class ToClose {
 
         hasHooked = true;
         Runtime.getRuntime().addShutdownHook(closingThread);
+    }
+
+    public static boolean hasClosed() {
+        return hasClosed;
     }
 }

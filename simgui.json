@@ -15,7 +15,8 @@
       "/SmartDashboard/FR_Apriltag_F Sim Field": "Field2d",
       "/SmartDashboard/FR_Apriltag_R Sim Field": "Field2d",
       "/SmartDashboard/Field": "Field2d",
-      "/SmartDashboard/Profile Chooser": "String Chooser"
+      "/SmartDashboard/Profile Chooser": "String Chooser",
+      "/SmartDashboard/VisionSystemSim-PhotonVision/Sim Field": "Field2d"
     }
   }
 }

@@ -328,28 +328,18 @@
       "listFields": [
         [
           {
+            "type": "Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot2d",
+            "fieldTypeIndex": 0
+          },
+          {
             "type": "Ghost",
             "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState",
             "fieldTypeIndex": 0
           },
           {
-            "type": "Robot",
-            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
-            "fieldTypeIndex": 0
-          },
-          {
             "type": "Vision Target",
-            "key": "NT:/AdvantageKit/RealOutputs/Auto/Markers",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentZoneTrajectory",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Ghost",
-            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/WantedPose",
+            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose2ds",
             "fieldTypeIndex": 0
           }
         ]
@@ -364,25 +354,64 @@
         "allianceOrigin": "auto",
         "orientation": "blue left, red right"
       },
-      "title": "Odometry"
+      "title": "AutoOdometry"
+    },
+    {
+      "type": 5,
+      "fields": [],
+      "listFields": [
+        [
+          {
+            "type": "Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot2d",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Vision Target",
+            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose2ds",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "game": "2023",
+        "unitDistance": "meters",
+        "unitRotation": "radians",
+        "origin": "right",
+        "size": 0.75,
+        "allianceBumpers": "auto",
+        "allianceOrigin": "blue",
+        "orientation": "blue left, red right"
+      },
+      "title": "TeleopOdometry"
     },
     {
       "type": 6,
       "fields": [],
       "listFields": [
-        [],
         [
           {
             "type": "Robot",
-            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot",
+            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot3d",
             "fieldTypeIndex": 0
           },
           {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState",
+            "type": "AprilTag ID",
+            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagIds",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Vision Target",
+            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose3ds",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/Vision/EstimatedRobotPosesByCamera",
             "fieldTypeIndex": 0
           }
-        ]
+        ],
+        []
       ],
       "options": {
         "field": "2023",

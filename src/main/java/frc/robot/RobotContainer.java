@@ -8,10 +8,13 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -39,6 +42,7 @@ import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.Enums;
+import frc.robot.utils.PoseUtils;
 import frc.robot.utils.auto.AutoChooser;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.DriveController;
@@ -49,6 +53,7 @@ import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsSim;
 
 import java.util.List;
 
@@ -71,7 +76,8 @@ public class RobotContainer {
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
-    //PoseEstimation
+    //Odometry, PoseEstimator
+    public final SwerveDriveOdometry visionIndependentOdometry;
     public final SwerveDrivePoseEstimator poseEstimator;
 
     //Swerve
@@ -88,7 +94,8 @@ public class RobotContainer {
     public final Gyro gyro;
 
     //Vision
-    public final TitanCamera photonDriveCamera, photonFR_Apriltag_R, photonFR_Apriltag_F;
+    public final TitanCamera photonDriveCamera;
+    public final TitanCamera photonFR_Apriltag_R, photonFR_Apriltag_F;
     public final PhotonVision photonVision;
 
     //Candle
@@ -294,11 +301,15 @@ public class RobotContainer {
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
 
+        final Pose2d initialOdometryPose = new Pose2d();
+        visionIndependentOdometry = new SwerveDriveOdometry(
+                kinematics, swerve.getYaw(), swerve.getModulePositions(), initialOdometryPose
+        );
         poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,
                 swerve.getYaw(),
                 swerve.getModulePositions(),
-                new Pose2d(),
+                initialOdometryPose,
                 Constants.Vision.STATE_STD_DEVS,
                 Constants.Vision.VISION_MEASUREMENT_STD_DEVS
         );
@@ -331,23 +342,20 @@ public class RobotContainer {
         photonVision = switch (Constants.CURRENT_MODE) {
             case REAL:
                 yield new PhotonVision(
-                        new PhotonVisionIOApriltagsReal(swerve, poseEstimator, apriltagCameras),
-                        swerve, poseEstimator, field
+                        new PhotonVisionIOApriltagsReal(poseEstimator, apriltagCameras),
+                        swerve, visionIndependentOdometry, poseEstimator, field
                 );
             case SIM:
-//                yield new PhotonVision(
-//                        new PhotonVisionIOApriltagsSim(swerve, poseEstimator, apriltagCameras),
-//                        swerve, poseEstimator, field
-//                );
-                // yield new real for now as sim is not working, will need to address this sooner rather than later
-                //TODO: fix simulated vision (solvePnP/sqPNP doesn't seem to work in sim just yet...
-                // or maybe we're doing something wrong as it seemed to work in certain examples before)
                 yield new PhotonVision(
-                        new PhotonVisionIOApriltagsReal(swerve, poseEstimator, apriltagCameras),
-                        swerve, poseEstimator, field
+                        new PhotonVisionIOApriltagsSim(
+                                swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
+                        ),
+                        swerve, visionIndependentOdometry, poseEstimator, field
                 );
             case REPLAY:
-                yield new PhotonVision(new PhotonVisionIO() {}, swerve, poseEstimator, field);
+                yield new PhotonVision(
+                        new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, field
+                );
         };
 
         //LEDs
@@ -363,7 +371,7 @@ public class RobotContainer {
         elevatorClawTeleop = new ElevatorClawTeleop(elevator, claw);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, poseEstimator, claw, elevator);
+        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, photonVision, claw, elevator);
 
         //Driver Profile Selector
         profileChooser = new SendableChooser<>();

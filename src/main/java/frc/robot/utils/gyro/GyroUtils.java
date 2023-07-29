@@ -1,8 +1,8 @@
 package frc.robot.utils.gyro;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.*;
+import frc.robot.Constants;
 
 import java.util.function.Supplier;
 
@@ -21,6 +21,18 @@ public class GyroUtils {
 
     public static double getAsAngleModdedDoubleDeg(final Supplier<Rotation2d> rotation2dSupplier) {
         return getAsDoubleDeg(withAngleModulus(rotation2dSupplier));
+    }
+
+    public static Pose3d robotPose2dToPose3dWithGyro(final Pose2d pose2d, final Rotation3d gyroRotation) {
+        return new Pose3d(pose2d)
+                .exp(new Twist3d(
+                        0, 0, Math.abs(gyroRotation.getY()) * Constants.Swerve.WHEEL_BASE * 0.5,
+                        0, gyroRotation.getY(), 0
+                ))
+                .exp(new Twist3d(
+                        0, 0, Math.abs(gyroRotation.getX()) * Constants.Swerve.TRACK_WIDTH * 0.5,
+                        gyroRotation.getX(), 0, 0
+                ));
     }
 
     public static Rotation3d rpyToRotation3d(final Rotation2d roll, final Rotation2d pitch, final Rotation2d yaw) {

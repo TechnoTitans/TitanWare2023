@@ -3,7 +3,6 @@ package frc.robot.commands.autonomous;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -20,13 +19,14 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
+import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class TrajectoryFollower extends CommandBase {
+public class TrajectoryFollower extends CommandBase {
     //TODO: these 2 max values need to be tuned/verified
     public static final double MAX_TIME_DIFF_SECONDS = 0.1;
     public static final double MAX_DISTANCE_DIFF_METERS = 0.05;
@@ -39,7 +39,7 @@ class TrajectoryFollower extends CommandBase {
 
     private final Swerve swerve;
     private final DriveController controller;
-    private final SwerveDrivePoseEstimator poseEstimator;
+    private final PhotonVision photonVision;
     private final List<PathPlannerTrajectory.EventMarker> eventMarkers;
     private final Claw claw;
     private final Elevator elevator;
@@ -52,7 +52,7 @@ class TrajectoryFollower extends CommandBase {
     public TrajectoryFollower(
             final Swerve swerve,
             final DriveController controller,
-            final SwerveDrivePoseEstimator poseEstimator,
+            final PhotonVision photonVision,
             final TitanTrajectory trajectory,
             final boolean transformForAlliance,
             final Claw claw,
@@ -63,7 +63,7 @@ class TrajectoryFollower extends CommandBase {
         this.eventMarkers = new ArrayList<>(trajectory.getMarkers().size());
 
         this.controller = controller;
-        this.poseEstimator = poseEstimator;
+        this.photonVision = photonVision;
         this.trajectory = trajectory;
         this.transformForAlliance = transformForAlliance;
 
@@ -99,10 +99,10 @@ class TrajectoryFollower extends CommandBase {
         //TODO: this setAngle call causes loop overruns in sim - seems to be a CTRE implementation issue?
         // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
         swerve.setAngle(initialHolonomicRotation.getDegrees());
-        poseEstimator.resetPosition(initialHolonomicRotation, swerve.getModulePositions(), new Pose2d(
-                initialState.poseMeters.getTranslation(),
+        photonVision.resetPosition(
+                new Pose2d(initialState.poseMeters.getTranslation(), initialHolonomicRotation),
                 initialHolonomicRotation
-        ));
+        );
 
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
@@ -126,7 +126,7 @@ class TrajectoryFollower extends CommandBase {
         final double currentTime = timer.get();
         final PathPlannerTrajectory.PathPlannerState sample =
                 (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.sample(currentTime);
-        final Pose2d currentPose = poseEstimator.getEstimatedPosition();
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
 
         if (hasMarkers) {
             commander(currentPose, currentTime);

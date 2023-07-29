@@ -4,18 +4,17 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
-import frc.robot.utils.PoseUtils;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.vision.TitanCamera;
-import frc.robot.wrappers.sensors.vision.replacements.SimTitanVisionSystem;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.SimVisionSystem;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.*;
@@ -23,32 +22,40 @@ import java.util.stream.Collectors;
 
 public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
     private final Swerve swerve;
+    private final SwerveDriveOdometry visionIndependentOdometry;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final Map<PhotonCamera, SimVisionSystem> cameraSimVisionSystemMap;
+
+    private final VisionSystemSim visionSystemSim;
+    private final List<PhotonCameraSim> photonCameraSims;
     private final Map<PhotonRunnable, Notifier> photonRunnableNotifierMap;
-    private AprilTagFieldLayout.OriginPosition robotOriginPosition;
 
     private final EstimatedRobotPose[] lastEstimatedPosesByCamera;
 
     public PhotonVisionIOApriltagsSim(
             final Swerve swerve,
+            final SwerveDriveOdometry visionIndependentOdometry,
             final SwerveDrivePoseEstimator poseEstimator,
             final List<TitanCamera> apriltagCameras
     ) {
         this.swerve = swerve;
+        this.visionIndependentOdometry = visionIndependentOdometry;
         this.poseEstimator = poseEstimator;
 
-        final AprilTagFieldLayout apriltagFieldLayout = TitanCamera.apriltagFieldLayout;
+        final AprilTagFieldLayout apriltagFieldLayout = PhotonVision.apriltagFieldLayout;
         if (apriltagFieldLayout == null) {
+            this.visionSystemSim = null;
+            this.photonCameraSims = List.of();
             this.photonRunnableNotifierMap = Map.of();
-            this.cameraSimVisionSystemMap = Map.of();
             this.lastEstimatedPosesByCamera = new EstimatedRobotPose[0];
             return;
         }
 
+        this.visionSystemSim = new VisionSystemSim(PhotonVision.logKey);
+        this.visionSystemSim.addVisionTargets(PhotonVision.apriltagFieldLayout);
+
         this.photonRunnableNotifierMap = apriltagCameras
                 .stream()
-                .map(titanCamera -> new PhotonRunnable(titanCamera, apriltagFieldLayout))
+                .map(titanCamera -> new PhotonRunnable(titanCamera, PhotonVision.apriltagFieldLayout))
                 .collect(Collectors.toUnmodifiableMap(
                         photonRunnable -> photonRunnable,
                         photonRunnable -> {
@@ -63,23 +70,20 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
                         }
                 ));
 
+        this.photonCameraSims = apriltagCameras
+                .stream()
+                .map(titanCamera -> {
+                    final PhotonCameraSim photonCameraSim =
+                            new PhotonCameraSim(titanCamera.getPhotonCamera(), titanCamera.toSimCameraProperties());
 
-        this.cameraSimVisionSystemMap = apriltagCameras.stream().collect(Collectors.toUnmodifiableMap(
-                TitanCamera::getPhotonCamera,
-                titanCamera -> {
-                    final SimTitanVisionSystem simVisionSystem = new SimTitanVisionSystem(titanCamera);
+                    visionSystemSim.addCamera(photonCameraSim, titanCamera.getRobotRelativeToCameraTransform());
+                    ToClose.add(photonCameraSim);
 
-                    simVisionSystem.addVisionTargets(apriltagFieldLayout);
-                    return simVisionSystem;
-                }
-        ));
+                    return photonCameraSim;
+                })
+                .toList();
 
         this.lastEstimatedPosesByCamera = new EstimatedRobotPose[apriltagCameras.size()];
-    }
-
-    @Override
-    public void setRobotOriginPosition(final AprilTagFieldLayout.OriginPosition robotOriginPosition) {
-        this.robotOriginPosition = robotOriginPosition;
     }
 
     @Override
@@ -101,7 +105,9 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
             estimatedPoses.add(estimatedRobotPose.estimatedPose);
             apriltagIds.addAll(ids);
             apriltagPoses.addAll(
-                    ids.stream().map(id -> TitanCamera.apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())).toList()
+                    ids.stream().map(
+                            id -> PhotonVision.apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())
+                    ).toList()
             );
         }
 
@@ -116,21 +122,30 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
         );
 
         Logger.getInstance().recordOutput(
-                "Vision/ApriltagPoses",
+                "Vision/ApriltagPose3ds",
                 apriltagPoses.toArray(Pose3d[]::new)
+        );
+
+        Logger.getInstance().recordOutput(
+                "Vision/ApriltagPose2ds",
+                apriltagPoses.stream().map(Pose3d::toPose2d).toArray(Pose2d[]::new)
         );
     }
 
     @Override
     public void periodic() {
-        final Pose2d estimatedPose = poseEstimator.getEstimatedPosition();
-        for (final SimVisionSystem simVisionSystem : cameraSimVisionSystemMap.values()) {
-            simVisionSystem.processFrame(
-                    new Pose3d(estimatedPose.getX(), estimatedPose.getY(), 0,
-                            GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
-                    )
-            );
+        if (ToClose.hasClosed()) {
+            // do not try to update if we've already closed
+            return;
         }
+
+        final Pose2d visionIndependentPose = visionIndependentOdometry.getPoseMeters();
+        visionSystemSim.update(
+                GyroUtils.robotPose2dToPose3dWithGyro(
+                        visionIndependentPose,
+                        GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
+                )
+        );
 
         for (
                 final ListIterator<PhotonRunnable> runnableIterator = photonRunnableNotifierMap
@@ -151,16 +166,16 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
                 continue;
             }
 
-            //TODO: do we need to do flipPose
-            final Pose2d flippedEstimatedPose = PoseUtils.flipPose2dByOriginPosition(
-                    estimatedRobotPose.estimatedPose.toPose2d(), robotOriginPosition
-            );
-
             //TODO: consider only adding a vision measurement if its somewhat close to the already existing odometry
-//            poseEstimator.addVisionMeasurement(
-//                    flippedEstimatedPose,
-//                    estimatedRobotPose.timestampSeconds
-//            );
+            poseEstimator.addVisionMeasurement(
+                    estimatedRobotPose.estimatedPose.toPose2d(),
+                    estimatedRobotPose.timestampSeconds
+            );
         }
+    }
+
+    @Override
+    public void resetRobotPose(final Pose3d robotPose) {
+        visionSystemSim.resetRobotPose(robotPose);
     }
 }

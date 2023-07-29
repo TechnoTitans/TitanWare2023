@@ -136,7 +136,6 @@ public class Robot extends LoggedRobot {
 
         final PhotonVision photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance(
-                photonVision.getRobotOriginPosition(),
                 robotContainer.swerve,
                 robotContainer.poseEstimator
         );
@@ -157,7 +156,6 @@ public class Robot extends LoggedRobot {
 
         final PhotonVision photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance(
-                photonVision.getRobotOriginPosition(),
                 robotContainer.swerve,
                 robotContainer.poseEstimator
         );

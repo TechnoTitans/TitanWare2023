@@ -9,7 +9,7 @@ import frc.robot.wrappers.control.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REPLAY;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
