@@ -3,6 +3,7 @@ package frc.robot.subsystems.gyro;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.utils.ctre.Phoenix6Utils;
 
 public class GyroIOPigeon2 implements GyroIO {
@@ -69,7 +70,7 @@ public class GyroIOPigeon2 implements GyroIO {
     }
 
     @Override
-    public void setAngle(final double angle) {
-        pigeon.setYaw(angle);
+    public void setAngle(final Rotation2d angle) {
+        pigeon.setYaw(angle.getDegrees());
     }
 }

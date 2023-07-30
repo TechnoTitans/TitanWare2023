@@ -93,9 +93,9 @@ public class Gyro {
     }
 
     /**
-     * See {@link GyroIO#setAngle(double)}
+     * See {@link GyroIO#setAngle(Rotation2d)}
      */
-    public void setAngle(final double angle) {
+    public void setAngle(final Rotation2d angle) {
         gyroIO.setAngle(angle);
     }
 

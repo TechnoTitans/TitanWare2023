@@ -124,7 +124,7 @@ public class GyroIOSim implements GyroIO {
     }
 
     @Override
-    public void setAngle(final double angle) {
-        pigeon.setYaw(angle);
+    public void setAngle(final Rotation2d angle) {
+        pigeon.setYaw(angle.getDegrees());
     }
 }

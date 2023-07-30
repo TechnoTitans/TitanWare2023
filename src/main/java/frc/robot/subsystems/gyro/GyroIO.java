@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gyro;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface GyroIO {
@@ -31,13 +32,13 @@ public interface GyroIO {
      * Set the currently observed angle of the Gyro
      * @param angle the angle to set (deg)
      */
-    default void setAngle(final double angle) {}
+    default void setAngle(final Rotation2d angle) {}
 
     /**
      * Sets the current observed angle of the Gyro to 0 (deg)
-     * @see GyroIO#setAngle(double)
+     * @see GyroIO#setAngle(Rotation2d)
      */
     default void zeroRotation() {
-        setAngle(0);
+        setAngle(Rotation2d.fromDegrees(0));
     }
 }
