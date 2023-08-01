@@ -35,7 +35,27 @@ public class GyroUtils {
                 ));
     }
 
+    /**
+     * Convert a Roll, Pitch, and Yaw into a {@link Rotation3d} object.
+     * @param roll the roll (rad)
+     * @param pitch the pitch (rad)
+     * @param yaw the yaw (rad)
+     * @return the {@link Rotation3d} describing the supplied euler angles
+     * @see Rotation3d
+     */
+    public static Rotation3d rpyToRotation3d(final double roll, final double pitch, final double yaw) {
+        return new Rotation3d(roll, pitch, yaw);
+    }
+
+    /**
+     * Convert Roll, Pitch, and Yaw {@link Rotation2d}s into a {@link Rotation3d} object.
+     * @param roll the roll {@link Rotation2d}
+     * @param pitch the pitch {@link Rotation2d}
+     * @param yaw the yaw {@link Rotation2d}
+     * @return the {@link Rotation3d} describing the supplied euler angles
+     * @see Rotation3d
+     */
     public static Rotation3d rpyToRotation3d(final Rotation2d roll, final Rotation2d pitch, final Rotation2d yaw) {
-        return new Rotation3d(roll.getRadians(), pitch.getRadians(), yaw.getRadians());
+        return rpyToRotation3d(roll.getRadians(), pitch.getRadians(), yaw.getRadians());
     }
 }

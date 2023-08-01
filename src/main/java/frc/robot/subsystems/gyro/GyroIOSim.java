@@ -5,9 +5,11 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import org.littletonrobotics.junction.Logger;
@@ -17,6 +19,7 @@ public class GyroIOSim implements GyroIO {
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule[] swerveModules;
     private final double[] lastSwerveModulePositionRots = {0.0, 0.0, 0.0, 0.0};
+
     private Pose2d gyroUseOdometryPose = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
     public static final double USE_SIMULATED_PITCH = 0;

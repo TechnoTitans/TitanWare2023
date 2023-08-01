@@ -3,10 +3,8 @@ package frc.robot.utils;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.utils.alignment.AlignmentZone;
-
-import static frc.robot.Constants.Field.*;
 
 public class PoseUtils {
     public static final double EPSILON = 1E-9;
@@ -52,7 +50,7 @@ public class PoseUtils {
     }
 
     public static Pose2d flipPose(final Pose2d poseToFlip) {
-        return flipPoseWithRelative(poseToFlip, Constants.Field.FLIPPING_POSE);
+        return flipPoseWithRelative(poseToFlip, FieldConstants.FLIPPING_POSE);
     }
 
     public static Pose2d flipPoseWithRelative(final Pose2d poseToFlip, final Pose2d relative) {
@@ -94,7 +92,7 @@ public class PoseUtils {
             return switch(mirroringBehavior) {
                 case MIRROR_ACROSS_GRID_CENTER_POINT -> new Translation2d(
                         originalTranslation.getX(),
-                        originalTranslation.getY() + LOADING_ZONE_WIDTH_Y_METERS
+                        originalTranslation.getY() + FieldConstants.LOADING_ZONE_WIDTH_Y_METERS
                 );
                 case MIRROR_ACROSS_X_CENTER -> flipTranslationToBlueAllianceByOrigin(mirrorTranslationToAlliance(
                         originalTranslation, sourceAlliance, alliance
@@ -103,7 +101,7 @@ public class PoseUtils {
         } else if (alliance == DriverStation.Alliance.Blue && sourceAlliance == DriverStation.Alliance.Red) {
             return new Translation2d(
                     originalTranslation.getX(),
-                    originalTranslation.getY() - LOADING_ZONE_WIDTH_Y_METERS
+                    originalTranslation.getY() - FieldConstants.LOADING_ZONE_WIDTH_Y_METERS
             );
         } else {
             throw new UnsupportedOperationException("not yet implemented!");
@@ -139,7 +137,7 @@ public class PoseUtils {
             return originalTranslation;
         } else if (sourceAlliance == DriverStation.Alliance.Blue && desiredAlliance == DriverStation.Alliance.Red) {
             return new Translation2d(
-                    FIELD_LENGTH_X_METERS - originalTranslation.getX(),
+                    FieldConstants.FIELD_LENGTH_X_METERS - originalTranslation.getX(),
                     originalTranslation.getY()
             );
         } else if (sourceAlliance == DriverStation.Alliance.Red && desiredAlliance == DriverStation.Alliance.Blue) {
@@ -175,16 +173,16 @@ public class PoseUtils {
     ) {
         final DriverStation.Alliance currentAlliance = DriverStation.getAlliance();
         final Pose2d relativePose = new Pose2d(
-                FLIPPING_POSE.getX(),
+                FieldConstants.FLIPPING_POSE.getX(),
                 currentAlliance == DriverStation.Alliance.Red
                         ? AlignmentZone.GRID_CENTER_Y_RED
                         : AlignmentZone.GRID_CENTER_Y_BLUE,
-                FLIPPING_POSE.getRotation()
+                FieldConstants.FLIPPING_POSE.getRotation()
         );
 
         if (sourceAlliance == DriverStation.Alliance.Red && desiredAlliance == DriverStation.Alliance.Blue) {
             return flipPoseWithRelativeAndOffset(
-                    originalPose, relativePose, new Translation2d(0, LOADING_ZONE_WIDTH_Y_METERS)
+                    originalPose, relativePose, new Translation2d(0, FieldConstants.LOADING_ZONE_WIDTH_Y_METERS)
             );
         } else if (sourceAlliance == DriverStation.Alliance.Blue && desiredAlliance == DriverStation.Alliance.Red) {
             return mirrorPoseToAlliance(
@@ -200,8 +198,8 @@ public class PoseUtils {
     public static boolean isInField(final Pose3d pose3d) {
         return pose3d.getX() >= 0
                 && pose3d.getY() >= 0
-                && pose3d.getX() <= Constants.Field.FIELD_LENGTH_X_METERS
-                && pose3d.getY() <= Constants.Field.FIELD_WIDTH_Y_METERS;
+                && pose3d.getX() <= FieldConstants.FIELD_LENGTH_X_METERS
+                && pose3d.getY() <= FieldConstants.FIELD_WIDTH_Y_METERS;
     }
 
     public static Twist2d log(final Pose2d transform) {

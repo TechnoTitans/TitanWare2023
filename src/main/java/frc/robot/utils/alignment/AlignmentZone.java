@@ -4,40 +4,39 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.FieldConstants;
 import frc.robot.utils.PoseUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static frc.robot.Constants.Field.*;
-
 public enum AlignmentZone {
     LEFT(
             new Translation2d(1, 0),
             new Translation2d(3.35, 1.89),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 1.63), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 0.47), Rotation2d.fromDegrees(180))
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 1.63), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 0.47), Rotation2d.fromDegrees(180))
     ),
     CENTER(
             new Translation2d(1, 1.91),
             new Translation2d(3.35, 3.58),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 3.38), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 2.2), Rotation2d.fromDegrees(180))
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3.38), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 2.2), Rotation2d.fromDegrees(180))
     ),
     RIGHT(
             new Translation2d(1, 3.6),
             new Translation2d(3.35, 5.4585),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 5.045), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(GRID_SCORING_X_POSITION, 3.84), Rotation2d.fromDegrees(180))
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 5.045), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3.84), Rotation2d.fromDegrees(180))
     ),
     SUBSTATION(
             new Translation2d(13.17, 5.52),
             new Translation2d(16.48, 8),
-            new Pose2d(new Translation2d(SUBSTATION_PICKUP_X_POSITION, 7.36), Rotation2d.fromDegrees(0)),
-            new Pose2d(new Translation2d(SUBSTATION_PICKUP_X_POSITION, 6), Rotation2d.fromDegrees(0))
+            new Pose2d(new Translation2d(FieldConstants.SUBSTATION_PICKUP_X_POSITION, 7.36), Rotation2d.fromDegrees(0)),
+            new Pose2d(new Translation2d(FieldConstants.SUBSTATION_PICKUP_X_POSITION, 6), Rotation2d.fromDegrees(0))
     );
 
     public enum AlignmentZoneType {
@@ -162,7 +161,7 @@ public enum AlignmentZone {
     private static final double CENTER_MIN_Y = Math.min(CENTER.cornerBLBounds.getY(), CENTER.cornerTRBounds.getY());
     public static final double GRID_CENTER_Y =
             CENTER_MIN_Y + ((Math.max(CENTER.cornerBLBounds.getY(), CENTER.cornerTRBounds.getY()) - CENTER_MIN_Y) / 2);
-    public static final double GRID_CENTER_Y_BLUE = LOADING_ZONE_WIDTH_Y_METERS + GRID_CENTER_Y;
+    public static final double GRID_CENTER_Y_BLUE = FieldConstants.LOADING_ZONE_WIDTH_Y_METERS + GRID_CENTER_Y;
     public static final double GRID_CENTER_Y_RED = GRID_CENTER_Y_BLUE + GRID_CENTER_Y;
 
     public static final AlignmentZone[] cachedValues = values();

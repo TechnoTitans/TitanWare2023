@@ -4,12 +4,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
-import frc.robot.commands.teleop.AutoAlignmentV2;
+import frc.robot.commands.autoalign.AutoAlignment;
+import frc.robot.commands.autoalign.AutoAlignmentV2;
+import frc.robot.commands.pathfinding.TranslationNode;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
+import frc.robot.utils.alignment.AlignmentZone;
 
 public class ButtonBindings {
     public static void bindAll(final RobotContainer robotContainer) {
@@ -24,27 +27,23 @@ public class ButtonBindings {
         //TODO: check that this method of making auto alignment commands still works in ALL cases
         // from limited testing in sim, it does seem to work
 //        driverController.leftBumper().whileTrue(
-//                new AutoAlignment(swerve, robotContainer.poseEstimator, driverController.getHID())
+//                new AutoAlignment(swerve, robotContainer.photonVision, driverController.getHID())
 //                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
+//        );
+//
+//        driverController.rightBumper().whileTrue(
+//                new AutoAlignment(swerve, robotContainer.photonVision, driverController.getHID())
+//                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
 //        );
 
         driverController.leftBumper().whileTrue(
                 new AutoAlignmentV2(
-                        robotContainer.swerve, robotContainer.photonVision, robotContainer.trajectoryManager)
-                        .withLeftSide(true)
+                        robotContainer.photonVision,
+                        robotContainer.trajectoryManager,
+                        robotContainer.nodeField,
+                        AlignmentZone.CENTER.getLeftCone()
+                )
         );
-
-        driverController.rightBumper().whileTrue(
-                new AutoAlignmentV2(
-                        robotContainer.swerve,robotContainer.photonVision, robotContainer.trajectoryManager)
-                        .withLeftSide(false)
-        );
-
-
-//        driverController.rightBumper().whileTrue(
-//                new AutoAlignment(swerve, robotContainer.poseEstimator, driverController.getHID())
-//                        .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
-//        );
 
         // Co Driver
         coDriverController.y().onTrue(

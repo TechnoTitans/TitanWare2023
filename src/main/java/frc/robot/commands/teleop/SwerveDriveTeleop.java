@@ -1,6 +1,7 @@
 package frc.robot.commands.teleop;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -58,15 +59,8 @@ public class SwerveDriveTeleop extends CommandBase {
         final double throttleWeight = swerveSpeed.getThrottleWeight();
         final double rotWeight = swerveSpeed.getRotateWeight();
 
-        final double xSpeed = ControllerUtils.getStickInputWithWeight(
+        final Translation2d leftStickSpeeds = ControllerUtils.getStickXYSquaredInput(
                 controller.getLeftY(),
-                0.01,
-                Constants.Swerve.TELEOP_MAX_SPEED,
-                driverProfile.getThrottleSensitivity(),
-                throttleWeight
-        );
-
-        final double ySpeed = ControllerUtils.getStickInputWithWeight(
                 controller.getLeftX(),
                 0.01,
                 Constants.Swerve.TELEOP_MAX_SPEED,
@@ -75,20 +69,20 @@ public class SwerveDriveTeleop extends CommandBase {
         );
 
         if (controller.getRightStickButton()) {
-            final double rightStickXInput = ControllerUtils.getStickInput(controller.getRightX(), 0.01);
-            final double rightStickYInput = ControllerUtils.getStickInput(controller.getRightY(), 0.01);
+            final double rightStickXInput = ControllerUtils.applyDeadband(controller.getRightX(), 0.01);
+            final double rightStickYInput = ControllerUtils.applyDeadband(controller.getRightY(), 0.01);
 
             final Rotation2d rightStickAngleDeg =
                     ControllerUtils.getFieldRelativeAngleFromStickInputs(rightStickXInput, rightStickYInput);
 
             swerve.faceDirection(
-                    xSpeed,
-                    ySpeed,
+                    leftStickSpeeds.getX(),
+                    leftStickSpeeds.getY(),
                     rightStickAngleDeg,
                     true
             );
         } else {
-            final double rot = ControllerUtils.getStickInputWithWeight(
+            final double rot = ControllerUtils.getStickSquaredInput(
                     controller.getRightX(),
                     0.01,
                     Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED,
@@ -97,8 +91,8 @@ public class SwerveDriveTeleop extends CommandBase {
             );
 
             swerve.drive(
-                    xSpeed,
-                    ySpeed,
+                    leftStickSpeeds.getX(),
+                    leftStickSpeeds.getY(),
                     rot,
                     true
             );

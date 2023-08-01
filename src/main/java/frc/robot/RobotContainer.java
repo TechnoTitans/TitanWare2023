@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
+import frc.robot.commands.pathfinding.NodeField;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.claw.Claw;
@@ -72,6 +73,9 @@ public class RobotContainer {
     public final CANcoder clawTiltEncoder;
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
+
+    //NodeField
+    public final NodeField nodeField;
 
     //Odometry, PoseEstimator
     public final SwerveDriveOdometry visionIndependentOdometry;
@@ -297,6 +301,9 @@ public class RobotContainer {
 
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
+
+        //NodeField
+        nodeField = new NodeField(FieldConstants.NODE_DENSITY, FieldConstants.BlueObstacles.getAll());
 
         final Pose2d initialOdometryPose = new Pose2d();
         visionIndependentOdometry = new SwerveDriveOdometry(

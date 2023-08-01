@@ -4,12 +4,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface GyroIO {
+    // TODO: document
     @AutoLog
     class GyroIOInputs {
         public boolean hasHardwareFault = false;
+
         public double rollPositionDeg = 0.0;
+        public double rawRollPositionDeg = 0.0;
+
         public double pitchPositionDeg = 0.0;
+        public double rawPitchPositionDeg = 0.0;
+
         public double yawPositionDeg = 0.0;
+        public double rawYawPositionDeg = 0.0;
+
         public double rollVelocityDegPerSec = 0.0;
         public double pitchVelocityDegPerSec = 0.0;
         public double yawVelocityDegPerSec = 0.0;

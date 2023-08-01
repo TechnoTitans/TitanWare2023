@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -43,6 +44,8 @@ public class TrajectoryFollower extends CommandBase {
     private final List<PathPlannerTrajectory.EventMarker> eventMarkers;
     private final Claw claw;
     private final Elevator elevator;
+
+    private boolean isInAuto;
 
     private boolean hasMarkers;
     private int markerIndex;
@@ -107,10 +110,11 @@ public class TrajectoryFollower extends CommandBase {
             TrajectoryFollower.HAS_AUTO_RAN = true;
         }
 
-
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
         }
+
+        isInAuto = RobotState.isAutonomous();
 
         eventMarkers.addAll(transformedTrajectory.getMarkers());
         hasMarkers = !eventMarkers.isEmpty();
@@ -151,8 +155,8 @@ public class TrajectoryFollower extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return //!RobotState.isAutonomous() ||
-                timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
+        return (isInAuto && !RobotState.isAutonomous())
+                || timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
     }
 
     private void driveToState(final PathPlannerTrajectory.PathPlannerState state, final Pose2d currentPose) {

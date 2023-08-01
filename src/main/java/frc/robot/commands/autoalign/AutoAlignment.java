@@ -1,4 +1,4 @@
-package frc.robot.commands.teleop;
+package frc.robot.commands.autoalign;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -92,7 +92,7 @@ public class AutoAlignment extends CommandBase {
         }
 
         final Pose2d currentPose = photonVision.getEstimatedPosition();
-        final double xSpeed = ControllerUtils.getStickInputWithWeight(
+        final double xSpeed = ControllerUtils.getStickSquaredInput(
                 mainController.getLeftY(),
                 0.01,
                 Constants.Swerve.TELEOP_MAX_SPEED,

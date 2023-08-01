@@ -64,7 +64,7 @@ public class PhotonVision extends SubsystemBase {
 
         this.field2d = field2d;
 
-        refreshAlliance(poseEstimator);
+        refreshAlliance();
 
         final Pose2d estimatedPose = poseEstimator.getEstimatedPosition();
         resetPosition(estimatedPose);
@@ -112,14 +112,15 @@ public class PhotonVision extends SubsystemBase {
         ));
     }
 
-    public void refreshAlliance(
-            final SwerveDrivePoseEstimator poseEstimator
-    ) {
+    public void refreshAlliance() {
         refreshAlliance(originPosition, (originPosition) -> {
-            final Pose2d newPose = PoseUtils.flipPose(poseEstimator.getEstimatedPosition());
-            resetPosition(newPose);
+            // TODO: i don't think we need to flip here, but investigate further when we get a chance
+            final Pose2d estimatedPose = getEstimatedPosition();
+            final Pose2d newPose = PoseUtils.flipPose(estimatedPose);
+//            resetPosition(newPose);
 
             setRobotOriginPosition(originPosition);
+            resetPosition(newPose);
         });
     }
 

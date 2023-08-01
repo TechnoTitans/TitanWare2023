@@ -166,10 +166,10 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
             }
 
             //TODO: consider only adding a vision measurement if its somewhat close to the already existing odometry
-            poseEstimator.addVisionMeasurement(
-                    estimatedRobotPose.estimatedPose.toPose2d(),
-                    estimatedRobotPose.timestampSeconds
-            );
+//            poseEstimator.addVisionMeasurement(
+////                    estimatedRobotPose.estimatedPose.toPose2d(),
+////                    estimatedRobotPose.timestampSeconds
+////            );
         }
     }
 
@@ -177,5 +177,4 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
     public void resetRobotPose(final Pose3d robotPose) {
         visionSystemSim.resetRobotPose(robotPose);
     }
-
 }

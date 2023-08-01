@@ -149,6 +149,8 @@ public interface Constants {
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
+        double MAX_WIDTH = Math.max(WHEEL_BASE, TRACK_WIDTH);
+        double HALF_MAX_WIDTH = 0.5 * MAX_WIDTH;
         double ROBOT_MAX_SPEED = Units.feetToMeters(13);
         double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
@@ -198,18 +200,5 @@ public interface Constants {
         Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(1, 1, 1);
         double MULTI_TAG_MAX_AMBIGUITY = 0.3;
         double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
-    }
-
-    interface Field {
-        double GRID_SCORING_X_POSITION = 1.84;
-        double SUBSTATION_PICKUP_X_POSITION = 15.8;
-        double FIELD_LENGTH_X_METERS = 16.54175;
-        double FIELD_WIDTH_Y_METERS = 8.0137;
-        double LOADING_ZONE_WIDTH_Y_METERS = 2.52;
-        double BARRIER_WIDTH_Y_METERS = 0.1985;
-
-        Pose2d FLIPPING_POSE = new Pose2d(
-                new Translation2d(FIELD_LENGTH_X_METERS, FIELD_WIDTH_Y_METERS),
-                new Rotation2d(Math.PI));
     }
 }

@@ -119,6 +119,10 @@ public class Swerve extends SubsystemBase {
         );
     }
 
+    public Gyro getGyro() {
+        return gyro;
+    }
+
     public Rotation2d getPitch() {
         return gyro.getPitchRotation2d();
     }
@@ -132,18 +136,18 @@ public class Swerve extends SubsystemBase {
     }
 
     /**
-     * @see Gyro#setAngle(double)
+     * @see Gyro#setAngle(Rotation2d)
      */
-    public void setAngle(final double angle) {
+    public void setAngle(final Rotation2d angle) {
         gyro.setAngle(angle);
     }
 
     public void zeroRotation(final PhotonVision photonVision) {
         gyro.zeroRotation();
-        photonVision.resetPosition(
-                photonVision.getEstimatedPosition(),
-                Rotation2d.fromDegrees(0)
-        );
+//        photonVision.resetPosition(
+//                photonVision.getEstimatedPosition(),
+//                Rotation2d.fromDegrees(0)
+//        );
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {

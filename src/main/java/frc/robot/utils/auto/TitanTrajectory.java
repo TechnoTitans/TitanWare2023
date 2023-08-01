@@ -3,7 +3,7 @@ package frc.robot.utils.auto;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.Constants;
+import frc.robot.FieldConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             final Translation2d translation = marker.positionMeters;
 
             transformedMarker.positionMeters = new Translation2d(
-                    translation.getX(), Constants.Field.FIELD_WIDTH_Y_METERS - translation.getY()
+                    translation.getX(), FieldConstants.FIELD_WIDTH_Y_METERS - translation.getY()
             );
 
             return transformedMarker;

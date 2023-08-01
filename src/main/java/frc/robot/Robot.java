@@ -2,12 +2,15 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.pathfinding.NodeField;
+import frc.robot.commands.pathfinding.bounds.NodeObstacle;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
@@ -45,7 +48,6 @@ public class Robot extends LoggedRobot {
         }
 
         final Logger logger = Logger.getInstance();
-        robotContainer = new RobotContainer();
 
         // we practically never use LiveWindow, and apparently this causes loop overruns so disable it
         LiveWindow.disableAllTelemetry();
@@ -95,6 +97,9 @@ public class Robot extends LoggedRobot {
             }
         }
 
+        logger.start();
+        robotContainer = new RobotContainer();
+
         SmartDashboard.putData("Field", robotContainer.field);
 
         TitanBoard.addDouble("Yaw", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getYaw));
@@ -103,7 +108,6 @@ public class Robot extends LoggedRobot {
 
         TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
 
-        logger.start();
         TitanBoard.start();
     }
 
@@ -134,9 +138,7 @@ public class Robot extends LoggedRobot {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         final PhotonVision photonVision = robotContainer.photonVision;
-        photonVision.refreshAlliance(
-                robotContainer.poseEstimator
-        );
+        photonVision.refreshAlliance();
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 
@@ -153,9 +155,7 @@ public class Robot extends LoggedRobot {
         ButtonBindings.bindAll(robotContainer);
 
         final PhotonVision photonVision = robotContainer.photonVision;
-        photonVision.refreshAlliance(
-                robotContainer.poseEstimator
-        );
+        photonVision.refreshAlliance();
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 
