@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.commands.autoalign.AutoAlignment;
 import frc.robot.commands.autoalign.AutoAlignmentV2;
+import frc.robot.commands.autoalign.AutoAlignmentV3;
 import frc.robot.commands.pathfinding.TranslationNode;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.subsystems.claw.Claw;
@@ -37,12 +38,23 @@ public class ButtonBindings {
 //        );
 
         driverController.leftBumper().whileTrue(
-                new AutoAlignmentV2(
+                new AutoAlignmentV3(
+                        robotContainer.swerve,
+                        robotContainer.elevator,
+                        robotContainer.claw,
                         robotContainer.photonVision,
-                        robotContainer.trajectoryManager,
-                        robotContainer.nodeField,
-                        AlignmentZone.CENTER.getLeftCone()
-                )
+                        robotContainer.trajectoryManager
+                ).withLeftSide(true)
+        );
+
+        driverController.rightBumper().whileTrue(
+                new AutoAlignmentV3(
+                        robotContainer.swerve,
+                        robotContainer.elevator,
+                        robotContainer.claw,
+                        robotContainer.photonVision,
+                        robotContainer.trajectoryManager
+                ).withLeftSide(false)
         );
 
         // Co Driver
