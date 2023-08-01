@@ -35,8 +35,8 @@ public class AutoAlignmentV3 extends CommandBase {
 
     private SequentialCommandGroup sequentialCommandGroup;
 
-    private final Translation2d leftPastCharge = new Translation2d(2.3, 4.7);
-    private final Translation2d rightPastCharge = new Translation2d(2.3, 0.75);
+    private final Translation2d leftPastCharge = new Translation2d(5.76, 4.7);
+    private final Translation2d rightPastCharge = new Translation2d(5.76, 0.75);
 
     private boolean withLeftSide = true;
 
@@ -77,35 +77,29 @@ public class AutoAlignmentV3 extends CommandBase {
                 )
         );
 
-        //TODO: Calculate scalar values
         if (withLeftSide) {
-            final double distanceX = currentPose.getTranslation().minus(leftPastCharge).getX();
-            final double distanceY = Math.abs(currentPose.getTranslation().minus(leftPastCharge).getY());
-            final double distances = (9 / distanceX) + (distanceY * 0.9);
-            if (distances <= 0) return;
             trajectoryPathPoints.add(
                     new PathPoint(
                             leftPastCharge,
                             Rotation2d.fromDegrees(180),
                             Rotation2d.fromDegrees(180)
-                    ).withPrevControlLength(distances)
+                    )
             );
+
         } else {
-            final double distanceX = currentPose.getTranslation().minus(rightPastCharge).getX();
-            final double distanceY = Math.abs(currentPose.getTranslation().minus(rightPastCharge).getY());
-            final double distances = (9 / distanceX) + (distanceY * 0.9);
-            if (distances <= 0) return;
             trajectoryPathPoints.add(
                     new PathPoint(
                             rightPastCharge,
                             Rotation2d.fromDegrees(180),
                             Rotation2d.fromDegrees(180)
-                    ).withPrevControlLength(distances)
+                    )
             );
         }
 
         final Rotation2d angle = currentPose.getTranslation().minus(trajectoryPathPoints.get(1).position).getAngle()
                 .rotateBy(Rotation2d.fromDegrees(180));
+
+        Logger.getInstance().recordOutput("AutoAlign/TargetAngle", angle.getDegrees());
 
         final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
         trajectoryPathPoints.set(
@@ -131,10 +125,7 @@ public class AutoAlignmentV3 extends CommandBase {
         Logger.getInstance().recordOutput(
                 "AutoAlign/Trajectory", LogUtils.LoggableTrajectory.fromTrajectory(mainTrajectory));
 
-        final Translation2d targetError = currentPose.getTranslation().minus(trajectoryPathPoints.get(1).position);
-        final double hypot = Math.hypot(targetError.getX(), targetError.getY());
-
-        if (!trajectoryPathPoints.isEmpty() && !robotInCommunity(currentPose) && hypot > 3) {
+        if (!trajectoryPathPoints.isEmpty() && !robotInCommunity(currentPose)) {
             this.sequentialCommandGroup.addCommands(trajectoryManager.getCommand(mainTrajectory));
         }
 
@@ -184,6 +175,6 @@ public class AutoAlignmentV3 extends CommandBase {
                 currentPose,
                 new Translation2d(1.15, 0),
                 new Translation2d(3.5,  5.5),
-                PoseUtils.MirroringBehavior.MIRROR_ACROSS_GRID_CENTER_POINT);
+                PoseUtils.MirroringBehavior.MIRROR_ACROSS_X_CENTER);
     }
 }
