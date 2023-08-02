@@ -370,6 +370,11 @@
             "type": "Vision Target",
             "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose2ds",
             "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/Trajectory",
+            "fieldTypeIndex": 0
           }
         ]
       ],
@@ -380,7 +385,7 @@
         "origin": "right",
         "size": 0.75,
         "allianceBumpers": "auto",
-        "allianceOrigin": "blue",
+        "allianceOrigin": "auto",
         "orientation": "blue left, red right"
       },
       "title": "TeleopOdometry"

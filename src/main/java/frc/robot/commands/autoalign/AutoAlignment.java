@@ -58,7 +58,7 @@ public class AutoAlignment extends CommandBase {
         );
 
         if (desiredAlignmentPosition == null) {
-            this.end(true);
+            cancel();
             return;
         }
 
@@ -70,7 +70,7 @@ public class AutoAlignment extends CommandBase {
 
         if (currentAlignmentZone == null || currentUnmappedAlignmentZone == null) {
             // if we're not in any alignment zone, then there's no point in doing anything so just ignore
-            this.end(true);
+            cancel();
             return;
         }
 

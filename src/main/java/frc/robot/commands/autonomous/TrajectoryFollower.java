@@ -101,7 +101,7 @@ public class TrajectoryFollower extends CommandBase {
 
         //TODO: this setAngle call causes loop overruns in sim - seems to be a CTRE implementation issue?
         // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
-        if (!TrajectoryFollower.HAS_AUTO_RAN) {
+        if (!TrajectoryFollower.HAS_AUTO_RAN && isInAuto) {
             swerve.setAngle(initialHolonomicRotation);
             photonVision.resetPosition(
                     new Pose2d(initialState.poseMeters.getTranslation(), initialHolonomicRotation),

@@ -59,6 +59,19 @@ public class Gyro {
     }
 
     /**
+     * Get the current yaw (heading) velocity (AngularVelocityZ) reported by the Gyro
+     * @return the current yaw velocity (deg/sec)
+     */
+    public double getYawVelocity() { return inputs.yawVelocityDegPerSec; }
+
+    /**
+     * Get the current yaw (heading) velocity (AngularVelocityZ) as a {@link Rotation2d}
+     * @return the {@link Rotation2d} of the current yaw velocity (deg/sec)
+     * @see Rotation2d
+     */
+    public Rotation2d getYawVelocityRotation2d() { return Rotation2d.fromDegrees(getYawVelocity()); }
+
+    /**
      * Get the current pitch reported by the Gyro
      * @return the current pitch (deg)
      */

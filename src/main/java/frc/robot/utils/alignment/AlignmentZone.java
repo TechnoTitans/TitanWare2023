@@ -37,6 +37,30 @@ public enum AlignmentZone {
             new Translation2d(16.48, 8),
             new Pose2d(new Translation2d(FieldConstants.SUBSTATION_PICKUP_X_POSITION, 7.36), Rotation2d.fromDegrees(0)),
             new Pose2d(new Translation2d(FieldConstants.SUBSTATION_PICKUP_X_POSITION, 6), Rotation2d.fromDegrees(0))
+    ),
+    CHARGE_STATION_RIGHT_TRAJECTORY_ZONE(
+            new Translation2d(3.3, 4),
+            new Translation2d(13.2, 8),
+            Map.of(
+                    CommunitySide.RIGHT, new Pose2d(new Translation2d(3.9, 4.8), Rotation2d.fromDegrees(180)),
+                    CommunitySide.LEFT, new Pose2d(new Translation2d(5.83, 0.75), Rotation2d.fromDegrees(180))
+            )
+    ),
+    CHARGE_STATION_CENTER_TRAJECTORY_ZONE(
+            new Translation2d(4.9, 1.49),
+            new Translation2d(11.64, 4),
+            Map.of(
+                    CommunitySide.RIGHT, new Pose2d(new Translation2d(5.83, 4.8), Rotation2d.fromDegrees(180)),
+                    CommunitySide.LEFT, new Pose2d(new Translation2d(5.83, 0.75), Rotation2d.fromDegrees(180))
+            )
+    ),
+    CHARGE_STATION_LEFT_TRAJECTORY_ZONE(
+            new Translation2d(4.9, 0),
+            new Translation2d(11.64, 1.49),
+            Map.of(
+                    CommunitySide.RIGHT, new Pose2d(new Translation2d(5.83, 4.8), Rotation2d.fromDegrees(180)),
+                    CommunitySide.LEFT, new Pose2d(new Translation2d(3.9, 0.75), Rotation2d.fromDegrees(180))
+            )
     );
 
     public enum AlignmentZoneType {
@@ -158,6 +182,11 @@ public enum AlignmentZone {
         }
     }
 
+    public enum CommunitySide {
+        LEFT,
+        RIGHT
+    }
+
     private static final double CENTER_MIN_Y = Math.min(CENTER.cornerBLBounds.getY(), CENTER.cornerTRBounds.getY());
     public static final double GRID_CENTER_Y =
             CENTER_MIN_Y + ((Math.max(CENTER.cornerBLBounds.getY(), CENTER.cornerTRBounds.getY()) - CENTER_MIN_Y) / 2);
@@ -179,6 +208,8 @@ public enum AlignmentZone {
     private final Pose2d leftDoubleSubstation;
     private final Pose2d rightDoubleSubstation;
 
+    private final Map<CommunitySide, Pose2d> trajectoryTargetMap;
+
     private Pose2d[] loggablePoseRegionArray;
     private DriverStation.Alliance lastLoggedAlliance;
 
@@ -191,7 +222,8 @@ public enum AlignmentZone {
             final Pose2d centerCube,
             final Pose2d rightCone,
             final Pose2d leftDoubleSubstation,
-            final Pose2d rightDoubleSubstation
+            final Pose2d rightDoubleSubstation,
+            final Map<CommunitySide, Pose2d> trajectoryTargetMap
     ) {
         this.cornerBLBounds = cornerBLBounds;
         this.cornerTRBounds = cornerTRBounds;
@@ -205,6 +237,7 @@ public enum AlignmentZone {
 
         this.leftDoubleSubstation = leftDoubleSubstation;
         this.rightDoubleSubstation = rightDoubleSubstation;
+        this.trajectoryTargetMap = trajectoryTargetMap;
     }
 
     AlignmentZone(
@@ -223,7 +256,8 @@ public enum AlignmentZone {
                 centerCube,
                 rightCone,
                 new Pose2d(),
-                new Pose2d()
+                new Pose2d(),
+                Map.of()
         );
     }
 
@@ -242,7 +276,27 @@ public enum AlignmentZone {
                 new Pose2d(),
                 new Pose2d(),
                 leftDoubleSubstation,
-                rightDoubleSubstation
+                rightDoubleSubstation,
+                Map.of()
+        );
+    }
+
+    AlignmentZone(
+            final Translation2d cornerBLBounds,
+            final Translation2d cornerTRBounds,
+            final Map<CommunitySide, Pose2d> trajectoryTargetMap
+    ) {
+        this(
+                cornerBLBounds,
+                cornerTRBounds,
+                AlignmentZoneType.SUBSTATION,
+                PoseUtils.MirroringBehavior.MIRROR_ACROSS_X_CENTER,
+                new Pose2d(),
+                new Pose2d(),
+                new Pose2d(),
+                new Pose2d(),
+                new Pose2d(),
+                trajectoryTargetMap
         );
     }
 
@@ -296,6 +350,10 @@ public enum AlignmentZone {
                     leftDoubleSubstation, DriverStation.Alliance.Blue, getMirroringBehavior()
             );
         }
+    }
+
+    public Pose2d getTrajectoryTarget(final CommunitySide communitySide) {
+        return trajectoryTargetMap.get(communitySide);
     }
 
     public AlignmentZoneType getAlignmentZoneType() {

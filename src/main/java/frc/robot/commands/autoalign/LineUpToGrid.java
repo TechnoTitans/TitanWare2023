@@ -5,17 +5,26 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.claw.Claw;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.gyro.Gyro;
+import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
+import org.littletonrobotics.junction.Logger;
 
 public class LineUpToGrid extends CommandBase {
+    public static final double PAST_CHARGE_STATION_X = 2.3;
+    public static final double ALLOW_GRID_LATERAL_MOVEMENT_X = 2.3;
+
     private final Swerve swerve;
     private final PhotonVision photonVision;
     private final Pose2d targetPose;
 
-    private final ProfiledPIDController alignPIDControllerX, alignPIDControllerY;
+    private final ProfiledPIDController xController, yController;
+    private final ProfiledPIDController thetaController;
+
+    private boolean xShouldControl = false;
+    private boolean yShouldControl = false;
 
     public LineUpToGrid(
             final Swerve swerve,
@@ -26,59 +35,136 @@ public class LineUpToGrid extends CommandBase {
         this.photonVision = photonVision;
         this.targetPose = targetPose;
 
-        this.alignPIDControllerX = new ProfiledPIDController(
+        this.xController = new ProfiledPIDController(
                 5, 0, 0,
-                new TrapezoidProfile.Constraints(4, 4)
+                new TrapezoidProfile.Constraints(
+                        Constants.Swerve.TRAJECTORY_MAX_SPEED, Constants.Swerve.TRAJECTORY_MAX_ACCELERATION
+                )
         );
-        this.alignPIDControllerX.setTolerance(0.1, 0.1);
+        this.xController.setTolerance(0.1, 0.1);
 
-        this.alignPIDControllerY = new ProfiledPIDController(
+        this.yController = new ProfiledPIDController(
                 5, 0, 0,
-                new TrapezoidProfile.Constraints(4, 4)
+                new TrapezoidProfile.Constraints(
+                        Constants.Swerve.TRAJECTORY_MAX_SPEED, Constants.Swerve.TRAJECTORY_MAX_ACCELERATION
+                )
         );
-        this.alignPIDControllerY.setTolerance(0.1, 0.1);
+        this.yController.setTolerance(0.1, 0.1);
+
+        this.thetaController = new ProfiledPIDController(
+                1, 0, 0,
+                new TrapezoidProfile.Constraints(
+                        Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED,
+                        Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION
+                )
+        );
+        this.thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        this.thetaController.setTolerance(0.1, 0.1);
 
         addRequirements(swerve);
     }
 
     @Override
     public void initialize() {
-        if (targetPose == null) {
-            cancel();
-        }
-
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
         final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
 
-        this.alignPIDControllerX.reset(
-                photonVision.getEstimatedPosition().getX(), swerveChassisSpeeds.vxMetersPerSecond
+        this.xController.reset(
+                currentPose.getX(), swerveChassisSpeeds.vxMetersPerSecond
         );
 
-        this.alignPIDControllerY.reset(
-                photonVision.getEstimatedPosition().getY(), swerveChassisSpeeds.vyMetersPerSecond
+        this.yController.reset(
+                currentPose.getY(), swerveChassisSpeeds.vyMetersPerSecond
+        );
+
+        final Gyro gyro = swerve.getGyro();
+        this.thetaController.reset(
+                gyro.getYawRotation2d().getRadians(), gyro.getYawVelocityRotation2d().getRadians()
         );
     }
 
     @Override
     public void execute() {
         final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final ChassisSpeeds fieldRelativeSpeeds = swerve.getFieldRelativeSpeeds();
 
-        swerve.faceDirection(
-                (Math.abs(alignPIDControllerY.getPositionError()) <= 0.05
-                        || currentPose.getX() >= 2.75
-                        ? alignPIDControllerX.calculate(currentPose.getX(), targetPose.getX())
-                        : 0),
-                (currentPose.getX() >= 2.75
-                        ? 0
-                        : alignPIDControllerY.calculate(currentPose.getY(), targetPose.getY())),
-                targetPose.getRotation(),
-                true,
-                2
+        final double xCurrent = currentPose.getX();
+        final double yCurrent = currentPose.getY();
+
+        // TODO: fix this
+
+        final boolean newXShouldControl = yController.atGoal() || xCurrent >= PAST_CHARGE_STATION_X;
+        if (xShouldControl != newXShouldControl) {
+            xController.reset(xCurrent, fieldRelativeSpeeds.vxMetersPerSecond);
+            xShouldControl = newXShouldControl;
+        }
+
+        final double xControllerInput = xController.calculate(
+                xCurrent,
+                xShouldControl ? targetPose.getX() : xCurrent
+        );
+        final double xInput = xShouldControl ? xControllerInput : 0;
+
+        final boolean newYShouldControl = xCurrent < ALLOW_GRID_LATERAL_MOVEMENT_X;
+        if (yShouldControl != newYShouldControl) {
+            yController.reset(yCurrent, fieldRelativeSpeeds.vyMetersPerSecond);
+            yShouldControl = newYShouldControl;
+        }
+
+        final double yControllerInput = yController.calculate(
+                yCurrent,
+                yShouldControl ? targetPose.getY() : yCurrent
+        );
+        final double yInput = yShouldControl ? yControllerInput : 0;
+
+        final double rotInput = thetaController.calculate(
+                currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians()
+        );
+
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "xDesired", targetPose.getX()
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "xCurrent", xCurrent
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "xControl", xControllerInput
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "xError", xController.getPositionError()
+        );
+
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "yDesired", yShouldControl ? targetPose.getY() : yCurrent
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "yCurrent", yCurrent
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "yControl", yControllerInput
+        );
+
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "thetaDesired", targetPose.getRotation().getRadians()
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "thetaCurrent", currentPose.getRotation().getRadians()
+        );
+        Logger.getInstance().recordOutput(
+                AutoAlignmentV3.logKey + "thetaControl", rotInput
+        );
+
+        swerve.drive(
+                xInput,
+                yInput,
+                rotInput,
+                true
         );
     }
 
     @Override
     public boolean isFinished() {
-        return alignPIDControllerX.atGoal() && alignPIDControllerY.atGoal();
+        return xController.atGoal() && yController.atGoal() && thetaController.atGoal();
     }
 
     @Override

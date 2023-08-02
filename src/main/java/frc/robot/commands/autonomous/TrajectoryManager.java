@@ -57,12 +57,12 @@ public class TrajectoryManager {
         );
     }
 
-    public TrajectoryFollower getCommand(final PathPlannerTrajectory pathPlannerTrajectory) {
+    public TrajectoryFollower getCommand(final TitanTrajectory trajectory) {
         return new TrajectoryFollower(
                 swerve,
                 controller,
                 photonVision,
-                TitanTrajectory.fromPathPlannerTrajectory(pathPlannerTrajectory),
+                trajectory,
                 false,
                 claw,
                 elevator

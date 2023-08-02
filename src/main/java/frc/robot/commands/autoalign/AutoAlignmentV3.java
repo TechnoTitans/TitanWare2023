@@ -19,7 +19,9 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.alignment.AlignmentZone;
+import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.logging.LogUtils;
+import frc.robot.utils.teleop.ElevatorClawCommand;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,18 +29,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoAlignmentV3 extends CommandBase {
+    protected static final String logKey = "AutoAlign/";
+
     private final Swerve swerve;
     private final Elevator elevator;
     private final Claw claw;
     private final PhotonVision photonVision;
     private final TrajectoryManager trajectoryManager;
 
-    private SequentialCommandGroup sequentialCommandGroup;
+    private AlignmentZone.CommunitySide desiredCommunitySide;
+    private SequentialCommandGroup commandGroup;
 
     private final Translation2d leftPastCharge = new Translation2d(5.76, 4.7);
     private final Translation2d rightPastCharge = new Translation2d(5.76, 0.75);
-
-    private boolean withLeftSide = true;
 
     public AutoAlignmentV3(
             final Swerve swerve,
@@ -46,7 +49,7 @@ public class AutoAlignmentV3 extends CommandBase {
             final Claw claw,
             final PhotonVision photonVision,
             final TrajectoryManager trajectoryManager
-            ) {
+    ) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.claw = claw;
@@ -55,119 +58,81 @@ public class AutoAlignmentV3 extends CommandBase {
 
         addRequirements(elevator, claw);
     }
-    public AutoAlignmentV3 withLeftSide(final boolean withLeftSide) {
-        this.withLeftSide = withLeftSide;
+
+    public AutoAlignmentV3 withDesiredCommunitySide(final AlignmentZone.CommunitySide communitySide) {
+        this.desiredCommunitySide = communitySide;
         return this;
     }
 
     @Override
     public void initialize() {
-        Logger.getInstance().recordOutput("AutoAlign/IsActive", true);
+        Logger.getInstance().recordOutput(logKey + "IsActive", true);
 
-        this.sequentialCommandGroup = new SequentialCommandGroup();
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
-
-        final List<PathPoint> trajectoryPathPoints = new ArrayList<>();
-
-        trajectoryPathPoints.add(
-                new PathPoint(
-                        currentPose.getTranslation(),
-                        Rotation2d.fromDegrees(180),
-                        currentPose.getRotation()
-                )
-        );
-
-        if (withLeftSide) {
-            trajectoryPathPoints.add(
-                    new PathPoint(
-                            leftPastCharge,
-                            Rotation2d.fromDegrees(180),
-                            Rotation2d.fromDegrees(180)
-                    )
-            );
-
-        } else {
-            trajectoryPathPoints.add(
-                    new PathPoint(
-                            rightPastCharge,
-                            Rotation2d.fromDegrees(180),
-                            Rotation2d.fromDegrees(180)
-                    )
-            );
+        if (desiredCommunitySide == null) {
+            cancel();
+            return;
         }
 
-        final Rotation2d angle = currentPose.getTranslation().minus(trajectoryPathPoints.get(1).position).getAngle()
-                .rotateBy(Rotation2d.fromDegrees(180));
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final AlignmentZone currentAlignmentZone =
+                AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose);
 
-        Logger.getInstance().recordOutput("AutoAlign/TargetAngle", angle.getDegrees());
+        if (currentAlignmentZone == null) {
+            cancel();
+            return;
+        }
 
-        final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
-        trajectoryPathPoints.set(
-                0,
-                new PathPoint(
-                        currentPose.getTranslation(),
-                        angle,
-                        currentPose.getRotation(),
-                        Math.hypot(swerveChassisSpeeds.vxMetersPerSecond, swerveChassisSpeeds.vyMetersPerSecond)
-                )
-        );
+        final SequentialCommandGroup sequentialCommandGroup = new SequentialCommandGroup();
+        this.commandGroup = sequentialCommandGroup;
 
-        final PathConstraints trajectoryConstrains = new PathConstraints(
-                Constants.Swerve.TRAJECTORY_MAX_SPEED,
-                Constants.Swerve.TRAJECTORY_MAX_ACCELERATION
-        );
+        if (!robotInCommunity(currentPose)) {
+            final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
+            final TitanTrajectory.Constraints constraints = TitanTrajectory.Constraints.getDefault();
+            final TitanTrajectory trajectory = new TitanTrajectory.Builder()
+                    .withConstraints(TitanTrajectory.Constraints.getDefault())
+                    .add(currentPose, swerveChassisSpeeds)
+                    .add(currentAlignmentZone.getTrajectoryTarget(desiredCommunitySide))
+                    .withEndVelocityOverride(constraints.maxVelocity)
+                    .build();
 
-        final PathPlannerTrajectory mainTrajectory = PathPlanner.generatePath(
-                trajectoryConstrains,
-                trajectoryPathPoints
-        );
+            Logger.getInstance().recordOutput(
+                    logKey + "Trajectory",
+                    LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
+            );
 
-        Logger.getInstance().recordOutput(
-                "AutoAlign/Trajectory", LogUtils.LoggableTrajectory.fromTrajectory(mainTrajectory));
-
-        if (!trajectoryPathPoints.isEmpty() && !robotInCommunity(currentPose)) {
-            this.sequentialCommandGroup.addCommands(trajectoryManager.getCommand(mainTrajectory));
+            sequentialCommandGroup.addCommands(trajectoryManager.getCommand(trajectory));
         }
 
         final Pose2d targetPose = AlignmentZone.CENTER.getAlignmentPosition(
                 AlignmentZone.GenericDesiredAlignmentPosition.LEFT);
 
-        sequentialCommandGroup.addCommands(new LineUpToGrid(swerve, photonVision, targetPose));
-
         //Score Sequence
-        sequentialCommandGroup.addCommands(
-                Commands.runOnce(
-                        () -> {
-                            elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH);
-                            claw.setDesiredState(Enums.ClawState.CLAW_DROP);
-                        }
-                ),
-                Commands.waitSeconds(1.5),
-                Commands.runOnce(() -> {
-                    claw.setDesiredState(Enums.ClawState.CLAW_OUTTAKE);
-                }),
-                Commands.waitSeconds(0.7),
-                Commands.runOnce(
-                        () -> {
-                            elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_STANDBY);
-                            claw.setDesiredState(Enums.ClawState.CLAW_STANDBY);
-                        }
-                ),
-                Commands.waitSeconds(0.3)
-        );
+        final ElevatorClawCommand elevatorClawCommand = new ElevatorClawCommand.Builder(elevator, claw)
+                .withElevatorState(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH)
+                .wait(0.3)
+                .withClawState(Enums.ClawState.CLAW_DROP)
+                .wait(1.5)
+                .withClawState(Enums.ClawState.CLAW_OUTTAKE)
+                .wait(0.7)
+                .withElevatorClawStates(Enums.ElevatorState.ELEVATOR_STANDBY, Enums.ClawState.CLAW_STANDBY)
+                .build();
 
+        sequentialCommandGroup.addCommands(new LineUpToGrid(swerve, photonVision, targetPose), elevatorClawCommand);
         sequentialCommandGroup.schedule();
     }
 
     @Override
     public boolean isFinished() {
-        return sequentialCommandGroup.isFinished();
+        return commandGroup.isFinished();
     }
 
     @Override
     public void end(boolean interrupted) {
-        sequentialCommandGroup.cancel();
-        Logger.getInstance().recordOutput("AutoAlign/IsActive", false);
+        if (commandGroup != null) {
+            commandGroup.cancel();
+        }
+
+        Logger.getInstance().recordOutput(logKey + "IsActive", false);
     }
 
     private boolean robotInCommunity(final Pose2d currentPose) {
@@ -175,6 +140,12 @@ public class AutoAlignmentV3 extends CommandBase {
                 currentPose,
                 new Translation2d(1.15, 0),
                 new Translation2d(3.5,  5.5),
-                PoseUtils.MirroringBehavior.MIRROR_ACROSS_X_CENTER);
+                PoseUtils.MirroringBehavior.MIRROR_ACROSS_X_CENTER
+        ) || PoseUtils.poseWithinArea(
+                currentPose,
+                new Translation2d(3.4, 0),
+                new Translation2d(4.9, 4),
+                PoseUtils.MirroringBehavior.MIRROR_ACROSS_X_CENTER
+        );
     }
 }
