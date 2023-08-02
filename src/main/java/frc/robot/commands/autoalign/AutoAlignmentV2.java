@@ -13,7 +13,6 @@ import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.pathfinding.Node;
 import frc.robot.commands.pathfinding.NodeField;
-import frc.robot.commands.pathfinding.TranslationNode;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.wrappers.sensors.vision.PhotonVision;

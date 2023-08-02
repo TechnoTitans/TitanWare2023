@@ -1,17 +1,12 @@
 package frc.robot.commands.autoalign;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
@@ -19,14 +14,12 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.alignment.AlignmentZone;
+import frc.robot.utils.alignment.NTGridNode;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AutoAlignmentV3 extends CommandBase {
     protected static final String logKey = "AutoAlign/";
@@ -37,11 +30,15 @@ public class AutoAlignmentV3 extends CommandBase {
     private final PhotonVision photonVision;
     private final TrajectoryManager trajectoryManager;
 
+    private final IntegerSubscriber NTGridNodeSubscriber = NetworkTableInstance.getDefault()
+            .getTable("GameNodeSelector")
+            .getIntegerTopic("Node")
+            .subscribe(NTGridNode.UNKNOWN.getNtID());
+
+    private NTGridNode ntGridNode = NTGridNode.UNKNOWN;
+
     private AlignmentZone.CommunitySide desiredCommunitySide;
     private SequentialCommandGroup commandGroup;
-
-    private final Translation2d leftPastCharge = new Translation2d(5.76, 4.7);
-    private final Translation2d rightPastCharge = new Translation2d(5.76, 0.75);
 
     public AutoAlignmentV3(
             final Swerve swerve,
@@ -72,6 +69,9 @@ public class AutoAlignmentV3 extends CommandBase {
             cancel();
             return;
         }
+
+        //todo: turn into pose
+        this.ntGridNode = NTGridNode.fromNtID(NTGridNodeSubscriber.get());
 
         final Pose2d currentPose = photonVision.getEstimatedPosition();
         final AlignmentZone currentAlignmentZone =
@@ -135,6 +135,7 @@ public class AutoAlignmentV3 extends CommandBase {
         Logger.getInstance().recordOutput(logKey + "IsActive", false);
     }
 
+    //todo: unshambolize: move to utils? make cool?
     private boolean robotInCommunity(final Pose2d currentPose) {
         return PoseUtils.poseWithinArea(
                 currentPose,
