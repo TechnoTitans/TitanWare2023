@@ -5,7 +5,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,6 +37,7 @@ public class AutoAlignmentV3 extends CommandBase {
     private final TrajectoryManager trajectoryManager;
 
     private final IntegerSubscriber NTGridNodeSubscriber;
+    private final IntegerPublisher NTGridNodePublisher;
 
     private NTGridNode ntGridNode = NTGridNode.UNKNOWN;
     private AlignmentZone.TrajectoryAlignmentSide desiredTrajectoryAlignmentSide;
@@ -53,10 +56,13 @@ public class AutoAlignmentV3 extends CommandBase {
         this.photonVision = photonVision;
         this.trajectoryManager = trajectoryManager;
 
-        this.NTGridNodeSubscriber = NetworkTableInstance.getDefault()
+        final IntegerTopic ntGridNodeTopic = NetworkTableInstance.getDefault()
                 .getTable("GameNodeSelector")
-                .getIntegerTopic("Node")
-                .subscribe(ntGridNode.getNtID());
+                .getIntegerTopic("Node");
+
+
+        this.NTGridNodeSubscriber = ntGridNodeTopic.subscribe(ntGridNode.getNtID());
+        this.NTGridNodePublisher = ntGridNodeTopic.publish();
 
         addRequirements(elevator, claw);
     }
@@ -190,6 +196,8 @@ public class AutoAlignmentV3 extends CommandBase {
                 final LineUpToGrid lineUpToGrid = new LineUpToGrid(swerve, photonVision, targetPose);
                 if (afterElevatorClawCommand != null) {
                     sequentialCommandGroup.addCommands(lineUpToGrid, afterElevatorClawCommand);
+                    //todo ur names suck so Idk if this needs to be here
+                    sequentialCommandGroup.addCommands(Commands.runOnce(() -> NTGridNodePublisher.set(-1)));
                 }
             }
             case SUBSTATION -> {

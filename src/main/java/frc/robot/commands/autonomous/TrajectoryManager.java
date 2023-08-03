@@ -7,6 +7,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
+import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 public class TrajectoryManager {
@@ -16,13 +17,15 @@ public class TrajectoryManager {
 
     private final Claw claw;
     private final Elevator elevator;
+    private final CandleController candleController;
 
     public TrajectoryManager(
             final Swerve swerve,
             final DriveController controller,
             final PhotonVision photonVision,
             final Claw claw,
-            final Elevator elevator
+            final Elevator elevator,
+            final CandleController candleController
     ) {
         this.swerve = swerve;
         this.controller = controller;
@@ -30,6 +33,7 @@ public class TrajectoryManager {
 
         this.claw = claw;
         this.elevator = elevator;
+        this.candleController = candleController;
     }
 
     public TitanTrajectory getTrajectoryFromPath(
@@ -52,7 +56,7 @@ public class TrajectoryManager {
     public TrajectoryFollower getCommand(final AutoOption autoOption) {
         final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
         return new TrajectoryFollower(
-                swerve, controller, photonVision, trajectory, true, claw, elevator
+                swerve, controller, photonVision, trajectory, true, claw, elevator, candleController
         );
     }
 
@@ -64,7 +68,8 @@ public class TrajectoryManager {
                 trajectory,
                 false,
                 claw,
-                elevator
+                elevator,
+                candleController
         );
     }
 

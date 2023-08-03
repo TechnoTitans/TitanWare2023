@@ -383,7 +383,9 @@ public class RobotContainer {
         elevatorClawTeleop = new ElevatorClawTeleop(elevator, claw);
 
         //Auto Commands
-        trajectoryManager = new TrajectoryManager(swerve, holonomicDriveController, photonVision, claw, elevator);
+        trajectoryManager = new TrajectoryManager(
+                swerve, holonomicDriveController, photonVision, claw, elevator, candleController
+        );
 
         //Driver Profile Selector
         profileChooser = new SendableChooser<>();

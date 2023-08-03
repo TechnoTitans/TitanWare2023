@@ -19,6 +19,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
+import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
@@ -44,6 +45,7 @@ public class TrajectoryFollower extends CommandBase {
     private final List<PathPlannerTrajectory.EventMarker> eventMarkers;
     private final Claw claw;
     private final Elevator elevator;
+    private final CandleController candleController;
 
     private boolean isInAuto;
 
@@ -59,8 +61,9 @@ public class TrajectoryFollower extends CommandBase {
             final TitanTrajectory trajectory,
             final boolean transformForAlliance,
             final Claw claw,
-            final Elevator elevator
-    ) {
+            final Elevator elevator,
+            final CandleController candleController
+            ) {
         this.swerve = swerve;
         this.timer = new Timer();
         this.eventMarkers = new ArrayList<>(trajectory.getMarkers().size());
@@ -72,8 +75,9 @@ public class TrajectoryFollower extends CommandBase {
 
         this.claw = claw;
         this.elevator = elevator;
+        this.candleController = candleController;
 
-        addRequirements(swerve);
+        addRequirements(swerve, claw, elevator);
     }
 
     public void reset() {
@@ -127,6 +131,8 @@ public class TrajectoryFollower extends CommandBase {
         );
 
         reset();
+
+        candleController.setStrobe(Enums.CANdleState.RED);
     }
 
     @Override
@@ -151,6 +157,7 @@ public class TrajectoryFollower extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         timer.stop();
+        candleController.setState(Enums.CANdleState.OFF);
     }
 
     @Override

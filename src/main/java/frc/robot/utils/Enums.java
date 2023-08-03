@@ -309,7 +309,8 @@ public class Enums {
     public enum CANdleState {
         OFF(),
         YELLOW(200, 100, 0),
-        PURPLE(200, 0, 150);
+        PURPLE(200, 0, 150),
+        RED(200, 0, 0);
 
         final Color color;
         CANdleState(final Color color) {
