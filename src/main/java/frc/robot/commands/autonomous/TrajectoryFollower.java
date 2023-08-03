@@ -103,6 +103,8 @@ public class TrajectoryFollower extends CommandBase {
         final PathPlannerTrajectory.PathPlannerState initialState = transformedTrajectory.getInitialState();
         final Rotation2d initialHolonomicRotation = initialState.holonomicRotation;
 
+        isInAuto = RobotState.isAutonomous();
+
         //TODO: this setAngle call causes loop overruns in sim - seems to be a CTRE implementation issue?
         // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
         if (!TrajectoryFollower.HAS_AUTO_RAN && isInAuto) {
@@ -117,8 +119,6 @@ public class TrajectoryFollower extends CommandBase {
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
         }
-
-        isInAuto = RobotState.isAutonomous();
 
         eventMarkers.addAll(transformedTrajectory.getMarkers());
         hasMarkers = !eventMarkers.isEmpty();

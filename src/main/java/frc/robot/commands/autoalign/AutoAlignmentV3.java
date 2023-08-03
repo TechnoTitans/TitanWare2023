@@ -9,9 +9,11 @@ import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
@@ -22,6 +24,7 @@ import frc.robot.utils.alignment.NTGridNode;
 import frc.robot.utils.alignment.SubstationNode;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.logging.LogUtils;
+import frc.robot.utils.teleop.ControllerUtils;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
@@ -33,6 +36,7 @@ public class AutoAlignmentV3 extends CommandBase {
     private final Swerve swerve;
     private final Elevator elevator;
     private final Claw claw;
+    private final CommandXboxController driverController;
     private final PhotonVision photonVision;
     private final TrajectoryManager trajectoryManager;
 
@@ -47,12 +51,14 @@ public class AutoAlignmentV3 extends CommandBase {
             final Swerve swerve,
             final Elevator elevator,
             final Claw claw,
+            final CommandXboxController driverController,
             final PhotonVision photonVision,
             final TrajectoryManager trajectoryManager
     ) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.claw = claw;
+        this.driverController = driverController;
         this.photonVision = photonVision;
         this.trajectoryManager = trajectoryManager;
 
@@ -60,11 +66,9 @@ public class AutoAlignmentV3 extends CommandBase {
                 .getTable("GameNodeSelector")
                 .getIntegerTopic("Node");
 
-
         this.NTGridNodeSubscriber = ntGridNodeTopic.subscribe(ntGridNode.getNtID());
         this.NTGridNodePublisher = ntGridNodeTopic.publish();
-
-        addRequirements(elevator, claw);
+        this.NTGridNodePublisher.setDefault(ntGridNode.getNtID());
     }
 
     public AutoAlignmentV3 withDesiredAlignmentSide(final AlignmentZone.TrajectoryAlignmentSide trajectoryAlignmentSide) {
@@ -147,11 +151,9 @@ public class AutoAlignmentV3 extends CommandBase {
             return;
         }
 
+        this.commandGroup = new SequentialCommandGroup();
+
         final Pose2d targetPose = directAlignmentZone.getAlignmentPosition(desiredAlignmentPosition);
-
-        final SequentialCommandGroup sequentialCommandGroup = new SequentialCommandGroup();
-        this.commandGroup = sequentialCommandGroup;
-
         final AlignmentZone.AlignmentZoneKind alignmentZoneKind = trajectoryAlignmentZone
                 .getAlignmentZoneType()
                 .getAlignmentZoneKind();
@@ -168,7 +170,7 @@ public class AutoAlignmentV3 extends CommandBase {
             final TitanTrajectory trajectory = new TitanTrajectory.Builder()
                     .withConstraints(TitanTrajectory.Constraints.getDefault())
                     .add(currentPose, swerveChassisSpeeds)
-                    .add(trajectoryAlignmentZone.getTrajectoryTarget(desiredTrajectoryAlignmentSide))
+                    .add(trajectoryTarget)
                     .withEndVelocityOverride(endVelocity)
                     .build();
 
@@ -177,7 +179,7 @@ public class AutoAlignmentV3 extends CommandBase {
                     LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
             );
 
-            sequentialCommandGroup.addCommands(trajectoryManager.getCommand(trajectory));
+            commandGroup.addCommands(trajectoryManager.getCommand(trajectory));
         }
 
         //Score Sequence
@@ -195,30 +197,30 @@ public class AutoAlignmentV3 extends CommandBase {
             case GRID -> {
                 final LineUpToGrid lineUpToGrid = new LineUpToGrid(swerve, photonVision, targetPose);
                 if (afterElevatorClawCommand != null) {
-                    sequentialCommandGroup.addCommands(lineUpToGrid, afterElevatorClawCommand);
-                    //todo ur names suck so Idk if this needs to be here
-                    sequentialCommandGroup.addCommands(Commands.runOnce(() -> NTGridNodePublisher.set(-1)));
+                    commandGroup.addCommands(
+                            lineUpToGrid,
+                            afterElevatorClawCommand,
+                            Commands.runOnce(() -> NTGridNodePublisher.set(NTGridNode.UNKNOWN.getNtID()))
+                    );
                 }
             }
             case SUBSTATION -> {
-                final Transform2d driveBackTransform = targetPose.minus(
+                final Transform2d offsetBackwardsTransform = targetPose.minus(
                         new Pose2d(new Translation2d(1, 0), Rotation2d.fromDegrees(0))
                 );
 
-                final Pose2d driveBackPose = new Pose2d(
-                        driveBackTransform.getTranslation(), driveBackTransform.getRotation()
+                final Pose2d offsetBackwardsPose = new Pose2d(
+                        offsetBackwardsTransform.getTranslation(), offsetBackwardsTransform.getRotation()
                 );
 
-                final DriveToPose driveUpToSubstation = new DriveToPose(swerve, photonVision, targetPose);
-                final DriveToPose driveBackFromSubstation = new DriveToPose(
-                        swerve,
-                        photonVision,
-                        driveBackPose
-                );
+                final DriveToPose driveUpToSubstation = new DriveToPose(swerve, photonVision, offsetBackwardsPose);
+                final DriveToPose driveForwardToIntakeSubstation = new DriveToPose(swerve, photonVision, targetPose);
+                final DriveToPose driveBackFromSubstation = new DriveToPose(swerve, photonVision, offsetBackwardsPose);
 
                 if (beforeElevatorClawCommand != null && afterElevatorClawCommand != null) {
-                    sequentialCommandGroup.addCommands(
-                            Commands.parallel(beforeElevatorClawCommand, driveUpToSubstation),
+                    commandGroup.addCommands(
+                            driveUpToSubstation,
+                            Commands.sequence(beforeElevatorClawCommand, driveForwardToIntakeSubstation),
                             Commands.waitSeconds(0.5),
                             Commands.parallel(driveBackFromSubstation, afterElevatorClawCommand)
                     );
@@ -226,7 +228,12 @@ public class AutoAlignmentV3 extends CommandBase {
             }
         }
 
-        sequentialCommandGroup.schedule();
+        commandGroup.addCommands(
+                ControllerUtils.getRumbleForDurationCommand(
+                        driverController.getHID(), GenericHID.RumbleType.kBothRumble, 0.75, 0.5
+                )
+        );
+        commandGroup.schedule();
     }
 
     @Override

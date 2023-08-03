@@ -396,6 +396,75 @@
       "title": "TeleopOdometry"
     },
     {
+      "type": 5,
+      "fields": [],
+      "listFields": [
+        [
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CENTER",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_CENTER_TRAJECTORY_ZONE",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_LEFT_TRAJECTORY_ZONE",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_RIGHT_ALT_TRAJECTORY_ZONE",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_RIGHT_TRAJECTORY_ZONE",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_LEFT",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_RIGHT",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_SUBSTATION",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_SUBSTATION_ALT_TRAJECTORY_ZONE",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_SUBSTATION_TRAJECTORY_ZONE",
+            "fieldTypeIndex": 0
+          }
+        ]
+      ],
+      "options": {
+        "game": "2023",
+        "unitDistance": "meters",
+        "unitRotation": "radians",
+        "origin": "right",
+        "size": 0.75,
+        "allianceBumpers": "auto",
+        "allianceOrigin": "red",
+        "orientation": "blue left, red right"
+      },
+      "title": "Odometry"
+    },
+    {
       "type": 1,
       "legends": {
         "left": {
@@ -493,6 +562,37 @@
             {
               "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentZone",
               "color": "#2b66a2",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "Line Graph"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/SubstationNode",
+              "color": "#e5b31b",
               "show": true
             }
           ]

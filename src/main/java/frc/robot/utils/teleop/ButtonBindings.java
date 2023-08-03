@@ -39,9 +39,10 @@ public class ButtonBindings {
                         robotContainer.swerve,
                         robotContainer.elevator,
                         robotContainer.claw,
+                        robotContainer.driverController,
                         robotContainer.photonVision,
                         robotContainer.trajectoryManager
-                ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.RIGHT)
+                ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.LEFT)
         );
 
         driverController.rightBumper().whileTrue(
@@ -49,9 +50,10 @@ public class ButtonBindings {
                         robotContainer.swerve,
                         robotContainer.elevator,
                         robotContainer.claw,
+                        robotContainer.driverController,
                         robotContainer.photonVision,
                         robotContainer.trajectoryManager
-                ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.LEFT)
+                ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.RIGHT)
         );
 
         // Co Driver

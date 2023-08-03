@@ -93,13 +93,17 @@ public enum SubstationNode {
         return new ElevatorClawCommand.Builder(elevator, claw)
                 .withElevatorState(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB)
                 .wait(0.1)
-                .withClawState(Enums.ClawState.CLAW_INTAKING_CONE)
+                .withClawState(Enums.ClawState.CLAW_INTAKING_CUBE)
                 .build();
     }
 
     public ElevatorClawCommand buildRetractSequence(final Elevator elevator, final Claw claw) {
         return new ElevatorClawCommand.Builder(elevator, claw)
-                .withElevatorClawStates(Enums.ElevatorState.ELEVATOR_STANDBY, Enums.ClawState.CLAW_STANDBY)
+                .withClawState(Enums.ClawState.CLAW_INTAKING_CONE)
+                .wait(0.1)
+                .withClawState(Enums.ClawState.CLAW_HOLDING)
+                .wait(0.2)
+                .withElevatorState(Enums.ElevatorState.ELEVATOR_STANDBY)
                 .build();
     }
 }

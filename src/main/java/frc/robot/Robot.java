@@ -14,6 +14,7 @@ import frc.robot.commands.pathfinding.bounds.NodeObstacle;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
+import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
@@ -97,7 +98,6 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        logger.start();
         robotContainer = new RobotContainer();
 
         SmartDashboard.putData("Field", robotContainer.field);
@@ -109,6 +109,14 @@ public class Robot extends LoggedRobot {
         TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
 
         TitanBoard.start();
+        logger.start();
+
+        final AlignmentZone[] alignmentZones = AlignmentZone.cachedValues;
+        for (final AlignmentZone alignmentZone : alignmentZones) {
+            Logger.getInstance().recordOutput(
+                    String.format("AlignmentZone_%s", alignmentZone), alignmentZone.getLoggablePoseRegionArray()
+            );
+        }
     }
 
     @Override

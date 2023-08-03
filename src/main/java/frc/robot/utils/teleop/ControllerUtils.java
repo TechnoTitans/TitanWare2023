@@ -5,6 +5,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class ControllerUtils {
     public final static double STICK_TO_GYRO_ROTATION = -1;
@@ -59,5 +62,18 @@ public class ControllerUtils {
         return Rotation2d.fromRadians(Math.atan2(yInput, xInput))
                 .rotateBy(STICK_TO_FIELD_RELATIVE_ROTATION)
                 .times(STICK_TO_GYRO_ROTATION);
+    }
+
+    public static Command getRumbleForDurationCommand(
+            final GenericHID controller,
+            final GenericHID.RumbleType rumbleType,
+            final double value,
+            final double timeSeconds
+    ) {
+        return Commands.sequence(
+                Commands.runOnce(() -> controller.setRumble(rumbleType, value)),
+                Commands.waitSeconds(timeSeconds),
+                Commands.runOnce(() -> controller.setRumble(rumbleType, 0))
+        );
     }
 }
