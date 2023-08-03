@@ -14,7 +14,6 @@ import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.PoseUtils;
 import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.alignment.GridNode;
 import frc.robot.utils.alignment.NTGridNode;
