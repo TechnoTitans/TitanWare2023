@@ -41,7 +41,7 @@ public class ButtonBindings {
                         robotContainer.claw,
                         robotContainer.photonVision,
                         robotContainer.trajectoryManager
-                ).withDesiredCommunitySide(AlignmentZone.CommunitySide.RIGHT)
+                ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.RIGHT)
         );
 
         driverController.rightBumper().whileTrue(
@@ -51,7 +51,7 @@ public class ButtonBindings {
                         robotContainer.claw,
                         robotContainer.photonVision,
                         robotContainer.trajectoryManager
-                ).withDesiredCommunitySide(AlignmentZone.CommunitySide.LEFT)
+                ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.LEFT)
         );
 
         // Co Driver

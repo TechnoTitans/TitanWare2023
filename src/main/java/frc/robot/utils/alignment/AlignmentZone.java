@@ -15,21 +15,21 @@ public enum AlignmentZone {
             new Translation2d(1, 0),
             new Translation2d(3.35, 1.89),
             new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 1.63), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 1.05), Rotation2d.fromDegrees(180)),
             new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 0.47), Rotation2d.fromDegrees(180))
     ),
     CENTER(
             new Translation2d(1, 1.91),
             new Translation2d(3.35, 3.58),
             new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3.38), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 2.72), Rotation2d.fromDegrees(180)),
             new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 2.2), Rotation2d.fromDegrees(180))
     ),
     RIGHT(
             new Translation2d(1, 3.6),
             new Translation2d(3.35, 5.4585),
             new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 5.045), Rotation2d.fromDegrees(180)),
-            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3), Rotation2d.fromDegrees(180)),
+            new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 4.41), Rotation2d.fromDegrees(180)),
             new Pose2d(new Translation2d(FieldConstants.GRID_SCORING_X_POSITION, 3.84), Rotation2d.fromDegrees(180))
     ),
     SUBSTATION(
@@ -40,32 +40,70 @@ public enum AlignmentZone {
     ),
     CHARGE_STATION_RIGHT_TRAJECTORY_ZONE(
             new Translation2d(3.3, 4),
-            new Translation2d(13.2, 8),
+            new Translation2d(11.62, 8),
+            AlignmentZoneType.TRAJECTORY_GRID,
             Map.of(
-                    CommunitySide.RIGHT, new Pose2d(new Translation2d(3.9, 4.8), Rotation2d.fromDegrees(180)),
-                    CommunitySide.LEFT, new Pose2d(new Translation2d(5.83, 0.75), Rotation2d.fromDegrees(180))
+                    TrajectoryAlignmentSide.RIGHT, new Pose2d(new Translation2d(3.9, 4.8), Rotation2d.fromDegrees(180)),
+                    TrajectoryAlignmentSide.LEFT, new Pose2d(new Translation2d(5.83, 0.75), Rotation2d.fromDegrees(180))
             )
     ),
     CHARGE_STATION_CENTER_TRAJECTORY_ZONE(
             new Translation2d(4.9, 1.49),
             new Translation2d(11.64, 4),
+            AlignmentZoneType.TRAJECTORY_GRID,
             Map.of(
-                    CommunitySide.RIGHT, new Pose2d(new Translation2d(5.83, 4.8), Rotation2d.fromDegrees(180)),
-                    CommunitySide.LEFT, new Pose2d(new Translation2d(5.83, 0.75), Rotation2d.fromDegrees(180))
+                    TrajectoryAlignmentSide.RIGHT, new Pose2d(new Translation2d(5.83, 4.8), Rotation2d.fromDegrees(180)),
+                    TrajectoryAlignmentSide.LEFT, new Pose2d(new Translation2d(5.83, 0.75), Rotation2d.fromDegrees(180))
             )
     ),
     CHARGE_STATION_LEFT_TRAJECTORY_ZONE(
             new Translation2d(4.9, 0),
             new Translation2d(11.64, 1.49),
+            AlignmentZoneType.TRAJECTORY_GRID,
             Map.of(
-                    CommunitySide.RIGHT, new Pose2d(new Translation2d(5.83, 4.8), Rotation2d.fromDegrees(180)),
-                    CommunitySide.LEFT, new Pose2d(new Translation2d(3.9, 0.75), Rotation2d.fromDegrees(180))
+                    TrajectoryAlignmentSide.RIGHT, new Pose2d(new Translation2d(5.83, 4.8), Rotation2d.fromDegrees(180)),
+                    TrajectoryAlignmentSide.LEFT, new Pose2d(new Translation2d(3.9, 0.75), Rotation2d.fromDegrees(180))
+            )
+    ),
+    SUBSTATION_TRAJECTORY_ZONE(
+            new Translation2d(11.62, 5.51),
+            new Translation2d(16.21, 8),
+            AlignmentZoneType.TRAJECTORY_SUBSTATION,
+            Map.of(
+                    TrajectoryAlignmentSide.LEFT, new Pose2d(new Translation2d(15.3, 7.36), Rotation2d.fromDegrees(0)),
+                    TrajectoryAlignmentSide.RIGHT, new Pose2d(new Translation2d(15.3, 6), Rotation2d.fromDegrees(0))
+            )
+    ),
+    SUBSTATION_ALT_TRAJECTORY_ZONE(
+            new Translation2d(11.62, 4),
+            new Translation2d(13.18, 5.51),
+            AlignmentZoneType.TRAJECTORY_SUBSTATION,
+            Map.of(
+                    TrajectoryAlignmentSide.LEFT, new Pose2d(new Translation2d(12.5, 7.36), Rotation2d.fromDegrees(0)),
+                    TrajectoryAlignmentSide.RIGHT, new Pose2d(new Translation2d(12.5, 6), Rotation2d.fromDegrees(0))
             )
     );
 
+    public enum AlignmentZoneKind {
+        DIRECT,
+        TRAJECTORY
+    }
+
     public enum AlignmentZoneType {
-        GRID,
-        SUBSTATION
+        GRID(AlignmentZoneKind.DIRECT),
+        SUBSTATION(AlignmentZoneKind.DIRECT),
+        TRAJECTORY_GRID(AlignmentZoneKind.TRAJECTORY),
+        TRAJECTORY_SUBSTATION(AlignmentZoneKind.TRAJECTORY);
+
+        private final AlignmentZoneKind alignmentZoneKind;
+
+        AlignmentZoneType(final AlignmentZoneKind alignmentZoneKind) {
+            this.alignmentZoneKind = alignmentZoneKind;
+        }
+
+        public AlignmentZoneKind getAlignmentZoneKind() {
+            return alignmentZoneKind;
+        }
     }
 
     public enum NodePosition {
@@ -119,7 +157,8 @@ public enum AlignmentZone {
     public enum GenericDesiredAlignmentPosition {
         LEFT,
         CENTER,
-        RIGHT
+        RIGHT,
+        SINGLE_SUB
     }
 
     public enum AlignmentZoneMapping {
@@ -182,9 +221,10 @@ public enum AlignmentZone {
         }
     }
 
-    public enum CommunitySide {
+    public enum TrajectoryAlignmentSide {
         LEFT,
-        RIGHT
+        RIGHT,
+        SINGLE_SUBSTATION
     }
 
     private static final double CENTER_MIN_Y = Math.min(CENTER.cornerBLBounds.getY(), CENTER.cornerTRBounds.getY());
@@ -208,7 +248,7 @@ public enum AlignmentZone {
     private final Pose2d leftDoubleSubstation;
     private final Pose2d rightDoubleSubstation;
 
-    private final Map<CommunitySide, Pose2d> trajectoryTargetMap;
+    private final Map<TrajectoryAlignmentSide, Pose2d> trajectoryTargetMap;
 
     private Pose2d[] loggablePoseRegionArray;
     private DriverStation.Alliance lastLoggedAlliance;
@@ -223,7 +263,7 @@ public enum AlignmentZone {
             final Pose2d rightCone,
             final Pose2d leftDoubleSubstation,
             final Pose2d rightDoubleSubstation,
-            final Map<CommunitySide, Pose2d> trajectoryTargetMap
+            final Map<TrajectoryAlignmentSide, Pose2d> trajectoryTargetMap
     ) {
         this.cornerBLBounds = cornerBLBounds;
         this.cornerTRBounds = cornerTRBounds;
@@ -284,12 +324,13 @@ public enum AlignmentZone {
     AlignmentZone(
             final Translation2d cornerBLBounds,
             final Translation2d cornerTRBounds,
-            final Map<CommunitySide, Pose2d> trajectoryTargetMap
+            final AlignmentZoneType alignmentZoneType,
+            final Map<TrajectoryAlignmentSide, Pose2d> trajectoryTargetMap
     ) {
         this(
                 cornerBLBounds,
                 cornerTRBounds,
-                AlignmentZoneType.SUBSTATION,
+                alignmentZoneType,
                 PoseUtils.MirroringBehavior.MIRROR_ACROSS_X_CENTER,
                 new Pose2d(),
                 new Pose2d(),
@@ -352,8 +393,8 @@ public enum AlignmentZone {
         }
     }
 
-    public Pose2d getTrajectoryTarget(final CommunitySide communitySide) {
-        return trajectoryTargetMap.get(communitySide);
+    public Pose2d getTrajectoryTarget(final TrajectoryAlignmentSide trajectoryAlignmentSide) {
+        return trajectoryTargetMap.get(trajectoryAlignmentSide);
     }
 
     public AlignmentZoneType getAlignmentZoneType() {

@@ -9,7 +9,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
-import org.littletonrobotics.junction.Logger;
 
 public class LineUpToGrid extends CommandBase {
     public static final double PAST_CHARGE_STATION_X = 2.3;
@@ -90,8 +89,7 @@ public class LineUpToGrid extends CommandBase {
         final double xCurrent = currentPose.getX();
         final double yCurrent = currentPose.getY();
 
-        // TODO: fix this
-
+        // x controller
         final boolean newXShouldControl = yController.atGoal() || xCurrent >= PAST_CHARGE_STATION_X;
         if (xShouldControl != newXShouldControl) {
             xController.reset(xCurrent, fieldRelativeSpeeds.vxMetersPerSecond);
@@ -100,10 +98,11 @@ public class LineUpToGrid extends CommandBase {
 
         final double xControllerInput = xController.calculate(
                 xCurrent,
-                xShouldControl ? targetPose.getX() : xCurrent
+                targetPose.getX()
         );
         final double xInput = xShouldControl ? xControllerInput : 0;
 
+        // y controller
         final boolean newYShouldControl = xCurrent < ALLOW_GRID_LATERAL_MOVEMENT_X;
         if (yShouldControl != newYShouldControl) {
             yController.reset(yCurrent, fieldRelativeSpeeds.vyMetersPerSecond);
@@ -112,45 +111,12 @@ public class LineUpToGrid extends CommandBase {
 
         final double yControllerInput = yController.calculate(
                 yCurrent,
-                yShouldControl ? targetPose.getY() : yCurrent
+                targetPose.getY()
         );
         final double yInput = yShouldControl ? yControllerInput : 0;
 
         final double rotInput = thetaController.calculate(
                 currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians()
-        );
-
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "xDesired", targetPose.getX()
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "xCurrent", xCurrent
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "xControl", xControllerInput
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "xError", xController.getPositionError()
-        );
-
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "yDesired", yShouldControl ? targetPose.getY() : yCurrent
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "yCurrent", yCurrent
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "yControl", yControllerInput
-        );
-
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "thetaDesired", targetPose.getRotation().getRadians()
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "thetaCurrent", currentPose.getRotation().getRadians()
-        );
-        Logger.getInstance().recordOutput(
-                AutoAlignmentV3.logKey + "thetaControl", rotInput
         );
 
         swerve.drive(

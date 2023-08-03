@@ -211,6 +211,10 @@ public class Swerve extends SubsystemBase {
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getYaw())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
+        drive(speeds);
+    }
+
+    public void drive(final ChassisSpeeds speeds) {
         final ChassisSpeeds correctedSpeeds;
         if (Constants.Swerve.USE_SWERVE_SKEW_FIX) {
             final Pose2d lookaheadRobotPose = new Pose2d(
@@ -229,11 +233,7 @@ public class Swerve extends SubsystemBase {
             correctedSpeeds = speeds;
         }
 
-        drive(correctedSpeeds);
-    }
-
-    public void drive(final ChassisSpeeds speeds) {
-        drive(kinematics.toSwerveModuleStates(speeds));
+        drive(kinematics.toSwerveModuleStates(correctedSpeeds));
     }
 
     public void stop() {
