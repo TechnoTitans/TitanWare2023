@@ -2,15 +2,12 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.pathfinding.NodeField;
-import frc.robot.commands.pathfinding.bounds.NodeObstacle;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.Enums;
 import frc.robot.utils.TitanBoard;
