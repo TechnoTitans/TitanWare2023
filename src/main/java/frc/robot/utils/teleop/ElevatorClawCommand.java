@@ -58,6 +58,8 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
 
     @SuppressWarnings("unused")
     public static class Builder {
+        public static final double WAIT_FOR_STATE_DEFAULT_TIMEOUT_SECONDS = 5;
+
         private final List<Command> commands;
         private final Elevator elevator;
         private final Claw claw;
@@ -206,6 +208,135 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
          */
         public Builder wait(final double waitSeconds) {
             commands.add(Commands.waitSeconds(waitSeconds));
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ElevatorState} is equal to the
+         * supplied {@link frc.robot.utils.Enums.ElevatorState} or until a timeout
+         * @param elevatorState the {@link frc.robot.utils.Enums.ElevatorState} to wait for
+         * @param timeoutSec the amount of time that can pass until the wait is timed out (seconds)
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(final Enums.ElevatorState elevatorState, final double timeoutSec) {
+            commands.add(
+                    Commands.race(
+                            Commands.waitSeconds(timeoutSec),
+                            Commands.waitUntil(() -> isElevatorState.apply(elevatorState))
+                    )
+            );
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ElevatorState} is equal to the
+         * supplied {@link frc.robot.utils.Enums.ElevatorState} or until a timeout (default amount of time)
+         * @param elevatorState the {@link frc.robot.utils.Enums.ElevatorState} to wait for
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(final Enums.ElevatorState elevatorState) {
+            waitUntilState(elevatorState, WAIT_FOR_STATE_DEFAULT_TIMEOUT_SECONDS);
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ClawState} is equal to the
+         * supplied {@link frc.robot.utils.Enums.ClawState} or until a timeout
+         * @param clawState the {@link frc.robot.utils.Enums.ClawState} to wait for
+         * @param timeoutSec the amount of time that can pass until the wait is timed out (seconds)
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(final Enums.ClawState clawState, final double timeoutSec) {
+            commands.add(
+                    Commands.race(
+                            Commands.waitSeconds(timeoutSec),
+                            Commands.waitUntil(() -> isClawState.apply(clawState))
+                    )
+            );
+            return this;
+        }
+
+        /**
+         * Waits until the current  {@link frc.robot.utils.Enums.ClawState} is equal to the
+         * supplied {@link frc.robot.utils.Enums.ClawState} or until a timeout (default amount of time)
+         * @param clawState the {@link frc.robot.utils.Enums.ClawState} to wait for
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(final Enums.ClawState clawState) {
+            waitUntilState(clawState, WAIT_FOR_STATE_DEFAULT_TIMEOUT_SECONDS);
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ElevatorClawStateType} (of the elevator OR claw)
+         * is equal to the supplied {@link frc.robot.utils.Enums.ElevatorClawStateType} or until a timeout
+         * @param elevatorClawStateType the {@link frc.robot.utils.Enums.ElevatorClawStateType} to wait for
+         * @param timeoutSec the amount of time that can pass until the wait is timed out (seconds)
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(
+                final Enums.ElevatorClawStateType elevatorClawStateType,
+                final double timeoutSec
+        ) {
+            commands.add(
+                    Commands.race(
+                            Commands.waitSeconds(timeoutSec),
+                            Commands.waitUntil(() -> isElevatorClawStateType.apply(elevatorClawStateType))
+                    )
+            );
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ElevatorClawStateType} (of the elevator OR claw)
+         * is equal to the supplied {@link frc.robot.utils.Enums.ElevatorClawStateType}
+         * or until a timeout (default amount of time)
+         * @param elevatorClawStateType the {@link frc.robot.utils.Enums.ElevatorClawStateType} to wait for
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(final Enums.ElevatorClawStateType elevatorClawStateType) {
+            waitUntilState(elevatorClawStateType, WAIT_FOR_STATE_DEFAULT_TIMEOUT_SECONDS);
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ElevatorState}
+         * and the current {@link frc.robot.utils.Enums.ClawState} are both
+         * equal to the supplied {@link frc.robot.utils.Enums.ElevatorState}
+         * and {@link frc.robot.utils.Enums.ClawState}, respectively; or until a timeout
+         * @param elevatorState the {@link frc.robot.utils.Enums.ElevatorState} to wait for
+         * @param clawState the {@link frc.robot.utils.Enums.ClawState} to wait for
+         * @param timeoutSec the amount of time that can pass until the wait is timed out (seconds)
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(
+                final Enums.ElevatorState elevatorState,
+                final Enums.ClawState clawState,
+                final double timeoutSec
+        ) {
+            commands.add(
+                    Commands.race(
+                            Commands.waitSeconds(timeoutSec),
+                            Commands.parallel(
+                                    Commands.waitUntil(() -> isElevatorState.apply(elevatorState)),
+                                    Commands.waitUntil(() -> isClawState.apply(clawState))
+                            )
+                    )
+            );
+            return this;
+        }
+
+        /**
+         * Waits until the current {@link frc.robot.utils.Enums.ElevatorState}
+         * and the current {@link frc.robot.utils.Enums.ClawState} are both
+         * equal to the supplied {@link frc.robot.utils.Enums.ElevatorState}
+         * and {@link frc.robot.utils.Enums.ClawState}, respectively; or until a timeout (default amount of time)
+         * @param elevatorState the {@link frc.robot.utils.Enums.ElevatorState} to wait for
+         * @param clawState the {@link frc.robot.utils.Enums.ClawState} to wait for
+         * @return this {@link Builder}
+         */
+        public Builder waitUntilState(final Enums.ElevatorState elevatorState, final Enums.ClawState clawState) {
+            waitUntilState(elevatorState, clawState, WAIT_FOR_STATE_DEFAULT_TIMEOUT_SECONDS);
             return this;
         }
 

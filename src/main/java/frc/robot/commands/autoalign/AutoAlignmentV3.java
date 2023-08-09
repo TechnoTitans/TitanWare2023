@@ -94,6 +94,11 @@ public class AutoAlignmentV3 extends CommandBase {
             return;
         }
 
+        Logger.getInstance().recordOutput(
+                logKey + "TrajectoryAlignmentZone",
+                trajectoryAlignmentZone.toString()
+        );
+
         ElevatorClawCommand beforeElevatorClawCommand = null;
         ElevatorClawCommand afterElevatorClawCommand = null;
         AlignmentZone directAlignmentZone = null;

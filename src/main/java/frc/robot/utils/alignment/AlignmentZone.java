@@ -227,7 +227,7 @@ public enum AlignmentZone {
                 final AlignmentZone mapFromAlignmentZone,
                 final AlignmentZone mapToAlignmentZone
         ) {
-            this(new HashSet<>(List.of(mapOnAlliance)), mapFromAlignmentZone, mapToAlignmentZone);
+            this(new HashSet<>(Set.of(mapOnAlliance)), mapFromAlignmentZone, mapToAlignmentZone);
         }
 
         AlignmentZoneMapping(
@@ -251,7 +251,72 @@ public enum AlignmentZone {
     public enum TrajectoryAlignmentSide {
         LEFT,
         RIGHT,
-        SINGLE_SUBSTATION
+        SINGLE_SUBSTATION;
+    }
+
+    public enum TrajectoryAlignmentSideMapping {
+        LEFT(TrajectoryAlignmentSide.LEFT, TrajectoryAlignmentSide.RIGHT),
+        RIGHT(TrajectoryAlignmentSide.RIGHT, TrajectoryAlignmentSide.LEFT);
+
+        private final HashSet<DriverStation.Alliance> mapOnAlliances;
+
+        private final TrajectoryAlignmentSide mapFromAlignmentSide;
+        private final TrajectoryAlignmentSide mapToAlignmentSide;
+
+        private static final Map<TrajectoryAlignmentSide, TrajectoryAlignmentSideMapping> map =
+                Arrays.stream(TrajectoryAlignmentSideMapping.values()).collect(
+                        Collectors.toUnmodifiableMap(
+                                TrajectoryAlignmentSideMapping::getMapFromAlignmentSide,
+                                zone -> zone
+                        )
+                );
+
+        public static TrajectoryAlignmentSide getTrajectoryAlignmentSide(
+                final DriverStation.Alliance currentAlliance,
+                final TrajectoryAlignmentSide trajectoryAlignmentSide
+        ) {
+            final TrajectoryAlignmentSideMapping mapping = map.get(trajectoryAlignmentSide);
+            return (mapping != null && mapping.shouldMapOnAlliance(currentAlliance))
+                    ? mapping.getMapToAlignmentSide()
+                    : trajectoryAlignmentSide;
+        }
+
+        TrajectoryAlignmentSideMapping(
+                final HashSet<DriverStation.Alliance> mapOnAlliances,
+                final TrajectoryAlignmentSide mapFromAlignmentSide,
+                final TrajectoryAlignmentSide mapToAlignmentSide
+        ) {
+            this.mapOnAlliances = mapOnAlliances;
+            this.mapFromAlignmentSide = mapFromAlignmentSide;
+            this.mapToAlignmentSide = mapToAlignmentSide;
+        }
+
+        TrajectoryAlignmentSideMapping(
+                final DriverStation.Alliance mapOnAlliance,
+                final TrajectoryAlignmentSide mapFromAlignmentSide,
+                final TrajectoryAlignmentSide mapToAlignmentSide
+        ) {
+            this(new HashSet<>(Set.of(mapOnAlliance)), mapFromAlignmentSide, mapToAlignmentSide);
+        }
+
+        TrajectoryAlignmentSideMapping(
+                final TrajectoryAlignmentSide mapFromAlignmentSide,
+                final TrajectoryAlignmentSide mapToAlignmentSide
+        ) {
+            this(DriverStation.Alliance.Red, mapFromAlignmentSide, mapToAlignmentSide);
+        }
+
+        public TrajectoryAlignmentSide getMapFromAlignmentSide() {
+            return mapFromAlignmentSide;
+        }
+
+        public TrajectoryAlignmentSide getMapToAlignmentSide() {
+            return mapToAlignmentSide;
+        }
+
+        public boolean shouldMapOnAlliance(final DriverStation.Alliance alliance) {
+            return mapOnAlliances.contains(alliance);
+        }
     }
 
     private static final double CENTER_MIN_Y = Math.min(CENTER.cornerBLBounds.getY(), CENTER.cornerTRBounds.getY());
@@ -421,7 +486,18 @@ public enum AlignmentZone {
     }
 
     public Pose2d getTrajectoryTarget(final TrajectoryAlignmentSide trajectoryAlignmentSide) {
-        return trajectoryTargetMap.get(trajectoryAlignmentSide);
+        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final TrajectoryAlignmentSide mappedTrajectoryAlignmentSide = TrajectoryAlignmentSideMapping
+                .getTrajectoryAlignmentSide(alliance, trajectoryAlignmentSide);
+
+        final Pose2d trajectoryTargetPose = trajectoryTargetMap.get(mappedTrajectoryAlignmentSide);
+        if (alliance == DriverStation.Alliance.Blue) {
+            return trajectoryTargetPose;
+        } else {
+            return PoseUtils.localizePoseOnAlliance(
+                    trajectoryTargetPose, DriverStation.Alliance.Blue, getMirroringBehavior()
+            );
+        }
     }
 
     public AlignmentZoneType getAlignmentZoneType() {
