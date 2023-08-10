@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ Max ]
+    branches: [ AdvKit ]
   pull_request:
-    branches: [ Max ]
+    branches: [ AdvKit ]
 
 jobs:
   build:
