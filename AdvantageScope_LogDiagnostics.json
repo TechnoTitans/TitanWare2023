@@ -1,0 +1,401 @@
+{
+  "version": "2.3.0",
+  "layout": [
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "/DriverStation/DSAttached",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "/DriverStation/FMSAttached",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "/DriverStation/Enabled",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "/DriverStation/Autonomous",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "/DriverStation/EmergencyStop",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "/DriverStation/Test",
+              "color": "#aacaee",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "RobotState"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/SystemStats/CANBus/Utilization",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/CANBus/ReceiveErrorCount",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/CANBus/TransmitErrorCount",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/CANBus/TxFullCount",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/CANBus/OffCount",
+              "color": "#e48b32",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": []
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "RioCAN"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/SystemStats/3v3Rail/Voltage",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/5vRail/Voltage",
+              "color": "#e48b32",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/6vRail/Voltage",
+              "color": "#aacaee",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "/SystemStats/3v3Rail/Active",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/5vRail/Active",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "/SystemStats/6vRail/Active",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/SystemStats/3v3Rail/Current",
+              "color": "#c0b487",
+              "show": false
+            },
+            {
+              "key": "/SystemStats/5vRail/Current",
+              "color": "#858584",
+              "show": false
+            },
+            {
+              "key": "/SystemStats/6vRail/Current",
+              "color": "#3b875a",
+              "show": false
+            }
+          ]
+        }
+      },
+      "title": "VRails"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/SystemStats/BatteryVoltage",
+              "color": "#2b66a2",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "/SystemStats/BrownedOut",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/SystemStats/BatteryCurrent",
+              "color": "#e5b31b",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "Battery"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/PowerDistribution/TotalEnergy",
+              "color": "#af2437",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/TotalPower",
+              "color": "#80588e",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/Voltage",
+              "color": "#e48b32",
+              "show": true
+            }
+          ]
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "/PowerDistribution/ChannelCount",
+              "color": "#e5b31b",
+              "show": false
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": [
+            {
+              "key": "/PowerDistribution/TotalCurrent",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/0",
+              "color": "#aacaee",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/1",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/2",
+              "color": "#858584",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/3",
+              "color": "#3b875a",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/4",
+              "color": "#d993aa",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/5",
+              "color": "#eb987e",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/6",
+              "color": "#5d4f92",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/7",
+              "color": "#a64b6b",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/8",
+              "color": "#dbd345",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/9",
+              "color": "#7e331f",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/10",
+              "color": "#96b637",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/11",
+              "color": "#5f4528",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/12",
+              "color": "#d36134",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/13",
+              "color": "#2e3b28",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/14",
+              "color": "#5f4528",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/15",
+              "color": "#d36134",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/16",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/17",
+              "color": "#96b637",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/18",
+              "color": "#d993aa",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/19",
+              "color": "#3b875a",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/20",
+              "color": "#96b637",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/21",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/22",
+              "color": "#d36134",
+              "show": true
+            },
+            {
+              "key": "/PowerDistribution/ChannelCurrent/23",
+              "color": "#c0b487",
+              "show": true
+            }
+          ]
+        }
+      },
+      "title": "PDP"
+    }
+  ]
+}

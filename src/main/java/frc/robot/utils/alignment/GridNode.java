@@ -1,5 +1,7 @@
 package frc.robot.utils.alignment;
 
+import edu.wpi.first.wpilibj.CAN;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.Enums;
@@ -100,7 +102,7 @@ public enum GridNode {
     }
 
     public AlignmentZone getAlignmentZone() {
-        return alignmentZone;
+        return AlignmentZone.AlignmentZoneMapping.getAlignmentZone(DriverStation.getAlliance(), alignmentZone);
     }
 
     public AlignmentZone.GenericDesiredAlignmentPosition getAlignmentPosition() {
@@ -113,8 +115,9 @@ public enum GridNode {
 
     public ElevatorClawCommand buildScoringSequence(final Elevator elevator, final Claw claw) {
         // TODO: waitForState(State state)
+        final Enums.ElevatorState toLevelElevatorState = level.getElevatorState();
         return new ElevatorClawCommand.Builder(elevator, claw)
-                .withElevatorState(level.getElevatorState())
+                .withElevatorState(toLevelElevatorState)
                 .wait(0.3)
                 .withClawState(Enums.ClawState.CLAW_DROP)
                 .wait(1.5)

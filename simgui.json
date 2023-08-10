@@ -6,6 +6,33 @@
           "open": true
         }
       }
+    },
+    "PowerDistributions": {
+      "1": {
+        "PowerDistribution[1]": {
+          "open": true
+        }
+      },
+      "window": {
+        "visible": true
+      }
+    },
+    "RoboRIO": {
+      "3.3V Rail": {
+        "open": true
+      },
+      "5V Rail": {
+        "open": true
+      },
+      "6V Rail": {
+        "open": true
+      },
+      "RoboRIO Input": {
+        "open": true
+      },
+      "window": {
+        "visible": true
+      }
     }
   },
   "NTProvider": {
@@ -38,32 +65,45 @@
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Profile Chooser": "String Chooser",
       "/SmartDashboard/VisionSystemSim-PhotonVision/Sim Field": "Field2d"
+    },
+    "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
     "transitory": {
-      "AutoSelector": {
+      "AdvantageKit": {
         "open": true
       },
-      "GameNodeSelector": {
+      "photonvision": {
         "open": true
       }
     }
   },
   "NetworkTables Info": {
+    "AdvantageScope@1": {
+      "open": true
+    },
     "Clients": {
       "open": true
     },
-    "Max_is_the_best_most_smartest_person_alive@1": {
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "photonvision@3": {
       "Publishers": {
         "open": true
       },
       "Subscribers": {
         "open": true
       },
-      "open": true
-    },
-    "Server": {
       "open": true
     },
     "visible": true
