@@ -377,6 +377,7 @@ public class Enums {
     }
 
     public enum SwerveSpeed {
+        //Takes feet and radians as scalar values
         FAST(Units.feetToMeters(13), 0.5),
         NORMAL(Units.feetToMeters(6), 0.35),
         SLOW(Units.feetToMeters(2), 0.25);

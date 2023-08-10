@@ -39,5 +39,33 @@
       "/SmartDashboard/Profile Chooser": "String Chooser",
       "/SmartDashboard/VisionSystemSim-PhotonVision/Sim Field": "Field2d"
     }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "AutoSelector": {
+        "open": true
+      },
+      "GameNodeSelector": {
+        "open": true
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Max_is_the_best_most_smartest_person_alive@1": {
+      "Publishers": {
+        "open": true
+      },
+      "Subscribers": {
+        "open": true
+      },
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "visible": true
   }
 }

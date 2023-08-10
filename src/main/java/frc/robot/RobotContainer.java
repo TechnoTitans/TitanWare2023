@@ -41,10 +41,7 @@ import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.Enums;
-import frc.robot.utils.auto.AutoChooser;
-import frc.robot.utils.auto.AutoOption;
-import frc.robot.utils.auto.DriveController;
-import frc.robot.utils.auto.PathPlannerUtil;
+import frc.robot.utils.auto.*;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
@@ -120,8 +117,8 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    public final SendableChooser<Enums.DriverProfile> profileChooser;
-    public final AutoChooser<String, AutoOption> autoChooser;
+    public final CustomProfileChooser<Enums.DriverProfile> profileChooser;
+    public final CustomAutoChooser<String, AutoOption> autoChooser;
 
     public RobotContainer() {
         //Power Distribution Hub
@@ -388,17 +385,24 @@ public class RobotContainer {
         );
 
         //Driver Profile Selector
-        profileChooser = new SendableChooser<>();
-        profileChooser.setDefaultOption("Driver1", Enums.DriverProfile.DRIVER1);
-        profileChooser.addOption("Driver2", Enums.DriverProfile.DRIVER2);
-        SmartDashboard.putData("Profile Chooser", profileChooser);
+
+
+        profileChooser = new CustomProfileChooser<>(
+                Constants.NetworkTables.PROFILE_TABLE,
+                Constants.NetworkTables.PROFILE_PUBLISHER,
+                Constants.NetworkTables.PROFILE_SELECTED_SUBSCRIBER,
+                Enums.DriverProfile.DEFAULT
+        );
+        profileChooser.addOptionsIfNotPresent(Enum::name, List.of(Enums.DriverProfile.values()));
 
         //Autonomous Selector
-        autoChooser = new AutoChooser<>();
-        //Add paths that are specifically for one competition type here
-        autoChooser.setDefaultAutoOption(
-                new AutoOption("DropAndMobility", Constants.CompetitionType.COMPETITION)
+        autoChooser = new CustomAutoChooser<>(
+                Constants.NetworkTables.AUTO_TABLE,
+                Constants.NetworkTables.AUTO_PUBLISHER,
+                Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER,
+                new AutoOption("DropAndMobility")
         );
+        //Add paths that are specifically for one competition type here
         autoChooser.addAutoOption(
                 new AutoOption(
                         "CubeAndChargeBack",
@@ -435,8 +439,6 @@ public class RobotContainer {
                 AutoOption::new,
                 PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
         );
-
-        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     public Command getAutonomousCommand() {

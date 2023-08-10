@@ -33,6 +33,16 @@ public interface Constants {
         String PHOENIX_5_CANCODER_UNIT_STRING_ROTS = "rots";
     }
 
+    interface NetworkTables {
+        String AUTO_TABLE = "AutoSelector";
+        String AUTO_PUBLISHER = "AutoOptions";
+        String AUTO_SELECTED_SUBSCRIBER = "SelectedAuto";
+
+        String PROFILE_TABLE = "ProfileSelector";
+        String PROFILE_PUBLISHER = "ProfileOptions";
+        String PROFILE_SELECTED_SUBSCRIBER = "SelectedProfile";
+    }
+
     interface PathPlanner {
         boolean USE_PATH_PLANNER_SERVER = true;
         int SERVER_PORT = 1683;

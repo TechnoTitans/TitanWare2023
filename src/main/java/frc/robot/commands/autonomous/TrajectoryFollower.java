@@ -132,7 +132,7 @@ public class TrajectoryFollower extends CommandBase {
 
         reset();
 
-        candleController.setStrobe(Enums.CANdleState.RED);
+        candleController.setStrobe(Enums.CANdleState.RED, 0.5);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package frc.robot.commands.pathfinding;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
@@ -9,7 +7,9 @@ import frc.robot.commands.pathfinding.bounds.NodeObstacle;
 import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class NodeField {
     protected static final String logKey = "NodeField";

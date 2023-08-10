@@ -29,7 +29,6 @@ import frc.robot.utils.teleop.ElevatorClawCommand;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
-
 public class AutoAlignmentV3 extends CommandBase {
     protected static final String logKey = "AutoAlign/";
 
