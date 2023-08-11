@@ -25,7 +25,7 @@ public class TitanBoard implements Runnable {
         }
 
         titanBoardThread = new Notifier(new TitanBoard());
-        titanBoardThread.setName("titanBoardThread");
+        titanBoardThread.setName("TitanBoardThread");
         titanBoardThread.startPeriodic(0.05);
     }
 

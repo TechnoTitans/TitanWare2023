@@ -5,14 +5,31 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.networktables.StringSubscriber;
 import frc.robot.utils.closeables.ToClose;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.littletonrobotics.junction.networktables.LoggedDashboardInput;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class CustomProfileChooser<V extends Enum<V>> implements AutoCloseable {
+public class CustomProfileChooser<V extends Enum<V>> implements LoggedDashboardInput, AutoCloseable {
+    private final String ntTableName;
+
     private final StringArrayPublisher profilesPublisher;
     private final StringSubscriber selectedProfileSubscriber;
     private final LinkedHashMap<String, V> profileMap;
+    private final LoggableInputs inputs = new LoggableInputs() {
+        public void toLog(LogTable table) {
+            table.put(ntTableName, selectedProfile);
+        }
+
+        public void fromLog(LogTable table) {
+            selectedProfile = table.getString(ntTableName, selectedProfile);
+        }
+    };
+
+    private String selectedProfile;
 
     public CustomProfileChooser(
             final String ntTableName,
@@ -20,11 +37,15 @@ public class CustomProfileChooser<V extends Enum<V>> implements AutoCloseable {
             final String ntSubName,
             final V defaultProfile
     ) {
+        this.ntTableName = ntTableName;
+        this.selectedProfile = defaultProfile.name();
+
         final NetworkTable ntTable = NetworkTableInstance.getDefault().getTable(ntTableName);
         this.profilesPublisher = ntTable.getStringArrayTopic(ntPubName).publish();
-        this.selectedProfileSubscriber = ntTable.getStringTopic(ntSubName).subscribe(defaultProfile.name());
-        this.profileMap = new LinkedHashMap<>(Map.of(defaultProfile.name(), defaultProfile));
+        this.selectedProfileSubscriber = ntTable.getStringTopic(ntSubName).subscribe(selectedProfile);
+        this.profileMap = new LinkedHashMap<>(Map.of(selectedProfile, defaultProfile));
 
+        Logger.getInstance().registerDashboardInput(this);
         ToClose.add(this);
     }
 
@@ -44,7 +65,7 @@ public class CustomProfileChooser<V extends Enum<V>> implements AutoCloseable {
     }
 
     public V getSelected() {
-        return profileMap.get(selectedProfileSubscriber.get());
+        return profileMap.get(selectedProfile);
     }
 
     public void addOptionsIfNotPresent(
@@ -61,5 +82,13 @@ public class CustomProfileChooser<V extends Enum<V>> implements AutoCloseable {
     public void close() {
         selectedProfileSubscriber.close();
         profilesPublisher.close();
+    }
+
+    @Override
+    public void periodic() {
+        if (!Logger.getInstance().hasReplaySource()) {
+            selectedProfile = selectedProfileSubscriber.get();
+        }
+        Logger.getInstance().processInputs(prefix, inputs);
     }
 }

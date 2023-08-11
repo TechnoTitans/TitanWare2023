@@ -5,10 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.IntegerSubscriber;
-import edu.wpi.first.networktables.IntegerTopic;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,8 +26,40 @@ import frc.robot.utils.teleop.ElevatorClawCommand;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.EnumSet;
+
 public class AutoAlignmentV3 extends CommandBase {
     protected static final String logKey = "AutoAlign/";
+
+    private static final NetworkTable NTGameNodeTable = NetworkTableInstance.getDefault().getTable("GameNodeSelector");
+    private static final IntegerTopic ntGridNodeTopic = NTGameNodeTable.getIntegerTopic("Node");
+    private static final StringTopic ntSelectedGridNodeTopic = NTGameNodeTable.getStringTopic("SelectedNode");
+    private static final IntegerSubscriber NTGridNodeSubscriber;
+    private static final IntegerPublisher NTGridNodePublisher;
+    private static final StringPublisher NTSelectedGridNodePublisher;
+
+    private static NTGridNode SelectedNTGridNode = NTGridNode.UNKNOWN;
+
+    static {
+        NTGridNodeSubscriber = ntGridNodeTopic.subscribe(SelectedNTGridNode.getNtID());
+        NTGridNodePublisher = ntGridNodeTopic.publish();
+        NTSelectedGridNodePublisher = ntSelectedGridNodeTopic.publish();
+        NTGridNodePublisher.setDefault(SelectedNTGridNode.getNtID());
+        NTSelectedGridNodePublisher.setDefault(SelectedNTGridNode.toString());
+
+        System.out.println("AutoAlignmentV3--------------------");
+
+        NetworkTableInstance.getDefault().addListener(
+                NTGridNodeSubscriber,
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                (event) -> {
+                    SelectedNTGridNode = NTGridNode.fromNtID(NTGridNodeSubscriber.get());
+                    GridNode.getFromNT(SelectedNTGridNode).ifPresent(
+                            gridNode -> NTSelectedGridNodePublisher.set(gridNode.name())
+                    );
+                }
+        );
+    }
 
     private final Swerve swerve;
     private final Elevator elevator;
@@ -39,10 +68,6 @@ public class AutoAlignmentV3 extends CommandBase {
     private final PhotonVision photonVision;
     private final TrajectoryManager trajectoryManager;
 
-    private final IntegerSubscriber NTGridNodeSubscriber;
-    private final IntegerPublisher NTGridNodePublisher;
-
-    private NTGridNode ntGridNode = NTGridNode.UNKNOWN;
     private AlignmentZone.TrajectoryAlignmentSide desiredTrajectoryAlignmentSide;
     private SequentialCommandGroup commandGroup;
 
@@ -60,14 +85,6 @@ public class AutoAlignmentV3 extends CommandBase {
         this.driverController = driverController;
         this.photonVision = photonVision;
         this.trajectoryManager = trajectoryManager;
-
-        final IntegerTopic ntGridNodeTopic = NetworkTableInstance.getDefault()
-                .getTable("GameNodeSelector")
-                .getIntegerTopic("Node");
-
-        this.NTGridNodeSubscriber = ntGridNodeTopic.subscribe(ntGridNode.getNtID());
-        this.NTGridNodePublisher = ntGridNodeTopic.publish();
-        this.NTGridNodePublisher.setDefault(ntGridNode.getNtID());
     }
 
     public AutoAlignmentV3 withDesiredAlignmentSide(final AlignmentZone.TrajectoryAlignmentSide trajectoryAlignmentSide) {
@@ -106,14 +123,13 @@ public class AutoAlignmentV3 extends CommandBase {
         final boolean canAlign = switch (trajectoryAlignmentZone.getAlignmentZoneType()) {
             case TRAJECTORY_GRID, GRID -> {
                 final long ntGridNodeId = NTGridNodeSubscriber.get();
-                this.ntGridNode = NTGridNode.fromNtID(ntGridNodeId);
-                final GridNode gridNode = GridNode.getFromNT(ntGridNode).orElse(null);
+                final GridNode gridNode = GridNode.getFromNT(SelectedNTGridNode).orElse(null);
 
                 Logger.getInstance().recordOutput(
                         logKey + "NTGridNodeId", ntGridNodeId
                 );
                 Logger.getInstance().recordOutput(
-                        logKey + "NTGridNode", ntGridNode.toString()
+                        logKey + "NTGridNode", SelectedNTGridNode.toString()
                 );
                 Logger.getInstance().recordOutput(
                         logKey + "GridNode", (gridNode != null) ? gridNode.toString() : "None"

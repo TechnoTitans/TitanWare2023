@@ -6,16 +6,32 @@ import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.networktables.StringSubscriber;
 import frc.robot.Constants;
 import frc.robot.utils.closeables.ToClose;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.littletonrobotics.junction.networktables.LoggedDashboardInput;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable {
+public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable, LoggedDashboardInput {
+    private final String ntTableName;
+
     private final StringArrayPublisher autoPublisher;
     private final StringSubscriber selectedAutoSubscriber;
     private final LinkedHashMap<String, V> autoMap;
+    private final HashSet<V> ignoredSet;
+    private final LoggableInputs inputs = new LoggableInputs() {
+        public void toLog(LogTable table) {
+            table.put(ntTableName, selectedAuto);
+        }
 
-    private final HashSet<V> ignoredSet = new HashSet<>();
+        public void fromLog(LogTable table) {
+            selectedAuto = table.getString(ntTableName, selectedAuto);
+        }
+    };
+
+    private String selectedAuto;
 
     public CustomAutoChooser(
             final String ntTableName,
@@ -23,11 +39,16 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
             final String ntSubName,
             final V defaultAuto
     ) {
+        this.ntTableName = ntTableName;
+        this.ignoredSet = new HashSet<>();
+        this.selectedAuto = defaultAuto.pathName();
+
         final NetworkTable ntTable = NetworkTableInstance.getDefault().getTable(ntTableName);
         this.autoPublisher = ntTable.getStringArrayTopic(ntPubName).publish();
-        this.selectedAutoSubscriber = ntTable.getStringTopic(ntSubName).subscribe(defaultAuto.pathName());
-        this.autoMap = new LinkedHashMap<>(Map.of(defaultAuto.pathName(), defaultAuto));
+        this.selectedAutoSubscriber = ntTable.getStringTopic(ntSubName).subscribe(selectedAuto);
+        this.autoMap = new LinkedHashMap<>(Map.of(selectedAuto, defaultAuto));
 
+        Logger.getInstance().registerDashboardInput(this);
         ToClose.add(this);
     }
 
@@ -73,5 +94,13 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
     public void close() {
         selectedAutoSubscriber.close();
         autoPublisher.close();
+    }
+
+    @Override
+    public void periodic() {
+        if (!Logger.getInstance().hasReplaySource()) {
+            selectedAuto = selectedAutoSubscriber.get();
+        }
+        Logger.getInstance().processInputs(prefix, inputs);
     }
 }
