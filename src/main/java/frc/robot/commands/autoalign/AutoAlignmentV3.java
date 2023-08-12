@@ -31,32 +31,27 @@ import java.util.EnumSet;
 public class AutoAlignmentV3 extends CommandBase {
     protected static final String logKey = "AutoAlign/";
 
-    private static final NetworkTable NTGameNodeTable = NetworkTableInstance.getDefault().getTable("GameNodeSelector");
-    private static final IntegerTopic ntGridNodeTopic = NTGameNodeTable.getIntegerTopic("Node");
-    private static final StringTopic ntSelectedGridNodeTopic = NTGameNodeTable.getStringTopic("SelectedNode");
-    private static final IntegerSubscriber NTGridNodeSubscriber;
-    private static final IntegerPublisher NTGridNodePublisher;
-    private static final StringPublisher NTSelectedGridNodePublisher;
-
     private static NTGridNode SelectedNTGridNode = NTGridNode.UNKNOWN;
+    private static final NetworkTable NTGameNodeTable = NetworkTableInstance.getDefault().getTable("GameNodeSelector");
+
+    private static final IntegerTopic NTGridNodeIdTopic = NTGameNodeTable.getIntegerTopic("GridNodeId");
+    private static final IntegerSubscriber NTGridNodeSubscriber = NTGridNodeIdTopic.subscribe(SelectedNTGridNode.getNtID());
+    private static final IntegerPublisher NTGridNodePublisher = NTGridNodeIdTopic.publish();
+
+    private static final StringTopic NTGridNodeNameTopic = NTGameNodeTable.getStringTopic("GridNodeName");
+    private static final StringPublisher NTSelectedGridNodePublisher = NTGridNodeNameTopic.publish();
+
 
     static {
-        NTGridNodeSubscriber = ntGridNodeTopic.subscribe(SelectedNTGridNode.getNtID());
-        NTGridNodePublisher = ntGridNodeTopic.publish();
-        NTSelectedGridNodePublisher = ntSelectedGridNodeTopic.publish();
         NTGridNodePublisher.setDefault(SelectedNTGridNode.getNtID());
         NTSelectedGridNodePublisher.setDefault(SelectedNTGridNode.toString());
-
-        System.out.println("AutoAlignmentV3--------------------");
 
         NetworkTableInstance.getDefault().addListener(
                 NTGridNodeSubscriber,
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll),
                 (event) -> {
                     SelectedNTGridNode = NTGridNode.fromNtID(NTGridNodeSubscriber.get());
-                    GridNode.getFromNT(SelectedNTGridNode).ifPresent(
-                            gridNode -> NTSelectedGridNodePublisher.set(gridNode.name())
-                    );
+                    NTSelectedGridNodePublisher.set(SelectedNTGridNode.name());
                 }
         );
     }
@@ -220,7 +215,9 @@ public class AutoAlignmentV3 extends CommandBase {
                     commandGroup.addCommands(
                             lineUpToGrid,
                             afterElevatorClawCommand,
-                            Commands.runOnce(() -> NTGridNodePublisher.set(NTGridNode.UNKNOWN.getNtID()))
+                            Commands.runOnce(() -> {
+                                NTGridNodePublisher.set(NTGridNode.UNKNOWN.getNtID());
+                            })
                     );
                 }
             }
