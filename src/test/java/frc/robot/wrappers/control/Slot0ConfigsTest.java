@@ -2,7 +2,7 @@ package frc.robot.wrappers.control;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Slot0ConfigsTest {
     @Test

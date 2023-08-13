@@ -3,12 +3,7 @@ package frc.robot.utils.rev;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.jni.RevJNIWrapper;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.hal.JNIWrapper;
-import edu.wpi.first.math.WPIMathJNI;
-import edu.wpi.first.net.WPINetJNI;
-import edu.wpi.first.util.CombinedRuntimeLoader;
 import edu.wpi.first.util.RuntimeLoader;
-import edu.wpi.first.util.WPIUtilJNI;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,9 +16,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static com.revrobotics.CANSparkMax.ControlType.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static com.revrobotics.CANSparkMax.ControlType.kDutyCycle;
+import static com.revrobotics.CANSparkMax.ControlType.kVoltage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RevUtilsTest {

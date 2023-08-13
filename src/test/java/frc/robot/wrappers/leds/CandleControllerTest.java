@@ -4,11 +4,7 @@ import com.ctre.phoenix.CTREJNIWrapper;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.hal.JNIWrapper;
-import edu.wpi.first.math.WPIMathJNI;
-import edu.wpi.first.util.CombinedRuntimeLoader;
 import edu.wpi.first.util.RuntimeLoader;
-import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.utils.SuperstructureStates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,9 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 
 @ExtendWith(MockitoExtension.class)
 class CandleControllerTest {

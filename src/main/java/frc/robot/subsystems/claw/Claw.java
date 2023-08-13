@@ -1,8 +1,8 @@
 package frc.robot.subsystems.claw;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.MathUtils;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.Logger;
 
