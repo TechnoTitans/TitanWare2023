@@ -102,7 +102,7 @@ public class Gyro {
      * @see Rotation2d
      */
     public Rotation2d getRollRotation2d() {
-        return Rotation2d.fromDegrees(getPitch());
+        return Rotation2d.fromDegrees(getRoll());
     }
 
     /**

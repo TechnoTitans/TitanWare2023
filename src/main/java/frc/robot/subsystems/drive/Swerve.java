@@ -37,7 +37,7 @@ public class Swerve extends SubsystemBase {
             final SwerveModule frontRight,
             final SwerveModule backLeft,
             final SwerveModule backRight
-        ) {
+    ) {
         this.gyro = gyro;
         this.gyroInputs = new GyroIOInputsAutoLogged();
 
