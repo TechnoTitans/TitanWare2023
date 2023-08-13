@@ -3,6 +3,7 @@ package frc.robot.wrappers.leds;
 import com.ctre.phoenix.CTREJNIWrapper;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.led.CANdle;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.JNIWrapper;
 import edu.wpi.first.math.WPIMathJNI;
 import edu.wpi.first.util.CombinedRuntimeLoader;
@@ -28,25 +29,15 @@ class CandleControllerTest {
 
     @BeforeAll
     static void beforeAll() {
-//        JNIWrapper.Helper.setExtractOnStaticLoad(false);
-//        WPIUtilJNI.Helper.setExtractOnStaticLoad(false);
-//        WPIMathJNI.Helper.setExtractOnStaticLoad(false);
-//
-//        try {
-//            CombinedRuntimeLoader.loadLibraries(
-//                    CandleController.class,
-//                    "wpiutiljni",
-//                    "wpimathjni",
-//                    "wpiHaljni"
-//            );
-//
-//            final RuntimeLoader<CTREJNIWrapper> jniLoader = new RuntimeLoader<>(
-//                    "CTRE_PhoenixCCISim", RuntimeLoader.getDefaultExtractionRoot(), CTREJNIWrapper.class
-//            );
-//            jniLoader.loadLibrary();
-//        } catch (final IOException ioException) {
-//            throw new RuntimeException(ioException);
-//        }
+        assertTrue(HAL.initialize(500, 0));
+        try {
+            final RuntimeLoader<CTREJNIWrapper> jniLoader = new RuntimeLoader<>(
+                    "CTRE_PhoenixCCISim", RuntimeLoader.getDefaultExtractionRoot(), CTREJNIWrapper.class
+            );
+            jniLoader.loadLibrary();
+        } catch (final IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
     }
 
     @Test
