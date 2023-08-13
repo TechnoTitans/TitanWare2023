@@ -25,5 +25,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Compile and run tests on robot code
-        run: ./gradlew build
+      # Run only build tasks without tests, that way we can build the JNIs first that the tests depend on
+      - name: Gradle Build
+        run: |
+          chmod +x gradlew
+          ./gradlew build -x check --max-workers 2
+      # Run Gradle Tests.
+      - name: Gradle Tests
+        run: ./gradlew test --max-workers 1 --stacktrace
