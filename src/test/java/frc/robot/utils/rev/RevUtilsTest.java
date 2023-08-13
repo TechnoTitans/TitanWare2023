@@ -2,6 +2,7 @@ package frc.robot.utils.rev;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.jni.RevJNIWrapper;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.JNIWrapper;
 import edu.wpi.first.math.WPIMathJNI;
 import edu.wpi.first.net.WPINetJNI;
@@ -33,11 +34,7 @@ class RevUtilsTest {
 
     @BeforeAll
     static void beforeAll() {
-        JNIWrapper.Helper.setExtractOnStaticLoad(false);
-        WPIUtilJNI.Helper.setExtractOnStaticLoad(false);
-        WPIMathJNI.Helper.setExtractOnStaticLoad(false);
-        WPINetJNI.Helper.setExtractOnStaticLoad(false);
-
+        assertTrue(HAL.initialize(500, 0));
         try {
             final RuntimeLoader<RevJNIWrapper> jniLoader = new RuntimeLoader<>(
                     "REVLibDriver", RuntimeLoader.getDefaultExtractionRoot(), RevJNIWrapper.class
