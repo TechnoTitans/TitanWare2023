@@ -16,7 +16,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.utils.rev.RevUtils;
@@ -40,8 +40,8 @@ public class ClawIOSim implements ClawIO {
 
     private final ProfiledPIDController tiltPID;
 
-    private Enums.ClawOpenCloseControlMode openCloseControlMode;
-    private Enums.ClawTiltControlMode clawTiltControlMode;
+    private SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode;
+    private SuperstructureStates.ClawTiltControlMode clawTiltControlMode;
 
     //Claw Intake Wheel Percent Output
     private double desiredIntakeWheelsPercentOutput;
@@ -102,7 +102,8 @@ public class ClawIOSim implements ClawIO {
 
     @Override
     public void periodic() {
-        clawSimSolver.update(Constants.LOOP_PERIOD_SECONDS, elevatorSimStateSupplier.get());
+        final ElevatorSimSolver.ElevatorSimState elevatorSimState = elevatorSimStateSupplier.get();
+        clawSimSolver.update(Constants.LOOP_PERIOD_SECONDS, elevatorSimState);
 
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
 
@@ -207,7 +208,7 @@ public class ClawIOSim implements ClawIO {
         clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }
 
-    public void setDesiredState(final Enums.ClawState state) {
+    public void setDesiredState(final SuperstructureStates.ClawState state) {
         desiredIntakeWheelsPercentOutput = state.getIntakeWheelsPercentOutput();
         clawTiltControlMode = state.getClawTiltControlMode();
         desiredTiltControlInput = state.getTiltControlInput();

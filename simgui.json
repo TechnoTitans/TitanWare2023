@@ -76,6 +76,9 @@
       "AdvantageKit": {
         "open": true
       },
+      "AutoSelector": {
+        "open": true
+      },
       "photonvision": {
         "open": true
       }
@@ -92,6 +95,12 @@
       "open": true
     },
     "Server": {
+      "open": true
+    },
+    "TitanDash@1": {
+      "Publishers": {
+        "open": true
+      },
       "open": true
     },
     "photonvision@3": {

@@ -17,7 +17,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
@@ -36,24 +36,24 @@ public class ElevatorIOSim implements ElevatorIO {
     private final SensorDirectionValue verticalElevatorEncoderSensorDirection, horizontalElevatorEncoderSensorDirection;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
 
-    private Enums.ElevatorState desiredState = Enums.ElevatorState.ELEVATOR_RESET;
+    private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
 
     private final PositionVoltage positionVoltage;
     private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
-    private Enums.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
+    private SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
     /**
      * Horizontal Elevator Control Input
      * <p>Units can be PositionRots, DutyCycle</p>
      */
     private double HEControlInput = desiredState.getHEControlInput();
-    private Enums.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
+    private SuperstructureStates.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
     /**
      * Vertical Elevator Control Input
      * <p>Units can be PositionRots, DutyCycle</p>
-     * @see Enums.VerticalElevatorMode
+     * @see SuperstructureStates.VerticalElevatorMode
      */
     private double VEControlInput = desiredState.getVEControlInput(); //Vertical Elevator Target Rotations
     private boolean elevatorsHaveReset = false;
@@ -117,7 +117,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
         if (verticalElevatorLimitSwitch.get()) {
             verticalElevatorEncoder.setPosition(0);
-            verticalElevatorMode = Enums.VerticalElevatorMode.DUTY_CYCLE;
+            verticalElevatorMode = SuperstructureStates.VerticalElevatorMode.DUTY_CYCLE;
             VEControlInput = 0;
             verticalDidReset = true;
         } else {
@@ -127,7 +127,7 @@ public class ElevatorIOSim implements ElevatorIO {
         if (horizontalElevatorRearLimitSwitch.get()) {
             horizontalElevatorEncoder.setPosition(0);
             HEControlInput = 0;
-            horizontalElevatorMode = Enums.HorizontalElevatorMode.DUTY_CYCLE;
+            horizontalElevatorMode = SuperstructureStates.HorizontalElevatorMode.DUTY_CYCLE;
             horizontalDidReset = true;
 
             PIDUtils.resetProfiledPIDControllerWithStatusSignal(
@@ -143,17 +143,17 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     private void updateSimulation() {
-        elevatorSimSolver.update(Constants.LOOP_PERIOD_SECONDS);
+        elevatorSimSolver.updateVerticalElevatorPoses(Constants.LOOP_PERIOD_SECONDS);
     }
 
     @Override
     public void periodic() {
         updateSimulation();
 
-        if (desiredState == Enums.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
+        if (desiredState == SuperstructureStates.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
             elevatorsHaveReset = resetElevator();
             if (elevatorsHaveReset) {
-                setDesiredState(Enums.ElevatorState.ELEVATOR_STANDBY);
+                setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
             }
         }
 
@@ -198,9 +198,6 @@ public class ElevatorIOSim implements ElevatorIO {
     public void updateInputs(final ElevatorIOInputs inputs) {
         final ElevatorSimSolver.ElevatorSimState simState = elevatorSimSolver.getElevatorSimState();
         simState.log(Elevator.logKey + "SimState");
-
-        inputs.VEControlInput = VEControlInput;
-        inputs.HEControlInput = HEControlInput;
 
         inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
         inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
@@ -272,7 +269,7 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     @Override
-    public void setDesiredState(final Enums.ElevatorState state) {
+    public void setDesiredState(final SuperstructureStates.ElevatorState state) {
         this.desiredState = state;
         this.verticalElevatorMode = state.getVerticalElevatorMode();
         this.VEControlInput = state.getVEControlInput();

@@ -16,9 +16,6 @@ import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.CTREPhoenix5TalonSRXSim;
 import frc.robot.utils.sim.RevSparkMAXSim;
-import frc.robot.utils.sim.state.Computed;
-import frc.robot.utils.sim.state.State;
-import frc.robot.utils.sim.state.Value;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
@@ -36,9 +33,9 @@ public class ClawSimSolver {
     private final SingleJointedArmSim clawTiltSim;
     private final RevSparkMAXSim clawTiltSimMotor;
 
-    private final Value<Pose3d> clawRootPose;
-    private final Value<Double> clawTiltRots;
-    private final Computed<Pose3d> clawPose;
+    private Pose3d clawRootPose = new Pose3d().transformBy(Claw.CARRIAGE_TO_ROOT_MOUNT_TRANSFORM);
+    private double clawTiltRots = 0;
+    private Pose3d clawPose = new Pose3d();
 
     public ClawSimSolver(
             final TalonSRX clawMainWheelBag,
@@ -48,8 +45,6 @@ public class ClawSimSolver {
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder
     ) {
-        this.clawRootPose = new Value<>(new Pose3d().transformBy(Claw.CARRIAGE_TO_ROOT_MOUNT_TRANSFORM));
-
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
 
@@ -110,22 +105,6 @@ public class ClawSimSolver {
                 )
         );
         this.clawOpenCloseSim.attachRemoteSensor(clawOpenCloseEncoder);
-
-        this.clawTiltRots = new Value<>(0d);
-        this.clawPose = new Computed<>(
-                () -> clawRootPose.get()
-                        .transformBy(
-                                new Transform3d(
-                                        Claw.SHAFT_TO_CENTER_TRANSLATION.rotateBy(new Rotation3d(
-                                                VecBuilder.fill(0, 1, 0),
-                                                Units.rotationsToRadians(clawTiltRots.get())
-                                        )),
-                                        new Rotation3d(0, Units.rotationsToRadians(clawTiltRots.get()), 0)
-                                )
-                        ),
-                clawRootPose,
-                clawTiltRots
-        );
     }
 
     public SingleJointedArmSim getClawTiltSim() {
@@ -139,12 +118,22 @@ public class ClawSimSolver {
         );
     }
 
+    private void updatePoses() {
+        this.clawPose = clawRootPose
+                .transformBy(
+                        new Transform3d(
+                                Claw.SHAFT_TO_CENTER_TRANSLATION.rotateBy(new Rotation3d(
+                                        VecBuilder.fill(0, 1, 0),
+                                        Units.rotationsToRadians(clawTiltRots)
+                                )),
+                                new Rotation3d(0, Units.rotationsToRadians(clawTiltRots), 0)
+                        )
+                );
+    }
+
     private void updateIntakeWheelsInternal(final double dt) {
         clawMainWheelSim.update(dt);
         clawFollowerWheelSim.update(dt);
-
-        Logger.getInstance().recordOutput("PercentOutputMain", clawMainWheelBag.getMotorOutputPercent());
-        Logger.getInstance().recordOutput("PercentOutputFollower", clawFollowerWheelBag.getMotorOutputPercent());
     }
 
     private void updateOpenCloseInternal(final double dt) {
@@ -160,18 +149,19 @@ public class ClawSimSolver {
         clawTiltSim.setInputVoltage(clawTiltSimMotor.getMotorVoltage(CANSparkMax.ControlType.kVoltage));
         clawTiltSim.update(dt);
 
-        clawRootPose.set(
+        clawRootPose =
                 elevatorSimState
                         .horizontalStageTwoFrontBoundPose()
-                        .transformBy(Claw.CARRIAGE_TO_ROOT_MOUNT_TRANSFORM)
-        );
-        clawTiltRots.set(getClawTiltPosition());
+                        .transformBy(Claw.CARRIAGE_TO_ROOT_MOUNT_TRANSFORM);
+        clawTiltRots = getClawTiltPosition();
     }
 
     public void update(final double dt, final ElevatorSimSolver.ElevatorSimState elevatorSimState) {
         updateTiltInternal(dt, elevatorSimState);
         updateOpenCloseInternal(dt);
         updateIntakeWheelsInternal(dt);
+
+        updatePoses();
     }
 
     public ClawSimState getClawSimState() {
@@ -185,16 +175,6 @@ public class ClawSimSolver {
             Pose3d clawRootPose,
             Pose3d clawPose
     ) {
-        public ClawSimState(
-                final State<Pose3d> clawRootPose,
-                final State<Pose3d> clawPose
-        ) {
-            this(
-                    clawRootPose.get(),
-                    clawPose.get()
-            );
-        }
-
         public void log(final String root) {
             Logger.getInstance()
                     .recordOutput(root + "/ClawRootPose", clawRootPose);

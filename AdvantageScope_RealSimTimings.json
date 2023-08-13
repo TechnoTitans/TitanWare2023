@@ -1,0 +1,64 @@
+{
+  "version": "2.3.0",
+  "layout": [
+    {
+      "type": 4,
+      "fields": [
+        "NT:/AdvantageKit/RealOutputs/LoggedRobot/FullCycleMS",
+        "NT:/AdvantageKit/RealOutputs/LoggedRobot/LogPeriodicMS",
+        "NT:/AdvantageKit/RealOutputs/LoggedRobot/UserCodeMS"
+      ],
+      "selectionType": "full",
+      "selectionRangeMin": 0,
+      "selectionRangeMax": 10,
+      "measurementType": "independent",
+      "measurementSampling": "auto",
+      "measurementSamplingPeriod": 20,
+      "histogramMin": 0,
+      "histogramMax": 20,
+      "histogramStep": 0.1,
+      "title": "RobotTimings"
+    },
+    {
+      "type": 4,
+      "fields": [
+        "NT:/AdvantageKit/RealOutputs/Logger/ConduitPeriodicMS",
+        "NT:/AdvantageKit/RealOutputs/Logger/ConsolePeriodicMS",
+        "NT:/AdvantageKit/RealOutputs/Logger/SavePeriodicMS"
+      ],
+      "selectionType": "full",
+      "selectionRangeMin": 0,
+      "selectionRangeMax": 10,
+      "measurementType": "independent",
+      "measurementSampling": "auto",
+      "measurementSamplingPeriod": 20,
+      "histogramMin": 0,
+      "histogramMax": 0.1,
+      "histogramStep": 0.001,
+      "title": "LoggerTimings"
+    },
+    {
+      "type": 4,
+      "fields": [
+        "NT:/AdvantageKit/RealOutputs/Swerve/PeriodicIOPeriodMs",
+        "NT:/AdvantageKit/RealOutputs/Elevator/PeriodicIOPeriodMs",
+        "NT:/AdvantageKit/RealOutputs/Claw/PeriodicIOPeriodMs"
+      ],
+      "selectionType": "full",
+      "selectionRangeMin": 0,
+      "selectionRangeMax": 10,
+      "measurementType": "independent",
+      "measurementSampling": "auto",
+      "measurementSamplingPeriod": 20,
+      "histogramMin": 0,
+      "histogramMax": 1,
+      "histogramStep": 0.01,
+      "title": "SubsystemPeriodicTimings"
+    },
+    {
+      "type": 3,
+      "field": "NT:/AdvantageKit/RealOutputs/Console",
+      "title": "Console"
+    }
+  ]
+}

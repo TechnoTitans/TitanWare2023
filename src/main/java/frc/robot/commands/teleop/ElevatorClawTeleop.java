@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 
 import java.util.HashMap;
@@ -49,16 +49,16 @@ public class ElevatorClawTeleop extends CommandBase {
 
     @Override
     public void initialize() {
-        final Enums.ElevatorState elevatorState = elevator.getDesiredState();
-        if (elevatorState != Enums.ElevatorState.ELEVATOR_RESET
-                && elevatorState != Enums.ElevatorState.ELEVATOR_STANDBY
+        final SuperstructureStates.ElevatorState elevatorState = elevator.getDesiredState();
+        if (elevatorState != SuperstructureStates.ElevatorState.ELEVATOR_RESET
+                && elevatorState != SuperstructureStates.ElevatorState.ELEVATOR_STANDBY
         ) {
-            elevator.setDesiredState(Enums.ElevatorState.ELEVATOR_STANDBY);
+            elevator.setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
         }
 
-        final Enums.ClawState clawState = claw.getDesiredState();
-        if (clawState != Enums.ClawState.CLAW_STANDBY) {
-            claw.setDesiredState(Enums.ClawState.CLAW_STANDBY);
+        final SuperstructureStates.ClawState clawState = claw.getDesiredState();
+        if (clawState != SuperstructureStates.ClawState.CLAW_STANDBY) {
+            claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
         }
 
         // TODO: make sure this solution works as its mostly untested, even in sim

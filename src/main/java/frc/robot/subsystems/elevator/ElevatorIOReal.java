@@ -17,7 +17,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
@@ -30,16 +30,16 @@ public class ElevatorIOReal implements ElevatorIO {
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
 
-    private Enums.ElevatorState desiredState = Enums.ElevatorState.ELEVATOR_RESET;
+    private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
 
     private final PositionVoltage positionVoltage;
     private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
-    private Enums.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
+    private SuperstructureStates.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
     private double VEControlInput = desiredState.getVEControlInput(); //Vertical Elevator Target Rotations
-    private Enums.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
+    private SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
     private double HEControlInput = desiredState.getHEControlInput(); //Horizontal Elevator Target Rotations
 
     private boolean elevatorsHaveReset = false;
@@ -88,7 +88,7 @@ public class ElevatorIOReal implements ElevatorIO {
 
         if (verticalElevatorLimitSwitch.get()) {
             verticalElevatorEncoder.setPosition(0);
-            verticalElevatorMode = Enums.VerticalElevatorMode.DUTY_CYCLE;
+            verticalElevatorMode = SuperstructureStates.VerticalElevatorMode.DUTY_CYCLE;
             VEControlInput = 0;
             verticalDidReset = true;
         } else {
@@ -98,7 +98,7 @@ public class ElevatorIOReal implements ElevatorIO {
         if (horizontalElevatorRearLimitSwitch.get()) {
             horizontalElevatorEncoder.setPosition(0);
             HEControlInput = 0;
-            horizontalElevatorMode = Enums.HorizontalElevatorMode.DUTY_CYCLE;
+            horizontalElevatorMode = SuperstructureStates.HorizontalElevatorMode.DUTY_CYCLE;
             horizontalDidReset = true;
 
             PIDUtils.resetProfiledPIDControllerWithStatusSignal(
@@ -115,10 +115,10 @@ public class ElevatorIOReal implements ElevatorIO {
 
     @Override
     public void periodic() {
-        if (desiredState == Enums.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
+        if (desiredState == SuperstructureStates.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
             elevatorsHaveReset = resetElevator();
             if (elevatorsHaveReset) {
-                setDesiredState(Enums.ElevatorState.ELEVATOR_STANDBY);
+                setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
             }
         }
 
@@ -151,9 +151,6 @@ public class ElevatorIOReal implements ElevatorIO {
 
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
-        inputs.VEControlInput = VEControlInput;
-        inputs.HEControlInput = HEControlInput;
-
         inputs.verticalElevatorMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
         inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
         inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
@@ -203,7 +200,7 @@ public class ElevatorIOReal implements ElevatorIO {
     }
 
     @Override
-    public void setDesiredState(final Enums.ElevatorState desiredState) {
+    public void setDesiredState(final SuperstructureStates.ElevatorState desiredState) {
         this.desiredState = desiredState;
         this.verticalElevatorMode = desiredState.getVerticalElevatorMode();
         this.VEControlInput = desiredState.getVEControlInput();

@@ -9,7 +9,7 @@ import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.teleop.ControllerUtils;
 
 public class SwerveDriveTeleop extends CommandBase {
@@ -39,22 +39,22 @@ public class SwerveDriveTeleop extends CommandBase {
 
         if (!elevator.verticalIsExtended()) {
             if (controller.getLeftTriggerAxis() > 0.5) {
-                Profiler.setSwerveSpeed(Enums.SwerveSpeed.SLOW);
+                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.SLOW);
             } else if (controller.getRightTriggerAxis() > 0.5) {
-                Profiler.setSwerveSpeed(Enums.SwerveSpeed.FAST);
+                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.FAST);
             } else {
-                Profiler.setSwerveSpeed(Enums.SwerveSpeed.NORMAL);
+                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.NORMAL);
             }
         } else {
             if (controller.getRightTriggerAxis() > 0.5) {
-                Profiler.setSwerveSpeed(Enums.SwerveSpeed.NORMAL);
+                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.NORMAL);
             } else {
-                Profiler.setSwerveSpeed(Enums.SwerveSpeed.SLOW);
+                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.SLOW);
             }
         }
 
-        final Enums.DriverProfile driverProfile = Profiler.getDriverProfile();
-        final Enums.SwerveSpeed swerveSpeed = Profiler.getSwerveSpeed();
+        final SuperstructureStates.DriverProfile driverProfile = Profiler.getDriverProfile();
+        final SuperstructureStates.SwerveSpeed swerveSpeed = Profiler.getSwerveSpeed();
 
         final double throttleWeight = swerveSpeed.getThrottleWeight();
         final double rotWeight = swerveSpeed.getRotateWeight();
@@ -102,6 +102,6 @@ public class SwerveDriveTeleop extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.stop();
-        Profiler.setSwerveSpeed(Enums.SwerveSpeed.NORMAL);
+        Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.NORMAL);
     }
 }

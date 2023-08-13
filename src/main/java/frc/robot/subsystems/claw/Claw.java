@@ -1,8 +1,9 @@
 package frc.robot.subsystems.claw;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.MathUtils;
+import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.Logger;
 
 public class Claw extends SubsystemBase {
@@ -11,8 +12,9 @@ public class Claw extends SubsystemBase {
     private final ClawIO clawIO;
     private final ClawIOInputsAutoLogged inputs;
 
-    private Enums.ClawState desiredState = Enums.ClawState.CLAW_STANDBY;
-    private Enums.ClawState currentState = desiredState;
+    private SuperstructureStates.ClawState desiredState = SuperstructureStates.ClawState.CLAW_STANDBY;
+    private SuperstructureStates.ClawState currentState = desiredState;
+    private boolean transitioning = false;
 
     public Claw(final ClawIO clawIO) {
         this.clawIO = clawIO;
@@ -21,9 +23,16 @@ public class Claw extends SubsystemBase {
         setDesiredState(desiredState);
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
+        final double clawIOPeriodicStart = Logger.getInstance().getRealTimestamp();
         clawIO.periodic();
+
+        Logger.getInstance().recordOutput(
+                logKey + "/PeriodicIOPeriodMs",
+                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - clawIOPeriodicStart)
+        );
 
         clawIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
@@ -33,6 +42,7 @@ public class Claw extends SubsystemBase {
         Logger.getInstance().recordOutput(logKey + "/CurrentState", currentState.toString());
         Logger.getInstance().recordOutput(logKey + "/DesiredState", desiredState.toString());
         Logger.getInstance().recordOutput(logKey + "/AtDesiredState", atDesiredState);
+        Logger.getInstance().recordOutput(logKey + "/IsTransitioning", transitioning);
 
         Logger.getInstance().recordOutput(
                 logKey + "/DesiredTiltControlInput", desiredState.getTiltControlInput()
@@ -52,51 +62,82 @@ public class Claw extends SubsystemBase {
         );
     }
 
-    public void setDesiredState(final Enums.ClawState desiredState) {
+    public void setDesiredState(final SuperstructureStates.ClawState desiredState) {
         this.desiredState = desiredState;
+        if (desiredState != currentState) {
+            this.transitioning = true;
+        }
+
         clawIO.setDesiredState(desiredState);
     }
 
     public boolean isAtDesiredState() {
-        if (currentState == desiredState) {
+        if (currentState == desiredState && !transitioning) {
             return true;
         } else {
-            final Enums.ClawTiltControlMode tiltControlMode = currentState.getClawTiltControlMode();
-            final Enums.ClawOpenCloseControlMode openCloseControlMode = currentState.getClawOpenCloseControlMode();
+            final SuperstructureStates.ClawTiltControlMode tiltControlMode = desiredState.getClawTiltControlMode();
+            final SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode = desiredState.getClawOpenCloseControlMode();
 
             final boolean isAtDesired =
                     MathUtils.withinTolerance(
                             inputs.intakeWheelsPercentOutput,
-                            currentState.getIntakeWheelsPercentOutput(),
+                            desiredState.getIntakeWheelsPercentOutput(),
                             0.05
                     ) && MathUtils.withinTolerance(
                             switch (openCloseControlMode) {
                                 case POSITION -> inputs.openCloseEncoderPositionRots;
                                 case DUTY_CYCLE -> inputs.openClosePercentOutput;
                             },
-                            currentState.getOpenCloseControlInput(),
+                            desiredState.getOpenCloseControlInput(),
                             0.05
                     ) && MathUtils.withinTolerance(
                             switch (tiltControlMode) {
                                 case POSITION -> inputs.tiltEncoderPositionRots;
                                 case DUTY_CYCLE -> inputs.tiltPercentOutput;
                             },
-                            currentState.getTiltControlInput(),
+                            desiredState.getTiltControlInput(),
                             0.05
                     );
 
             if (isAtDesired) {
-                currentState = desiredState;
+                this.currentState = desiredState;
+                this.transitioning = false;
             }
 
             return isAtDesired;
         }
     }
 
-    public Enums.ClawState getCurrentState() {
+    /**
+     * TODO: document
+     * @return TODO
+     */
+    public SuperstructureStates.ClawState getCurrentState() {
         return currentState;
     }
-    public Enums.ClawState getDesiredState() {
+
+    /**
+     * TODO: document
+     * @return TODO
+     */
+    public SuperstructureStates.ClawState getCurrentStateWithNullAsTransition() {
+        return transitioning ? null : currentState;
+    }
+
+    /**
+     * TODO: document
+     * @param clawState TODO
+     * @return TODO
+     */
+    public boolean isAtState(final SuperstructureStates.ClawState clawState) {
+        return currentState == clawState && !transitioning;
+    }
+
+    /**
+     * TODO: document
+     * @return TODO
+     */
+    public SuperstructureStates.ClawState getDesiredState() {
         return desiredState;
     }
 }

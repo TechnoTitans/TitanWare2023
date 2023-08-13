@@ -166,10 +166,12 @@ public class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
             }
 
             //TODO: consider only adding a vision measurement if its somewhat close to the already existing odometry
+            // TODO: get better calibrations on cameras or get better cameras
+            // TODO: fix vision measurement adding as it currently teleports you across the field (not good)
 //            poseEstimator.addVisionMeasurement(
-////                    estimatedRobotPose.estimatedPose.toPose2d(),
-////                    estimatedRobotPose.timestampSeconds
-////            );
+//                    estimatedRobotPose.estimatedPose.toPose2d(),
+//                    estimatedRobotPose.timestampSeconds
+//            );
         }
     }
 

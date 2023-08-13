@@ -5,7 +5,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 
-public class Enums {
+public class SuperstructureStates {
     public enum VerticalElevatorMode {
         POSITION,
         MOTION_MAGIC,
@@ -87,8 +87,32 @@ public class Enums {
         );
 
         final VerticalElevatorMode verticalElevatorMode;
+        /**
+         * Vertical Elevator Control Input
+         *
+         * <p>The units for this input are dependent on the
+         * {@link SuperstructureStates.VerticalElevatorMode} currently set.</p>
+         *
+         * <p>When {@link SuperstructureStates.VerticalElevatorMode} is
+         * {@link SuperstructureStates.VerticalElevatorMode#POSITION},
+         * the units for this control input are in position rotations.</p>
+         *
+         * @see SuperstructureStates.VerticalElevatorMode
+         */
         final double VEControlInput;
         final HorizontalElevatorMode horizontalElevatorMode;
+        /**
+         * Horizontal Elevator Control Input
+         *
+         * <p>The units for this input are dependent on the
+         * {@link SuperstructureStates.HorizontalElevatorMode} currently set.</p>
+         *
+         * <p>When {@link SuperstructureStates.HorizontalElevatorMode} is
+         * {@link SuperstructureStates.HorizontalElevatorMode#POSITION},
+         * the units for this control input are in position rotations.</p>
+         *
+         * @see SuperstructureStates.HorizontalElevatorMode
+         */
         final double HEControlInput;
         final ElevatorClawStateType elevatorClawStateType;
 
@@ -226,12 +250,22 @@ public class Enums {
                 -0.37,
                 ElevatorClawStateType.SCORING
         ),
-        CLAW_SHOOT_LOW(
+        // TODO: when we get real robot check if this is mid or low, it used to be named CLAW_SHOOT_LOW (max cooked)
+        CLAW_SHOOT_MID(
                 -0.3,
                 ClawTiltControlMode.POSITION,
                 0.12,
                 ClawOpenCloseControlMode.DUTY_CYCLE,
                 -0.37,
+                ElevatorClawStateType.SCORING
+        ),
+        // TODO: tune these numbers on real
+        CLAW_SHOOT_LOW(
+                -0.15,
+                ClawTiltControlMode.POSITION,
+                0.2,
+                ClawOpenCloseControlMode.DUTY_CYCLE,
+                0.171,
                 ElevatorClawStateType.SCORING
         ),
         CLAW_ANGLE_CUBE(

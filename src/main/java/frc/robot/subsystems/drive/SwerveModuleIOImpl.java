@@ -175,10 +175,14 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public void setNeutralMode(final NeutralModeValue neutralMode) {
+        if (!isReal && Constants.CTRE.DISABLE_NEUTRAL_MODE_IN_SIM) {
+            // just ignore setNeutralMode call if this is true
+            return;
+        }
+
         final StatusCode refreshCode = driveMotor.getConfigurator().refresh(turnTalonFXConfiguration);
         if (!refreshCode.isOK()) {
             // only warn if in real, there seems to be an issue with calling refresh while disabled in sim
-            // TODO: investigate this further
             if (isReal) {
                 DriverStation.reportWarning(
                         String.format(

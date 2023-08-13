@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-@SuppressWarnings("unused")
 public interface RobotMap {
     //PDP
     int POWER_DISTRIBUTION_HUB = 1;
@@ -20,7 +19,6 @@ public interface RobotMap {
     String PhotonVision_BR_Apriltag_B = "BR_Apriltag_B";
 
     //Canivore
-    int CANIVORE_ID = 1;
     String CANIVORE_CAN_NAME = "CANivore";
 
     //LEDS
@@ -67,15 +65,15 @@ public interface RobotMap {
 
     //Claw Motors
     int clawTiltNeo = 3;
-    int clawOpenCloseMotor = 6;
+    int clawOpenCloseMotor = 12; // Used to be 6
     InvertType clawOpenCloseMotorInverted = InvertType.None;
     int clawOpenCloseEncoder = 9;
     int clawTiltEncoder = 14;
     int clawLimitSwitch = 7;
 
-    int clawMainWheelsMotor = 7;
+    int clawMainWheelsMotor = 13; // Used to be 7
     InvertType clawMainWheelsMotorInverted = InvertType.None;
-    int clawFollowerWheelsMotor = 8;
+    int clawFollowerWheelsMotor = 14; // Used to be 8
 
     //Controllers
     int MainController = 0;

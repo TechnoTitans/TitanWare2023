@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -71,7 +72,7 @@ public class Swerve extends SubsystemBase {
 
             swerveModuleStates[i] = new SwerveModuleState(
                     Math.abs(origLastState.speedMetersPerSecond),
-                    Rotation2d.fromRotations(origRots + ((origRots < 0) ? 1 : 0))
+                    Rotation2d.fromRotations(MathUtil.inputModulus(origRots, 0, 1))
             );
         }
 
@@ -80,12 +81,18 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
+        final double swervePeriodicUpdateStart = Logger.getInstance().getRealTimestamp();
         gyro.periodic();
 
         frontLeft.periodic();
         frontRight.periodic();
         backLeft.periodic();
         backRight.periodic();
+
+        Logger.getInstance().recordOutput(
+                logKey + "/PeriodicIOPeriodMs",
+                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - swervePeriodicUpdateStart)
+        );
 
         //log current swerve chassis speeds
         final ChassisSpeeds robotRelativeSpeeds = getRobotRelativeSpeeds();
@@ -145,10 +152,10 @@ public class Swerve extends SubsystemBase {
     public void zeroRotation(final PhotonVision photonVision) {
         gyro.zeroRotation();
         // TODO: do we need to reset here?
-//        photonVision.resetPosition(
-//                photonVision.getEstimatedPosition(),
-//                Rotation2d.fromDegrees(0)
-//        );
+        photonVision.resetPosition(
+                photonVision.getEstimatedPosition(),
+                Rotation2d.fromDegrees(0)
+        );
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {

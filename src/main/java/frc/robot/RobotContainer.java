@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
-import frc.robot.commands.pathfinding.NodeField;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.subsystems.claw.Claw;
@@ -38,7 +37,7 @@ import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.auto.*;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
@@ -68,9 +67,6 @@ public class RobotContainer {
     public final CANcoder clawTiltEncoder;
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
-
-    //NodeField
-    public final NodeField nodeField;
 
     //Odometry, PoseEstimator
     public final SwerveDriveOdometry visionIndependentOdometry;
@@ -115,7 +111,7 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    public final CustomProfileChooser<Enums.DriverProfile> profileChooser;
+    public final CustomProfileChooser<SuperstructureStates.DriverProfile> profileChooser;
     public final CustomAutoChooser<String, AutoOption> autoChooser;
 
     public RobotContainer() {
@@ -297,9 +293,6 @@ public class RobotContainer {
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
 
-        //NodeField
-        nodeField = new NodeField(FieldConstants.NODE_DENSITY, FieldConstants.BlueObstacles.getAll());
-
         final Pose2d initialOdometryPose = new Pose2d();
         visionIndependentOdometry = new SwerveDriveOdometry(
                 kinematics, swerve.getYaw(), swerve.getModulePositions(), initialOdometryPose
@@ -383,15 +376,13 @@ public class RobotContainer {
         );
 
         //Driver Profile Selector
-
-
         profileChooser = new CustomProfileChooser<>(
                 Constants.NetworkTables.PROFILE_TABLE,
                 Constants.NetworkTables.PROFILE_PUBLISHER,
                 Constants.NetworkTables.PROFILE_SELECTED_SUBSCRIBER,
-                Enums.DriverProfile.DEFAULT
+                SuperstructureStates.DriverProfile.DEFAULT
         );
-        profileChooser.addOptionsIfNotPresent(Enum::name, List.of(Enums.DriverProfile.values()));
+        profileChooser.addOptionsIfNotPresent(Enum::name, List.of(SuperstructureStates.DriverProfile.values()));
 
         //Autonomous Selector
         autoChooser = new CustomAutoChooser<>(

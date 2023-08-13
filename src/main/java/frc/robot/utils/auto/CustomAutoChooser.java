@@ -34,6 +34,8 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
         }
     };
 
+    private final V defaultAuto;
+
     private String selectedAuto;
 
     public CustomAutoChooser(
@@ -44,6 +46,7 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
     ) {
         this.ntTableName = ntTableName;
         this.ignoredSet = new HashSet<>();
+        this.defaultAuto = defaultAuto;
         this.selectedAuto = defaultAuto.pathName();
 
         final NetworkTable ntTable = NetworkTableInstance.getDefault().getTable(ntTableName);
@@ -79,7 +82,8 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
     }
 
     public V getSelected() {
-        return autoMap.get(selectedAutoSubscriber.get());
+        final String selectedAutoName = selectedAutoSubscriber.get();
+        return selectedAutoName != null ? autoMap.get(selectedAutoName) : defaultAuto;
     }
 
     public void addOptionsIfNotPresent(

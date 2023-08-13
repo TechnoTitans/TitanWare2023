@@ -16,7 +16,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
@@ -32,8 +32,8 @@ public class ClawIOReal implements ClawIO {
 
     private final ProfiledPIDController tiltPID;
 
-    private Enums.ClawOpenCloseControlMode openCloseControlMode;
-    private Enums.ClawTiltControlMode clawTiltControlMode;
+    private SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode;
+    private SuperstructureStates.ClawTiltControlMode clawTiltControlMode;
 
     //Claw Intake Wheel Percent Output
     private double desiredIntakeWheelsPercentOutput;
@@ -154,7 +154,7 @@ public class ClawIOReal implements ClawIO {
         clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }
 
-    public void setDesiredState(final Enums.ClawState desiredState) {
+    public void setDesiredState(final SuperstructureStates.ClawState desiredState) {
         desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
         clawTiltControlMode = desiredState.getClawTiltControlMode();
         desiredTiltControlInput = desiredState.getTiltControlInput();

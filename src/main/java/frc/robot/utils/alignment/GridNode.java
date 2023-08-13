@@ -3,7 +3,7 @@ package frc.robot.utils.alignment;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 
 import java.util.Arrays;
@@ -55,16 +55,16 @@ public enum GridNode {
     RIGHT_RIGHT_LOW(NTGridNode.RIGHT_RIGHT_LOW, AlignmentZone.RIGHT, GenericDesiredAlignmentPosition.RIGHT, Level.LOW);
 
     public enum Level {
-        LOW(Enums.ElevatorState.ELEVATOR_STANDBY),
-        MID(Enums.ElevatorState.ELEVATOR_EXTENDED_MID),
-        HIGH(Enums.ElevatorState.ELEVATOR_EXTENDED_HIGH);
+        LOW(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY),
+        MID(SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_MID),
+        HIGH(SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_HIGH);
 
-        private final Enums.ElevatorState elevatorState;
-        Level(final Enums.ElevatorState elevatorState) {
+        private final SuperstructureStates.ElevatorState elevatorState;
+        Level(final SuperstructureStates.ElevatorState elevatorState) {
             this.elevatorState = elevatorState;
         }
 
-        public Enums.ElevatorState getElevatorState() {
+        public SuperstructureStates.ElevatorState getElevatorState() {
             return elevatorState;
         }
     }
@@ -113,16 +113,29 @@ public enum GridNode {
     }
 
     public ElevatorClawCommand buildScoringSequence(final Elevator elevator, final Claw claw) {
-        // TODO: waitForState(State state)
-        final Enums.ElevatorState toLevelElevatorState = level.getElevatorState();
-        return new ElevatorClawCommand.Builder(elevator, claw)
-                .withElevatorState(toLevelElevatorState)
-                .wait(0.3)
-                .withClawState(Enums.ClawState.CLAW_DROP)
-                .wait(1.5)
-                .withClawState(Enums.ClawState.CLAW_OUTTAKE)
-                .wait(0.7)
-                .withElevatorClawStates(Enums.ElevatorState.ELEVATOR_STANDBY, Enums.ClawState.CLAW_STANDBY)
-                .build();
+        final SuperstructureStates.ElevatorState toLevelElevatorState = level.getElevatorState();
+        return switch (level) {
+            case HIGH, MID -> new ElevatorClawCommand.Builder(elevator, claw)
+                    .withElevatorState(toLevelElevatorState)
+                    .wait(0.3)
+                    .withClawState(SuperstructureStates.ClawState.CLAW_DROP)
+                    .waitUntilStates(toLevelElevatorState, SuperstructureStates.ClawState.CLAW_DROP)
+                    .withClawState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
+                    .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
+                    .wait(0.3)
+                    .withElevatorClawStates(
+                            SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
+                            SuperstructureStates.ClawState.CLAW_STANDBY
+                    )
+                    .build();
+            case LOW -> new ElevatorClawCommand.Builder(elevator, claw)
+                    .withElevatorClawStates(toLevelElevatorState, SuperstructureStates.ClawState.CLAW_ANGLE_SHOOT)
+                    .waitUntilState(SuperstructureStates.ClawState.CLAW_ANGLE_SHOOT)
+                    .withClawState(SuperstructureStates.ClawState.CLAW_SHOOT_LOW)
+                    .waitUntilState(SuperstructureStates.ClawState.CLAW_SHOOT_LOW)
+                    .wait(0.3)
+                    .withClawState(SuperstructureStates.ClawState.CLAW_STANDBY)
+                    .build();
+        };
     }
 }

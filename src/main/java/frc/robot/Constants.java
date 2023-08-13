@@ -31,6 +31,8 @@ public interface Constants {
         // apply to CANCoder configuration which makes the sensor return in rotations
         double PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS = 1d / PHOENIX_5_CANCODER_TICKS_PER_ROTATION;
         String PHOENIX_5_CANCODER_UNIT_STRING_ROTS = "rots";
+
+        boolean DISABLE_NEUTRAL_MODE_IN_SIM = true;
     }
 
     interface NetworkTables {
@@ -53,6 +55,10 @@ public interface Constants {
         boolean IS_USING_PATH_PLANNER_SERVER =
                 USE_PATH_PLANNER_SERVER
                         && CURRENT_COMPETITION_TYPE != CompetitionType.COMPETITION;
+    }
+
+    interface Teleop {
+        boolean USE_LEGACY_AUTO_ALIGNMENT = false;
     }
 
     interface Sim {

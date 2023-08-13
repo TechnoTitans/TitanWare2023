@@ -2,7 +2,7 @@ package frc.robot.utils.alignment;
 
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 
 import java.util.Arrays;
@@ -31,15 +31,15 @@ public enum SubstationNode {
     );
 
     public enum Level {
-        SINGLE_SUBSTATION(Enums.ElevatorState.ELEVATOR_SINGLE_SUB),
-        DOUBLE_SUBSTATION(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB);
+        SINGLE_SUBSTATION(SuperstructureStates.ElevatorState.ELEVATOR_SINGLE_SUB),
+        DOUBLE_SUBSTATION(SuperstructureStates.ElevatorState.ELEVATOR_DOUBLE_SUB);
 
-        private final Enums.ElevatorState elevatorState;
-        Level(final Enums.ElevatorState elevatorState) {
+        private final SuperstructureStates.ElevatorState elevatorState;
+        Level(final SuperstructureStates.ElevatorState elevatorState) {
             this.elevatorState = elevatorState;
         }
 
-        public Enums.ElevatorState getElevatorState() {
+        public SuperstructureStates.ElevatorState getElevatorState() {
             return elevatorState;
         }
     }
@@ -91,19 +91,19 @@ public enum SubstationNode {
 
     public ElevatorClawCommand buildIntakeSequence(final Elevator elevator, final Claw claw) {
         return new ElevatorClawCommand.Builder(elevator, claw)
-                .withElevatorState(Enums.ElevatorState.ELEVATOR_DOUBLE_SUB)
+                .withElevatorState(SuperstructureStates.ElevatorState.ELEVATOR_DOUBLE_SUB)
                 .wait(0.1)
-                .withClawState(Enums.ClawState.CLAW_INTAKING_CUBE)
+                .withClawState(SuperstructureStates.ClawState.CLAW_INTAKING_CUBE)
                 .build();
     }
 
     public ElevatorClawCommand buildRetractSequence(final Elevator elevator, final Claw claw) {
         return new ElevatorClawCommand.Builder(elevator, claw)
-                .withClawState(Enums.ClawState.CLAW_INTAKING_CONE)
+                .withClawState(SuperstructureStates.ClawState.CLAW_INTAKING_CONE)
                 .wait(0.1)
-                .withClawState(Enums.ClawState.CLAW_HOLDING)
+                .withClawState(SuperstructureStates.ClawState.CLAW_HOLDING)
                 .wait(0.2)
-                .withElevatorState(Enums.ElevatorState.ELEVATOR_STANDBY)
+                .withElevatorState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY)
                 .build();
     }
 }

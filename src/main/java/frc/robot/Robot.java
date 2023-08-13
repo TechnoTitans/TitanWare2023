@@ -9,9 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.profiler.Profiler;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.TitanBoard;
-import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
@@ -107,13 +106,6 @@ public class Robot extends LoggedRobot {
 
         TitanBoard.start();
         logger.start();
-
-        final AlignmentZone[] alignmentZones = AlignmentZone.cachedValues;
-        for (final AlignmentZone alignmentZone : alignmentZones) {
-            Logger.getInstance().recordOutput(
-                    String.format("AlignmentZone_%s", alignmentZone), alignmentZone.getLoggablePoseRegionArray()
-            );
-        }
     }
 
     @Override
@@ -130,7 +122,7 @@ public class Robot extends LoggedRobot {
 
         ButtonBindings.clear();
 
-        robotContainer.candleController.setState(Enums.CANdleState.OFF);
+        robotContainer.candleController.setState(SuperstructureStates.CANdleState.OFF);
     }
 
     @Override

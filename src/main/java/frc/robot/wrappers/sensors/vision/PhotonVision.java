@@ -114,13 +114,10 @@ public class PhotonVision extends SubsystemBase {
 
     public void refreshAlliance() {
         refreshAlliance(originPosition, (originPosition) -> {
-            // TODO: i don't think we need to flip here, but investigate further when we get a chance
             final Pose2d estimatedPose = getEstimatedPosition();
-            final Pose2d newPose = PoseUtils.flipPose(estimatedPose);
-//            resetPosition(newPose);
 
             setRobotOriginPosition(originPosition);
-            resetPosition(newPose);
+            resetPosition(estimatedPose);
         });
     }
 

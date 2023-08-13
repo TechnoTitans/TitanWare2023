@@ -4,28 +4,23 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.robot.Constants;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.RevSparkMAXSim;
-import frc.robot.utils.sim.state.Computed;
-import frc.robot.utils.sim.state.State;
-import frc.robot.utils.sim.state.Value;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
 
-import static frc.robot.Constants.Sim.Elevator.Horizontal;
-import static frc.robot.Constants.Sim.Elevator.Vertical;
-import static frc.robot.utils.PoseUtils.Axis;
-
 public class ElevatorSimSolver {
-    private final Value<Pose3d> elevatorRootPose;
+    private final Pose3d elevatorRootPose;
 
     // Vertical Elevator Motor Sims
     private final ElevatorSim verticalElevatorSim;
@@ -34,16 +29,16 @@ public class ElevatorSimSolver {
     private final CTREPhoenix6TalonFXSim verticalElevatorSimMotors;
 
     // Vertical Elevator Stage One
-    private final Value<Double> verticalStageOneExtension;
-    private final Computed<Pose3d> verticalStageOneLowerBoundPose;
-    private final Computed<Pose3d> verticalStageOneCenterPose;
-    private final Computed<Pose3d> verticalStageOneUpperBoundPose;
+    private double verticalStageOneExtension = 0;
+    private Pose3d verticalStageOneLowerBoundPose = new Pose3d();
+    private Pose3d verticalStageOneCenterPose = new Pose3d();
+    private Pose3d verticalStageOneUpperBoundPose = new Pose3d();
 
     // Vertical Elevator Stage Two
-    private final Value<Double> verticalStageTwoExtension;
-    private final Computed<Pose3d> verticalStageTwoCenterPose;
-    private final Computed<Pose3d> verticalStageTwoLowerBoundPose;
-    private final Computed<Pose3d> verticalStageTwoUpperBoundPose;
+    private double verticalStageTwoExtension = 0;
+    private Pose3d verticalStageTwoCenterPose = new Pose3d();
+    private Pose3d verticalStageTwoLowerBoundPose = new Pose3d();
+    private Pose3d verticalStageTwoUpperBoundPose = new Pose3d();
 
     // Horizontal Elevator Motor Sims
     private final ElevatorSim horizontalElevatorSim;
@@ -51,19 +46,19 @@ public class ElevatorSimSolver {
     private final TitanSparkMAX horizontalElevatorMotor;
     private final RevSparkMAXSim horizontalElevatorSimMotor;
 
-    private final Computed<Pose3d> horizontalElevatorRoot;
+    private Pose3d horizontalElevatorRoot = new Pose3d();
 
     // Horizontal Elevator Stage One
-    private final Value<Double> horizontalStageOneExtension;
-    private final Computed<Pose3d> horizontalStageOneCenterPose;
-    private final Computed<Pose3d> horizontalStageOneBackBoundPose;
-    private final Computed<Pose3d> horizontalStageOneFrontBoundPose;
+    private double horizontalStageOneExtension = 0;
+    private Pose3d horizontalStageOneCenterPose = new Pose3d();
+    private Pose3d horizontalStageOneBackBoundPose = new Pose3d();
+    private Pose3d horizontalStageOneFrontBoundPose = new Pose3d();
 
     // Horizontal Elevator Stage Two
-    private final Value<Double> horizontalStageTwoExtension;
-    private final Computed<Pose3d> horizontalStageTwoCenterPose;
-    private final Computed<Pose3d> horizontalStageTwoBackBoundPose;
-    private final Computed<Pose3d> horizontalStageTwoFrontBoundPose;
+    private double horizontalStageTwoExtension = 0;
+    private Pose3d horizontalStageTwoCenterPose = new Pose3d();
+    private Pose3d horizontalStageTwoBackBoundPose = new Pose3d();
+    private Pose3d horizontalStageTwoFrontBoundPose = new Pose3d();
 
     public ElevatorSimSolver(
             final TalonFX verticalElevatorMotor,
@@ -75,17 +70,17 @@ public class ElevatorSimSolver {
         this.horizontalElevatorMotor = horizontalElevatorMotor;
 
         // Elevator root position
-        this.elevatorRootPose = new Value<>(Vertical.ROBOT_TO_ROOT_MOUNT_POSE);
+        this.elevatorRootPose = Constants.Sim.Elevator.Vertical.ROBOT_TO_ROOT_MOUNT_POSE;
 
         final DCMotor verticalElevatorDCMotors = DCMotor.getFalcon500(2);
         this.verticalElevatorSim = new ElevatorSim(
                 verticalElevatorDCMotors,
-                Vertical.GEARING,
-                Vertical.MOVING_MASS_KG,
-                Vertical.SPROCKET_RADIUS_M,
-                Vertical.MIN_TOTAL_EXT_M,
-                Vertical.MAX_TOTAL_EXT_M,
-                Vertical.SIMULATE_GRAVITY
+                Constants.Sim.Elevator.Vertical.GEARING,
+                Constants.Sim.Elevator.Vertical.MOVING_MASS_KG,
+                Constants.Sim.Elevator.Vertical.SPROCKET_RADIUS_M,
+                Constants.Sim.Elevator.Vertical.MIN_TOTAL_EXT_M,
+                Constants.Sim.Elevator.Vertical.MAX_TOTAL_EXT_M,
+                Constants.Sim.Elevator.Vertical.SIMULATE_GRAVITY
         );
 
         this.verticalElevatorMotor = verticalElevatorMotor;
@@ -93,11 +88,11 @@ public class ElevatorSimSolver {
         this.verticalElevatorEncoder = verticalElevatorEncoder;
         this.verticalElevatorSimMotors = new CTREPhoenix6TalonFXSim(
                 List.of(verticalElevatorMotor, verticalElevatorMotorFollower),
-                Vertical.GEARING,
+                Constants.Sim.Elevator.Vertical.GEARING,
                 new DCMotorSim(
                         verticalElevatorDCMotors,
-                        Vertical.GEARING,
-                        Vertical.EXT_MOI
+                        Constants.Sim.Elevator.Vertical.GEARING,
+                        Constants.Sim.Elevator.Vertical.EXT_MOI
                 )
         );
         this.verticalElevatorSimMotors.attachRemoteSensor(verticalElevatorEncoder);
@@ -105,12 +100,12 @@ public class ElevatorSimSolver {
         final DCMotor horizontalElevatorDCMotor = DCMotor.getNEO(1);
         this.horizontalElevatorSim = new ElevatorSim(
                 horizontalElevatorDCMotor,
-                Horizontal.GEARING,
-                Horizontal.MOVING_MASS_KG,
-                Horizontal.SPROCKET_RADIUS_M,
-                Horizontal.MIN_TOTAL_EXT_M,
-                Horizontal.MAX_TOTAL_EXT_M,
-                Horizontal.SIMULATE_GRAVITY
+                Constants.Sim.Elevator.Horizontal.GEARING,
+                Constants.Sim.Elevator.Horizontal.MOVING_MASS_KG,
+                Constants.Sim.Elevator.Horizontal.SPROCKET_RADIUS_M,
+                Constants.Sim.Elevator.Horizontal.MIN_TOTAL_EXT_M,
+                Constants.Sim.Elevator.Horizontal.MAX_TOTAL_EXT_M,
+                Constants.Sim.Elevator.Horizontal.SIMULATE_GRAVITY
         );
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
         this.horizontalElevatorSimMotor = new RevSparkMAXSim(
@@ -118,146 +113,127 @@ public class ElevatorSimSolver {
                 horizontalElevatorDCMotor,
                 new DCMotorSim(
                         horizontalElevatorDCMotor,
-                        Horizontal.GEARING,
-                        Horizontal.EXT_MOI
+                        Constants.Sim.Elevator.Horizontal.GEARING,
+                        Constants.Sim.Elevator.Horizontal.EXT_MOI
                 )
         );
         this.horizontalElevatorSimMotor.attachRemoteSensor(horizontalElevatorEncoder);
+    }
 
+    public void updateVerticalElevatorPoses() {
         // Vertical Elevator stage one
-        this.verticalStageOneExtension = new Value<>(0d);
-        this.verticalStageOneLowerBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        elevatorRootPose.get(),
-                        Axis.Z,
-                        verticalStageOneExtension.get() + Units.inchesToMeters(1.5)
-                ),
+        this.verticalStageOneLowerBoundPose = PoseUtils.withAxisOffset(
                 elevatorRootPose,
-                verticalStageOneExtension
+                PoseUtils.Axis.Z,
+                verticalStageOneExtension + Units.inchesToMeters(1.5)
         );
 
-        this.verticalStageOneUpperBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        verticalStageOneLowerBoundPose.get(),
-                        Axis.Z,
-                        Vertical.STAGE_ONE_HEIGHT
-                ),
-                verticalStageOneLowerBoundPose
-        );
-
-        this.verticalStageOneCenterPose = new Computed<>(
-                () -> verticalStageOneLowerBoundPose.get().interpolate(verticalStageOneUpperBoundPose.get(), 0.5),
+        this.verticalStageOneUpperBoundPose = PoseUtils.withAxisOffset(
                 verticalStageOneLowerBoundPose,
-                verticalStageOneUpperBoundPose
+                PoseUtils.Axis.Z,
+                Constants.Sim.Elevator.Vertical.STAGE_ONE_HEIGHT
         );
+
+        this.verticalStageOneCenterPose = verticalStageOneLowerBoundPose
+                .interpolate(verticalStageOneUpperBoundPose, 0.5);
 
         // Vertical Elevator stage two
-        this.verticalStageTwoExtension = new Value<>(0d);
-        this.verticalStageTwoLowerBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        verticalStageOneLowerBoundPose.get(),
-                        Axis.Z,
-                        verticalStageTwoExtension.get()
-                ),
+        this.verticalStageTwoExtension = 0d;
+        this.verticalStageTwoLowerBoundPose = PoseUtils.withAxisOffset(
                 verticalStageOneLowerBoundPose,
+                PoseUtils.Axis.Z,
                 verticalStageTwoExtension
         );
 
-        this.verticalStageTwoUpperBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        verticalStageTwoLowerBoundPose.get(),
-                        Axis.Z,
-                        Vertical.STAGE_TWO_HEIGHT
-                ),
-                verticalStageTwoLowerBoundPose
-        );
-
-        this.verticalStageTwoCenterPose = new Computed<>(
-                () -> verticalStageTwoLowerBoundPose.get().interpolate(verticalStageTwoUpperBoundPose.get(), 0.5),
+        this.verticalStageTwoUpperBoundPose = PoseUtils.withAxisOffset(
                 verticalStageTwoLowerBoundPose,
-                verticalStageTwoUpperBoundPose
+                PoseUtils.Axis.Z,
+                Constants.Sim.Elevator.Vertical.STAGE_TWO_HEIGHT
         );
 
-        // Horizontal Elevator
-        this.horizontalElevatorRoot = new Computed<>(
-                () -> new Pose3d(
-                        verticalStageTwoCenterPose.get().getTranslation(),
-                        verticalStageTwoCenterPose.get().getRotation()
+        final double verticalStageTwoLowerBoundPoseZ = verticalStageTwoLowerBoundPose.getZ();
+        this.verticalStageTwoCenterPose = new Pose3d(
+                new Translation3d(
+                        verticalStageTwoLowerBoundPose.getX(),
+                        verticalStageTwoLowerBoundPose.getY(),
+                        verticalStageTwoLowerBoundPoseZ +
+                                (0.5 * (verticalStageTwoLowerBoundPoseZ + verticalStageTwoUpperBoundPose.getZ()))
                 ),
-                verticalStageTwoCenterPose
+                verticalStageTwoLowerBoundPose.getRotation()
+        );
+    }
+
+    public void updateHorizontalElevatorPoses() {
+        this.horizontalElevatorRoot = new Pose3d(
+                verticalStageTwoCenterPose.getTranslation(),
+                verticalStageTwoCenterPose.getRotation()
         );
 
         // Horizontal Stage One
-        this.horizontalStageOneExtension = new Value<>(0d);
-        this.horizontalStageOneBackBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        horizontalElevatorRoot.get(),
-                        Axis.X,
-                        horizontalStageOneExtension.get()
-                ),
+        this.horizontalStageOneExtension = 0d;
+        this.horizontalStageOneBackBoundPose = PoseUtils.withAxisOffset(
                 horizontalElevatorRoot,
+                PoseUtils.Axis.X,
                 horizontalStageOneExtension
         );
 
-        this.horizontalStageOneFrontBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        horizontalStageOneBackBoundPose.get(),
-                        Axis.X,
-                        Horizontal.STAGE_ONE_LENGTH
-                ),
-                horizontalStageOneBackBoundPose
+        this.horizontalStageOneFrontBoundPose = PoseUtils.withAxisOffset(
+                horizontalStageOneBackBoundPose,
+                PoseUtils.Axis.X,
+                Constants.Sim.Elevator.Horizontal.STAGE_ONE_LENGTH
         );
 
-        this.horizontalStageOneCenterPose = new Computed<>(
-                () -> horizontalStageOneBackBoundPose.get()
-                        .interpolate(horizontalStageOneFrontBoundPose.get(), 0.5),
-                horizontalStageOneBackBoundPose,
-                horizontalStageOneFrontBoundPose
+        final double horizontalStageOneBackBoundPoseX = horizontalStageOneBackBoundPose.getX();
+        this.horizontalStageOneCenterPose = new Pose3d(
+                new Translation3d(
+                        horizontalStageOneBackBoundPoseX +
+                                (0.5 * (horizontalStageOneBackBoundPoseX + horizontalStageOneFrontBoundPose.getX())),
+                        horizontalStageOneBackBoundPose.getY(),
+                        horizontalStageOneBackBoundPose.getZ()
+                ),
+                horizontalStageOneBackBoundPose.getRotation()
         );
 
         // Horizontal Stage Two
-        this.horizontalStageTwoExtension = new Value<>(0d);
-        this.horizontalStageTwoBackBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        horizontalStageOneBackBoundPose.get(),
-                        Axis.X,
-                        horizontalStageTwoExtension.get()
-                ),
+        this.horizontalStageTwoExtension = 0d;
+        this.horizontalStageTwoBackBoundPose = PoseUtils.withAxisOffset(
                 horizontalStageOneBackBoundPose,
+                PoseUtils.Axis.X,
                 horizontalStageTwoExtension
         );
 
-        this.horizontalStageTwoFrontBoundPose = new Computed<>(
-                () -> PoseUtils.withAxisOffset(
-                        horizontalStageTwoBackBoundPose.get(),
-                        Axis.X,
-                        Horizontal.STAGE_TWO_LENGTH
-                ),
-                horizontalStageTwoBackBoundPose
+        this.horizontalStageTwoFrontBoundPose = PoseUtils.withAxisOffset(
+                horizontalStageTwoBackBoundPose,
+                PoseUtils.Axis.X,
+                Constants.Sim.Elevator.Horizontal.STAGE_TWO_LENGTH
         );
 
-        this.horizontalStageTwoCenterPose = new Computed<>(
-                () -> horizontalStageTwoBackBoundPose.get()
-                        .interpolate(horizontalStageTwoFrontBoundPose.get(), 0.5),
-                horizontalStageTwoBackBoundPose,
-                horizontalStageTwoFrontBoundPose
+        final double horizontalStageTwoBackBoundPoseX = horizontalStageTwoBackBoundPose.getX();
+        this.horizontalStageTwoCenterPose = new Pose3d(
+                new Translation3d(
+                        horizontalStageTwoBackBoundPoseX +
+                                (0.5 * (horizontalStageTwoBackBoundPoseX + horizontalStageTwoFrontBoundPose.getX())),
+                        horizontalStageTwoBackBoundPose.getY(),
+                        horizontalStageTwoBackBoundPose.getZ()
+                ),
+                horizontalStageTwoBackBoundPose.getRotation()
         );
     }
 
     private double fromVerticalOutputRotationsToLinearDistanceMeters(final double outputRotations) {
-        return outputRotations * Vertical.SPROCKET_CIRCUMFERENCE_M;
+        return outputRotations * Constants.Sim.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double fromVerticalLinearDistanceMetersToOutputRotations(final double linearDistance) {
-        return linearDistance / Vertical.SPROCKET_CIRCUMFERENCE_M;
+        return linearDistance / Constants.Sim.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double fromHorizontalOutputRotationsToLinearDistanceMeters(final double outputRotations) {
-        return outputRotations * Horizontal.SPROCKET_CIRCUMFERENCE_M;
+        return outputRotations * Constants.Sim.Elevator.Horizontal.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double fromHorizontalLinearDistanceMetersToOutputRotations(final double linearDistance) {
-        return linearDistance / Vertical.SPROCKET_CIRCUMFERENCE_M;
+        return linearDistance / Constants.Sim.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double cascadeFromPreviousStage(
@@ -276,14 +252,14 @@ public class ElevatorSimSolver {
         final double stageOneExtension = fromVerticalOutputRotationsToLinearDistanceMeters(verticalOutputPositionRots);
         final double stageTwoExtension = cascadeFromPreviousStage(
                 stageOneExtension,
-                Vertical.STAGE_ONE_OFFSET,
-                Vertical.STAGE_ONE_EXT_HEIGHT,
-                Vertical.STAGE_TWO_OFFSET,
-                Vertical.STAGE_TWO_EXT_HEIGHT
+                Constants.Sim.Elevator.Vertical.STAGE_ONE_OFFSET,
+                Constants.Sim.Elevator.Vertical.STAGE_ONE_EXT_HEIGHT,
+                Constants.Sim.Elevator.Vertical.STAGE_TWO_OFFSET,
+                Constants.Sim.Elevator.Vertical.STAGE_TWO_EXT_HEIGHT
         );
 
-        verticalStageOneExtension.set(stageOneExtension);
-        verticalStageTwoExtension.set(stageTwoExtension);
+        verticalStageOneExtension = stageOneExtension;
+        verticalStageTwoExtension = stageTwoExtension;
     }
 
     private void updateHorizontalPoses(final double horizontalOutputPositionRots) {
@@ -292,14 +268,14 @@ public class ElevatorSimSolver {
         );
         final double stageTwoExtension = cascadeFromPreviousStage(
                 stageOneExtension,
-                Horizontal.STAGE_ONE_OFFSET,
-                Horizontal.STAGE_ONE_EXT_LENGTH,
-                Horizontal.STAGE_TWO_OFFSET,
-                Horizontal.STAGE_TWO_EXT_LENGTH
+                Constants.Sim.Elevator.Horizontal.STAGE_ONE_OFFSET,
+                Constants.Sim.Elevator.Horizontal.STAGE_ONE_EXT_LENGTH,
+                Constants.Sim.Elevator.Horizontal.STAGE_TWO_OFFSET,
+                Constants.Sim.Elevator.Horizontal.STAGE_TWO_EXT_LENGTH
         );
 
-        horizontalStageOneExtension.set(stageOneExtension);
-        horizontalStageTwoExtension.set(stageTwoExtension);
+        horizontalStageOneExtension = stageOneExtension;
+        horizontalStageTwoExtension = stageTwoExtension;
     }
 
     public double getVerticalElevatorPosition() {
@@ -333,13 +309,8 @@ public class ElevatorSimSolver {
                 fromHorizontalLinearDistanceMetersToOutputRotations(horizontalElevatorSim.getPositionMeters()),
                 fromHorizontalLinearDistanceMetersToOutputRotations(horizontalElevatorSim.getVelocityMetersPerSecond())
         );
-//        horizontalElevatorSimMotor.update(dt);
 
         final double motorVoltage = horizontalElevatorSimMotor.getMotorVoltage(CANSparkMax.ControlType.kVoltage);
-        Logger.getInstance().recordOutput("HorizontalMotorVoltage", motorVoltage);
-        Logger.getInstance().recordOutput("HorizontalBusVoltage", horizontalElevatorMotor.getBusVoltage());
-        Logger.getInstance().recordOutput("HorizontalMotorAppliedOutput", horizontalElevatorMotor.getAppliedOutput());
-
         horizontalElevatorSim.setInputVoltage(motorVoltage);
         horizontalElevatorSim.update(dt);
 
@@ -347,35 +318,16 @@ public class ElevatorSimSolver {
     }
 
     public void updateVertical(final double dt) {
-        Logger.getInstance().recordOutput("VerticalStageOneExtension", verticalStageOneExtension.get());
-        Logger.getInstance().recordOutput("VerticalStageTwoExtension", verticalStageTwoExtension.get());
-
-        Logger.getInstance().recordOutput("VerticalClosedLoopError", verticalElevatorMotor.getClosedLoopError().refresh().getValue());
-        Logger.getInstance().recordOutput("VerticalClosedLoopReference", verticalElevatorMotor.getClosedLoopReference().refresh().getValue());
-
-        Logger.getInstance().recordOutput("VerticalElevatorSimPosition", verticalElevatorSim.getPositionMeters());
-        Logger.getInstance().recordOutput("VerticalElevatorSimVelocity", verticalElevatorSim.getVelocityMetersPerSecond());
-        Logger.getInstance().recordOutput("VerticalComputedEncoderPosition", getVerticalElevatorPosition());
-        Logger.getInstance().recordOutput("VerticalComputedEncoderVelocity", verticalElevatorEncoder.getVelocity().refresh().getValue());
-        Logger.getInstance().recordOutput("VerticalComputedPosition", fromVerticalOutputRotationsToLinearDistanceMeters(getVerticalElevatorPosition()));
-
         updateVerticalInternal(dt);
+        updateVerticalElevatorPoses();
     }
 
     public void updateHorizontal(final double dt) {
-        Logger.getInstance().recordOutput("HorizontalStageOneExtension", horizontalStageOneExtension.get());
-        Logger.getInstance().recordOutput("HorizontalStageTwoExtension", horizontalStageTwoExtension.get());
-
-        Logger.getInstance().recordOutput("HorizontalElevatorSimPosition", horizontalElevatorSim.getPositionMeters());
-        Logger.getInstance().recordOutput("HorizontalElevatorSimVelocity", horizontalElevatorSim.getVelocityMetersPerSecond());
-        Logger.getInstance().recordOutput("HorizontalComputedEncoderPosition", getHorizontalElevatorPosition());
-        Logger.getInstance().recordOutput("HorizontalComputedEncoderVelocity", horizontalElevatorEncoder.getVelocity().refresh().getValue());
-        Logger.getInstance().recordOutput("HorizontalComputedPosition", fromVerticalOutputRotationsToLinearDistanceMeters(getHorizontalElevatorPosition()));
-
         updateHorizontalInternal(dt);
+        updateHorizontalElevatorPoses();
     }
 
-    public void update(final double dt) {
+    public void updateVerticalElevatorPoses(final double dt) {
         updateVertical(dt);
         updateHorizontal(dt);
     }
@@ -384,8 +336,8 @@ public class ElevatorSimSolver {
         return verticalElevatorSimMotors;
     }
 
-    public ElevatorSimState getElevatorSimState() {
-        return new ElevatorSimState(
+    public ElevatorSimSolver.ElevatorSimState getElevatorSimState() {
+        return new ElevatorSimSolver.ElevatorSimState(
                 elevatorRootPose,
                 verticalStageOneLowerBoundPose,
                 verticalStageOneCenterPose,
@@ -419,40 +371,10 @@ public class ElevatorSimSolver {
             Pose3d horizontalStageTwoBackBoundPose,
             Pose3d horizontalStageTwoFrontBoundPose
     ) {
-        public ElevatorSimState(
-                final State<Pose3d> elevatorRootPose,
-                final State<Pose3d> verticalStageOneLowerBoundPose,
-                final State<Pose3d> verticalStageOneCenterPose,
-                final State<Pose3d> verticalStageOneUpperBoundPose,
-                final State<Pose3d> verticalStageTwoLowerBoundPose,
-                final State<Pose3d> verticalStageTwoCenterPose,
-                final State<Pose3d> verticalStageTwoUpperBoundPose,
-                final State<Pose3d> horizontalRootPose,
-                final State<Pose3d> horizontalStageOneCenterPose,
-                final State<Pose3d> horizontalStageOneBackBoundPose,
-                final State<Pose3d> horizontalStageOneFrontBoundPose,
-                final State<Pose3d> horizontalStageTwoCenterPose,
-                final State<Pose3d> horizontalStageTwoBackBoundPose,
-                final State<Pose3d> horizontalStageTwoFrontBoundPose
-        ) {
-            this(
-                    elevatorRootPose.get(),
-                    verticalStageOneLowerBoundPose.get(),
-                    verticalStageOneCenterPose.get(),
-                    verticalStageOneUpperBoundPose.get(),
-                    verticalStageTwoLowerBoundPose.get(),
-                    verticalStageTwoCenterPose.get(),
-                    verticalStageTwoUpperBoundPose.get(),
-                    horizontalRootPose.get(),
-                    horizontalStageOneCenterPose.get(),
-                    horizontalStageOneBackBoundPose.get(),
-                    horizontalStageOneFrontBoundPose.get(),
-                    horizontalStageTwoCenterPose.get(),
-                    horizontalStageTwoBackBoundPose.get(),
-                    horizontalStageTwoFrontBoundPose.get()
-            );
-        }
-
+        /**
+         * Log all information contained in this {@link ElevatorSimSolver.ElevatorSimState}
+         * @param root the root logging key (with no suffixed "/")
+         */
         public void log(final String root) {
             Logger.getInstance()
                     .recordOutput(root + "/ElevatorRootPose", elevatorRootPose);

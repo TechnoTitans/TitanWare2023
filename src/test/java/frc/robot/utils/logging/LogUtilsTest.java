@@ -1,9 +1,6 @@
 package frc.robot.utils.logging;
 
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

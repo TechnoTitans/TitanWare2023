@@ -16,7 +16,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.wrappers.leds.CandleController;
@@ -132,7 +132,7 @@ public class TrajectoryFollower extends CommandBase {
 
         reset();
 
-        candleController.setStrobe(Enums.CANdleState.RED, 0.5);
+        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.5);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class TrajectoryFollower extends CommandBase {
     public void end(boolean interrupted) {
         swerve.stop();
         timer.stop();
-        candleController.setState(Enums.CANdleState.OFF);
+        candleController.setState(SuperstructureStates.CANdleState.OFF);
     }
 
     @Override
@@ -258,6 +258,7 @@ public class TrajectoryFollower extends CommandBase {
             useMarker = Optional.empty();
         }
 
+        // TODO: consider using ElevatorClawCommands?
         if (useMarker.isPresent()) {
             final String[] commands = useMarker.get().names.get(0).trim().split(";");
             final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
@@ -267,14 +268,14 @@ public class TrajectoryFollower extends CommandBase {
                     case "claw" ->
                             commandGroup.addCommands(
                                     Commands.runOnce(
-                                            () -> claw.setDesiredState(Enums.ClawState.valueOf(args[1].toUpperCase()))
+                                            () -> claw.setDesiredState(SuperstructureStates.ClawState.valueOf(args[1].toUpperCase()))
                                     )
                             );
                     case "elevator" ->
                             commandGroup.addCommands(
                                     Commands.runOnce(
                                             () -> elevator.setDesiredState(
-                                                    Enums.ElevatorState.valueOf(args[1].toUpperCase())
+                                                    SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
                                             )
                                     )
                             );

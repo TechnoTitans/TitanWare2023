@@ -1,6 +1,6 @@
 package frc.robot.subsystems.claw;
 
-import frc.robot.utils.Enums;
+import frc.robot.utils.SuperstructureStates;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ClawIO {
@@ -31,5 +31,5 @@ public interface ClawIO {
 
     default void config() {}
 
-    default void setDesiredState(final Enums.ClawState desiredState) {}
+    default void setDesiredState(final SuperstructureStates.ClawState desiredState) {}
 }
