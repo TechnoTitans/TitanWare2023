@@ -12,7 +12,7 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#e5b31b",
               "show": true
             },
@@ -34,7 +34,7 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#2b66a2",
               "show": true
             },
@@ -62,22 +62,22 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
               "color": "#80588e",
               "show": true
             }
@@ -135,22 +135,22 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
+              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
               "color": "#c0b487",
               "show": true
             }
@@ -323,6 +323,88 @@
       "title": "Auto"
     },
     {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/IsActive",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/NTGridNodeId",
+              "color": "#3b875a",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/NTGridNode",
+              "color": "#d993aa",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "NTGridNode"
+    },
+    {
+      "type": 1,
+      "legends": {
+        "left": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        },
+        "discrete": {
+          "fields": [
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentPosition",
+              "color": "#e5b31b",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentZone",
+              "color": "#2b66a2",
+              "show": true
+            },
+            {
+              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/TrajectoryAlignmentZone",
+              "color": "#af2437",
+              "show": true
+            }
+          ]
+        },
+        "right": {
+          "lockedRange": null,
+          "unitConversion": {
+            "type": null,
+            "factor": 1
+          },
+          "fields": []
+        }
+      },
+      "title": "AlignmentZone"
+    },
+    {
       "type": 5,
       "fields": [],
       "listFields": [
@@ -333,13 +415,13 @@
             "fieldTypeIndex": 0
           },
           {
-            "type": "Ghost",
-            "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState",
+            "type": "Vision Target",
+            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose2ds",
             "fieldTypeIndex": 0
           },
           {
-            "type": "Vision Target",
-            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose2ds",
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState",
             "fieldTypeIndex": 0
           }
         ]
@@ -352,7 +434,7 @@
         "size": 0.75,
         "allianceBumpers": "auto",
         "allianceOrigin": "auto",
-        "orientation": "blue left, red right"
+        "orientation": "blue bottom, red top"
       },
       "title": "AutoOdometry"
     },
@@ -396,219 +478,6 @@
       "title": "TeleopOdometry"
     },
     {
-      "type": 5,
-      "fields": [],
-      "listFields": [
-        [
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CENTER",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_CENTER_TRAJECTORY_ZONE",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_LEFT_TRAJECTORY_ZONE",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_RIGHT_ALT_TRAJECTORY_ZONE",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_CHARGE_STATION_RIGHT_TRAJECTORY_ZONE",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_LEFT",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_RIGHT",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_SUBSTATION",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_SUBSTATION_ALT_TRAJECTORY_ZONE",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AlignmentZone_SUBSTATION_TRAJECTORY_ZONE",
-            "fieldTypeIndex": 0
-          }
-        ]
-      ],
-      "options": {
-        "game": "2023",
-        "unitDistance": "meters",
-        "unitRotation": "radians",
-        "origin": "right",
-        "size": 0.75,
-        "allianceBumpers": "auto",
-        "allianceOrigin": "red",
-        "orientation": "blue left, red right"
-      },
-      "title": "Odometry"
-    },
-    {
-      "type": 1,
-      "legends": {
-        "left": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": [
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/xCurrent",
-              "color": "#e5b31b",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/xDesired",
-              "color": "#2b66a2",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/yCurrent",
-              "color": "#af2437",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/yDesired",
-              "color": "#80588e",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/xControl",
-              "color": "#e48b32",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/yControl",
-              "color": "#aacaee",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/xError",
-              "color": "#858584",
-              "show": true
-            }
-          ]
-        },
-        "discrete": {
-          "fields": [
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/IsActive",
-              "color": "#c0b487",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/NTGridNodeId",
-              "color": "#3b875a",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/NTGridNode",
-              "color": "#d993aa",
-              "show": true
-            }
-          ]
-        },
-        "right": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": []
-        }
-      },
-      "title": "Line Graph"
-    },
-    {
-      "type": 1,
-      "legends": {
-        "left": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": []
-        },
-        "discrete": {
-          "fields": [
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentPosition",
-              "color": "#e5b31b",
-              "show": true
-            },
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/AlignmentZone",
-              "color": "#2b66a2",
-              "show": true
-            }
-          ]
-        },
-        "right": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": []
-        }
-      },
-      "title": "Line Graph"
-    },
-    {
-      "type": 1,
-      "legends": {
-        "left": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": []
-        },
-        "discrete": {
-          "fields": [
-            {
-              "key": "NT:/AdvantageKit/RealOutputs/SubstationNode",
-              "color": "#e5b31b",
-              "show": true
-            }
-          ]
-        },
-        "right": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": []
-        }
-      },
-      "title": "Line Graph"
-    },
-    {
       "type": 6,
       "fields": [],
       "listFields": [
@@ -634,7 +503,18 @@
             "fieldTypeIndex": 0
           }
         ],
-        []
+        [
+          {
+            "type": "Trajectory",
+            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/Trajectory",
+            "fieldTypeIndex": 0
+          },
+          {
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/TargetPose",
+            "fieldTypeIndex": 0
+          }
+        ]
       ],
       "options": {
         "field": "2023",
