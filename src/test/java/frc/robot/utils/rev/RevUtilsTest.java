@@ -1,6 +1,14 @@
 package frc.robot.utils.rev;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.jni.RevJNIWrapper;
+import edu.wpi.first.hal.JNIWrapper;
+import edu.wpi.first.math.WPIMathJNI;
+import edu.wpi.first.net.WPINetJNI;
+import edu.wpi.first.util.CombinedRuntimeLoader;
+import edu.wpi.first.util.RuntimeLoader;
+import edu.wpi.first.util.WPIUtilJNI;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import static com.revrobotics.CANSparkMax.ControlType.*;
@@ -21,6 +30,23 @@ class RevUtilsTest {
 
     @Mock
     private CANSparkMax sparkMax;
+
+    @BeforeAll
+    static void beforeAll() {
+        JNIWrapper.Helper.setExtractOnStaticLoad(false);
+        WPIUtilJNI.Helper.setExtractOnStaticLoad(false);
+        WPIMathJNI.Helper.setExtractOnStaticLoad(false);
+        WPINetJNI.Helper.setExtractOnStaticLoad(false);
+
+        try {
+            final RuntimeLoader<RevJNIWrapper> jniLoader = new RuntimeLoader<>(
+                    "REVLibDriver", RuntimeLoader.getDefaultExtractionRoot(), RevJNIWrapper.class
+            );
+            jniLoader.loadLibrary();
+        } catch (final IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
+    }
 
     @ParameterizedTest
     @MethodSource("provideGetSparkMAXMotorVoltage")
