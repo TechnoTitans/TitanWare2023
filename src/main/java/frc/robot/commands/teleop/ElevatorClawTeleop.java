@@ -61,7 +61,6 @@ public class ElevatorClawTeleop extends CommandBase {
             claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
         }
 
-        // TODO: make sure this solution works as its mostly untested, even in sim
         for (final Map.Entry<Trigger, ElevatorClawCommand> mapping : controllerMappings.entrySet()) {
             final Trigger mappedTrigger = mapping.getKey();
             final ElevatorClawCommand mappedCommand = mapping.getValue();
@@ -72,17 +71,5 @@ public class ElevatorClawTeleop extends CommandBase {
                 }
             }));
         }
-    }
-
-    @Override
-    public void execute() {
-//        for (final Map.Entry<Trigger, ElevatorClawCommand> mapping : controllerMappings.entrySet()) {
-//            if (mapping.getKey().getAsBoolean()) {
-//                final ElevatorClawCommand mappedCommand = mapping.getValue();
-//                if (!CommandScheduler.getInstance().isScheduled(mappedCommand)) {
-//                    mappedCommand.schedule();
-//                }
-//            }
-//        }
     }
 }

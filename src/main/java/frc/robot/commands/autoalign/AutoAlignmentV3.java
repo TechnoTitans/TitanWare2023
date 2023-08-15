@@ -243,6 +243,9 @@ public class AutoAlignmentV3 extends CommandBase {
                     );
                 }
             }
+            default -> throw new RuntimeException(
+                    "DirectAlignmentZone.AlignmentZoneType was not of a DIRECT AlignmentZoneType!"
+            );
         }
 
         commandGroup.addCommands(

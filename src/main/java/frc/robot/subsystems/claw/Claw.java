@@ -62,6 +62,13 @@ public class Claw extends SubsystemBase {
         );
     }
 
+    /**
+     * Sets the desired {@link frc.robot.utils.SuperstructureStates.ClawState}.
+     *
+     * @param desiredState the new desired {@link frc.robot.utils.SuperstructureStates.ClawState}
+     * @implNote This will put the system into a transitioning state if the new desiredState is != to the currentState
+     * @see ClawIO#setDesiredState(SuperstructureStates.ClawState)
+     */
     public void setDesiredState(final SuperstructureStates.ClawState desiredState) {
         this.desiredState = desiredState;
         if (desiredState != currentState) {
@@ -71,6 +78,17 @@ public class Claw extends SubsystemBase {
         clawIO.setDesiredState(desiredState);
     }
 
+    /**
+     * Get if the system is at its desired {@link frc.robot.utils.SuperstructureStates.ClawState}.
+     *
+     * <p>This <b>should</b> be called periodically to update the currentState of the system
+     * which will ensure that anything reading from currentState directly without interacting with this method
+     * will receive the correct currentState, however, this isn't required if the only interaction with the
+     * currentState is through this method (which will update the currentState before returning a result)</p>
+     *
+     * @return true if the system is at the desired {@link frc.robot.utils.SuperstructureStates.ClawState},
+     * false if not
+     */
     public boolean isAtDesiredState() {
         if (currentState == desiredState && !transitioning) {
             return true;
@@ -109,33 +127,56 @@ public class Claw extends SubsystemBase {
     }
 
     /**
-     * TODO: document
-     * @return TODO
+     * Get the current {@link SuperstructureStates.ClawState}.
+     *
+     * <p>Do <b>NOT</b> use this to check if the claw is currently at all setpoints
+     * of the currentState, as this will only report the latest currentState reached by the claw -
+     * i.e. the currentState <i>does <b>not</b> guarantee</i> that the claw is at <b>all</b> setpoints of that
+     * state as it does not take into account the claw being in a transitional state
+     * (transitioning from a previously reached currentState to a new desiredState) where the actual claw
+     * may not be at the setpoint of the (previously reached) currentState anymore.</p>
+     *
+     * <p>To check if the claw is at all setpoints of the currentState,
+     * use {@link Claw#isAtState(SuperstructureStates.ClawState)}</p>
+     *
+     * <p>To get a Nullable current state, use {@link Claw#getCurrentStateWithNullAsTransition()}</p>
+     *
+     * @return the current {@link SuperstructureStates.ClawState}
+     * @see SuperstructureStates.ClawState
+     * @see Claw#isAtState(SuperstructureStates.ClawState)
+     * @see Claw#getCurrentStateWithNullAsTransition()
      */
     public SuperstructureStates.ClawState getCurrentState() {
         return currentState;
     }
 
     /**
-     * TODO: document
-     * @return TODO
+     * Get the current {@link frc.robot.utils.SuperstructureStates.ClawState}, with null serving as the current
+     * state if this system is currently transitioning (in a transitory state, i.e. no state).
+     *
+     * <p>Use {@link Claw#getCurrentState()} if a null current state is undesirable.</p>
+     * @return the current {@link frc.robot.utils.SuperstructureStates.ClawState}, which may be null
+     * @see Claw#getCurrentState()
      */
     public SuperstructureStates.ClawState getCurrentStateWithNullAsTransition() {
         return transitioning ? null : currentState;
     }
 
     /**
-     * TODO: document
-     * @param clawState TODO
-     * @return TODO
+     * Get if the claw is currently at a specified {@link SuperstructureStates.ClawState}, this takes into
+     * account whether the claw is currently transitioning between states (and reports false if it is)
+     * @param clawState the {@link SuperstructureStates.ClawState} to check against
+     * @return true if the claw is at the specified {@link SuperstructureStates.ClawState}, false if not
+     * @see SuperstructureStates.ClawState
      */
     public boolean isAtState(final SuperstructureStates.ClawState clawState) {
         return currentState == clawState && !transitioning;
     }
 
     /**
-     * TODO: document
-     * @return TODO
+     * Get the desired {@link SuperstructureStates.ClawState}
+     * @return the currently desired {@link SuperstructureStates.ClawState}
+     * @see SuperstructureStates.ClawState
      */
     public SuperstructureStates.ClawState getDesiredState() {
         return desiredState;

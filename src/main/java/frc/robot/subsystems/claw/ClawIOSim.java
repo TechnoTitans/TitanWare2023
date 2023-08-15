@@ -158,6 +158,7 @@ public class ClawIOSim implements ClawIO {
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
+    @Override
     public void config() {
         // Bag Motors
         clawMainWheelBag.configFactoryDefault();
@@ -208,6 +209,7 @@ public class ClawIOSim implements ClawIO {
         clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }
 
+    @Override
     public void setDesiredState(final SuperstructureStates.ClawState state) {
         desiredIntakeWheelsPercentOutput = state.getIntakeWheelsPercentOutput();
         clawTiltControlMode = state.getClawTiltControlMode();

@@ -67,11 +67,14 @@ public class Robot extends LoggedRobot {
         logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
         logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
         logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        // no need to inspect this here because BuildConstants is a dynamically changing file upon compilation
+        //noinspection RedundantSuppression
         switch (BuildConstants.DIRTY) {
+            //noinspection DataFlowIssue
             case 0 -> logger.recordMetadata("GitDirty", "All changes committed");
-            // no need to inspect this here because BuildConstants is a dynamically changing file upon compilation
             //noinspection DataFlowIssue
             case 1 -> logger.recordMetadata("GitDirty", "Uncommitted changes");
+            //noinspection DataFlowIssue
             default -> logger.recordMetadata("GitDirty", "Unknown");
         }
 

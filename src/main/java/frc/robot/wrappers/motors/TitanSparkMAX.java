@@ -13,6 +13,7 @@ public class TitanSparkMAX extends CANSparkMax {
         super(deviceId, type);
     }
 
+    @Override
     public void set(final double speed) {
         super.set(MathUtil.clamp(speed, -1, 1));
     }
