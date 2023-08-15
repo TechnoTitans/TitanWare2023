@@ -22,10 +22,12 @@ public class CustomProfileChooser<V extends Enum<V>> implements LoggedDashboardI
     private final StringSubscriber selectedProfileSubscriber;
     private final LinkedHashMap<String, V> profileMap;
     private final LoggableInputs inputs = new LoggableInputs() {
+        @Override
         public void toLog(LogTable table) {
             table.put(ntTableName, selectedProfile);
         }
 
+        @Override
         public void fromLog(LogTable table) {
             selectedProfile = table.getString(ntTableName, selectedProfile);
         }

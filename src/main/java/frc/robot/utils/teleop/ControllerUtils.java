@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -13,7 +14,29 @@ public class ControllerUtils {
     public final static double STICK_TO_GYRO_ROTATION = -1;
     public final static Rotation2d STICK_TO_FIELD_RELATIVE_ROTATION = Rotation2d.fromDegrees(-90);
 
-    // TODO: document
+    /**
+     * Converts an X & Y joystick input into a {@link Translation2d} describing the <b>squared</b> input of the stick.
+     * <p>This gives the joystick (driver) finer control at lower speeds and is pretty standard practice in FRC.</p>
+     * <p>
+     *     See
+     *     <a href="https://docs.wpilib.org/en/stable/docs/software/hardware-apis/motors/wpi-drive-classes.html#squaring-inputs">
+     *         this page
+     *     </a>
+     *     about squared inputs.
+     * </p>
+     * @param xInput the xInput (typically your {@link XboxController#getLeftY()}, yes, <b>Y</b>)
+     * @param yInput the yInput (typically your {@link XboxController#getLeftX()}, yes, <b>X</b>)
+     * @param deadband the deadband
+     * @param scalar the scalar to apply directly to the input
+     * @param sensitivity the sensitivity to apply to the scaled input
+     * @param weight the weight to apply to the finalized input
+     * @return the {@link Translation2d} that describes the stick input, with deadband, scalar, sensitivity
+     * and weight all applied
+     *
+     * @implNote This implementation of squared inputs is a bit trickier for swerve compared to differential drives
+     * since one joystick is controlling two axes at once (X and Y). We square the magnitude of the joystick vector
+     * rather than the individual axes, because otherwise the squaring will change the direction of travel.
+     */
     public static Translation2d getStickXYSquaredInput(
             final double xInput,
             final double yInput,

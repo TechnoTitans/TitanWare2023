@@ -66,8 +66,11 @@ public class Elevator extends SubsystemBase {
     }
 
     /**
-     * TODO: document
-     * See {@link ElevatorIO#setDesiredState(SuperstructureStates.ElevatorState)}
+     * Sets the desired {@link frc.robot.utils.SuperstructureStates.ElevatorState}.
+     *
+     * @param desiredState the new desired {@link frc.robot.utils.SuperstructureStates.ElevatorState}
+     * @implNote This will put the system into a transitioning state if the new desiredState is != to the currentState
+     * @see ElevatorIO#setDesiredState(SuperstructureStates.ElevatorState)
      */
     public void setDesiredState(final SuperstructureStates.ElevatorState desiredState) {
         this.desiredState = desiredState;
@@ -78,6 +81,17 @@ public class Elevator extends SubsystemBase {
         elevatorIO.setDesiredState(desiredState);
     }
 
+    /**
+     * Get if the system is at its desired {@link frc.robot.utils.SuperstructureStates.ElevatorState}.
+     *
+     * <p>This <b>should</b> be called periodically to update the currentState of the system
+     * which will ensure that anything reading from currentState directly without interacting with this method
+     * will receive the correct currentState, however, this isn't required if the only interaction with the
+     * currentState is through this method (which will update the currentState before returning a result)</p>
+     *
+     * @return true if the system is at the desired {@link frc.robot.utils.SuperstructureStates.ElevatorState},
+     * false if not
+     */
     public boolean isAtDesiredState() {
         if (currentState == desiredState && !transitioning) {
             return true;
@@ -136,8 +150,12 @@ public class Elevator extends SubsystemBase {
     }
 
     /**
-     * TODO: document
-     * @return TODO
+     * Get the current {@link frc.robot.utils.SuperstructureStates.ElevatorState}, with null serving as the current
+     * state if this system is currently transitioning (in a transitory state, i.e. no state).
+     *
+     * <p>Use {@link Elevator#getCurrentState()} if a null current state is undesirable.</p>
+     * @return the current {@link frc.robot.utils.SuperstructureStates.ElevatorState}, which may be null
+     * @see Elevator#getCurrentState()
      */
     public SuperstructureStates.ElevatorState getCurrentStateWithNullAsTransition() {
         return transitioning ? null : currentState;

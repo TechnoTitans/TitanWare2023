@@ -25,10 +25,12 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
     private final LinkedHashMap<String, V> autoMap;
     private final HashSet<V> ignoredSet;
     private final LoggableInputs inputs = new LoggableInputs() {
+        @Override
         public void toLog(LogTable table) {
             table.put(ntTableName, selectedAuto);
         }
 
+        @Override
         public void fromLog(LogTable table) {
             selectedAuto = table.getString(ntTableName, selectedAuto);
         }
