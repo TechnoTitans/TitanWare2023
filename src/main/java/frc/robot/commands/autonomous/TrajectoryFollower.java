@@ -19,6 +19,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
+import frc.robot.utils.teleop.ElevatorClawCommand;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
@@ -258,7 +259,6 @@ public class TrajectoryFollower extends CommandBase {
             useMarker = Optional.empty();
         }
 
-        // TODO: consider using ElevatorClawCommands?
         if (useMarker.isPresent()) {
             final String[] commands = useMarker.get().names.get(0).trim().split(";");
             final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
@@ -267,17 +267,19 @@ public class TrajectoryFollower extends CommandBase {
                 switch (args[0].toLowerCase()) {
                     case "claw" ->
                             commandGroup.addCommands(
-                                    Commands.runOnce(
-                                            () -> claw.setDesiredState(SuperstructureStates.ClawState.valueOf(args[1].toUpperCase()))
-                                    )
+                                    new ElevatorClawCommand.Builder(elevator, claw)
+                                            .withClawState(
+                                                    SuperstructureStates.ClawState.valueOf(args[1].toUpperCase())
+                                            )
+                                            .build()
                             );
                     case "elevator" ->
                             commandGroup.addCommands(
-                                    Commands.runOnce(
-                                            () -> elevator.setDesiredState(
+                                    new ElevatorClawCommand.Builder(elevator, claw)
+                                            .withElevatorState(
                                                     SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
                                             )
-                                    )
+                                            .build()
                             );
                     case "autobalance" ->
                             commandGroup.addCommands(new AutoBalance(swerve));
