@@ -17,6 +17,7 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.SuperstructureStates;
+import frc.robot.utils.alignment.GridNode;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.teleop.ElevatorClawCommand;
@@ -190,6 +191,15 @@ public class TrajectoryFollower extends CommandBase {
         swerve.drive(targetChassisSpeeds);
     }
 
+    private void pauseDT(final boolean paused) {
+        if (paused) {
+            timer.stop();
+            swerve.stop();
+        } else {
+            timer.start();
+        }
+    }
+
     private void commander(
             final Pose2d currentPose,
             final double time
@@ -265,6 +275,7 @@ public class TrajectoryFollower extends CommandBase {
             for (final String command : commands) {
                 final String[] args = command.split(":");
                 switch (args[0].toLowerCase()) {
+                    // TODO: Claw and Elevator calls are to be removed in favor of presets, maybe?
                     case "claw" ->
                             commandGroup.addCommands(
                                     new ElevatorClawCommand.Builder(elevator, claw)
@@ -281,6 +292,14 @@ public class TrajectoryFollower extends CommandBase {
                                             )
                                             .build()
                             );
+                    case "score" ->
+                        commandGroup.addCommands(
+                                Commands.runOnce(() -> pauseDT(true)),
+                                GridNode.buildScoringSequence(
+                                        elevator, claw, GridNode.Level.valueOf(args[1].toUpperCase())
+                                ),
+                                Commands.runOnce(() -> pauseDT(false))
+                        );
                     case "autobalance" ->
                             commandGroup.addCommands(new AutoBalance(swerve));
                     case "wait" ->
@@ -290,12 +309,7 @@ public class TrajectoryFollower extends CommandBase {
                     case "dtpause" ->
                             commandGroup.addCommands(Commands.runOnce(() -> {
                                 paused = Boolean.parseBoolean(args[1]);
-                                if (paused) {
-                                    timer.stop();
-                                    swerve.stop();
-                                } else {
-                                    timer.start();
-                                }
+                                pauseDT(paused);
                             }));
                     default -> {}
                 }

@@ -112,7 +112,11 @@ public enum GridNode {
         return level;
     }
 
-    public ElevatorClawCommand buildScoringSequence(final Elevator elevator, final Claw claw) {
+    public static ElevatorClawCommand buildScoringSequence(
+            final Elevator elevator,
+            final Claw claw,
+            final Level level
+    ) {
         final SuperstructureStates.ElevatorState toLevelElevatorState = level.getElevatorState();
         return switch (level) {
             case HIGH, MID -> new ElevatorClawCommand.Builder(elevator, claw)
@@ -137,5 +141,9 @@ public enum GridNode {
                     .withClawState(SuperstructureStates.ClawState.CLAW_STANDBY)
                     .build();
         };
+    }
+
+    public ElevatorClawCommand buildScoringSequence(final Elevator elevator, final Claw claw) {
+        return GridNode.buildScoringSequence(elevator, claw, level);
     }
 }
