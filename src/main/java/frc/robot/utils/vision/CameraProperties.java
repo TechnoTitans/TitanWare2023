@@ -8,7 +8,7 @@ public enum CameraProperties {
             Resolution.R1280x720, 89.88, 80
     ),
     ARDUCAM_B0332_OV9281(
-            Resolution.R1280x800, 80.36, 80
+            Resolution.R1280x720, 80.36, 80
     ),
     MICROSOFT_LIFECAM_HD3000(
             Resolution.R1280x720, 68.5, 30

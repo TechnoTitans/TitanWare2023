@@ -1,9 +1,7 @@
 package frc.robot.wrappers.sensors.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.Constants;
-import frc.robot.utils.PoseUtils;
 import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -29,23 +27,16 @@ public class PhotonRunnable implements Runnable {
      */
     private final AtomicReference<EstimatedRobotPose> atomicLastStableEstimatedPose = new AtomicReference<>();
 
-    public PhotonRunnable(final TitanCamera titanCamera, final AprilTagFieldLayout fieldLayout) {
+    public PhotonRunnable(final TitanCamera titanCamera, final AprilTagFieldLayout aprilTagFieldLayout) {
         this.photonCamera = titanCamera.getPhotonCamera();
         this.poseEstimator = new PhotonPoseEstimator(
-                fieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, titanCamera.getRobotRelativeToCameraTransform()
+                aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, titanCamera.getRobotRelativeToCameraTransform()
         );
 
         this.poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
     private void updatePoseEstimator(final PhotonPipelineResult photonPipelineResult) {
-//        poseEstimator.update(photonPipelineResult).ifPresent(estimatedRobotPose -> {
-//            final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
-//            if (PoseUtils.isInField(estimatedPose)) {
-//                atomicEstimatedPose.set(estimatedRobotPose);
-//                atomicLastStableEstimatedPose.set(estimatedRobotPose);
-//            }
-//        });
         Logger.getInstance().recordOutput(
                 "PoseEstimator/PipelineResultTargets",
                 photonPipelineResult.targets.stream().mapToDouble(PhotonTrackedTarget::getFiducialId).toArray()
@@ -57,11 +48,8 @@ public class PhotonRunnable implements Runnable {
 
         Logger.getInstance().recordOutput("PoseEstimator/OptionalIsPresent", optionalEstimatedRobotPose.isPresent());
         optionalEstimatedRobotPose.ifPresent(estimatedRobotPose -> {
-            final Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
-            if (PoseUtils.isInField(estimatedPose)) {
-                atomicEstimatedPose.set(estimatedRobotPose);
-                atomicLastStableEstimatedPose.set(estimatedRobotPose);
-            }
+            atomicEstimatedPose.set(estimatedRobotPose);
+            atomicLastStableEstimatedPose.set(estimatedRobotPose);
         });
     }
 

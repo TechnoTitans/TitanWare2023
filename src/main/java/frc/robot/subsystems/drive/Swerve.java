@@ -151,7 +151,6 @@ public class Swerve extends SubsystemBase {
 
     public void zeroRotation(final PhotonVision photonVision) {
         gyro.zeroRotation();
-        // TODO: do we need to reset here?
         photonVision.resetPosition(
                 photonVision.getEstimatedPosition(),
                 Rotation2d.fromDegrees(0)

@@ -4,7 +4,6 @@ import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Custom version of a {@link edu.wpi.first.math.controller.HolonomicDriveController} specifically for
@@ -143,18 +142,6 @@ public class DriveController {
         double rotationFeedback =
                 this.rotationController.calculate(
                         currentPose.getRotation().getRadians(), wantedState.holonomicRotation.getRadians());
-
-        Logger.getInstance().recordOutput("xController/positionError", xController.getPositionError());
-        Logger.getInstance().recordOutput("xController/velocityError", xController.getVelocityError());
-        Logger.getInstance().recordOutput("xController/controlEffort", xFeedback);
-
-        Logger.getInstance().recordOutput("yController/positionError", yController.getPositionError());
-        Logger.getInstance().recordOutput("yController/velocityError", yController.getVelocityError());
-        Logger.getInstance().recordOutput("yController/controlEffort", yFeedback);
-
-        Logger.getInstance().recordOutput("rotationController/positionError", rotationController.getPositionError());
-        Logger.getInstance().recordOutput("rotationController/velocityError", rotationController.getVelocityError());
-        Logger.getInstance().recordOutput("rotationController/controlEffort", rotationFeedback);
 
         return ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,

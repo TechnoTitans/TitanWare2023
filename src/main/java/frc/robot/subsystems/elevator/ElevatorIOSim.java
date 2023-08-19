@@ -143,7 +143,7 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     private void updateSimulation() {
-        elevatorSimSolver.updateVerticalElevatorPoses(Constants.LOOP_PERIOD_SECONDS);
+        elevatorSimSolver.update(Constants.LOOP_PERIOD_SECONDS);
     }
 
     @Override

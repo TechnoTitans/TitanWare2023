@@ -191,7 +191,7 @@ public class TrajectoryFollower extends CommandBase {
         swerve.drive(targetChassisSpeeds);
     }
 
-    private void pauseDT(final boolean paused) {
+    private void dtPause(final boolean paused) {
         if (paused) {
             timer.stop();
             swerve.stop();
@@ -294,11 +294,12 @@ public class TrajectoryFollower extends CommandBase {
                             );
                     case "score" ->
                         commandGroup.addCommands(
-                                Commands.runOnce(() -> pauseDT(true)),
+                                Commands.runOnce(() -> dtPause(true)),
                                 GridNode.buildScoringSequence(
                                         elevator, claw, GridNode.Level.valueOf(args[1].toUpperCase())
                                 ),
-                                Commands.runOnce(() -> pauseDT(false))
+                                Commands.waitSeconds(0.3),
+                                Commands.runOnce(() -> dtPause(false))
                         );
                     case "autobalance" ->
                             commandGroup.addCommands(new AutoBalance(swerve));
@@ -307,16 +308,13 @@ public class TrajectoryFollower extends CommandBase {
                     case "wheelx" ->
                             commandGroup.addCommands(Commands.runOnce(() -> wheelX = Boolean.parseBoolean(args[1])));
                     case "dtpause" ->
-                            commandGroup.addCommands(Commands.runOnce(() -> {
-                                paused = Boolean.parseBoolean(args[1]);
-                                pauseDT(paused);
-                            }));
+                            commandGroup.addCommands(Commands.runOnce(() ->
+                                    dtPause(paused = Boolean.parseBoolean(args[1])))
+                            );
                     default -> {}
                 }
             }
-//            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
 
-//            dtpause:true;wait:1;elevator:ELEVATOR_EXTENDED_HIGH;wait:1.5;claw:CLAW_DROP;wait:0.75;claw:CLAW_OUTTAKE;wait:0.75;claw:CLAW_STANDBY;elevator:ELEVATOR_STANDBY;dtpause:false;
             commandGroup.schedule();
         }
     }

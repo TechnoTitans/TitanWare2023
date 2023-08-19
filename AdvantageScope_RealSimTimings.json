@@ -56,6 +56,24 @@
       "title": "SubsystemPeriodicTimings"
     },
     {
+      "type": 4,
+      "fields": [
+        "NT:/AdvantageKit/RealOutputs/Odometry/OdometryUpdatePeriodMs",
+        null,
+        null
+      ],
+      "selectionType": "full",
+      "selectionRangeMin": 0,
+      "selectionRangeMax": 10,
+      "measurementType": "independent",
+      "measurementSampling": "fixed",
+      "measurementSamplingPeriod": 20,
+      "histogramMin": 0,
+      "histogramMax": 0.04,
+      "histogramStep": 0.001,
+      "title": "OdometryTimings"
+    },
+    {
       "type": 3,
       "field": "NT:/AdvantageKit/RealOutputs/Console",
       "title": "Console"

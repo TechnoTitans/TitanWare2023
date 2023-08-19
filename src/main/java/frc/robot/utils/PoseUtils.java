@@ -196,10 +196,12 @@ public class PoseUtils {
     }
 
     public static boolean isInField(final Pose3d pose3d) {
-        return pose3d.getX() >= 0
-                && pose3d.getY() >= 0
-                && pose3d.getX() <= FieldConstants.FIELD_LENGTH_X_METERS
-                && pose3d.getY() <= FieldConstants.FIELD_WIDTH_Y_METERS;
+        return pose3d.getX() >= -FieldConstants.FIELD_WITHIN_BORDER_MARGIN
+                && pose3d.getX() <= FieldConstants.FIELD_LENGTH_X_METERS + FieldConstants.FIELD_WITHIN_BORDER_MARGIN
+                && pose3d.getY() >= -FieldConstants.FIELD_WITHIN_BORDER_MARGIN
+                && pose3d.getY() <= FieldConstants.FIELD_WIDTH_Y_METERS + FieldConstants.FIELD_WITHIN_BORDER_MARGIN
+                && pose3d.getZ() >= -FieldConstants.FIELD_WITHIN_Z_MARGIN
+                && pose3d.getZ() <= FieldConstants.FIELD_WITHIN_Z_MARGIN;
     }
 
     public static Twist2d log(final Pose2d transform) {

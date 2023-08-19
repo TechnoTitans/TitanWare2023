@@ -1,9 +1,7 @@
 package frc.robot.utils;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.Constants;
 
 public class SuperstructureStates {
     public enum VerticalElevatorMode {
@@ -385,51 +383,6 @@ public class SuperstructureStates {
          */
         public int getB() {
             return (int)(getColor().blue * 255);
-        }
-    }
-
-    public enum DriverProfile {
-        DRIVER1(1, 1),
-        DRIVER2(1.1, 1.1),
-        DEFAULT(1, 1);
-
-        final double throttleSensitivity;
-        final double rotationalSensitivity;
-
-        DriverProfile(final double throttleSensitivity, final double rotationalSensitivity) {
-            this.throttleSensitivity = throttleSensitivity;
-            this.rotationalSensitivity = rotationalSensitivity;
-        }
-
-        public double getThrottleSensitivity() {
-            return throttleSensitivity;
-        }
-
-        public double getRotationalSensitivity() {
-            return rotationalSensitivity;
-        }
-    }
-
-    public enum SwerveSpeed {
-        //Takes feet and radians as scalar values
-        FAST(Units.feetToMeters(13), 0.5),
-        NORMAL(Units.feetToMeters(6), 0.35),
-        SLOW(Units.feetToMeters(2), 0.25);
-
-        final double throttleWeight;
-        final double rotateWeight;
-
-        SwerveSpeed(final double throttleWeight, final double rotateWeight) {
-            this.throttleWeight = throttleWeight / Constants.Swerve.TELEOP_MAX_SPEED;
-            this.rotateWeight = (Math.PI * rotateWeight) / Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED;
-        }
-
-        public double getThrottleWeight() {
-            return throttleWeight;
-        }
-
-        public double getRotateWeight() {
-            return rotateWeight;
         }
     }
 }

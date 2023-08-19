@@ -368,12 +368,12 @@
           },
           {
             "type": "Vision Target",
-            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose2ds",
+            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/ApriltagPose2ds",
             "fieldTypeIndex": 0
           },
           {
-            "type": "Trajectory",
-            "key": "NT:/AdvantageKit/RealOutputs/AutoAlign/Trajectory",
+            "type": "Ghost",
+            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/EstimatedRobotPose2dsByCamera",
             "fieldTypeIndex": 0
           }
         ]
@@ -402,17 +402,17 @@
           },
           {
             "type": "AprilTag ID",
-            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagIds",
+            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/ApriltagIds",
             "fieldTypeIndex": 0
           },
           {
             "type": "Vision Target",
-            "key": "NT:/AdvantageKit/RealOutputs/Vision/ApriltagPose3ds",
+            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/ApriltagPose3ds",
             "fieldTypeIndex": 0
           },
           {
             "type": "Ghost",
-            "key": "NT:/AdvantageKit/RealOutputs/Vision/EstimatedRobotPosesByCamera",
+            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/EstimatedRobotPose3dsByCamera",
             "fieldTypeIndex": 0
           }
         ],
@@ -432,7 +432,7 @@
       "fields": [
         "NT:/AdvantageKit/RealOutputs/Swerve/CurrentStates",
         "NT:/AdvantageKit/RealOutputs/Swerve/DesiredStates",
-        "NT:/AdvantageKit/RealOutputs/Odometry/Robot/2"
+        "NT:/AdvantageKit/RealOutputs/Odometry/Robot2d/2"
       ],
       "listFields": [],
       "options": {

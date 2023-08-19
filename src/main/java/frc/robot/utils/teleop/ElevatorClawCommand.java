@@ -73,7 +73,6 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
         private final Function<SuperstructureStates.ElevatorClawStateType, Boolean> isElevatorClawStateType;
         private final Function<SuperstructureStates.ElevatorClawStateType, Boolean> isDesiredElevatorClawStateType;
 
-
         public Builder(final Elevator elevator, final Claw claw) {
             this.elevator = elevator;
             this.claw = claw;
@@ -94,7 +93,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
 
             this.isDesiredElevatorClawStateType = (state) -> (
                     (elevator.getDesiredState().getElevatorStateType() == state)
-                    || (claw.getDesiredState().getElevatorStateType() == state)
+                            || (claw.getDesiredState().getElevatorStateType() == state)
             );
 
             this.commands = new ArrayList<>();

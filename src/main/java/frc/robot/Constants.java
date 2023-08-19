@@ -167,7 +167,7 @@ public interface Constants {
         double TRACK_WIDTH = 0.7366;
         double MAX_WIDTH = Math.max(WHEEL_BASE, TRACK_WIDTH);
         double HALF_MAX_WIDTH = 0.5 * MAX_WIDTH;
-        double ROBOT_MAX_SPEED = Units.feetToMeters(13);
+        double ROBOT_MAX_SPEED = Units.feetToMeters(13.5);
         double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;

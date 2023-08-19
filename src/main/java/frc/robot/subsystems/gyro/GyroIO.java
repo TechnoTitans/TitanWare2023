@@ -10,13 +10,8 @@ public interface GyroIO {
         public boolean hasHardwareFault = false;
 
         public double rollPositionDeg = 0.0;
-        public double rawRollPositionDeg = 0.0;
-
         public double pitchPositionDeg = 0.0;
-        public double rawPitchPositionDeg = 0.0;
-
         public double yawPositionDeg = 0.0;
-        public double rawYawPositionDeg = 0.0;
 
         public double rollVelocityDegPerSec = 0.0;
         public double pitchVelocityDegPerSec = 0.0;

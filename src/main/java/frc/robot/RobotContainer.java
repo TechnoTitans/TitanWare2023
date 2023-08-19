@@ -17,13 +17,13 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
+import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIO;
 import frc.robot.subsystems.claw.ClawIOReal;
@@ -37,15 +37,13 @@ import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
-import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.auto.*;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsReal;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsSim;
+import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsImpl;
 
 import java.util.List;
 
@@ -76,7 +74,6 @@ public class RobotContainer {
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
     public final DriveController holonomicDriveController;
-    public final Field2d field;
 
     //PDH
     public final PowerDistribution powerDistribution;
@@ -111,7 +108,7 @@ public class RobotContainer {
     public final TrajectoryManager trajectoryManager;
 
     //SmartDashboard
-    public final CustomProfileChooser<SuperstructureStates.DriverProfile> profileChooser;
+    public final CustomProfileChooser<Profiler.DriverProfile> profileChooser;
     public final CustomAutoChooser<String, AutoOption> autoChooser;
 
     public RobotContainer() {
@@ -306,8 +303,6 @@ public class RobotContainer {
                 Constants.Vision.VISION_MEASUREMENT_STD_DEVS
         );
 
-        field = new Field2d();
-
 //        holonomicDriveController = new DriveController(
 //                new PIDController(14, 0, 0),
 //                new PIDController(22, 0, 0),
@@ -333,28 +328,21 @@ public class RobotContainer {
         photonBR_Apriltag_B = TitanCamera.PHOTON_BR_Apriltag_B;
 
         final List<TitanCamera> apriltagCameras = List.of(
-                photonFR_Apriltag_R,
                 photonFR_Apriltag_F,
+                photonFR_Apriltag_R,
                 photonFL_Apriltag_L,
                 photonBR_Apriltag_B
         );
 
         photonVision = switch (Constants.CURRENT_MODE) {
-            case REAL:
+            case REAL, SIM:
                 yield new PhotonVision(
-                        new PhotonVisionIOApriltagsReal(poseEstimator, apriltagCameras),
-                        swerve, visionIndependentOdometry, poseEstimator, field
-                );
-            case SIM:
-                yield new PhotonVision(
-                        new PhotonVisionIOApriltagsSim(
-                                swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
-                        ),
-                        swerve, visionIndependentOdometry, poseEstimator, field
+                        new PhotonVisionIOApriltagsImpl(swerve, visionIndependentOdometry, apriltagCameras),
+                        swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
                 );
             case REPLAY:
                 yield new PhotonVision(
-                        new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, field
+                        new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
                 );
         };
 
@@ -380,9 +368,9 @@ public class RobotContainer {
                 Constants.NetworkTables.PROFILE_TABLE,
                 Constants.NetworkTables.PROFILE_PUBLISHER,
                 Constants.NetworkTables.PROFILE_SELECTED_SUBSCRIBER,
-                SuperstructureStates.DriverProfile.DEFAULT
+                Profiler.DriverProfile.DEFAULT
         );
-        profileChooser.addOptionsIfNotPresent(Enum::name, List.of(SuperstructureStates.DriverProfile.values()));
+        profileChooser.addOptionsIfNotPresent(Enum::name, List.of(Profiler.DriverProfile.values()));
 
         //Autonomous Selector
         autoChooser = new CustomAutoChooser<>(

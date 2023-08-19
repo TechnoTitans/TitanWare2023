@@ -9,7 +9,6 @@ import frc.robot.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.teleop.ControllerUtils;
 
 public class SwerveDriveTeleop extends CommandBase {
@@ -39,22 +38,22 @@ public class SwerveDriveTeleop extends CommandBase {
 
         if (!elevator.verticalIsExtended()) {
             if (controller.getLeftTriggerAxis() > 0.5) {
-                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.SLOW);
+                Profiler.setSwerveSpeed(Profiler.SwerveSpeed.SLOW);
             } else if (controller.getRightTriggerAxis() > 0.5) {
-                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.FAST);
+                Profiler.setSwerveSpeed(Profiler.SwerveSpeed.FAST);
             } else {
-                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.NORMAL);
+                Profiler.setSwerveSpeed(Profiler.SwerveSpeed.NORMAL);
             }
         } else {
             if (controller.getRightTriggerAxis() > 0.5) {
-                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.NORMAL);
+                Profiler.setSwerveSpeed(Profiler.SwerveSpeed.NORMAL);
             } else {
-                Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.SLOW);
+                Profiler.setSwerveSpeed(Profiler.SwerveSpeed.SLOW);
             }
         }
 
-        final SuperstructureStates.DriverProfile driverProfile = Profiler.getDriverProfile();
-        final SuperstructureStates.SwerveSpeed swerveSpeed = Profiler.getSwerveSpeed();
+        final Profiler.DriverProfile driverProfile = Profiler.getDriverProfile();
+        final Profiler.SwerveSpeed swerveSpeed = Profiler.getSwerveSpeed();
 
         final double throttleWeight = swerveSpeed.getThrottleWeight();
         final double rotWeight = swerveSpeed.getRotateWeight();
@@ -102,6 +101,6 @@ public class SwerveDriveTeleop extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         swerve.stop();
-        Profiler.setSwerveSpeed(SuperstructureStates.SwerveSpeed.NORMAL);
+        Profiler.setSwerveSpeed(Profiler.SwerveSpeed.NORMAL);
     }
 }
