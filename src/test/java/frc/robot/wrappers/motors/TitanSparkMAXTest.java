@@ -58,7 +58,6 @@ class TitanSparkMAXTest {
         // invokes the CANSparkMaxJNI
 
         titanSparkMAX.close();
-        assertEquals(0, 0, 0);
         assertThrowsExactly(IllegalStateException.class, () -> titanSparkMAX.setSimFreeSpeed(0));
     }
 
