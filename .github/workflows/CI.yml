@@ -26,14 +26,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       # Run only build tasks without tests, that way we can build the JNIs first that the tests depend on
-      - name: Gradle Build
+      - name: Gradle build
         run: ./gradlew build -x check --max-workers 2
-      # Run Gradle Tests.
-      - name: Gradle Tests
+      # Run gradle tests.
+      - name: Gradle tests
         run: ./gradlew test --max-workers 1 --stacktrace
-      # Upload Gradle Test Report.
-      - name: Upload Gradle Test Report
+      # Upload gradle test report.
+      - name: Upload gradle test report
         uses: actions/upload-artifact@v3
         with:
           name: gradle-test-report
-          path: build/reports/tests/test/index.html
+          path: build/reports/tests/test/
