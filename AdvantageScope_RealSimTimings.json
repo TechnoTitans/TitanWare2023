@@ -66,7 +66,7 @@
       "selectionRangeMin": 0,
       "selectionRangeMax": 10,
       "measurementType": "independent",
-      "measurementSampling": "fixed",
+      "measurementSampling": "auto",
       "measurementSamplingPeriod": 20,
       "histogramMin": 0,
       "histogramMax": 0.04,

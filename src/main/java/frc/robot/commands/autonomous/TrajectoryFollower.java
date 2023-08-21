@@ -65,7 +65,7 @@ public class TrajectoryFollower extends CommandBase {
             final Claw claw,
             final Elevator elevator,
             final CandleController candleController
-            ) {
+    ) {
         this.swerve = swerve;
         this.timer = new Timer();
         this.eventMarkers = new ArrayList<>(trajectory.getMarkers().size());

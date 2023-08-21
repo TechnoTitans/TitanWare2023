@@ -45,4 +45,13 @@ public class TitanSparkMAX extends CANSparkMax {
         return REVLibError.fromInt(
                 CANSparkMaxJNI.c_SparkMax_SetSimStallTorque(sparkMaxHandle, (float) stallTorque));
     }
+
+    /**
+     * Get if the internal SparkMAX has been closed.
+     * @return true if already closed, false if not.
+     * @see com.revrobotics.CANSparkMaxLowLevel#isClosed
+     */
+    public boolean isClosed() {
+        return isClosed.get();
+    }
 }

@@ -1,21 +1,16 @@
 package frc.robot.wrappers.leds;
 
-import com.ctre.phoenix.CTREJNIWrapper;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.led.CANdle;
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.util.RuntimeLoader;
 import frc.robot.utils.SuperstructureStates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.io.IOException;
+import testutils.JNIUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,15 +20,8 @@ class CandleControllerTest {
 
     @BeforeAll
     static void beforeAll() {
-        assertTrue(HAL.initialize(500, 0));
-        try {
-            final RuntimeLoader<CTREJNIWrapper> jniLoader = new RuntimeLoader<>(
-                    "CTRE_PhoenixCCISim", RuntimeLoader.getDefaultExtractionRoot(), CTREJNIWrapper.class
-            );
-            jniLoader.loadLibrary();
-        } catch (final IOException ioException) {
-            throw new RuntimeException(ioException);
-        }
+        JNIUtils.initializeHAL();
+        JNIUtils.loadCTREPhoenix5JNI();
     }
 
     @Test

@@ -1,9 +1,6 @@
 package frc.robot.utils.rev;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.jni.RevJNIWrapper;
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.util.RuntimeLoader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,14 +9,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import testutils.JNIUtils;
 
-import java.io.IOException;
 import java.util.stream.Stream;
 
 import static com.revrobotics.CANSparkMax.ControlType.kDutyCycle;
 import static com.revrobotics.CANSparkMax.ControlType.kVoltage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,15 +27,8 @@ class RevUtilsTest {
 
     @BeforeAll
     static void beforeAll() {
-        assertTrue(HAL.initialize(500, 0));
-        try {
-            final RuntimeLoader<RevJNIWrapper> jniLoader = new RuntimeLoader<>(
-                    "REVLibDriver", RuntimeLoader.getDefaultExtractionRoot(), RevJNIWrapper.class
-            );
-            jniLoader.loadLibrary();
-        } catch (final IOException ioException) {
-            throw new RuntimeException(ioException);
-        }
+        JNIUtils.initializeHAL();
+        JNIUtils.loadRevJNI();
     }
 
     @ParameterizedTest

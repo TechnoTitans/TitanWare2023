@@ -12,9 +12,12 @@ public final class PIDUtils {
             final StatusSignal<Double> positionSignal,
             final StatusSignal<Double> velocitySignal
     ) {
-        profiledPIDController.reset(Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                positionSignal,
-                velocitySignal
-        ));
+        profiledPIDController.reset(
+                Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                        positionSignal,
+                        velocitySignal
+                ),
+                velocitySignal.refresh().getValue()
+        );
     }
 }

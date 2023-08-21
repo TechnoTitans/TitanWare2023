@@ -34,8 +34,8 @@ public final class ToClose {
     }
 
     public static void hook() {
-        if (hasHooked) {
-            throw new RuntimeException("hook() can only be invoked once!");
+        if (hasHooked || hasClosed) {
+            throw new RuntimeException("hook() can only be invoked once before closing!");
         }
 
         hasHooked = true;
@@ -44,5 +44,9 @@ public final class ToClose {
 
     public static boolean hasClosed() {
         return hasClosed;
+    }
+
+    public static boolean hasHooked() {
+        return hasHooked;
     }
 }

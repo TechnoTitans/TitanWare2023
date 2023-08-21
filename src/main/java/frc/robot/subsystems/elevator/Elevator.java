@@ -4,7 +4,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
+import frc.robot.utils.safety.MeasurementObserver;
+import frc.robot.utils.safety.SubsystemEStop;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.List;
 
 public class Elevator extends SubsystemBase {
     protected static final String logKey = "Elevator";
@@ -14,6 +18,8 @@ public class Elevator extends SubsystemBase {
 
     private final boolean hasSimSolver;
     private final ElevatorSimSolver elevatorSimSolver;
+
+    private final SubsystemEStop eStop;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private SuperstructureStates.ElevatorState currentState = desiredState;
@@ -25,6 +31,37 @@ public class Elevator extends SubsystemBase {
 
         this.hasSimSolver = elevatorSimSolver != null;
         this.elevatorSimSolver = elevatorSimSolver;
+
+        // TODO: test that this stuff works
+        this.eStop = new SubsystemEStop(
+                List.of(
+                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
+                                // TODO: get real lower and upper limits
+                                () -> inputs.verticalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
+                        ),
+                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
+                                // TODO: get real lower and upper limits
+                                () -> inputs.horizontalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
+                        ),
+                        new SubsystemEStop.StopConditionProvider<>(
+                                stop -> stop,
+                                new MeasurementObserver(
+                                        () -> getVEControlMeasurement(desiredState.getVerticalElevatorMode()),
+                                        () -> getVEControlVelocity(desiredState.getVerticalElevatorMode()),
+                                        () -> desiredState.getVEControlInput()
+                                )::isAwayFromSetpoint,
+                                new SubsystemEStop.StopBehavior(
+                                        SubsystemEStop.StopBehavior.Kind.AFTER_DURATION, 5
+                                )
+                        )
+                ),
+                stopBehavior -> {
+                    // TODO: stop throwing here, maybe do some reporting? or maybe throw in non-comp?
+                    throw new RuntimeException(stopBehavior.toString());
+                },
+                // TODO: add manual override?
+                () -> false
+        );
 
         setDesiredState(desiredState);
     }
@@ -47,6 +84,8 @@ public class Elevator extends SubsystemBase {
         elevatorIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
 
+        eStop.periodic();
+
         final boolean atDesiredState = isAtDesiredState();
 
         Logger.getInstance().recordOutput(logKey + "/CurrentState", currentState.toString());
@@ -63,6 +102,34 @@ public class Elevator extends SubsystemBase {
         Logger.getInstance().recordOutput(
                 logKey + "/HorizontalMode", desiredState.getHorizontalElevatorMode().toString()
         );
+    }
+    
+    private double getVEControlMeasurement(final SuperstructureStates.VerticalElevatorMode verticalElevatorMode) {
+        return switch (verticalElevatorMode) {
+            case POSITION, MOTION_MAGIC -> inputs.verticalElevatorEncoderPosition;
+            case DUTY_CYCLE -> inputs.verticalElevatorMotorDutyCycle;
+        };
+    }
+
+    private double getVEControlVelocity(final SuperstructureStates.VerticalElevatorMode verticalElevatorMode) {
+        return switch (verticalElevatorMode) {
+            case POSITION, MOTION_MAGIC -> inputs.verticalElevatorEncoderVelocity;
+            case DUTY_CYCLE -> Math.copySign(Double.MAX_VALUE, inputs.verticalElevatorMotorDutyCycle);
+        };
+    }
+
+    private double getHEControlMeasurement(final SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode) {
+        return switch (horizontalElevatorMode) {
+            case POSITION -> inputs.horizontalElevatorEncoderPosition;
+            case DUTY_CYCLE -> inputs.horizontalElevatorMotorDutyCycle;
+        };
+    }
+
+    private double getHEControlVelocity(final SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode) {
+        return switch (horizontalElevatorMode) {
+            case POSITION -> inputs.horizontalElevatorEncoderVelocity;
+            case DUTY_CYCLE -> Math.copySign(Double.MAX_VALUE, inputs.horizontalElevatorMotorDutyCycle);
+        };
     }
 
     /**
@@ -96,26 +163,7 @@ public class Elevator extends SubsystemBase {
         if (currentState == desiredState && !transitioning) {
             return true;
         } else {
-            final SuperstructureStates.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
-            final SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
-
-            final boolean isAtDesired =
-                    MathUtils.withinTolerance(
-                            switch (verticalElevatorMode) {
-                                case POSITION, MOTION_MAGIC -> inputs.verticalElevatorEncoderPosition;
-                                case DUTY_CYCLE -> inputs.verticalElevatorMotorDutyCycle;
-                            },
-                            desiredState.getVEControlInput(),
-                            0.05
-                    ) && MathUtils.withinTolerance(
-                            switch (horizontalElevatorMode) {
-                                case POSITION -> inputs.horizontalElevatorEncoderPosition;
-                                case DUTY_CYCLE -> inputs.horizontalElevatorMotorDutyCycle;
-                            },
-                            desiredState.getHEControlInput(),
-                            0.05
-                    );
-
+            final boolean isAtDesired = isAtDesiredStateInternal();
             if (isAtDesired) {
                 this.currentState = desiredState;
                 this.transitioning = false;
@@ -123,6 +171,24 @@ public class Elevator extends SubsystemBase {
 
             return isAtDesired;
         }
+    }
+
+    private boolean isAtDesiredStateInternal() {
+        final SuperstructureStates.VerticalElevatorMode verticalElevatorMode =
+                desiredState.getVerticalElevatorMode();
+
+        final SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode =
+                desiredState.getHorizontalElevatorMode();
+
+        return MathUtils.withinTolerance(
+                getVEControlMeasurement(verticalElevatorMode),
+                desiredState.getVEControlInput(),
+                0.05
+        ) && MathUtils.withinTolerance(
+                getHEControlMeasurement(horizontalElevatorMode),
+                desiredState.getHEControlInput(),
+                0.05
+        );
     }
 
     /**
