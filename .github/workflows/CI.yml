@@ -31,3 +31,9 @@ jobs:
       # Run Gradle Tests.
       - name: Gradle Tests
         run: ./gradlew test --max-workers 1 --stacktrace
+      # Upload Gradle Test Report.
+      - name: Upload Gradle Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: gradle-test-report
+          path: build/reports/tests/test/index.html
