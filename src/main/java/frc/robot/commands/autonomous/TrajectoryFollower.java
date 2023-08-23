@@ -32,7 +32,7 @@ import java.util.Optional;
 public class TrajectoryFollower extends CommandBase {
     //TODO: these 2 max values need to be tuned/verified
     public static final double MAX_TIME_DIFF_SECONDS = 0.1;
-    public static final double MAX_DISTANCE_DIFF_METERS = 0.05;
+    public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
     public static final boolean USE_ODOMETRY_FOR_MARKERS = true;
     public static boolean HAS_AUTO_RAN = false;
 
@@ -301,6 +301,40 @@ public class TrajectoryFollower extends CommandBase {
                                 Commands.waitSeconds(0.3),
                                 Commands.runOnce(() -> dtPause(false))
                         );
+                    case "intakecube" ->
+                            commandGroup.addCommands(
+                                    new ElevatorClawCommand.Builder(elevator, claw)
+                                            .withElevatorClawStates(
+                                                    SuperstructureStates.ElevatorState.ELEVATOR_CUBE,
+                                                    SuperstructureStates.ClawState.CLAW_ANGLE_CUBE
+                                            )
+                                            .build()
+                            );
+                    case "intakecone" ->
+                            commandGroup.addCommands(
+                                    new ElevatorClawCommand.Builder(elevator, claw)
+                                            .withElevatorClawStates(
+                                                    SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
+                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CUBE
+                                            )
+                                            .build()
+                            );
+                    case "pickup" ->
+                            commandGroup.addCommands(
+                                    new ElevatorClawCommand.Builder(elevator, claw)
+                                            .withConditionalClawState(
+                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CUBE,
+                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CONE)
+                                            .waitUntilState(
+                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CONE,
+                                                    0.3
+                                            )
+                                            .withElevatorClawStates(
+                                                    SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
+                                                    SuperstructureStates.ClawState.CLAW_HOLDING
+                                            )
+                                            .build()
+                            );
                     case "autobalance" ->
                             commandGroup.addCommands(new AutoBalance(swerve));
                     case "wait" ->

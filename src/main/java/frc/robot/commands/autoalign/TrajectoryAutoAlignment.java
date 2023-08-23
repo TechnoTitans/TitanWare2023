@@ -28,7 +28,7 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.EnumSet;
 
-public class AutoAlignmentV3 extends CommandBase {
+public class TrajectoryAutoAlignment extends CommandBase {
     protected static final String logKey = "AutoAlign/";
 
     private static NTGridNode SelectedNTGridNode = NTGridNode.UNKNOWN;
@@ -66,7 +66,7 @@ public class AutoAlignmentV3 extends CommandBase {
     private AlignmentZone.TrajectoryAlignmentSide desiredTrajectoryAlignmentSide;
     private SequentialCommandGroup commandGroup;
 
-    public AutoAlignmentV3(
+    public TrajectoryAutoAlignment(
             final Swerve swerve,
             final Elevator elevator,
             final Claw claw,
@@ -82,7 +82,7 @@ public class AutoAlignmentV3 extends CommandBase {
         this.trajectoryManager = trajectoryManager;
     }
 
-    public AutoAlignmentV3 withDesiredAlignmentSide(final AlignmentZone.TrajectoryAlignmentSide trajectoryAlignmentSide) {
+    public TrajectoryAutoAlignment withDesiredAlignmentSide(final AlignmentZone.TrajectoryAlignmentSide trajectoryAlignmentSide) {
         this.desiredTrajectoryAlignmentSide = trajectoryAlignmentSide;
         return this;
     }
