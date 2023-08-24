@@ -33,6 +33,7 @@ public class TrajectoryFollower extends CommandBase {
     //TODO: these 2 max values need to be tuned/verified
     public static final double MAX_TIME_DIFF_SECONDS = 0.1;
     public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
+    public static final double MAX_TIME_PAST_TIMEOUT_SECONDS = 1.5;
     public static final boolean USE_ODOMETRY_FOR_MARKERS = true;
     public static boolean HAS_AUTO_RAN = false;
 
@@ -226,8 +227,16 @@ public class TrajectoryFollower extends CommandBase {
 
                 // if we're closer in distance to the next marker and the next marker is within MAX_DISTANCE_DIFF_METERS,
                 // then run the next marker and increment markerIndex
-                if ((distanceToNextMarker < distanceToCurrentMarker)
-                                && (distanceToNextMarker < MAX_DISTANCE_DIFF_METERS)
+                Logger.getInstance().recordOutput("Current Time", time);
+                Logger.getInstance().recordOutput("Marker Time", nextMarker.timeSeconds);
+                Logger.getInstance().recordOutput(
+                        "Has Current Time Passed Marker Time",
+                        nextMarker.timeSeconds >= time + MAX_TIME_PAST_TIMEOUT_SECONDS
+                );
+
+                if (((distanceToNextMarker < distanceToCurrentMarker)
+                                && (distanceToNextMarker < MAX_DISTANCE_DIFF_METERS))
+                        || nextMarker.timeSeconds >= time + MAX_TIME_PAST_TIMEOUT_SECONDS
                 ) {
                     useMarker = Optional.of(nextMarker);
                     markerIndex++;
