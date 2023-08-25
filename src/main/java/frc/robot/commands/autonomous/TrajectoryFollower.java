@@ -26,9 +26,30 @@ import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TrajectoryFollower extends CommandBase {
+    enum IntakeMode {
+        CUBE(SuperstructureStates.ElevatorState.ELEVATOR_CUBE, SuperstructureStates.ClawState.CLAW_ANGLE_CUBE),
+        CONE(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY, SuperstructureStates.ClawState.CLAW_INTAKING_CUBE)
+        ;
+
+        private final SuperstructureStates.ElevatorState elevatorState;
+        private final SuperstructureStates.ClawState clawState;
+
+        IntakeMode(final SuperstructureStates.ElevatorState elevatorState, final SuperstructureStates.ClawState clawState) {
+            this.elevatorState = elevatorState;
+            this.clawState = clawState;
+        }
+
+        public SuperstructureStates.ElevatorState getElevatorState() {
+            return elevatorState;
+        }
+
+        public SuperstructureStates.ClawState getClawState() {
+            return clawState;
+        }
+    }
+
     //TODO: these 2 max values need to be tuned/verified
     public static final double MAX_TIME_DIFF_SECONDS = 0.1;
     public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
@@ -214,15 +235,24 @@ public class TrajectoryFollower extends CommandBase {
             final double time
     ) {
         // TODO: does any of this logic here work? test it!
+        //This logic doesnt work, robot seems to be slower than expected so it is getter the farther marker
         final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingMarker =
                 eventMarkerNavigableMap.ceilingEntry(time);
+        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> floorMarker =
+                eventMarkerNavigableMap.floorEntry(time);
 
         // return early if there aren't any markers left
         if (ceilingMarker == null) {
             return;
         }
 
-        final PathPlannerTrajectory.EventMarker nextMarker = ceilingMarker.getValue();
+        //This chooses the closest marker to the current robot position
+        final PathPlannerTrajectory.EventMarker nextMarker =
+                (ceilingMarker.getValue().positionMeters.getDistance(currentPose.getTranslation()) >
+                        floorMarker.getValue().positionMeters.getDistance(currentPose.getTranslation())
+                        ? floorMarker
+                        : ceilingMarker
+                ).getValue();
         final double distanceToNextMarker = nextMarker.positionMeters
                 .getDistance(currentPose.getTranslation());
 
@@ -238,22 +268,22 @@ public class TrajectoryFollower extends CommandBase {
             final String[] args = command.split(":");
             switch (args[0].toLowerCase()) {
                 // TODO: Claw and Elevator calls are to be removed in favor of presets, maybe?
-//                case "claw" ->
-//                        commandGroup.addCommands(
-//                                new ElevatorClawCommand.Builder(elevator, claw)
-//                                        .withClawState(
-//                                                SuperstructureStates.ClawState.valueOf(args[1].toUpperCase())
-//                                        )
-//                                        .build()
-//                        );
-//                case "elevator" ->
-//                        commandGroup.addCommands(
-//                                new ElevatorClawCommand.Builder(elevator, claw)
-//                                        .withElevatorState(
-//                                                SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
-//                                        )
-//                                        .build()
-//                        );
+                case "claw" ->
+                        commandGroup.addCommands(
+                                new ElevatorClawCommand.Builder(elevator, claw)
+                                        .withClawState(
+                                                SuperstructureStates.ClawState.valueOf(args[1].toUpperCase())
+                                        )
+                                        .build()
+                        );
+                case "elevator" ->
+                        commandGroup.addCommands(
+                                new ElevatorClawCommand.Builder(elevator, claw)
+                                        .withElevatorState(
+                                                SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
+                                        )
+                                        .build()
+                        );
                 case "score" ->
                     commandGroup.addCommands(
                             Commands.runOnce(() -> dtPause(true)),
@@ -263,24 +293,17 @@ public class TrajectoryFollower extends CommandBase {
                             Commands.waitSeconds(0.4),
                             Commands.runOnce(() -> dtPause(false))
                     );
-                case "intakecube" ->
-                        commandGroup.addCommands(
-                                new ElevatorClawCommand.Builder(elevator, claw)
-                                        .withElevatorClawStates(
-                                                SuperstructureStates.ElevatorState.ELEVATOR_CUBE,
-                                                SuperstructureStates.ClawState.CLAW_ANGLE_CUBE
-                                        )
-                                        .build()
-                        );
-                case "intakecone" ->
-                        commandGroup.addCommands(
-                                new ElevatorClawCommand.Builder(elevator, claw)
-                                        .withElevatorClawStates(
-                                                SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
-                                                SuperstructureStates.ClawState.CLAW_INTAKING_CUBE
-                                        )
-                                        .build()
-                        );
+                case "intake" -> {
+                    final IntakeMode intakeMode = IntakeMode.valueOf(args[1].toUpperCase());
+                    commandGroup.addCommands(
+                            new ElevatorClawCommand.Builder(elevator, claw)
+                                    .withElevatorClawStates(
+                                            intakeMode.getElevatorState(),
+                                            intakeMode.getClawState()
+                                    )
+                                    .build()
+                    );
+                }
                 case "pickup" ->
                         commandGroup.addCommands(
                                 new ElevatorClawCommand.Builder(elevator, claw)

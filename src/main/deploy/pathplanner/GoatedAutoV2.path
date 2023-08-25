@@ -28,12 +28,12 @@
         "y": 4.623474485044208
       },
       "prevControl": {
-        "x": 4.245890634638412,
-        "y": 4.820385355056424
+        "x": 4.102260170332307,
+        "y": 4.955918971667003
       },
       "nextControl": {
-        "x": 4.245890634638412,
-        "y": 4.820385355056424
+        "x": 4.102260170332307,
+        "y": 4.955918971667003
       },
       "holonomicAngle": 0,
       "isReversal": true,
@@ -124,16 +124,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.805731944797224,
-        "y": 1.8790292342489439
+        "x": 6.7515071782280325,
+        "y": 1.735713556897199
       },
       "prevControl": {
-        "x": 5.378128137208657,
-        "y": 0.5006531441634308
+        "x": 5.323903370639465,
+        "y": 0.357337466811686
       },
       "nextControl": {
-        "x": 5.378128137208657,
-        "y": 0.5006531441634308
+        "x": 5.323903370639465,
+        "y": 0.357337466811686
       },
       "holonomicAngle": 42.61405596961135,
       "isReversal": true,
@@ -253,8 +253,8 @@
         "y": 6.260296092020756
       },
       "prevControl": {
-        "x": 7.581068495470325,
-        "y": 6.863335631433168
+        "x": 7.630783124814112,
+        "y": 7.879226014862287
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -286,13 +286,13 @@
     {
       "position": 0.2,
       "names": [
-        "intakecube:;"
+        "intake:cube;"
       ]
     },
     {
       "position": 2.2,
       "names": [
-        "intakecone:;"
+        "intake:cone;"
       ]
     },
     {
@@ -304,37 +304,37 @@
     {
       "position": 6.2,
       "names": [
-        "intakecube:;"
+        "intake:cube;"
       ]
     },
     {
       "position": 1.0,
       "names": [
-        "pickup:;"
+        "pickup;"
       ]
     },
     {
       "position": 3.0,
       "names": [
-        "pickup:;"
+        "pickup;"
       ]
     },
     {
       "position": 4.2,
       "names": [
-        "intakecone:;"
+        "intake:cone;"
       ]
     },
     {
       "position": 5.0,
       "names": [
-        "pickup:;"
+        "pickup;"
       ]
     },
     {
       "position": 7.0,
       "names": [
-        "pickup:;"
+        "pickup;"
       ]
     },
     {
