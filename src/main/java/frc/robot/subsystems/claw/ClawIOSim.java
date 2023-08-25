@@ -201,15 +201,16 @@ public class ClawIOSim implements ClawIO {
         final SensorDirectionValue clawTiltEncoderSensorDirection = SensorDirectionValue.Clockwise_Positive;
         final CANcoderConfiguration clawTiltEncoderConfig = new CANcoderConfiguration();
         clawTiltEncoderConfig.MagnetSensor.SensorDirection = clawTiltEncoderSensorDirection;
+        //todo this should prob be unsigned
         clawTiltEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         // TODO: this -0.25 probably used to be a naive fix for the +-0.25 offset that CANCoders in sim initialize to,
         //  do we still need this here?
-        clawTiltEncoderConfig.MagnetSensor.MagnetOffset = 0; //-0.25
+        clawTiltEncoderConfig.MagnetSensor.MagnetOffset = -0.25; //-0.25
 
         SimUtils.setCTRECANCoderSimStateSensorDirection(clawTiltEncoder, clawTiltEncoderSensorDirection);
         // TODO: this doesn't seem to work to reset the CANCoder after it starts offset by +-0.25, even though this
         //  solution works on other CANCoders? or does it?
-        SimUtils.initializeCTRECANCoderSim(clawTiltEncoder);
+//        SimUtils.initializeCTRECANCoderSim(clawTiltEncoder);
 
         clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }
