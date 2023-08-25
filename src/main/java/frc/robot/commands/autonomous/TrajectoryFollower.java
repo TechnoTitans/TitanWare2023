@@ -25,16 +25,13 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TrajectoryFollower extends CommandBase {
     //TODO: these 2 max values need to be tuned/verified
     public static final double MAX_TIME_DIFF_SECONDS = 0.1;
     public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
-    public static final double MAX_TIME_PAST_TIMEOUT_SECONDS = 1.5;
-    public static final boolean USE_ODOMETRY_FOR_MARKERS = true;
     public static boolean HAS_AUTO_RAN = false;
 
     private final TitanTrajectory trajectory;
@@ -45,15 +42,15 @@ public class TrajectoryFollower extends CommandBase {
     private final Swerve swerve;
     private final DriveController controller;
     private final PhotonVision photonVision;
-    private final List<PathPlannerTrajectory.EventMarker> eventMarkers;
+    private final NavigableMap<Double, PathPlannerTrajectory.EventMarker> eventMarkerNavigableMap;
     private final Claw claw;
     private final Elevator elevator;
     private final CandleController candleController;
 
     private boolean isInAuto;
 
+    private PathPlannerTrajectory.EventMarker lastRanMarker;
     private boolean hasMarkers;
-    private int markerIndex;
     private boolean paused;
     private boolean wheelX;
 
@@ -69,7 +66,7 @@ public class TrajectoryFollower extends CommandBase {
     ) {
         this.swerve = swerve;
         this.timer = new Timer();
-        this.eventMarkers = new ArrayList<>(trajectory.getMarkers().size());
+        this.eventMarkerNavigableMap = new TreeMap<>();
 
         this.controller = controller;
         this.photonVision = photonVision;
@@ -84,7 +81,6 @@ public class TrajectoryFollower extends CommandBase {
     }
 
     public void reset() {
-        markerIndex = 0;
         paused = false;
         wheelX = false;
 
@@ -123,18 +119,21 @@ public class TrajectoryFollower extends CommandBase {
             PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
         }
 
-        eventMarkers.addAll(transformedTrajectory.getMarkers());
-        hasMarkers = !eventMarkers.isEmpty();
+        for (final PathPlannerTrajectory.EventMarker eventMarker : transformedTrajectory.getMarkers()) {
+            eventMarkerNavigableMap.put(eventMarker.timeSeconds, eventMarker);
+        }
+        hasMarkers = !eventMarkerNavigableMap.isEmpty();
 
         Logger.getInstance().recordOutput(
                 "Auto/Markers",
-                eventMarkers.stream().map(
+                eventMarkerNavigableMap.values().stream().map(
                         eventMarker -> new Pose2d(eventMarker.positionMeters, Rotation2d.fromDegrees(0))
                 ).toArray(Pose2d[]::new)
         );
 
         reset();
 
+        // TODO: make this better
         candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.5);
     }
 
@@ -192,7 +191,16 @@ public class TrajectoryFollower extends CommandBase {
         swerve.drive(targetChassisSpeeds);
     }
 
+    private void wheelX(final boolean wheelX) {
+        this.wheelX = wheelX;
+        if (wheelX) {
+            swerve.wheelX();
+        }
+    }
+
     private void dtPause(final boolean paused) {
+        this.paused = paused;
+
         if (paused) {
             timer.stop();
             swerve.stop();
@@ -205,157 +213,103 @@ public class TrajectoryFollower extends CommandBase {
             final Pose2d currentPose,
             final double time
     ) {
-        // if we're already completed the last marker in the trajectory, then just return early
-        if (markerIndex >= eventMarkers.size()) {
+        // TODO: does any of this logic here work? test it!
+        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingMarker =
+                eventMarkerNavigableMap.ceilingEntry(time);
+
+        // return early if there aren't any markers left
+        if (ceilingMarker == null) {
             return;
         }
 
-        final Optional<PathPlannerTrajectory.EventMarker> useMarker;
-        final PathPlannerTrajectory.EventMarker currentMarker = eventMarkers.get(markerIndex);
-
-        final double currentTimeDiff = Math.abs(currentMarker.timeSeconds - time);
-        final double distanceToCurrentMarker = currentMarker.positionMeters
+        final PathPlannerTrajectory.EventMarker nextMarker = ceilingMarker.getValue();
+        final double distanceToNextMarker = nextMarker.positionMeters
                 .getDistance(currentPose.getTranslation());
 
-        // check if we still have another marker to look at
-        if (eventMarkers.size() > (markerIndex + 1)) {
-            final PathPlannerTrajectory.EventMarker nextMarker = eventMarkers.get(markerIndex + 1);
-
-            if (USE_ODOMETRY_FOR_MARKERS) {
-                final double distanceToNextMarker = nextMarker.positionMeters
-                        .getDistance(currentPose.getTranslation());
-
-                // if we're closer in distance to the next marker and the next marker is within MAX_DISTANCE_DIFF_METERS,
-                // then run the next marker and increment markerIndex
-                Logger.getInstance().recordOutput("Current Time", time);
-                Logger.getInstance().recordOutput("Marker Time", nextMarker.timeSeconds);
-                Logger.getInstance().recordOutput(
-                        "Has Current Time Passed Marker Time",
-                        nextMarker.timeSeconds >= time + MAX_TIME_PAST_TIMEOUT_SECONDS
-                );
-
-                if (((distanceToNextMarker < distanceToCurrentMarker)
-                                && (distanceToNextMarker < MAX_DISTANCE_DIFF_METERS))
-                        || nextMarker.timeSeconds >= time + MAX_TIME_PAST_TIMEOUT_SECONDS
-                ) {
-                    useMarker = Optional.of(nextMarker);
-                    markerIndex++;
-                } else if (distanceToCurrentMarker < MAX_DISTANCE_DIFF_METERS) {
-                    // if we're still within MAX_DISTANCE_DIFF_METERS to the current marker,
-                    // then run the current marker
-                    useMarker = Optional.of(currentMarker);
-                    markerIndex++;
-                } else {
-                    useMarker = Optional.empty();
-                }
-            } else {
-                // if we're closer in time to the next marker and the next marker is within MAX_TIME_DIFF_SECONDS,
-                // then run the next marker and increment markerIndex
-                final double nextTimeDiff = Math.abs(nextMarker.timeSeconds - time);
-
-                if ((nextTimeDiff < currentTimeDiff) && (nextTimeDiff < MAX_TIME_DIFF_SECONDS)) {
-                    useMarker = Optional.of(nextMarker);
-                    markerIndex++;
-                } else if (currentTimeDiff < MAX_TIME_DIFF_SECONDS) {
-                    // if we're still within MAX_TIME_DIFF_SECONDS to the current marker,
-                    // then run the current marker
-                    useMarker = Optional.of(currentMarker);
-                    markerIndex++;
-                } else {
-                    useMarker = Optional.empty();
-                }
-            }
-        } else if (
-                USE_ODOMETRY_FOR_MARKERS
-                        ? (distanceToCurrentMarker < MAX_DISTANCE_DIFF_METERS)
-                        : (currentTimeDiff < MAX_TIME_DIFF_SECONDS)
-        ) {
-            // If we're using odometry for markers, then check if the distance allows us to still use the current marker
-            // if not, then check if the time allows us to still use the current marker
-            useMarker = Optional.of(currentMarker);
-            markerIndex++;
+        if (lastRanMarker == nextMarker || distanceToNextMarker > MAX_DISTANCE_DIFF_METERS) {
+            return;
         } else {
-            useMarker = Optional.empty();
+            lastRanMarker = nextMarker;
         }
 
-        if (useMarker.isPresent()) {
-            final String[] commands = useMarker.get().names.get(0).trim().split(";");
-            final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
-            for (final String command : commands) {
-                final String[] args = command.split(":");
-                switch (args[0].toLowerCase()) {
-                    // TODO: Claw and Elevator calls are to be removed in favor of presets, maybe?
-                    case "claw" ->
-                            commandGroup.addCommands(
-                                    new ElevatorClawCommand.Builder(elevator, claw)
-                                            .withClawState(
-                                                    SuperstructureStates.ClawState.valueOf(args[1].toUpperCase())
-                                            )
-                                            .build()
-                            );
-                    case "elevator" ->
-                            commandGroup.addCommands(
-                                    new ElevatorClawCommand.Builder(elevator, claw)
-                                            .withElevatorState(
-                                                    SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
-                                            )
-                                            .build()
-                            );
-                    case "score" ->
+        final String[] commands = String.join("", nextMarker.names).trim().split(";");
+        final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+        for (final String command : commands) {
+            final String[] args = command.split(":");
+            switch (args[0].toLowerCase()) {
+                // TODO: Claw and Elevator calls are to be removed in favor of presets, maybe?
+//                case "claw" ->
+//                        commandGroup.addCommands(
+//                                new ElevatorClawCommand.Builder(elevator, claw)
+//                                        .withClawState(
+//                                                SuperstructureStates.ClawState.valueOf(args[1].toUpperCase())
+//                                        )
+//                                        .build()
+//                        );
+//                case "elevator" ->
+//                        commandGroup.addCommands(
+//                                new ElevatorClawCommand.Builder(elevator, claw)
+//                                        .withElevatorState(
+//                                                SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
+//                                        )
+//                                        .build()
+//                        );
+                case "score" ->
+                    commandGroup.addCommands(
+                            Commands.runOnce(() -> dtPause(true)),
+                            GridNode.buildScoringSequence(
+                                    elevator, claw, GridNode.Level.valueOf(args[1].toUpperCase())
+                            ),
+                            Commands.waitSeconds(0.4),
+                            Commands.runOnce(() -> dtPause(false))
+                    );
+                case "intakecube" ->
                         commandGroup.addCommands(
-                                Commands.runOnce(() -> dtPause(true)),
-                                GridNode.buildScoringSequence(
-                                        elevator, claw, GridNode.Level.valueOf(args[1].toUpperCase())
-                                ),
-                                Commands.waitSeconds(0.3),
-                                Commands.runOnce(() -> dtPause(false))
+                                new ElevatorClawCommand.Builder(elevator, claw)
+                                        .withElevatorClawStates(
+                                                SuperstructureStates.ElevatorState.ELEVATOR_CUBE,
+                                                SuperstructureStates.ClawState.CLAW_ANGLE_CUBE
+                                        )
+                                        .build()
                         );
-                    case "intakecube" ->
-                            commandGroup.addCommands(
-                                    new ElevatorClawCommand.Builder(elevator, claw)
-                                            .withElevatorClawStates(
-                                                    SuperstructureStates.ElevatorState.ELEVATOR_CUBE,
-                                                    SuperstructureStates.ClawState.CLAW_ANGLE_CUBE
-                                            )
-                                            .build()
-                            );
-                    case "intakecone" ->
-                            commandGroup.addCommands(
-                                    new ElevatorClawCommand.Builder(elevator, claw)
-                                            .withElevatorClawStates(
-                                                    SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
-                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CUBE
-                                            )
-                                            .build()
-                            );
-                    case "pickup" ->
-                            commandGroup.addCommands(
-                                    new ElevatorClawCommand.Builder(elevator, claw)
-                                            .withConditionalClawState(
-                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CUBE,
-                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CONE)
-                                            .waitUntilState(
-                                                    SuperstructureStates.ClawState.CLAW_INTAKING_CONE,
-                                                    0.3
-                                            )
-                                            .withElevatorClawStates(
-                                                    SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
-                                                    SuperstructureStates.ClawState.CLAW_HOLDING
-                                            )
-                                            .build()
-                            );
-                    case "autobalance" ->
-                            commandGroup.addCommands(new AutoBalance(swerve));
-                    case "wait" ->
-                            commandGroup.addCommands(Commands.waitSeconds(Double.parseDouble(args[1])));
-                    case "wheelx" ->
-                            commandGroup.addCommands(Commands.runOnce(() -> wheelX = Boolean.parseBoolean(args[1])));
-                    case "dtpause" ->
-                            commandGroup.addCommands(Commands.runOnce(() ->
-                                    dtPause(paused = Boolean.parseBoolean(args[1])))
-                            );
-                    default -> {}
-                }
+                case "intakecone" ->
+                        commandGroup.addCommands(
+                                new ElevatorClawCommand.Builder(elevator, claw)
+                                        .withElevatorClawStates(
+                                                SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
+                                                SuperstructureStates.ClawState.CLAW_INTAKING_CUBE
+                                        )
+                                        .build()
+                        );
+                case "pickup" ->
+                        commandGroup.addCommands(
+                                new ElevatorClawCommand.Builder(elevator, claw)
+                                        .withConditionalClawState(
+                                                SuperstructureStates.ClawState.CLAW_INTAKING_CUBE,
+                                                SuperstructureStates.ClawState.CLAW_INTAKING_CONE)
+                                        .waitUntilState(
+                                                SuperstructureStates.ClawState.CLAW_INTAKING_CONE,
+                                                0.3
+                                        )
+                                        .withElevatorClawStates(
+                                                SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
+                                                SuperstructureStates.ClawState.CLAW_HOLDING
+                                        )
+                                        .build()
+                        );
+                case "autobalance" ->
+                        commandGroup.addCommands(new AutoBalance(swerve));
+                case "wait" ->
+                        commandGroup.addCommands(Commands.waitSeconds(Double.parseDouble(args[1])));
+                case "wheelx" ->
+                        commandGroup.addCommands(Commands.runOnce(() ->
+                                wheelX(Boolean.parseBoolean(args[1])))
+                        );
+                case "dtpause" ->
+                        commandGroup.addCommands(Commands.runOnce(() ->
+                                dtPause(Boolean.parseBoolean(args[1])))
+                        );
+                default -> {}
             }
 
             commandGroup.schedule();

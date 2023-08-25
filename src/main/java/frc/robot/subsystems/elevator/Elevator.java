@@ -35,25 +35,36 @@ public class Elevator extends SubsystemBase {
         // TODO: test that this stuff works
         this.eStop = new SubsystemEStop(
                 List.of(
-                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
-                                // TODO: get real lower and upper limits
-                                () -> inputs.verticalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
-                        ),
-                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
-                                // TODO: get real lower and upper limits
-                                () -> inputs.horizontalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
-                        ),
-                        new SubsystemEStop.StopConditionProvider<>(
-                                stop -> stop,
-                                new MeasurementObserver(
-                                        () -> getVEControlMeasurement(desiredState.getVerticalElevatorMode()),
-                                        () -> getVEControlVelocity(desiredState.getVerticalElevatorMode()),
-                                        () -> desiredState.getVEControlInput()
-                                )::isAwayFromSetpoint,
-                                new SubsystemEStop.StopBehavior(
-                                        SubsystemEStop.StopBehavior.Kind.AFTER_DURATION, 5
-                                )
-                        )
+//                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
+//                                // TODO: get real lower and upper limits
+//                                () -> inputs.verticalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
+//                        ),
+//                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
+//                                // TODO: get real lower and upper limits
+//                                () -> inputs.horizontalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
+//                        ),
+//                        new SubsystemEStop.StopConditionProvider<>(
+//                                stop -> stop,
+//                                new MeasurementObserver(
+//                                        () -> getVEControlMeasurement(desiredState.getVerticalElevatorMode()),
+//                                        () -> getVEControlVelocity(desiredState.getVerticalElevatorMode()),
+//                                        () -> desiredState.getVEControlInput()
+//                                )::isAwayFromSetpoint,
+//                                new SubsystemEStop.StopBehavior(
+//                                        SubsystemEStop.StopBehavior.Kind.AFTER_DURATION, 5
+//                                )
+//                        )
+//                        new SubsystemEStop.StopConditionProvider<>(
+//                                stop -> stop,
+//                                new MeasurementObserver(
+//                                        () -> getHEControlMeasurement(desiredState.getHorizontalElevatorMode()),
+//                                        () -> getHEControlVelocity(desiredState.getHorizontalElevatorMode()),
+//                                        () -> desiredState.getHEControlInput()
+//                                )::isAwayFromSetpoint,
+//                                new SubsystemEStop.StopBehavior(
+//                                        SubsystemEStop.StopBehavior.Kind.AFTER_DURATION, 5
+//                                )
+//                        )
                 ),
                 stopBehavior -> {
                     // TODO: stop throwing here, maybe do some reporting? or maybe throw in non-comp?
@@ -83,6 +94,15 @@ public class Elevator extends SubsystemBase {
 
         elevatorIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
+
+        Logger.getInstance().recordOutput("HorizontalElevatorMotorDutyCycle", inputs.horizontalElevatorMotorDutyCycle);
+        Logger.getInstance().recordOutput("HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
+        Logger.getInstance().recordOutput("HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
+        Logger.getInstance().recordOutput("HEControlInput", desiredState.getHEControlInput());
+
+        Logger.getInstance().recordOutput("VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
+        Logger.getInstance().recordOutput("VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
+        Logger.getInstance().recordOutput("VEControlInput", desiredState.getVEControlInput());
 
         eStop.periodic();
 

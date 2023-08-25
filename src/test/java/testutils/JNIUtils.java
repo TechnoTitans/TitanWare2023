@@ -9,7 +9,7 @@ import frc.robot.utils.closeables.ToClose;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JNIUtils {
     private static boolean runningHAL = false;

@@ -99,8 +99,6 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driveTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
-
-        SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
         turnTalonFXConfiguration.Slot0 = isReal
@@ -114,9 +112,13 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnTalonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
         turnTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnTalonFXConfiguration.MotorOutput.Inverted = turnInvertedValue;
-
-        SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
         turnMotor.getConfigurator().apply(turnTalonFXConfiguration);
+
+        if (!isReal) {
+            SimUtils.initializeCTRECANCoderSim(turnEncoder);
+            SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
+            SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
+        }
     }
 
     @Override

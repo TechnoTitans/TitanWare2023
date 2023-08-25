@@ -46,6 +46,8 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             final EventMarker transformedMarker = new EventMarker(marker.names, marker.waypointRelativePos);
             final Translation2d translation = marker.positionMeters;
 
+            // TODO: check that this does indeed fix time
+            transformedMarker.timeSeconds = marker.timeSeconds;
             transformedMarker.positionMeters = new Translation2d(
                     translation.getX(), FieldConstants.FIELD_WIDTH_Y_METERS - translation.getY()
             );

@@ -3,16 +3,19 @@ package frc.robot.utils.ctre;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Timestamp;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,8 +67,8 @@ class Phoenix6UtilsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("latencyCompensateIfSignalIsGood_SignalBad")
-    void latencyCompensateIfSignalIsGood_ShouldNotCompensateIfPositionSignalIsBad(
+    @MethodSource("latencyCompensateIfSignalIsGood_signalBad")
+    void latencyCompensateIfSignalIsGood_shouldNotCompensateIfPositionSignalIsBad(
             final double position,
             final StatusCode badStatusCode
     ) {
@@ -85,8 +88,8 @@ class Phoenix6UtilsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("latencyCompensateIfSignalIsGood_SignalBad")
-    void latencyCompensateIfSignalIsGood_ShouldNotCompensateIfVelocitySignalIsBad(
+    @MethodSource("latencyCompensateIfSignalIsGood_signalBad")
+    void latencyCompensateIfSignalIsGood_shouldNotCompensateIfVelocitySignalIsBad(
             final double position,
             final StatusCode badStatusCode
     ) {
@@ -107,7 +110,7 @@ class Phoenix6UtilsTest {
         );
     }
 
-    static Stream<Arguments> latencyCompensateIfSignalIsGood_SignalBad() {
+    static Stream<Arguments> latencyCompensateIfSignalIsGood_signalBad() {
         return Stream.of(
                 Arguments.of(0, StatusCode.CanMessageStale),
                 Arguments.of(1, StatusCode.TxFailed),
@@ -115,5 +118,31 @@ class Phoenix6UtilsTest {
                 Arguments.of(-24.67, StatusCode.CanOverflowed),
                 Arguments.of(1.85e-6, StatusCode.BufferFailure)
         );
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideAssertIsOK_doesNotThrow")
+    void assertIsOK_doesNotThrow(final StatusCode statusCodeOK) {
+        assertDoesNotThrow(() -> Phoenix6Utils.assertIsOK(statusCodeOK));
+    }
+
+    static Stream<StatusCode> provideAssertIsOK_doesNotThrow() {
+        return Arrays.stream(StatusCode.values())
+                .filter(StatusCode::isOK);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideAssertIsOK_doesThrow")
+    void assertIsOK_doesThrow(final StatusCode statusCodeNotOK) {
+        assertThrowsExactly(
+                Phoenix6Utils.StatusCodeAssertionException.class,
+                () -> Phoenix6Utils.assertIsOK(statusCodeNotOK)
+        );
+    }
+
+    static Stream<StatusCode> provideAssertIsOK_doesThrow() {
+        return Arrays.stream(StatusCode.values())
+                .filter(statusCode -> !statusCode.isOK());
     }
 }
