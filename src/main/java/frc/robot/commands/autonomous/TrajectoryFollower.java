@@ -36,7 +36,10 @@ public class TrajectoryFollower extends CommandBase {
         private final SuperstructureStates.ElevatorState elevatorState;
         private final SuperstructureStates.ClawState clawState;
 
-        IntakeMode(final SuperstructureStates.ElevatorState elevatorState, final SuperstructureStates.ClawState clawState) {
+        IntakeMode(
+                final SuperstructureStates.ElevatorState elevatorState,
+                final SuperstructureStates.ClawState clawState
+        ) {
             this.elevatorState = elevatorState;
             this.clawState = clawState;
         }
@@ -50,8 +53,7 @@ public class TrajectoryFollower extends CommandBase {
         }
     }
 
-    //TODO: these 2 max values need to be tuned/verified
-    public static final double MAX_TIME_DIFF_SECONDS = 0.1;
+    //TODO: this max values need to be tuned/verified (will depend on how well our auto pid is)
     public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
     public static boolean HAS_AUTO_RAN = false;
 
@@ -221,7 +223,6 @@ public class TrajectoryFollower extends CommandBase {
 
     private void dtPause(final boolean paused) {
         this.paused = paused;
-
         if (paused) {
             timer.stop();
             swerve.stop();
@@ -235,7 +236,6 @@ public class TrajectoryFollower extends CommandBase {
             final double time
     ) {
         // TODO: does any of this logic here work? test it!
-        //This logic doesnt work, robot seems to be slower than expected so it is getter the farther marker
         final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingEntry =
                 eventMarkerNavigableMap.ceilingEntry(time);
         final Map.Entry<Double, PathPlannerTrajectory.EventMarker> floorEntry =
@@ -321,7 +321,7 @@ public class TrajectoryFollower extends CommandBase {
                                                 SuperstructureStates.ClawState.CLAW_INTAKING_CONE)
                                         .waitUntilState(
                                                 SuperstructureStates.ClawState.CLAW_INTAKING_CONE,
-                                                0.3
+                                                0.7
                                         )
                                         .withElevatorClawStates(
                                                 SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
