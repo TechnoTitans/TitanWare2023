@@ -19,11 +19,15 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
+import frc.robot.utils.ctre.Phoenix6Utils;
+import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
+import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final ElevatorSimSolver elevatorSimSolver;
@@ -34,7 +38,7 @@ public class ElevatorIOSim implements ElevatorIO {
     private final TitanSparkMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
     private final SensorDirectionValue verticalElevatorEncoderSensorDirection, horizontalElevatorEncoderSensorDirection;
-    private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
+    private final LimitSwitchSim verticalElevatorLimitSwitchSim, horizontalElevatorRearLimitSwitchSim;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
@@ -56,6 +60,9 @@ public class ElevatorIOSim implements ElevatorIO {
      * @see SuperstructureStates.VerticalElevatorMode
      */
     private double VEControlInput = desiredState.getVEControlInput(); //Vertical Elevator Target Rotations
+
+    private boolean verticalElevatorReset = false;
+    private boolean horizontalElevatorReset = false;
     private boolean elevatorsHaveReset = false;
 
     public ElevatorIOSim(
@@ -83,7 +90,8 @@ public class ElevatorIOSim implements ElevatorIO {
         this.verticalElevatorEncoder = verticalElevatorEncoder;
         this.verticalElevatorEncoderSensorDirection = verticalElevatorEncoderSensorDirection;
 
-        this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
+        this.verticalElevatorLimitSwitchSim = new LimitSwitchSim(verticalElevatorLimitSwitch);
+        this.verticalElevatorLimitSwitchSim.setInitialized(true);
 
         this.verticalElevatorSimMotors = elevatorSimSolver.getVerticalElevatorSimMotors();
 
@@ -92,7 +100,8 @@ public class ElevatorIOSim implements ElevatorIO {
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
         this.horizontalElevatorEncoderSensorDirection = horizontalElevatorEncoderSensorDirection;
 
-        this.horizontalElevatorRearLimitSwitch = horizontalElevatorRearLimitSwitch;
+        this.horizontalElevatorRearLimitSwitchSim = new LimitSwitchSim(horizontalElevatorRearLimitSwitch);
+        this.verticalElevatorLimitSwitchSim.setInitialized(true);
 
         config();
 
@@ -112,38 +121,48 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     private boolean resetElevator() {
-        final boolean horizontalDidReset;
-        final boolean verticalDidReset;
-
-        if (verticalElevatorLimitSwitch.get()) {
+        if (!verticalElevatorReset && verticalElevatorLimitSwitchSim.getValue()) {
             verticalElevatorEncoder.setPosition(0);
             verticalElevatorMode = SuperstructureStates.VerticalElevatorMode.DUTY_CYCLE;
             VEControlInput = 0;
-            verticalDidReset = true;
-        } else {
-            verticalDidReset = false;
+            verticalElevatorReset = true;
         }
 
-        if (horizontalElevatorRearLimitSwitch.get()) {
+        if (!horizontalElevatorReset && horizontalElevatorRearLimitSwitchSim.getValue()) {
             horizontalElevatorEncoder.setPosition(0);
-            HEControlInput = 0;
             horizontalElevatorMode = SuperstructureStates.HorizontalElevatorMode.DUTY_CYCLE;
-            horizontalDidReset = true;
+            HEControlInput = 0;
+            horizontalElevatorReset = true;
 
             PIDUtils.resetProfiledPIDControllerWithStatusSignal(
                     horizontalElevatorPID,
                     horizontalElevatorEncoder.getPosition().waitForUpdate(0.25),
                     horizontalElevatorEncoder.getVelocity().waitForUpdate(0.25)
             );
-        } else {
-            horizontalDidReset = false;
         }
 
-        return verticalDidReset && horizontalDidReset;
+        return verticalElevatorReset && horizontalElevatorReset;
+    }
+
+    private double getVEPosition() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                verticalElevatorEncoder.getPosition(),
+                verticalElevatorEncoder.getVelocity()
+        );
+    }
+
+    private double getHEPosition() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                horizontalElevatorEncoder.getPosition(),
+                horizontalElevatorEncoder.getVelocity()
+        );
     }
 
     private void updateSimulation() {
         elevatorSimSolver.update(Constants.LOOP_PERIOD_SECONDS);
+        // TODO: do these checks need to be <= 0 instead of == 0? that could cause us to miss a -0.25 initialize again
+        verticalElevatorLimitSwitchSim.setValue(getVEPosition() == 0);
+        horizontalElevatorRearLimitSwitchSim.setValue(getHEPosition() == 0);
     }
 
     @Override
@@ -153,6 +172,9 @@ public class ElevatorIOSim implements ElevatorIO {
         if (desiredState == SuperstructureStates.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
             elevatorsHaveReset = resetElevator();
             if (elevatorsHaveReset) {
+                // TODO: this isn't reported up to the subsystem layer as it happens within the IO layer
+                //  probably needs to be addressed
+                //  - also true for the direct sets found in resetElevator
                 setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
             }
         }
@@ -199,14 +221,16 @@ public class ElevatorIOSim implements ElevatorIO {
         final ElevatorSimSolver.ElevatorSimState simState = elevatorSimSolver.getElevatorSimState();
         simState.log(Elevator.logKey + "SimState");
 
-        inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
+        inputs.verticalElevatorMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
+        inputs.verticalElevatorEncoderPosition = getVEPosition();
         inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
 
-        inputs.horizontalElevatorEncoderPosition = horizontalElevatorEncoder.getPosition().refresh().getValue();
+        inputs.horizontalElevatorMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
+        inputs.horizontalElevatorEncoderPosition = getHEPosition();
         inputs.horizontalElevatorEncoderVelocity = horizontalElevatorEncoder.getVelocity().refresh().getValue();
 
-        inputs.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch.get();
-        inputs.horizontalElevatorLimitSwitch = horizontalElevatorRearLimitSwitch.get();
+        inputs.verticalElevatorLimitSwitch = verticalElevatorLimitSwitchSim.getValue();
+        inputs.horizontalElevatorLimitSwitch = horizontalElevatorRearLimitSwitchSim.getValue();
     }
 
     @Override
@@ -219,6 +243,7 @@ public class ElevatorIOSim implements ElevatorIO {
         SimUtils.setCTRECANCoderSimStateSensorDirection(
                 verticalElevatorEncoder, verticalElevatorEncoderSensorDirection
         );
+        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(verticalElevatorEncoder));
 
         final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
@@ -264,6 +289,7 @@ public class ElevatorIOSim implements ElevatorIO {
         SimUtils.setCTRECANCoderSimStateSensorDirection(
                 horizontalElevatorEncoder, horizontalElevatorEncoderSensorDirection
         );
+        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(horizontalElevatorEncoder));
 
         horizontalElevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     }

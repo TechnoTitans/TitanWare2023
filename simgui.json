@@ -1,6 +1,11 @@
 {
   "HALProvider": {
     "Other Devices": {
+      "CANCoder (Pro)[13]": {
+        "header": {
+          "open": true
+        }
+      },
       "Talon FX (Pro)[1]": {
         "header": {
           "open": true

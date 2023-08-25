@@ -3,6 +3,7 @@ package frc.robot.utils.safety;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -69,12 +70,16 @@ public class SubsystemEStop {
             timer.start();
         }
 
+        public static boolean isDisabledState() {
+            return RobotState.isDisabled() || RobotState.isEStopped();
+        }
+
         public boolean shouldStop() {
             return switch (kind) {
                 case INSTANT -> shouldStop.apply(stopParamSupplier.get());
                 case AFTER_DURATION -> {
                     final T stopParam = stopParamSupplier.get();
-                    if (!shouldStop.apply(stopParam)) {
+                    if (!shouldStop.apply(stopParam) || isDisabledState()) {
                         timer.reset();
                         yield timeSeconds <= 0;
                     }
@@ -82,6 +87,10 @@ public class SubsystemEStop {
                     yield timer.hasElapsed(timeSeconds);
                 }
             };
+        }
+
+        public void restart() {
+            timer.restart();
         }
 
         public StopBehavior getStopBehavior() {
@@ -129,6 +138,9 @@ public class SubsystemEStop {
     public void clearEStop() {
         if (eStopped) {
             eStopped = false;
+            for (final StopConditionProvider<?> stopConditionProvider : stopConditionProviders) {
+                stopConditionProvider.restart();
+            }
         }
     }
 
@@ -141,11 +153,9 @@ public class SubsystemEStop {
             eStop(StopBehavior.DS_E_STOP);
         }
 
-        if (RobotState.isEnabled()) {
-            for (final StopConditionProvider<?> stopConditionProvider : stopConditionProviders) {
-                if (stopConditionProvider.shouldStop() && !isEStopped()) {
-                    eStop(stopConditionProvider.getStopBehavior());
-                }
+        for (final StopConditionProvider<?> stopConditionProvider : stopConditionProviders) {
+            if (stopConditionProvider.shouldStop() && !isEStopped()) {
+                eStop(stopConditionProvider.getStopBehavior());
             }
         }
 

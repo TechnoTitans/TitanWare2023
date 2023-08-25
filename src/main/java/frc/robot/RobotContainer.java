@@ -230,18 +230,20 @@ public class RobotContainer {
 
         //Elevator
         elevator = switch (Constants.CURRENT_MODE) {
-            case REAL -> new Elevator(new ElevatorIOReal(
-                    elevatorVerticalMotorMain,
-                    RobotMap.mainVerticalFalconR,
-                    elevatorVerticalMotorFollower,
-                    RobotMap.followerVerticalFalconR,
-                    elevatorVerticalEncoder,
-                    elevatorHorizontalEncoder,
-                    RobotMap.verticalElevatorEncoderR,
-                    elevatorHorizontalNeo,
-                    elevatorVerticalLimitSwitch,
-                    elevatorHorizontalLimitSwitch
-            ));
+            case REAL -> new Elevator(
+                    new ElevatorIOReal(
+                            elevatorVerticalMotorMain,
+                            RobotMap.mainVerticalFalconR,
+                            elevatorVerticalMotorFollower,
+                            RobotMap.followerVerticalFalconR,
+                            elevatorVerticalEncoder,
+                            elevatorHorizontalEncoder,
+                            RobotMap.verticalElevatorEncoderR,
+                            elevatorHorizontalNeo,
+                            elevatorVerticalLimitSwitch,
+                            elevatorHorizontalLimitSwitch
+                    )
+            );
             case SIM -> new Elevator(
                     new ElevatorIOSim(
                             elevatorVerticalMotorMain,
@@ -251,7 +253,7 @@ public class RobotContainer {
                             elevatorVerticalEncoder,
                             RobotMap.verticalElevatorEncoderR,
                             elevatorHorizontalEncoder,
-                            SensorDirectionValue.Clockwise_Positive,
+                            RobotMap.horizontalElevatorEncoderR,
                             elevatorHorizontalNeo,
                             elevatorVerticalLimitSwitch,
                             elevatorHorizontalLimitSwitch,
