@@ -5,6 +5,7 @@ import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
@@ -28,10 +29,9 @@ import org.littletonrobotics.junction.Logger;
 import java.util.*;
 
 public class TrajectoryFollower extends CommandBase {
-    enum IntakeMode {
+    public enum IntakeMode {
         CUBE(SuperstructureStates.ElevatorState.ELEVATOR_CUBE, SuperstructureStates.ClawState.CLAW_ANGLE_CUBE),
-        CONE(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY, SuperstructureStates.ClawState.CLAW_INTAKING_CUBE)
-        ;
+        CONE(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY, SuperstructureStates.ClawState.CLAW_INTAKING_CUBE);
 
         private final SuperstructureStates.ElevatorState elevatorState;
         private final SuperstructureStates.ClawState clawState;
@@ -236,23 +236,32 @@ public class TrajectoryFollower extends CommandBase {
     ) {
         // TODO: does any of this logic here work? test it!
         //This logic doesnt work, robot seems to be slower than expected so it is getter the farther marker
-        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingMarker =
+        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingEntry =
                 eventMarkerNavigableMap.ceilingEntry(time);
-        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> floorMarker =
+        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> floorEntry =
                 eventMarkerNavigableMap.floorEntry(time);
 
-        // return early if there aren't any markers left
-        if (ceilingMarker == null) {
+        final PathPlannerTrajectory.EventMarker nextMarker;
+        if (ceilingEntry == null && floorEntry == null) {
+            // return early if there aren't any markers left
             return;
+        } else if (ceilingEntry == null) {
+            nextMarker = floorEntry.getValue();
+        } else if (floorEntry == null) {
+            nextMarker = ceilingEntry.getValue();
+        } else {
+            final PathPlannerTrajectory.EventMarker ceilingMarker = ceilingEntry.getValue();
+            final PathPlannerTrajectory.EventMarker floorMarker = floorEntry.getValue();
+
+            final Translation2d currentTranslation = currentPose.getTranslation();
+            final double currentToCeilingDistance = ceilingMarker.positionMeters.getDistance(currentTranslation);
+            final double currentToFloorDistance = floorMarker.positionMeters.getDistance(currentTranslation);
+
+            nextMarker = currentToCeilingDistance > currentToFloorDistance
+                    ? floorMarker
+                    : ceilingMarker;
         }
 
-        //This chooses the closest marker to the current robot position
-        final PathPlannerTrajectory.EventMarker nextMarker =
-                (ceilingMarker.getValue().positionMeters.getDistance(currentPose.getTranslation()) >
-                        floorMarker.getValue().positionMeters.getDistance(currentPose.getTranslation())
-                        ? floorMarker
-                        : ceilingMarker
-                ).getValue();
         final double distanceToNextMarker = nextMarker.positionMeters
                 .getDistance(currentPose.getTranslation());
 
