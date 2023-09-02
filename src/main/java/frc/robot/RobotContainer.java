@@ -6,7 +6,6 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -212,12 +211,9 @@ public class RobotContainer {
         //Sensors
         pigeon2 = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.CANIVORE_CAN_NAME);
         gyro = switch (Constants.CURRENT_MODE) {
-            case REAL:
-                yield new Gyro(new GyroIOPigeon2(pigeon2), pigeon2);
-            case SIM:
-                yield new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
-            case REPLAY:
-                yield new Gyro(new GyroIO() {}, pigeon2);
+            case REAL -> new Gyro(new GyroIOPigeon2(pigeon2), pigeon2);
+            case SIM -> new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
+            case REPLAY -> new Gyro(new GyroIO() {}, pigeon2);
         };
 
         elevatorSimSolver = new ElevatorSimSolver(
@@ -337,13 +333,11 @@ public class RobotContainer {
         );
 
         photonVision = switch (Constants.CURRENT_MODE) {
-            case REAL, SIM:
-                yield new PhotonVision(
+            case REAL, SIM -> new PhotonVision(
                         new PhotonVisionIOApriltagsImpl(swerve, visionIndependentOdometry, apriltagCameras),
                         swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
                 );
-            case REPLAY:
-                yield new PhotonVision(
+            case REPLAY -> new PhotonVision(
                         new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
                 );
         };
