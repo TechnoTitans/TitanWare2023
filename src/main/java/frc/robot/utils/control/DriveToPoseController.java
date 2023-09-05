@@ -2,6 +2,7 @@ package frc.robot.utils.control;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.subsystems.gyro.Gyro;
 
@@ -10,10 +11,6 @@ public record DriveToPoseController(
         ProfiledPIDController yController,
         ProfiledPIDController thetaController
 ) {
-    public record DriveToPoseOutput(double dx, double dy, double dTheta) {
-
-    }
-
     public DriveToPoseController(
             final ProfiledPIDController xController,
             final ProfiledPIDController yController,
@@ -62,24 +59,21 @@ public record DriveToPoseController(
         return this.thetaController.calculate(thetaMeasurement, thetaSetpoint);
     }
 
-    public DriveToPoseOutput getOutput(
-            final double xMeasurement, final double xSetpoint,
-            final double yMeasurement, final double ySetpoint,
-            final double thetaMeasurement, final double thetaSetpoint
-    ) {
-        return new DriveToPoseOutput(
-                getX(xMeasurement, xSetpoint),
-                getY(yMeasurement, ySetpoint),
-                getTheta(thetaMeasurement, thetaSetpoint)
-        );
+    public ChassisSpeeds calculate(final Pose2d currentPose, final Pose2d targetPose, final boolean fieldRelative) {
+        final Rotation2d currentRotation = currentPose.getRotation();
+        final Rotation2d targetRotation = targetPose.getRotation();
+
+        final double vx = getX(currentPose.getX(), targetPose.getX());
+        final double vy = getY(currentPose.getY(), targetPose.getY());
+        final double omegaTheta = getTheta(currentRotation.getRadians(), targetRotation.getRadians());
+
+        return fieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omegaTheta, currentRotation)
+                : new ChassisSpeeds(vx, vy, omegaTheta);
     }
 
-    public DriveToPoseOutput getOutput(final Pose2d currentPose, final Pose2d targetPose) {
-        return getOutput(
-                currentPose.getX(), targetPose.getX(),
-                currentPose.getY(), targetPose.getY(),
-                currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians()
-        );
+    public ChassisSpeeds calculate(final Pose2d currentPose, final Pose2d targetPose) {
+        return calculate(currentPose, targetPose, true);
     }
 
     public boolean atGoal() {

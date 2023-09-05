@@ -10,14 +10,60 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.commands.autonomous.TrajectoryFollower;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TitanTrajectory extends PathPlannerTrajectory {
+    private final TrajectoryFollower.FollowerContext followerContext;
+    private final Map<EventMarker, SequentialCommandGroup> markerCommandMap;
+
+    private TitanTrajectory(
+            final List<State> states,
+            final List<EventMarker> markers,
+            final StopEvent startStopEvent,
+            final StopEvent endStopEvent,
+            final boolean fromGUI,
+            final TrajectoryFollower.FollowerContext followerContext,
+            final Map<EventMarker, SequentialCommandGroup> markerCommandMap
+    ) {
+        super(states, markers, startStopEvent, endStopEvent, fromGUI);
+        this.followerContext = followerContext;
+        this.markerCommandMap = markerCommandMap;
+    }
+
+    public TitanTrajectory(
+            final List<State> states,
+            final List<EventMarker> markers,
+            final StopEvent startStopEvent,
+            final StopEvent endStopEvent,
+            final boolean fromGUI,
+            final TrajectoryFollower.FollowerContext followerContext
+    ) {
+        this(
+                states,
+                markers,
+                startStopEvent,
+                endStopEvent,
+                fromGUI,
+                followerContext,
+                markers.stream()
+                        .collect(Collectors.toUnmodifiableMap(
+                                eventMarker -> eventMarker,
+                                eventMarker -> createCommandFromMarker(eventMarker, followerContext)
+                        ))
+        );
+    }
+
     public TitanTrajectory(
             final List<State> states,
             final List<EventMarker> markers,
@@ -25,10 +71,60 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             final StopEvent endStopEvent,
             final boolean fromGUI
     ) {
-        super(states, markers, startStopEvent, endStopEvent, fromGUI);
+        this(states, markers, startStopEvent, endStopEvent, fromGUI, null, Map.of());
     }
 
-    public static TitanTrajectory fromPathPlannerTrajectory(final PathPlannerTrajectory pathPlannerTrajectory) {
+    public TrajectoryFollower.FollowerContext getFollowerContext() {
+        return followerContext;
+    }
+
+    public SequentialCommandGroup getCommandAtMarker(final EventMarker eventMarker) {
+        if (followerContext == null) {
+            throw new RuntimeException("Cannot get MarkerCommand for a TitanTrajectory without a FollowerContext!");
+        }
+
+        final SequentialCommandGroup commandGroup = markerCommandMap.get(eventMarker);
+        if (commandGroup == null) {
+            throw new RuntimeException("Cannot get invalid EventMarker from MarkerCommand!");
+        }
+
+        return commandGroup;
+    }
+
+    public static SequentialCommandGroup createCommandFromMarker(
+            final EventMarker eventMarker,
+            final TrajectoryFollower.FollowerContext followerContext
+    ) {
+        final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+
+        final String markerCommands = String.join("", eventMarker.names).trim();
+        final String[] splitStringCommands = markerCommands.split(MarkerCommand.COMMAND_DELIMITER);
+
+        for (final String stringCommand : splitStringCommands) {
+            final Command command = MarkerCommand.get(stringCommand, followerContext);
+            commandGroup.addCommands(command);
+        }
+
+        return commandGroup;
+    }
+
+    public static TitanTrajectory fromPathPlannerTrajectory(
+            final PathPlannerTrajectory pathPlannerTrajectory,
+            final TrajectoryFollower.FollowerContext followerContext
+    ) {
+        return new TitanTrajectory(
+                pathPlannerTrajectory.getStates(),
+                pathPlannerTrajectory.getMarkers(),
+                pathPlannerTrajectory.getStartStopEvent(),
+                pathPlannerTrajectory.getEndStopEvent(),
+                pathPlannerTrajectory.fromGUI,
+                followerContext
+        );
+    }
+
+    public static TitanTrajectory fromNoMarkersPathPlannerTrajectory(
+            final PathPlannerTrajectory pathPlannerTrajectory
+    ) {
         return new TitanTrajectory(
                 pathPlannerTrajectory.getStates(),
                 pathPlannerTrajectory.getMarkers(),
@@ -46,7 +142,6 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             final EventMarker transformedMarker = new EventMarker(marker.names, marker.waypointRelativePos);
             final Translation2d translation = marker.positionMeters;
 
-            // TODO: check that this does indeed fix time
             transformedMarker.timeSeconds = marker.timeSeconds;
             transformedMarker.positionMeters = new Translation2d(
                     translation.getX(), FieldConstants.FIELD_WIDTH_Y_METERS - translation.getY()
@@ -73,8 +168,13 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                 transformedStates.add(transformStateForAlliance(pathPlannerState, alliance));
             }
 
+            final Map<EventMarker, SequentialCommandGroup> transformedMarkerCommandMap = new HashMap<>();
             for (final EventMarker marker : markers) {
-                transformedMarkers.add(transformMarkerForAlliance(marker, alliance));
+                final SequentialCommandGroup commandGroup = trajectory.markerCommandMap.get(marker);
+                final EventMarker transformedMarker = transformMarkerForAlliance(marker, alliance);
+
+                transformedMarkerCommandMap.put(transformedMarker, commandGroup);
+                transformedMarkers.add(transformedMarker);
             }
 
             return new TitanTrajectory(
@@ -82,7 +182,9 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                     transformedMarkers,
                     trajectory.getStartStopEvent(),
                     trajectory.getEndStopEvent(),
-                    trajectory.fromGUI
+                    trajectory.fromGUI,
+                    trajectory.followerContext,
+                    transformedMarkerCommandMap
             );
         } else {
             return trajectory;
@@ -242,7 +344,9 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                     })
                     .toList();
 
-            return TitanTrajectory.fromPathPlannerTrajectory(PathPlanner.generatePath(constraints, regenerated));
+            return TitanTrajectory.fromNoMarkersPathPlannerTrajectory(
+                    PathPlanner.generatePath(constraints, regenerated)
+            );
         }
     }
 }

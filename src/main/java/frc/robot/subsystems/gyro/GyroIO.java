@@ -4,17 +4,38 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface GyroIO {
-    // TODO: document
     @AutoLog
     class GyroIOInputs {
+        /**
+         * Reports the current state of the Gyro, in particular, if it has a hardware fault.
+         * True if it has a hardware fault, false if not.
+         */
         public boolean hasHardwareFault = false;
 
+        /**
+         * The gyro reported roll position (in absolute [-180, 180) degrees)
+         */
         public double rollPositionDeg = 0.0;
+        /**
+         * The gyro reported pitch position (in absolute [-90, 90) degrees)
+         */
         public double pitchPositionDeg = 0.0;
+        /**
+         * The gyro reported yaw position (in absolute [-368640, 368640) degrees, which is 1024 rotations)
+         */
         public double yawPositionDeg = 0.0;
 
+        /**
+         * The gyro reported roll (Y-axis) velocity (in absolute [-1999, 1999) deg/sec)
+         */
         public double rollVelocityDegPerSec = 0.0;
+        /**
+         * The gyro reported pitch (X-axis) velocity (in absolute [-1999, 1999) deg/sec)
+         */
         public double pitchVelocityDegPerSec = 0.0;
+        /**
+         * The gyro reported yaw (Z-axis) velocity (in absolute [-1999, 1999) deg/sec)
+         */
         public double yawVelocityDegPerSec = 0.0;
     }
 

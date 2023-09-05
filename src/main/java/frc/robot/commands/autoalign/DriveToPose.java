@@ -2,6 +2,7 @@ package frc.robot.commands.autoalign;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -75,14 +76,9 @@ public class DriveToPose extends CommandBase {
     @Override
     public void execute() {
         final Pose2d currentPose = photonVision.getEstimatedPosition();
-        final DriveToPoseController.DriveToPoseOutput output = controller.getOutput(currentPose, targetPose);
+        final ChassisSpeeds speeds = controller.calculate(currentPose, targetPose);
 
-        swerve.drive(
-                output.dx(),
-                output.dy(),
-                output.dTheta(),
-                true
-        );
+        swerve.drive(speeds);
     }
 
     @Override

@@ -11,49 +11,23 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.utils.SuperstructureStates;
-import frc.robot.utils.alignment.GridNode;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
-import frc.robot.utils.teleop.ElevatorClawCommand;
-import frc.robot.wrappers.leds.CandleController;
+import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.*;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 public class TrajectoryFollower extends CommandBase {
-    public enum IntakeMode {
-        CUBE(SuperstructureStates.ElevatorState.ELEVATOR_CUBE, SuperstructureStates.ClawState.CLAW_ANGLE_CUBE),
-        CONE(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY, SuperstructureStates.ClawState.CLAW_INTAKING_CUBE);
-
-        private final SuperstructureStates.ElevatorState elevatorState;
-        private final SuperstructureStates.ClawState clawState;
-
-        IntakeMode(
-                final SuperstructureStates.ElevatorState elevatorState,
-                final SuperstructureStates.ClawState clawState
-        ) {
-            this.elevatorState = elevatorState;
-            this.clawState = clawState;
-        }
-
-        public SuperstructureStates.ElevatorState getElevatorState() {
-            return elevatorState;
-        }
-
-        public SuperstructureStates.ClawState getClawState() {
-            return clawState;
-        }
-    }
-
-    //TODO: this max values need to be tuned/verified (will depend on how well our auto pid is)
+    //TODO: this max value need to be tuned/verified (will depend on how well our auto pid is)
     public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
     public static boolean HAS_AUTO_RAN = false;
 
@@ -63,53 +37,57 @@ public class TrajectoryFollower extends CommandBase {
     private final Timer timer;
 
     private final Swerve swerve;
-    private final DriveController controller;
+    private final DriveController holonomicDriveController;
+    private final DriveToPoseController holdPositionController;
     private final PhotonVision photonVision;
     private final NavigableMap<Double, PathPlannerTrajectory.EventMarker> eventMarkerNavigableMap;
-    private final Claw claw;
-    private final Elevator elevator;
-    private final CandleController candleController;
+
+    private final FollowerContext followerContext;
 
     private boolean isInAuto;
 
     private PathPlannerTrajectory.EventMarker lastRanMarker;
+    private Pose2d holdPosition;
+
     private boolean hasMarkers;
     private boolean paused;
     private boolean wheelX;
 
     public TrajectoryFollower(
             final Swerve swerve,
-            final DriveController controller,
+            final DriveController holonomicDriveController,
+            final DriveToPoseController holdPositionController,
             final PhotonVision photonVision,
             final TitanTrajectory trajectory,
             final boolean transformForAlliance,
-            final Claw claw,
-            final Elevator elevator,
-            final CandleController candleController
+            final FollowerContext followerContext
     ) {
-        this.swerve = swerve;
         this.timer = new Timer();
         this.eventMarkerNavigableMap = new TreeMap<>();
 
-        this.controller = controller;
+        this.swerve = swerve;
+        this.holonomicDriveController = holonomicDriveController;
+        this.holdPositionController = holdPositionController;
         this.photonVision = photonVision;
         this.trajectory = trajectory;
         this.transformForAlliance = transformForAlliance;
 
-        this.claw = claw;
-        this.elevator = elevator;
-        this.candleController = candleController;
-
-        addRequirements(swerve, claw, elevator);
+        this.followerContext = followerContext;
+        addRequirements(swerve, followerContext.getClaw(), followerContext.getElevator());
     }
 
     public void reset() {
+        followerContext.setPaused(false);
+        followerContext.setWheelX(false);
         paused = false;
         wheelX = false;
 
-        controller.reset();
-        timer.reset();
-        timer.start();
+        holonomicDriveController.reset();
+        holdPositionController.reset(
+                photonVision.getEstimatedPosition(), swerve.getFieldRelativeSpeeds(), swerve.getGyro()
+        );
+
+        timer.restart();
     }
 
     @Override
@@ -126,9 +104,6 @@ public class TrajectoryFollower extends CommandBase {
         final Rotation2d initialHolonomicRotation = initialState.holonomicRotation;
 
         isInAuto = RobotState.isAutonomous();
-
-        //TODO: this setAngle call causes loop overruns in sim - seems to be a CTRE implementation issue?
-        // investigated and seems like Pigeon2.setYaw() is the culprit, address this eventually
         if (!TrajectoryFollower.HAS_AUTO_RAN && isInAuto) {
             swerve.setAngle(initialHolonomicRotation);
             photonVision.resetPosition(
@@ -155,44 +130,26 @@ public class TrajectoryFollower extends CommandBase {
         );
 
         reset();
-
-        // TODO: make this better
-        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.5);
     }
 
-    @Override
-    public void execute() {
-        final double currentTime = timer.get();
-        final PathPlannerTrajectory.PathPlannerState sample =
-                (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.sample(currentTime);
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
+    private void holdPosition(final Pose2d positionToHold, final Pose2d currentPose) {
+        final ChassisSpeeds targetChassisSpeeds = holdPositionController.calculate(currentPose, positionToHold);
 
-        if (hasMarkers) {
-            commander(currentPose, currentTime);
+        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
+            PathPlannerServer.sendPathFollowingData(positionToHold, currentPose);
         }
 
-        if (wheelX) {
-            swerve.wheelX();
-        } else if (!paused) {
-            driveToState(sample, currentPose);
-        }
-    }
+        Logger.getInstance().recordOutput("Auto/EstimatedPose", new Pose2d(
+                currentPose.getTranslation(),
+                Rotation2d.fromRadians(MathUtil.angleModulus(currentPose.getRotation().getRadians()))
+        ));
+        Logger.getInstance().recordOutput("Auto/WantedState", positionToHold);
 
-    @Override
-    public void end(boolean interrupted) {
-        swerve.stop();
-        timer.stop();
-        candleController.setState(SuperstructureStates.CANdleState.OFF);
-    }
-
-    @Override
-    public boolean isFinished() {
-        return (isInAuto && !RobotState.isAutonomous())
-                || timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
+        swerve.drive(targetChassisSpeeds);
     }
 
     private void driveToState(final PathPlannerTrajectory.PathPlannerState state, final Pose2d currentPose) {
-        final ChassisSpeeds targetChassisSpeeds = controller.calculate(currentPose, state);
+        final ChassisSpeeds targetChassisSpeeds = holonomicDriveController.calculate(currentPose, state);
 
         if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
             PathPlannerServer.sendPathFollowingData(new Pose2d(
@@ -215,6 +172,10 @@ public class TrajectoryFollower extends CommandBase {
     }
 
     private void wheelX(final boolean wheelX) {
+        if (this.wheelX == wheelX) {
+            return;
+        }
+
         this.wheelX = wheelX;
         if (wheelX) {
             swerve.wheelX();
@@ -222,19 +183,65 @@ public class TrajectoryFollower extends CommandBase {
     }
 
     private void dtPause(final boolean paused) {
+        if (this.paused == paused) {
+            return;
+        }
+
         this.paused = paused;
         if (paused) {
-            timer.stop();
-            swerve.stop();
+            final Pose2d estimatedPosition = photonVision.getEstimatedPosition();
+
+            this.holdPosition = estimatedPosition;
+            this.holdPositionController.resetWithStop(estimatedPosition, swerve.getGyro());
+            this.timer.stop();
         } else {
-            timer.start();
+            this.holonomicDriveController.reset();
+            this.timer.start();
         }
     }
 
-    private void commander(
-            final Pose2d currentPose,
-            final double time
-    ) {
+    @Override
+    public void execute() {
+        final double currentTime = timer.get();
+        final PathPlannerTrajectory.PathPlannerState sample =
+                (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.sample(currentTime);
+        final Pose2d currentPose = photonVision.getEstimatedPosition();
+
+        if (hasMarkers) {
+            commander(currentPose, currentTime);
+        }
+
+        final boolean isWheelX = followerContext.isWheelX();
+        final boolean isPaused = followerContext.isPaused();
+
+        Logger.getInstance().recordOutput("Auto/IsWheelX", isWheelX);
+        Logger.getInstance().recordOutput("Auto/IsPaused", isPaused);
+
+        wheelX(isWheelX);
+        dtPause(isPaused);
+
+        if (isWheelX) {
+            swerve.wheelX();
+        } else if (isPaused && holdPosition != null) {
+            holdPosition(holdPosition, currentPose);
+        } else if (!isPaused) {
+            driveToState(sample, currentPose);
+        }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        swerve.stop();
+        timer.stop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return (isInAuto && !RobotState.isAutonomous())
+                || timer.hasElapsed(transformedTrajectory.getTotalTimeSeconds());
+    }
+
+    private void commander(final Pose2d currentPose, final double time) {
         // TODO: does any of this logic here work? test it!
         final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingEntry =
                 eventMarkerNavigableMap.ceilingEntry(time);
@@ -271,80 +278,45 @@ public class TrajectoryFollower extends CommandBase {
             lastRanMarker = nextMarker;
         }
 
-        final String[] commands = String.join("", nextMarker.names).trim().split(";");
-        final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
-        for (final String command : commands) {
-            final String[] args = command.split(":");
-            switch (args[0].toLowerCase()) {
-                // TODO: Claw and Elevator calls are to be removed in favor of presets, maybe?
-                case "claw" ->
-                        commandGroup.addCommands(
-                                new ElevatorClawCommand.Builder(elevator, claw)
-                                        .withClawState(
-                                                SuperstructureStates.ClawState.valueOf(args[1].toUpperCase())
-                                        )
-                                        .build()
-                        );
-                case "elevator" ->
-                        commandGroup.addCommands(
-                                new ElevatorClawCommand.Builder(elevator, claw)
-                                        .withElevatorState(
-                                                SuperstructureStates.ElevatorState.valueOf(args[1].toUpperCase())
-                                        )
-                                        .build()
-                        );
-                case "score" ->
-                    commandGroup.addCommands(
-                            Commands.runOnce(() -> dtPause(true)),
-                            GridNode.buildScoringSequence(
-                                    elevator, claw, GridNode.Level.valueOf(args[1].toUpperCase())
-                            ),
-                            Commands.waitSeconds(0.4),
-                            Commands.runOnce(() -> dtPause(false))
-                    );
-                case "intake" -> {
-                    final IntakeMode intakeMode = IntakeMode.valueOf(args[1].toUpperCase());
-                    commandGroup.addCommands(
-                            new ElevatorClawCommand.Builder(elevator, claw)
-                                    .withElevatorClawStates(
-                                            intakeMode.getElevatorState(),
-                                            intakeMode.getClawState()
-                                    )
-                                    .build()
-                    );
-                }
-                case "pickup" ->
-                        commandGroup.addCommands(
-                                new ElevatorClawCommand.Builder(elevator, claw)
-                                        .withConditionalClawState(
-                                                SuperstructureStates.ClawState.CLAW_INTAKING_CUBE,
-                                                SuperstructureStates.ClawState.CLAW_INTAKING_CONE)
-                                        .waitUntilState(
-                                                SuperstructureStates.ClawState.CLAW_INTAKING_CONE,
-                                                0.7
-                                        )
-                                        .withElevatorClawStates(
-                                                SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
-                                                SuperstructureStates.ClawState.CLAW_HOLDING
-                                        )
-                                        .build()
-                        );
-                case "autobalance" ->
-                        commandGroup.addCommands(new AutoBalance(swerve));
-                case "wait" ->
-                        commandGroup.addCommands(Commands.waitSeconds(Double.parseDouble(args[1])));
-                case "wheelx" ->
-                        commandGroup.addCommands(Commands.runOnce(() ->
-                                wheelX(Boolean.parseBoolean(args[1])))
-                        );
-                case "dtpause" ->
-                        commandGroup.addCommands(Commands.runOnce(() ->
-                                dtPause(Boolean.parseBoolean(args[1])))
-                        );
-                default -> {}
-            }
+        final SequentialCommandGroup commandGroup = transformedTrajectory.getCommandAtMarker(nextMarker);
+        commandGroup.schedule();
+    }
 
-            commandGroup.schedule();
+    public static class FollowerContext {
+        private final Elevator elevator;
+
+        private final Claw claw;
+
+        private boolean paused;
+        private boolean wheelX;
+
+        public FollowerContext(final Elevator elevator, final Claw claw) {
+            this.elevator = elevator;
+            this.claw = claw;
+        }
+
+        public Elevator getElevator() {
+            return elevator;
+        }
+
+        public Claw getClaw() {
+            return claw;
+        }
+
+        public boolean isPaused() {
+            return paused;
+        }
+
+        public void setPaused(boolean paused) {
+            this.paused = paused;
+        }
+
+        public boolean isWheelX() {
+            return wheelX;
+        }
+
+        public void setWheelX(boolean wheelX) {
+            this.wheelX = wheelX;
         }
     }
 }

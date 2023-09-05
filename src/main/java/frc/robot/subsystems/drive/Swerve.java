@@ -244,10 +244,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void stop() {
-        frontLeft.stop();
-        backLeft.stop();
-        frontRight.stop();
-        backRight.stop();
+        drive(new ChassisSpeeds());
     }
 
     /**

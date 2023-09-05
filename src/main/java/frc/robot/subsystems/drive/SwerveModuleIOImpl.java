@@ -90,9 +90,12 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         canCoderConfiguration.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
+        // TODO: I think we need to look at VoltageConfigs and/or CurrentLimitConfigs for limiting the
+        //  current we can apply in sim, this is cause we use VelocityVoltage in sim instead of VelocityTorqueCurrentFOC
+        //  which means that TorqueCurrent.PeakForwardTorqueCurrent and related won't affect it
         driveTalonFXConfiguration.Slot0 = isReal
                 ? Constants.Modules.DRIVE_MOTOR_CONSTANTS
-                : Constants.Sim.DRIVE_MOTOR_CONSTANTS;
+                : Constants.Sim.Modules.DRIVE_MOTOR_CONSTANTS;
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -103,7 +106,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
         turnTalonFXConfiguration.Slot0 = isReal
                 ? Constants.Modules.TURN_MOTOR_CONSTANTS
-                : Constants.Sim.TURN_MOTOR_CONSTANTS;
+                : Constants.Sim.Modules.TURN_MOTOR_CONSTANTS;
         turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
         turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
@@ -115,7 +118,8 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         turnMotor.getConfigurator().apply(turnTalonFXConfiguration);
 
         if (!isReal) {
-            SimUtils.initializeCTRECANCoderSim(turnEncoder);
+            // TODO: this fix for CANCoder initialization in sim doesn't seem to work all the time...investigate!
+//            SimUtils.initializeCTRECANCoderSim(turnEncoder);
             SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
             SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
         }
@@ -160,19 +164,13 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
 
     @Override
     public void setInputs(final double desiredDriverVelocity, final double desiredTurnerRotations) {
-        if (!isReal && Constants.Sim.USE_VELOCITY_VOLTAGE_IN_SIM) {
+        if (!isReal && Constants.Sim.Modules.USE_VELOCITY_VOLTAGE_IN_SIM) {
             driveMotor.setControl(velocityVoltage.withVelocity(desiredDriverVelocity));
         } else {
             driveMotor.setControl(velocityTorqueCurrentFOC.withVelocity(desiredDriverVelocity));
         }
 
         turnMotor.setControl(positionVoltage.withPosition(desiredTurnerRotations));
-    }
-
-    @Override
-    public void stop() {
-        driveMotor.set(0);
-        turnMotor.set(0);
     }
 
     @Override

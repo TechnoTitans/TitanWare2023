@@ -27,7 +27,6 @@ public class Phoenix6Utils {
         final StatusSignal<Double> refreshedSignal = signal.refresh();
         final StatusSignal<Double> refreshedDeltaSignal = deltaSignal.refresh();
 
-        //TODO: is checking isOK ok here? should we instead just check for StatusCode.CanMessageStale?
         if (refreshedSignal.getError().isOK() && refreshedDeltaSignal.getError().isOK()) {
             return BaseStatusSignal.getLatencyCompensatedValue(
                     refreshedSignal,

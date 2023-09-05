@@ -9,7 +9,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,10 +16,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,14 +38,14 @@ class SwerveTest {
     @Mock
     private PhotonVision photonVision;
 
-    @Mock
-    private SwerveModule frontLeft;
-    @Mock
-    private SwerveModule frontRight;
-    @Mock
-    private SwerveModule backLeft;
-    @Mock
-    private SwerveModule backRight;
+    @Spy
+    private SwerveModule frontLeft = new SwerveModule(new SwerveModuleIO() {}, "FrontLeft");
+    @Spy
+    private SwerveModule frontRight = new SwerveModule(new SwerveModuleIO() {}, "FrontRight");
+    @Spy
+    private SwerveModule backLeft = new SwerveModule(new SwerveModuleIO() {}, "BackLeft");
+    @Spy
+    private SwerveModule backRight = new SwerveModule(new SwerveModuleIO() {}, "BackRight");
 
     private Swerve swerve;
 
@@ -67,16 +70,6 @@ class SwerveTest {
 
     @Test
     void periodic() {
-        when(frontLeft.getState()).thenReturn(new SwerveModuleState());
-        when(frontRight.getState()).thenReturn(new SwerveModuleState());
-        when(backLeft.getState()).thenReturn(new SwerveModuleState());
-        when(backRight.getState()).thenReturn(new SwerveModuleState());
-
-        when(frontLeft.getLastDesiredState()).thenReturn(new SwerveModuleState());
-        when(frontRight.getLastDesiredState()).thenReturn(new SwerveModuleState());
-        when(backLeft.getLastDesiredState()).thenReturn(new SwerveModuleState());
-        when(backRight.getLastDesiredState()).thenReturn(new SwerveModuleState());
-
         when(gyro.getYawRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
 
         swerve.periodic();
@@ -156,11 +149,6 @@ class SwerveTest {
 
     @Test
     void getRobotRelativeSpeeds() {
-        when(frontLeft.getState()).thenReturn(new SwerveModuleState());
-        when(frontRight.getState()).thenReturn(new SwerveModuleState());
-        when(backLeft.getState()).thenReturn(new SwerveModuleState());
-        when(backRight.getState()).thenReturn(new SwerveModuleState());
-
         final ChassisSpeeds chassisSpeeds = swerve.getRobotRelativeSpeeds();
         final ChassisSpeeds zero = new ChassisSpeeds();
 
@@ -171,11 +159,6 @@ class SwerveTest {
 
     @Test
     void getFieldRelativeSpeeds() {
-        when(frontLeft.getState()).thenReturn(new SwerveModuleState());
-        when(frontRight.getState()).thenReturn(new SwerveModuleState());
-        when(backLeft.getState()).thenReturn(new SwerveModuleState());
-        when(backRight.getState()).thenReturn(new SwerveModuleState());
-
         when(gyro.getYawRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
 
         final ChassisSpeeds chassisSpeeds = swerve.getFieldRelativeSpeeds();
@@ -188,166 +171,254 @@ class SwerveTest {
 
     @Test
     void getModuleStates() {
-        when(frontLeft.getState()).thenReturn(new SwerveModuleState());
-        when(frontRight.getState()).thenReturn(new SwerveModuleState());
-        when(backLeft.getState()).thenReturn(new SwerveModuleState());
-        when(backRight.getState()).thenReturn(new SwerveModuleState());
-
         final SwerveModuleState[] swerveModuleStates = swerve.getModuleStates();
-        assertEquals(4, swerveModuleStates.length);
 
+        assertEquals(4, swerveModuleStates.length);
         assertArrayEquals(new SwerveModuleState[] {
-                new SwerveModuleState(),
-                new SwerveModuleState(),
-                new SwerveModuleState(),
-                new SwerveModuleState()
+                frontLeft.getState(),
+                frontRight.getState(),
+                backLeft.getState(),
+                backRight.getState()
         }, swerveModuleStates);
     }
 
-    @Test
-    void getModuleLastDesiredStates() {
-        when(frontLeft.getLastDesiredState()).thenReturn(new SwerveModuleState());
-        when(frontRight.getLastDesiredState()).thenReturn(new SwerveModuleState());
-        when(backLeft.getLastDesiredState()).thenReturn(new SwerveModuleState());
-        when(backRight.getLastDesiredState()).thenReturn(new SwerveModuleState());
+    static Stream<Arguments> provideSwerveModuleStates() {
+        return Stream.of(
+                Arguments.of(
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(0))
+                ),
+                Arguments.of(
+                        new SwerveModuleState(0.824, Rotation2d.fromDegrees(90)),
+                        new SwerveModuleState(1.524, Rotation2d.fromDegrees(-188.5)),
+                        new SwerveModuleState(-0.252, Rotation2d.fromRadians(Math.PI)),
+                        new SwerveModuleState(-1.1145, Rotation2d.fromRotations(-0.66))
+                )
+        );
+    }
+
+    private static boolean optimizedStateEquals(
+            final SwerveModuleState state,
+            final SwerveModuleState optimized
+    ) {
+        if (state.equals(optimized)) {
+            return true;
+        }
+
+        return new SwerveModuleState(-state.speedMetersPerSecond, state.angle.plus(Rotation2d.fromDegrees(180)))
+                .equals(optimized);
+    }
+
+    private static boolean optimizedStatesEquals(
+            final SwerveModuleState[] states,
+            final SwerveModuleState[] optimized
+    ) {
+        if (states.length != optimized.length) {
+            return false;
+        } else if (Arrays.equals(states, optimized)) {
+            return true;
+        }
+
+        for (int i = 0; i < states.length; i++) {
+            if (!optimizedStateEquals(states[i], optimized[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideSwerveModuleStates")
+    void getModuleLastDesiredStates(
+            final SwerveModuleState frontLeftState,
+            final SwerveModuleState frontRightState,
+            final SwerveModuleState backLeftState,
+            final SwerveModuleState backRightState
+    ) {
+        frontLeft.setDesiredState(frontLeftState);
+        frontRight.setDesiredState(frontRightState);
+        backLeft.setDesiredState(backLeftState);
+        backRight.setDesiredState(backRightState);
 
         final SwerveModuleState[] swerveModuleStates = swerve.getModuleLastDesiredStates();
-        assertEquals(4, swerveModuleStates.length);
 
-        assertArrayEquals(new SwerveModuleState[] {
-                new SwerveModuleState(),
-                new SwerveModuleState(),
-                new SwerveModuleState(),
-                new SwerveModuleState()
-        }, swerveModuleStates);
+        assertEquals(4, swerveModuleStates.length);
+        assertTrue(optimizedStatesEquals(new SwerveModuleState[] {
+                frontLeftState,
+                frontRightState,
+                backLeftState,
+                backRightState
+        }, swerveModuleStates));
     }
 
     @Test
     void getModulePositions() {
-        when(frontLeft.getPosition()).thenReturn(new SwerveModulePosition());
-        when(frontRight.getPosition()).thenReturn(new SwerveModulePosition());
-        when(backLeft.getPosition()).thenReturn(new SwerveModulePosition());
-        when(backRight.getPosition()).thenReturn(new SwerveModulePosition());
-
         final SwerveModulePosition[] swerveModulePositions = swerve.getModulePositions();
         assertEquals(4, swerveModulePositions.length);
 
         assertArrayEquals(new SwerveModulePosition[] {
-                new SwerveModulePosition(),
-                new SwerveModulePosition(),
-                new SwerveModulePosition(),
-                new SwerveModulePosition()
+                frontLeft.getPosition(),
+                frontRight.getPosition(),
+                backLeft.getPosition(),
+                backRight.getPosition()
         }, swerveModulePositions);
     }
 
-    // TODO: make this test better?
-    @Test
-    void driveWithStates() {
+    @ParameterizedTest
+    @MethodSource("provideSwerveModuleStates")
+    void driveWithStates(
+            final SwerveModuleState frontLeftState,
+            final SwerveModuleState frontRightState,
+            final SwerveModuleState backLeftState,
+            final SwerveModuleState backRightState
+    ) {
         swerve.drive(new SwerveModuleState[] {
-                new SwerveModuleState(),
-                new SwerveModuleState(),
-                new SwerveModuleState(),
-                new SwerveModuleState()
+                frontLeftState,
+                frontRightState,
+                backLeftState,
+                backRightState
         });
 
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+        assertTrue(optimizedStateEquals(frontLeftState, frontLeft.getLastDesiredState()));
+        assertTrue(optimizedStateEquals(frontRightState, frontRight.getLastDesiredState()));
+        assertTrue(optimizedStateEquals(backLeftState, backLeft.getLastDesiredState()));
+        assertTrue(optimizedStateEquals(backRightState, backRight.getLastDesiredState()));
     }
 
-    // TODO: make this test better?
     @Test
     void driveWithJoystick() {
         when(swerve.getYaw()).thenReturn(Rotation2d.fromDegrees(0));
 
         swerve.drive(0, 0, 0, true);
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+        assertEquals(new SwerveModuleState(), frontLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), frontRight.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backRight.getLastDesiredState());
     }
 
-    // TODO: make this test better?
     @Test
     void driveWithChassisSpeeds() {
         swerve.drive(new ChassisSpeeds());
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+
+        assertEquals(new SwerveModuleState(), frontLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), frontRight.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backRight.getLastDesiredState());
     }
 
     @Test
     void stop() {
         swerve.stop();
-        verify(frontLeft).stop();
-        verify(frontRight).stop();
-        verify(backLeft).stop();
-        verify(backRight).stop();
+
+        assertEquals(
+                new SwerveModuleState(0, frontLeft.getAngle()),
+                frontLeft.getLastDesiredState()
+        );
+        assertEquals(
+                new SwerveModuleState(0, frontRight.getAngle()),
+                frontRight.getLastDesiredState()
+        );
+        assertEquals(
+                new SwerveModuleState(0, backLeft.getAngle()),
+                backLeft.getLastDesiredState()
+        );
+        assertEquals(
+                new SwerveModuleState(0, backRight.getAngle()),
+                backRight.getLastDesiredState()
+        );
     }
 
-    // TODO: make this test better?
     @Test
     void faceDirection() {
         when(swerve.getYaw()).thenReturn(Rotation2d.fromDegrees(0));
 
         swerve.faceDirection(0, 0, Rotation2d.fromDegrees(0), true, 1);
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+        assertEquals(new SwerveModuleState(), frontLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), frontRight.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backRight.getLastDesiredState());
     }
 
-    // TODO: make this test better?
-    @Test
-    void rawSet() {
-        swerve.rawSet(0, 0, 0, 0, 0, 0, 0, 0);
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+    @ParameterizedTest
+    @MethodSource("provideRawSet")
+    void rawSet(
+            final double s1,
+            final double s2,
+            final double s3,
+            final double s4,
+            final double a1,
+            final double a2,
+            final double a3,
+            final double a4
+    ) {
+        swerve.rawSet(s1, s2, s3, s4, a1, a2, a3, a4);
+
+        assertTrue(optimizedStateEquals(
+                new SwerveModuleState(s1, Rotation2d.fromDegrees(a1)), frontLeft.getLastDesiredState()
+        ));
+        assertTrue(optimizedStateEquals(
+                new SwerveModuleState(s2, Rotation2d.fromDegrees(a2)), frontRight.getLastDesiredState()
+        ));
+        assertTrue(optimizedStateEquals(
+                new SwerveModuleState(s3, Rotation2d.fromDegrees(a3)), backLeft.getLastDesiredState()
+        ));
+        assertTrue(optimizedStateEquals(
+                new SwerveModuleState(s4, Rotation2d.fromDegrees(a4)), backRight.getLastDesiredState()
+        ));
+    }
+
+    static Stream<Arguments> provideRawSet() {
+        return Stream.of(
+                Arguments.of(0, 0, 0, 0, 0, 0, 0, 0),
+                Arguments.of(1, -1, -0.0825, 0.451, -45, 0.00245, -30, 180.22),
+                Arguments.of(-3.215, 1.1568, 0.982, 0, 0, 1.25, 60, -45),
+                Arguments.of(-0.09, -2.44, 1.11, 0.01, -1, 0.251, -90, -180)
+        );
     }
 
     @Test
     void zero() {
         swerve.zero();
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+
+        assertEquals(new SwerveModuleState(), frontLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), frontRight.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backLeft.getLastDesiredState());
+        assertEquals(new SwerveModuleState(), backRight.getLastDesiredState());
     }
 
-    // TODO: make this test better?
     @Test
     void wheelX() {
         swerve.wheelX();
-        verify(frontLeft).setDesiredState(any());
-        verify(frontRight).setDesiredState(any());
-        verify(backLeft).setDesiredState(any());
-        verify(backRight).setDesiredState(any());
+
+        assertEquals(
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                frontLeft.getLastDesiredState()
+        );
+        assertEquals(
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                frontRight.getLastDesiredState()
+        );
+        assertEquals(
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                backLeft.getLastDesiredState()
+        );
+        assertEquals(
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                backRight.getLastDesiredState()
+        );
     }
 
-    @Test
-    void setNeutralMode() {
-        final NeutralModeValue brake = NeutralModeValue.Brake;
-        final NeutralModeValue coast = NeutralModeValue.Coast;
+    @ParameterizedTest
+    @EnumSource(NeutralModeValue.class)
+    void setNeutralMode(final NeutralModeValue neutralMode) {
+        swerve.setNeutralMode(neutralMode);
 
-        if (Robot.isSimulation() && Constants.CTRE.DISABLE_NEUTRAL_MODE_IN_SIM) {
-            verifyNoMoreInteractions(frontLeft, frontRight, backLeft, backRight);
-            return;
-        }
-
-        swerve.setNeutralMode(brake);
-        verify(frontLeft).setNeutralMode(brake);
-        verify(frontRight).setNeutralMode(brake);
-        verify(backLeft).setNeutralMode(brake);
-        verify(backRight).setNeutralMode(brake);
-
-        swerve.setNeutralMode(coast);
-        verify(frontLeft).setNeutralMode(coast);
-        verify(frontRight).setNeutralMode(coast);
-        verify(backLeft).setNeutralMode(coast);
-        verify(backRight).setNeutralMode(coast);
+        verify(frontLeft).setNeutralMode(neutralMode);
+        verify(frontRight).setNeutralMode(neutralMode);
+        verify(backLeft).setNeutralMode(neutralMode);
+        verify(backRight).setNeutralMode(neutralMode);
     }
 }

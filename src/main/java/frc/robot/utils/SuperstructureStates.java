@@ -338,6 +338,30 @@ public class SuperstructureStates {
         }
     }
 
+    public enum IntakeMode {
+        CUBE(ElevatorState.ELEVATOR_CUBE, ClawState.CLAW_ANGLE_CUBE),
+        CONE(ElevatorState.ELEVATOR_STANDBY, ClawState.CLAW_INTAKING_CUBE);
+
+        private final ElevatorState elevatorState;
+        private final ClawState clawState;
+
+        IntakeMode(
+                final ElevatorState elevatorState,
+                final ClawState clawState
+        ) {
+            this.elevatorState = elevatorState;
+            this.clawState = clawState;
+        }
+
+        public ElevatorState getElevatorState() {
+            return elevatorState;
+        }
+
+        public ClawState getClawState() {
+            return clawState;
+        }
+    }
+
     public enum CANdleState {
         OFF(),
         YELLOW(200, 100, 0),

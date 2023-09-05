@@ -65,11 +65,6 @@ public interface Constants {
         // Assume 2mOhm resistance for voltage drop calculation
         double FALCON_MOTOR_RESISTANCE = 0.002;
 
-        // According to ben (a CTRE intern), adding VelocityTorqueCurrentFOC support is "very low priority"
-        // setting this to true configures the swerve to use VelocityVoltage instead when in simulation
-        // - keep this true until CTRE adds support for VelocityTorqueCurrentFOC
-        boolean USE_VELOCITY_VOLTAGE_IN_SIM = true;
-
         // Claw Sim
         interface Claw {
             Transform3d CARRIAGE_TO_ROOT_MOUNT_TRANSFORM = new Transform3d(
@@ -142,9 +137,16 @@ public interface Constants {
             }
         }
 
-        //        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0.913);
-        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0, 0, 0, 0.913);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(40, 0, 0, 0);
+        interface Modules {
+            // According to ben (a CTRE intern), adding VelocityTorqueCurrentFOC support is "very low priority"
+            // setting this to true configures the swerve to use VelocityVoltage instead when in simulation
+            // - keep this true until CTRE adds support for VelocityTorqueCurrentFOC
+            boolean USE_VELOCITY_VOLTAGE_IN_SIM = true;
+
+            //        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0.913);
+            Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0, 0, 0, 0.913);
+            Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(40, 0, 0, 0);
+        }
     }
 
     interface Modules {

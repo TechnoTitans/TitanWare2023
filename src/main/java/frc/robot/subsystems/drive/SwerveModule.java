@@ -133,13 +133,6 @@ public class SwerveModule {
     }
 
     /**
-     * @see SwerveModuleIO#stop()
-     */
-    public void stop() {
-        moduleIO.stop();
-    }
-
-    /**
      * Get the last desired {@link SwerveModuleState} set in {@link SwerveModule#setDesiredState(SwerveModuleState)}
      * <p>
      * Note: this {@link SwerveModuleState} has been optimized and does not guarantee that it matches the last set state

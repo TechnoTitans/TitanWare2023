@@ -8,10 +8,12 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -37,6 +39,7 @@ import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
 import frc.robot.utils.auto.*;
+import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
@@ -72,7 +75,10 @@ public class RobotContainer {
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
     public final SwerveDriveKinematics kinematics;
+
+    //Controllers
     public final DriveController holonomicDriveController;
+    public final DriveToPoseController holdPositionDriveController;
 
     //PDH
     public final PowerDistribution powerDistribution;
@@ -184,21 +190,23 @@ public class RobotContainer {
         elevatorVerticalMotorMain = new TalonFX(RobotMap.mainVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
         elevatorVerticalMotorFollower = new TalonFX(RobotMap.followerVerticalFalcon, RobotMap.CANIVORE_CAN_NAME);
         elevatorVerticalEncoder = new CANcoder(RobotMap.verticalElevatorEncoder, RobotMap.CANIVORE_CAN_NAME);
-        elevatorHorizontalEncoder = new CANcoder(RobotMap.horizontalElevatorEncoder);
-
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
+
+        elevatorHorizontalNeo = new TitanSparkMAX(
+                RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless
+        );
+        elevatorHorizontalEncoder = new CANcoder(RobotMap.horizontalElevatorEncoder);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
         elevatorHorizontalHighLimitSwitch = new DigitalInput(RobotMap.horizontalLimitHighSwitch);
+
+        clawTiltNeo = new TitanSparkMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
+        clawTiltEncoder = new CANcoder(RobotMap.clawTiltEncoder);
+        clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         clawMainWheelsMotor = new TalonSRX(RobotMap.clawMainWheelsMotor);
         clawFollowerWheelsMotor = new TalonSRX(RobotMap.clawFollowerWheelsMotor);
         clawOpenCloseMotor = new TalonSRX(RobotMap.clawOpenCloseMotor);
         clawOpenCloseEncoder = new CANCoder(RobotMap.clawOpenCloseEncoder);
-
-        elevatorHorizontalNeo = new TitanSparkMAX(RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawTiltNeo = new TitanSparkMAX(RobotMap.clawTiltNeo, CANSparkMaxLowLevel.MotorType.kBrushless);
-        clawTiltEncoder = new CANcoder(RobotMap.clawTiltEncoder);
-        clawTiltLimitSwitch = new DigitalInput(RobotMap.clawLimitSwitch);
 
         //Swerve Kinematics
         kinematics = new SwerveDriveKinematics(
@@ -317,6 +325,29 @@ public class RobotContainer {
                 true,
                 false
         );
+        holdPositionDriveController = new DriveToPoseController(
+                new ProfiledPIDController(
+                        5, 0, 0,
+                        new TrapezoidProfile.Constraints(
+                                Constants.Swerve.TRAJECTORY_MAX_SPEED,
+                                Constants.Swerve.TRAJECTORY_MAX_ACCELERATION
+                        )
+                ),
+                new ProfiledPIDController(
+                        5, 0, 0,
+                        new TrapezoidProfile.Constraints(
+                                Constants.Swerve.TRAJECTORY_MAX_SPEED,
+                                Constants.Swerve.TRAJECTORY_MAX_ACCELERATION
+                        )
+                ),
+                new ProfiledPIDController(
+                        1, 0, 0,
+                        new TrapezoidProfile.Constraints(
+                                Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED,
+                                Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION
+                        )
+                )
+        );
 
         //Vision
         photonDriveCamera = TitanCamera.DRIVER_CAM;
@@ -356,7 +387,7 @@ public class RobotContainer {
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(
-                swerve, holonomicDriveController, photonVision, claw, elevator, candleController
+                swerve, holonomicDriveController, holdPositionDriveController, photonVision, claw, elevator
         );
 
         //Driver Profile Selector

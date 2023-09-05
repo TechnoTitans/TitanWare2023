@@ -9,10 +9,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * Custom version of a {@link edu.wpi.first.math.controller.HolonomicDriveController} specifically for
  * following PathPlanner paths
  *
- * <p>This controller adds the following functionality over the WPILib version: - calculate() method
- * takes in a {@link PathPlannerState} directly - Continuous input is automatically enabled for the rotation
- * controller - Holonomic angular velocity is used as a feedforward for the rotation controller,
- * which no longer needs to be a {@link edu.wpi.first.math.controller.ProfiledPIDController}
+ * <p>
+ *    This controller adds the following functionality over the WPILib version: - calculate() method
+ *    takes in a {@link PathPlannerState} directly - Continuous input is automatically enabled for the rotation
+ *    controller - Holonomic angular velocity is used as a feedforward for the rotation controller,
+ *    which no longer needs to be a {@link edu.wpi.first.math.controller.ProfiledPIDController}
+ * </p>
  */
 
 public class DriveController {

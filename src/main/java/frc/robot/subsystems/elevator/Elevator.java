@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
-import frc.robot.utils.safety.MeasurementObserver;
 import frc.robot.utils.safety.SubsystemEStop;
 import org.littletonrobotics.junction.Logger;
 
@@ -33,6 +32,7 @@ public class Elevator extends SubsystemBase {
         this.elevatorSimSolver = elevatorSimSolver;
 
         // TODO: test that this stuff works
+        //  do we even really need this? reconsider its benefits
         this.eStop = new SubsystemEStop(
                 List.of(
 //                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(

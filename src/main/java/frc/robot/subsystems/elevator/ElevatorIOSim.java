@@ -20,14 +20,12 @@ import frc.robot.Constants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final ElevatorSimSolver elevatorSimSolver;
@@ -243,7 +241,8 @@ public class ElevatorIOSim implements ElevatorIO {
         SimUtils.setCTRECANCoderSimStateSensorDirection(
                 verticalElevatorEncoder, verticalElevatorEncoderSensorDirection
         );
-        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(verticalElevatorEncoder));
+        // TODO: this fix for CANCoder initialization in sim doesn't seem to work all the time...investigate!
+//        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(verticalElevatorEncoder));
 
         final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
         VEConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
@@ -289,7 +288,8 @@ public class ElevatorIOSim implements ElevatorIO {
         SimUtils.setCTRECANCoderSimStateSensorDirection(
                 horizontalElevatorEncoder, horizontalElevatorEncoderSensorDirection
         );
-        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(horizontalElevatorEncoder));
+        // TODO: this fix for CANCoder initialization in sim doesn't seem to work all the time...investigate!
+//        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(horizontalElevatorEncoder));
 
         horizontalElevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     }

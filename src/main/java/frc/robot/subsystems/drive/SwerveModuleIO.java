@@ -43,11 +43,6 @@ public interface SwerveModuleIO {
     default void setInputs(final double desiredDriverVelocity, final double desiredTurnerRotations) {}
 
     /**
-     * Stop the module
-     */
-    default void stop() {}
-
-    /**
      * Set the desired {@link NeutralModeValue} of the drive motor on this module
      * @param neutralMode the desired {@link NeutralModeValue}
      * @see NeutralModeValue

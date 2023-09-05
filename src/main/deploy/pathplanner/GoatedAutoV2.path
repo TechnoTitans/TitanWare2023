@@ -49,16 +49,16 @@
     },
     {
       "anchorPoint": {
-        "x": 1.7968116888614731,
-        "y": 4.328108180025883
+        "x": 1.802595423372665,
+        "y": 4.381612672316255
       },
       "prevControl": {
-        "x": 2.535227451407284,
-        "y": 4.365028968153175
+        "x": 2.5410111859184763,
+        "y": 4.4185334604435464
       },
       "nextControl": {
-        "x": 2.535227451407284,
-        "y": 4.365028968153175
+        "x": 2.5410111859184763,
+        "y": 4.4185334604435464
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
@@ -99,20 +99,20 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8214255476130004,
-        "y": 2.9497320899403707
+        "x": 1.802595423372665,
+        "y": 2.7237051746830776
       },
       "prevControl": {
-        "x": 1.8335758549280377,
-        "y": 4.964753599959557
+        "x": 1.8147457306877024,
+        "y": 4.738726684702262
       },
       "nextControl": {
-        "x": 1.802595423372665,
-        "y": -0.17307825524741868
+        "x": 1.7837652991323298,
+        "y": -0.39910517050471184
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 0.05,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -272,39 +272,39 @@
   ],
   "markers": [
     {
-      "position": 4.000000000000001,
+      "position": 4.0,
       "names": [
-        "score:high;"
+        "score:HIGH;"
       ]
     },
     {
       "position": 6.0,
       "names": [
-        "score:high;"
+        "score:HIGH;"
       ]
     },
     {
       "position": 0.2,
       "names": [
-        "intake:cube;"
+        "intake:CUBE;"
       ]
     },
     {
       "position": 2.2,
       "names": [
-        "intake:cone;"
+        "intake:CONE;"
       ]
     },
     {
       "position": 2.0,
       "names": [
-        "score:high;"
+        "score:HIGH;"
       ]
     },
     {
       "position": 6.2,
       "names": [
-        "intake:cube;"
+        "intake:CUBE;"
       ]
     },
     {
@@ -322,7 +322,7 @@
     {
       "position": 4.2,
       "names": [
-        "intake:cone;"
+        "intake:CONE;"
       ]
     },
     {
@@ -340,13 +340,13 @@
     {
       "position": 8.0,
       "names": [
-        "score:high;"
+        "score:HIGH;"
       ]
     },
     {
       "position": 0.0,
       "names": [
-        "score:high;"
+        "score:HIGH;"
       ]
     }
   ]

@@ -85,14 +85,12 @@ public class ClawIOSim implements ClawIO {
 
         config();
 
-        //TODO: tune pid
+        //TODO: transfer tuned pid from real, then tune in sim
         this.tiltPID = new ProfiledPIDController(
                 3, 0, 0,
                 new TrapezoidProfile.Constraints(3, 5)
         );
 
-        //TODO: something wrong with reset here I think
-        // solved/mitigated for now (but untested) using waitForUpdate, check that this actually fixes the issue
         PIDUtils.resetProfiledPIDControllerWithStatusSignal(
                 tiltPID,
                 clawTiltEncoder.getAbsolutePosition().waitForUpdate(0.25),

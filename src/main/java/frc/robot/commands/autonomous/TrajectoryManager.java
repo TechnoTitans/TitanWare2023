@@ -7,33 +7,33 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
-import frc.robot.wrappers.leds.CandleController;
+import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 public class TrajectoryManager {
     private final Swerve swerve;
     private final DriveController controller;
+    private final DriveToPoseController holdPositionController;
     private final PhotonVision photonVision;
 
     private final Claw claw;
     private final Elevator elevator;
-    private final CandleController candleController;
 
     public TrajectoryManager(
             final Swerve swerve,
             final DriveController controller,
+            final DriveToPoseController holdPositionController,
             final PhotonVision photonVision,
             final Claw claw,
-            final Elevator elevator,
-            final CandleController candleController
+            final Elevator elevator
     ) {
         this.swerve = swerve;
         this.controller = controller;
+        this.holdPositionController = holdPositionController;
         this.photonVision = photonVision;
 
         this.claw = claw;
         this.elevator = elevator;
-        this.candleController = candleController;
     }
 
     public TitanTrajectory getTrajectoryFromPath(
@@ -42,8 +42,12 @@ public class TrajectoryManager {
             final double maxAccel,
             final boolean reverseTrajectory
     ) {
+        final TrajectoryFollower.FollowerContext followerContext =
+                new TrajectoryFollower.FollowerContext(elevator, claw);
+
         return TitanTrajectory.fromPathPlannerTrajectory(
-                PathPlanner.loadPath(trajectoryDir, maxVel, maxAccel, reverseTrajectory)
+                PathPlanner.loadPath(trajectoryDir, maxVel, maxAccel, reverseTrajectory),
+                followerContext
         );
     }
 
@@ -53,23 +57,29 @@ public class TrajectoryManager {
         );
     }
 
-    public TrajectoryFollower getCommand(final AutoOption autoOption) {
-        final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
-        return new TrajectoryFollower(
-                swerve, controller, photonVision, trajectory, true, claw, elevator, candleController
-        );
-    }
-
     public TrajectoryFollower getCommand(final TitanTrajectory trajectory) {
+        // TODO: what happens if transformForAlliance is true?
         return new TrajectoryFollower(
                 swerve,
                 controller,
+                holdPositionController,
                 photonVision,
                 trajectory,
                 false,
-                claw,
-                elevator,
-                candleController
+                trajectory.getFollowerContext()
+        );
+    }
+
+    public TrajectoryFollower getCommand(final AutoOption autoOption) {
+        final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
+        return new TrajectoryFollower(
+                swerve,
+                controller,
+                holdPositionController,
+                photonVision,
+                trajectory,
+                true,
+                trajectory.getFollowerContext()
         );
     }
 
