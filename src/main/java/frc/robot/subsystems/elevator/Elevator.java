@@ -95,14 +95,14 @@ public class Elevator extends SubsystemBase {
         elevatorIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
 
-        Logger.getInstance().recordOutput("HorizontalElevatorMotorDutyCycle", inputs.horizontalElevatorMotorDutyCycle);
-        Logger.getInstance().recordOutput("HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
-        Logger.getInstance().recordOutput("HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
-        Logger.getInstance().recordOutput("HEControlInput", desiredState.getHEControlInput());
+        Logger.getInstance().recordOutput(logKey + "/HorizontalElevatorMotorDutyCycle", inputs.horizontalElevatorMotorDutyCycle);
+        Logger.getInstance().recordOutput(logKey + "/HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
+        Logger.getInstance().recordOutput(logKey + "/HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
+        Logger.getInstance().recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
 
-        Logger.getInstance().recordOutput("VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
-        Logger.getInstance().recordOutput("VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
-        Logger.getInstance().recordOutput("VEControlInput", desiredState.getVEControlInput());
+        Logger.getInstance().recordOutput(logKey + "/VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
+        Logger.getInstance().recordOutput(logKey + "/VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
+        Logger.getInstance().recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
 
         eStop.periodic();
 

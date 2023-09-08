@@ -175,11 +175,11 @@ public class ClawSimSolver {
             Pose3d clawRootPose,
             Pose3d clawPose
     ) {
-        public void log(final String root) {
+        public void log(final String logKey) {
             Logger.getInstance()
-                    .recordOutput(root + "/ClawRootPose", clawRootPose);
+                    .recordOutput(logKey + "/ClawRootPose", clawRootPose);
             Logger.getInstance()
-                    .recordOutput(root + "/ClawPose", clawPose);
+                    .recordOutput(logKey + "/ClawPose", clawPose);
         }
     }
 }

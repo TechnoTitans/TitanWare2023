@@ -23,11 +23,11 @@ import static org.mockito.Mockito.verify;
 class SimUtilsTest {
 
     @Spy
-    private TalonFX talonFX = new TalonFX(0);
+    private final TalonFX talonFX = new TalonFX(0);
     private final TalonFXSimState talonFXSimState = talonFX.getSimState();
 
     @Spy
-    private CANcoder canCoder = new CANcoder(0);
+    private final CANcoder canCoder = new CANcoder(0);
     private final CANcoderSimState cancoderSimState = canCoder.getSimState();
 
     @BeforeAll

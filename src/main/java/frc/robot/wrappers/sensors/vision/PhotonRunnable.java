@@ -19,6 +19,7 @@ public class PhotonRunnable implements Runnable {
     private final PhotonCamera photonCamera;
     private final PhotonPoseEstimator poseEstimator;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedPose = new AtomicReference<>();
+    private final String logKey = "PoseEstimator";
     /**
      * A stable {@link AtomicReference} to a {@link EstimatedRobotPose}, this does NOT get set to null after we get
      * the estimated pose, thus, it is stable and represents the last estimated pose.
@@ -38,15 +39,15 @@ public class PhotonRunnable implements Runnable {
 
     private void updatePoseEstimator(final PhotonPipelineResult photonPipelineResult) {
         Logger.getInstance().recordOutput(
-                "PoseEstimator/PipelineResultTargets",
+                logKey + "/PipelineResultTargets",
                 photonPipelineResult.targets.stream().mapToDouble(PhotonTrackedTarget::getFiducialId).toArray()
         );
 
-        Logger.getInstance().recordOutput("PoseEstimator/PrimaryStrategy", poseEstimator.getPrimaryStrategy().toString());
+        Logger.getInstance().recordOutput(logKey + "/PrimaryStrategy", poseEstimator.getPrimaryStrategy().toString());
 
         final Optional<EstimatedRobotPose> optionalEstimatedRobotPose = poseEstimator.update(photonPipelineResult);
 
-        Logger.getInstance().recordOutput("PoseEstimator/OptionalIsPresent", optionalEstimatedRobotPose.isPresent());
+        Logger.getInstance().recordOutput(logKey + "/OptionalIsPresent", optionalEstimatedRobotPose.isPresent());
         optionalEstimatedRobotPose.ifPresent(estimatedRobotPose -> {
             atomicEstimatedPose.set(estimatedRobotPose);
             atomicLastStableEstimatedPose.set(estimatedRobotPose);

@@ -29,7 +29,7 @@ import org.littletonrobotics.junction.Logger;
 import java.util.EnumSet;
 
 public class TrajectoryAutoAlignment extends CommandBase {
-    protected static final String logKey = "AutoAlign/";
+    protected static final String logKey = "AutoAlign";
 
     private static NTGridNode SelectedNTGridNode = NTGridNode.UNKNOWN;
     private static final NetworkTable NTGameNodeTable = NetworkTableInstance.getDefault().getTable("GameNodeSelector");
@@ -106,7 +106,7 @@ public class TrajectoryAutoAlignment extends CommandBase {
         }
 
         Logger.getInstance().recordOutput(
-                logKey + "TrajectoryAlignmentZone",
+                logKey + "/TrajectoryAlignmentZone",
                 trajectoryAlignmentZone.toString()
         );
 
@@ -121,13 +121,13 @@ public class TrajectoryAutoAlignment extends CommandBase {
                 final GridNode gridNode = GridNode.getFromNT(SelectedNTGridNode).orElse(null);
 
                 Logger.getInstance().recordOutput(
-                        logKey + "NTGridNodeId", ntGridNodeId
+                        logKey + "/NTGridNodeId", ntGridNodeId
                 );
                 Logger.getInstance().recordOutput(
-                        logKey + "NTGridNode", SelectedNTGridNode.toString()
+                        logKey + "/NTGridNode", SelectedNTGridNode.toString()
                 );
                 Logger.getInstance().recordOutput(
-                        logKey + "GridNode", (gridNode != null) ? gridNode.toString() : "None"
+                        logKey + "/GridNode", (gridNode != null) ? gridNode.toString() : "None"
                 );
 
                 if (gridNode == null) {
@@ -190,7 +190,7 @@ public class TrajectoryAutoAlignment extends CommandBase {
                     .build();
 
             Logger.getInstance().recordOutput(
-                    logKey + "Trajectory",
+                    logKey + "/Trajectory",
                     LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
             );
 
@@ -199,13 +199,13 @@ public class TrajectoryAutoAlignment extends CommandBase {
 
         //Score Sequence
         Logger.getInstance().recordOutput(
-                logKey + "AlignmentZone", directAlignmentZone.toString()
+                logKey + "/AlignmentZone", directAlignmentZone.toString()
         );
         Logger.getInstance().recordOutput(
-                logKey + "AlignmentPosition", desiredAlignmentPosition.toString()
+                logKey + "/AlignmentPosition", desiredAlignmentPosition.toString()
         );
         Logger.getInstance().recordOutput(
-                logKey + "TargetPose", targetPose
+                logKey + "/TargetPose", targetPose
         );
 
         switch (directAlignmentZone.getAlignmentZoneType()) {
@@ -215,9 +215,7 @@ public class TrajectoryAutoAlignment extends CommandBase {
                     commandGroup.addCommands(
                             lineUpToGrid,
                             afterElevatorClawCommand,
-                            Commands.runOnce(() -> {
-                                NTGridNodePublisher.set(NTGridNode.UNKNOWN.getNtID());
-                            })
+                            Commands.runOnce(() -> NTGridNodePublisher.set(NTGridNode.UNKNOWN.getNtID()))
                     );
                 }
             }
@@ -267,6 +265,6 @@ public class TrajectoryAutoAlignment extends CommandBase {
             commandGroup.cancel();
         }
 
-        Logger.getInstance().recordOutput(logKey + "IsActive", false);
+        Logger.getInstance().recordOutput(logKey + "/IsActive", false);
     }
 }

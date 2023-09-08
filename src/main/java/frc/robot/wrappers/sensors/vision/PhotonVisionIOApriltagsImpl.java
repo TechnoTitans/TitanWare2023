@@ -50,7 +50,7 @@ public class PhotonVisionIOApriltagsImpl implements PhotonVisionIO {
 
         this.canRun = apriltagFieldLayout != null;
         if (!isReal) {
-            this.visionSystemSim = new VisionSystemSim(PhotonVision.logKey);
+            this.visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
             this.visionSystemSim.addVisionTargets(PhotonVision.apriltagFieldLayout);
 
             this.photonCameraSims = apriltagCameras

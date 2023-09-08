@@ -39,13 +39,13 @@ class SwerveTest {
     private PhotonVision photonVision;
 
     @Spy
-    private SwerveModule frontLeft = new SwerveModule(new SwerveModuleIO() {}, "FrontLeft");
+    private final SwerveModule frontLeft = new SwerveModule(new SwerveModuleIO() {}, "FrontLeft");
     @Spy
-    private SwerveModule frontRight = new SwerveModule(new SwerveModuleIO() {}, "FrontRight");
+    private final SwerveModule frontRight = new SwerveModule(new SwerveModuleIO() {}, "FrontRight");
     @Spy
-    private SwerveModule backLeft = new SwerveModule(new SwerveModuleIO() {}, "BackLeft");
+    private final SwerveModule backLeft = new SwerveModule(new SwerveModuleIO() {}, "BackLeft");
     @Spy
-    private SwerveModule backRight = new SwerveModule(new SwerveModuleIO() {}, "BackRight");
+    private final SwerveModule backRight = new SwerveModule(new SwerveModuleIO() {}, "BackRight");
 
     private Swerve swerve;
 

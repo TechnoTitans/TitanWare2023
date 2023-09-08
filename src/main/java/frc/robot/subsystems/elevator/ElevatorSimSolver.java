@@ -370,37 +370,37 @@ public class ElevatorSimSolver {
     ) {
         /**
          * Log all information contained in this {@link ElevatorSimSolver.ElevatorSimState}
-         * @param root the root logging key (with no suffixed "/")
+         * @param logKey the root logging key (with no suffixed "/")
          */
-        public void log(final String root) {
+        public void log(final String logKey) {
             Logger.getInstance()
-                    .recordOutput(root + "/ElevatorRootPose", elevatorRootPose);
+                    .recordOutput(logKey + "/ElevatorRootPose", elevatorRootPose);
             Logger.getInstance()
-                    .recordOutput(root + "/VerticalStageOneLowerBoundPose", verticalStageOneLowerBoundPose);
+                    .recordOutput(logKey + "/VerticalStageOneLowerBoundPose", verticalStageOneLowerBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/VerticalStageOneCenterPose", verticalStageOneCenterPose);
+                    .recordOutput(logKey + "/VerticalStageOneCenterPose", verticalStageOneCenterPose);
             Logger.getInstance()
-                    .recordOutput(root + "/VerticalStageOneUpperBoundPose", verticalStageOneUpperBoundPose);
+                    .recordOutput(logKey + "/VerticalStageOneUpperBoundPose", verticalStageOneUpperBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/VerticalStageTwoLowerBoundPose", verticalStageTwoLowerBoundPose);
+                    .recordOutput(logKey + "/VerticalStageTwoLowerBoundPose", verticalStageTwoLowerBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/VerticalStageTwoCenterPose", verticalStageTwoCenterPose);
+                    .recordOutput(logKey + "/VerticalStageTwoCenterPose", verticalStageTwoCenterPose);
             Logger.getInstance()
-                    .recordOutput(root + "/VerticalStageTwoUpperBoundPose", verticalStageTwoUpperBoundPose);
+                    .recordOutput(logKey + "/VerticalStageTwoUpperBoundPose", verticalStageTwoUpperBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalRootPose", horizontalRootPose);
+                    .recordOutput(logKey + "/HorizontalRootPose", horizontalRootPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalStageOneCenterPose", horizontalStageOneCenterPose);
+                    .recordOutput(logKey + "/HorizontalStageOneCenterPose", horizontalStageOneCenterPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalStageOneBackBoundPose", horizontalStageOneBackBoundPose);
+                    .recordOutput(logKey + "/HorizontalStageOneBackBoundPose", horizontalStageOneBackBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalStageOneFrontBoundPose", horizontalStageOneFrontBoundPose);
+                    .recordOutput(logKey + "/HorizontalStageOneFrontBoundPose", horizontalStageOneFrontBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalStageTwoCenterPose", horizontalStageTwoCenterPose);
+                    .recordOutput(logKey + "/HorizontalStageTwoCenterPose", horizontalStageTwoCenterPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalStageTwoBackBoundPose", horizontalStageTwoBackBoundPose);
+                    .recordOutput(logKey + "/HorizontalStageTwoBackBoundPose", horizontalStageTwoBackBoundPose);
             Logger.getInstance()
-                    .recordOutput(root + "/HorizontalStageTwoFrontBoundPose", horizontalStageTwoFrontBoundPose);
+                    .recordOutput(logKey + "/HorizontalStageTwoFrontBoundPose", horizontalStageTwoFrontBoundPose);
         }
     }
 }

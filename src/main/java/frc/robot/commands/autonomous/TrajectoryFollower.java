@@ -30,6 +30,7 @@ public class TrajectoryFollower extends CommandBase {
     //TODO: this max value need to be tuned/verified (will depend on how well our auto pid is)
     public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
     public static boolean HAS_AUTO_RAN = false;
+    private final String logKey = "Auto";
 
     private final TitanTrajectory trajectory;
     private TitanTrajectory transformedTrajectory;
@@ -123,7 +124,7 @@ public class TrajectoryFollower extends CommandBase {
         hasMarkers = !eventMarkerNavigableMap.isEmpty();
 
         Logger.getInstance().recordOutput(
-                "Auto/Markers",
+                logKey + "/Markers",
                 eventMarkerNavigableMap.values().stream().map(
                         eventMarker -> new Pose2d(eventMarker.positionMeters, Rotation2d.fromDegrees(0))
                 ).toArray(Pose2d[]::new)
@@ -139,11 +140,11 @@ public class TrajectoryFollower extends CommandBase {
             PathPlannerServer.sendPathFollowingData(positionToHold, currentPose);
         }
 
-        Logger.getInstance().recordOutput("Auto/EstimatedPose", new Pose2d(
+        Logger.getInstance().recordOutput(logKey + "/EstimatedPose", new Pose2d(
                 currentPose.getTranslation(),
                 Rotation2d.fromRadians(MathUtil.angleModulus(currentPose.getRotation().getRadians()))
         ));
-        Logger.getInstance().recordOutput("Auto/WantedState", positionToHold);
+        Logger.getInstance().recordOutput(logKey + "/WantedState", positionToHold);
 
         swerve.drive(targetChassisSpeeds);
     }
@@ -158,11 +159,11 @@ public class TrajectoryFollower extends CommandBase {
             ), currentPose);
         }
 
-        Logger.getInstance().recordOutput("Auto/EstimatedPose", new Pose2d(
+        Logger.getInstance().recordOutput(logKey + "/EstimatedPose", new Pose2d(
                 currentPose.getTranslation(),
                 Rotation2d.fromRadians(MathUtil.angleModulus(currentPose.getRotation().getRadians()))
         ));
-        Logger.getInstance().recordOutput("Auto/WantedState", new Pose2d(
+        Logger.getInstance().recordOutput(logKey + "/WantedState", new Pose2d(
                 state.poseMeters.getX(),
                 state.poseMeters.getY(),
                 state.holonomicRotation
@@ -214,8 +215,8 @@ public class TrajectoryFollower extends CommandBase {
         final boolean isWheelX = followerContext.isWheelX();
         final boolean isPaused = followerContext.isPaused();
 
-        Logger.getInstance().recordOutput("Auto/IsWheelX", isWheelX);
-        Logger.getInstance().recordOutput("Auto/IsPaused", isPaused);
+        Logger.getInstance().recordOutput(logKey + "/IsWheelX", isWheelX);
+        Logger.getInstance().recordOutput(logKey + "/IsPaused", isPaused);
 
         wheelX(isWheelX);
         dtPause(isPaused);
@@ -264,13 +265,10 @@ public class TrajectoryFollower extends CommandBase {
             final double currentToCeilingDistance = ceilingMarker.positionMeters.getDistance(currentTranslation);
             final double currentToFloorDistance = floorMarker.positionMeters.getDistance(currentTranslation);
 
-            nextMarker = currentToCeilingDistance > currentToFloorDistance
-                    ? floorMarker
-                    : ceilingMarker;
+            nextMarker = currentToCeilingDistance > currentToFloorDistance ? floorMarker : ceilingMarker;
         }
 
-        final double distanceToNextMarker = nextMarker.positionMeters
-                .getDistance(currentPose.getTranslation());
+        final double distanceToNextMarker = nextMarker.positionMeters.getDistance(currentPose.getTranslation());
 
         if (lastRanMarker == nextMarker || distanceToNextMarker > MAX_DISTANCE_DIFF_METERS) {
             return;
@@ -284,7 +282,6 @@ public class TrajectoryFollower extends CommandBase {
 
     public static class FollowerContext {
         private final Elevator elevator;
-
         private final Claw claw;
 
         private boolean paused;

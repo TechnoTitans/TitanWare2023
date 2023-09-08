@@ -251,7 +251,7 @@ public enum AlignmentZone {
     public enum TrajectoryAlignmentSide {
         LEFT,
         RIGHT,
-        SINGLE_SUBSTATION;
+        SINGLE_SUBSTATION
     }
 
     public enum TrajectoryAlignmentSideMapping {

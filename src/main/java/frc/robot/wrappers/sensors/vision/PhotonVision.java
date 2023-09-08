@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class PhotonVision extends SubsystemBase {
-    protected static final String logKey = "PhotonVision";
+    protected static final String photonLogKey = "PhotonVision";
     protected static final String odometryLogKey = "Odometry";
 
     public static final double TRANSLATION_VELOCITY_TOLERANCE = 0.1;
@@ -214,10 +214,10 @@ public class PhotonVision extends SubsystemBase {
         final double translationVel = Math.hypot(xVel, yVel);
 
         Logger.getInstance().recordOutput(
-                logKey + "/TranslationVel", translationVel
+                photonLogKey + "/TranslationVel", translationVel
         );
         Logger.getInstance().recordOutput(
-                logKey + "/ThetaVel", thetaVel
+                photonLogKey + "/ThetaVel", thetaVel
         );
 
         // assume hypot is positive (>= 0)
@@ -246,7 +246,7 @@ public class PhotonVision extends SubsystemBase {
                     shouldRejectEstimation(lastSavedEstimatedPose, estimatedRobotPose);
 
             Logger.getInstance().recordOutput(
-                    logKey + "RejectionReason", rejectionReason.getId()
+                    photonLogKey + "RejectionReason", rejectionReason.getId()
             );
 
             if (rejectionReason.wasRejected()) {
@@ -287,27 +287,27 @@ public class PhotonVision extends SubsystemBase {
         }
 
         Logger.getInstance().recordOutput(
-                PhotonVision.logKey + "/EstimatedRobotPose3dsByCamera",
+                PhotonVision.photonLogKey + "/EstimatedRobotPose3dsByCamera",
                 estimatedPoses.toArray(Pose3d[]::new)
         );
 
         Logger.getInstance().recordOutput(
-                PhotonVision.logKey + "/EstimatedRobotPose2dsByCamera",
+                PhotonVision.photonLogKey + "/EstimatedRobotPose2dsByCamera",
                 estimatedPoses.stream().map(Pose3d::toPose2d).toArray(Pose2d[]::new)
         );
 
         Logger.getInstance().recordOutput(
-                PhotonVision.logKey + "/ApriltagIds",
+                PhotonVision.photonLogKey + "/ApriltagIds",
                 apriltagIds.stream().mapToLong(Number::longValue).toArray()
         );
 
         Logger.getInstance().recordOutput(
-                PhotonVision.logKey + "/ApriltagPose3ds",
+                PhotonVision.photonLogKey + "/ApriltagPose3ds",
                 apriltagPoses.toArray(Pose3d[]::new)
         );
 
         Logger.getInstance().recordOutput(
-                PhotonVision.logKey + "/ApriltagPose2ds",
+                PhotonVision.photonLogKey + "/ApriltagPose2ds",
                 apriltagPoses.stream().map(Pose3d::toPose2d).toArray(Pose2d[]::new)
         );
     }
@@ -317,7 +317,7 @@ public class PhotonVision extends SubsystemBase {
         photonVisionIO.periodic();
 
         photonVisionIO.updateInputs(inputs);
-        Logger.getInstance().processInputs(logKey, inputs);
+        Logger.getInstance().processInputs(photonLogKey, inputs);
 
         // Update and log PhotonVision results
         update();
