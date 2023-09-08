@@ -137,11 +137,11 @@ public class DriveController {
             return ChassisSpeeds.fromFieldRelativeSpeeds(xFF, yFF, rotationFF, currentPose.getRotation());
         }
 
-        double xFeedback =
+        final double xFeedback =
                 this.xController.calculate(currentPose.getX(), wantedState.poseMeters.getX());
-        double yFeedback =
+        final double yFeedback =
                 this.yController.calculate(currentPose.getY(), wantedState.poseMeters.getY());
-        double rotationFeedback =
+        final double rotationFeedback =
                 this.rotationController.calculate(
                         currentPose.getRotation().getRadians(), wantedState.holonomicRotation.getRadians());
 

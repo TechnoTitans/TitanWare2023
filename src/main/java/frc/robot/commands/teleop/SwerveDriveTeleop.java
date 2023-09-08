@@ -31,7 +31,7 @@ public class SwerveDriveTeleop extends CommandBase {
     @Override
     public void execute() {
         final double matchTime = DriverStation.getMatchTime();
-        if (matchTime >= 0 && matchTime < Constants.MATCH_END_THRESHOLD_SEC) {
+        if (matchTime >= 0 && matchTime <= Constants.MATCH_END_THRESHOLD_SEC) {
             swerve.wheelX();
             return;
         }

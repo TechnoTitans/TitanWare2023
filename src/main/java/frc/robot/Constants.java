@@ -46,7 +46,7 @@ public interface Constants {
     }
 
     interface PathPlanner {
-        boolean USE_PATH_PLANNER_SERVER = true;
+        boolean USE_PATH_PLANNER_SERVER = false;
         int SERVER_PORT = 1683;
 
         //TODO: it would be better if we could check if we're in a real match
@@ -96,7 +96,7 @@ public interface Constants {
         // Elevator Sim (all length/height units are meters)
         interface Elevator {
             interface Vertical {
-                Pose3d ROBOT_TO_ROOT_MOUNT_POSE = new Pose3d(0, 0, 0, new Rotation3d());
+                Pose3d ROBOT_TO_ROOT_MOUNT_POSE = new Pose3d();
 
                 double GEARING = 1 / 0.0938;
                 // TODO: find exact (this should be close)
@@ -180,7 +180,7 @@ public interface Constants {
         double TRAJECTORY_MAX_ANGULAR_ACCELERATION = Math.PI;
         double ROTATE_P = 1;
 
-        boolean USE_SWERVE_SKEW_FIX = false;
+        boolean USE_SWERVE_SKEW_FIX = true;
 
         //in meters, swerve modules relative to the center of robot
         Translation2d FL_OFFSET = new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2); //front left
