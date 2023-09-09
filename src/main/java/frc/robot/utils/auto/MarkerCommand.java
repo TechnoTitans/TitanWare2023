@@ -61,7 +61,7 @@ public enum MarkerCommand {
             List.of(ArgumentChecker.enumChecker(SuperstructureStates.IntakeMode.class)),
             ((followerContext, args) -> {
                 final SuperstructureStates.IntakeMode intakeMode =
-                        SuperstructureStates.IntakeMode.valueOf(args.get(0));
+                        SuperstructureStates.IntakeMode.valueOf(args.get(0).toUpperCase());
 
                 return new ElevatorClawCommand.Builder(followerContext.getElevator(), followerContext.getClaw())
                         .withElevatorClawStates(
@@ -94,20 +94,20 @@ public enum MarkerCommand {
     WAIT(
             "wait",
             List.of(ArgumentChecker.doubleChecker()),
-            ((followerContext, args) -> Commands.waitSeconds(Double.parseDouble(args.get(0))))
+            ((followerContext, args) -> Commands.waitSeconds(Double.parseDouble(args.get(0).toUpperCase())))
     ),
     WHEEL_X(
             "wheelx",
             List.of(ArgumentChecker.booleanChecker()),
             ((followerContext, args) -> Commands.runOnce(
-                    () -> followerContext.setWheelX(Boolean.parseBoolean(args.get(0)))
+                    () -> followerContext.setWheelX(Boolean.parseBoolean(args.get(0).toUpperCase()))
             ))
     ),
     DT_PAUSE(
             "dtpause",
             List.of(ArgumentChecker.booleanChecker()),
             ((followerContext, args) -> Commands.runOnce(
-                    () -> followerContext.setPaused(Boolean.parseBoolean(args.get(0)))
+                    () -> followerContext.setPaused(Boolean.parseBoolean(args.get(0).toUpperCase()))
             ))
     );
 

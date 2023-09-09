@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants;
+import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
@@ -40,7 +42,6 @@ public class TrajectoryAutoAlignment extends CommandBase {
 
     private static final StringTopic NTGridNodeNameTopic = NTGameNodeTable.getStringTopic("GridNodeName");
     private static final StringPublisher NTSelectedGridNodePublisher = NTGridNodeNameTopic.publish();
-
 
     static {
         NTGridNodePublisher.setDefault(SelectedNTGridNode.getNtID());
@@ -183,11 +184,17 @@ public class TrajectoryAutoAlignment extends CommandBase {
             final double endVelocity = (constraints.maxAcceleration * approxDistance) / constraints.maxVelocity;
 
             final TitanTrajectory trajectory = new TitanTrajectory.Builder()
-                    .withConstraints(TitanTrajectory.Constraints.getDefault())
+                    .withConstraints(new TitanTrajectory.Constraints(
+                    Constants.Swerve.TRAJECTORY_MAX_SPEED/2,
+                    Constants.Swerve.TRAJECTORY_MAX_ACCELERATION/2,
+                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED/2,
+                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION/2
+                    ))
+//                    .withConstraints(TitanTrajectory.Constraints.getDefault())
                     .add(currentPose, swerveChassisSpeeds)
                     .add(trajectoryTarget)
                     .withEndVelocityOverride(endVelocity)
-                    .build();
+                    .build(new TrajectoryFollower.FollowerContext(elevator, claw));
 
             Logger.getInstance().recordOutput(
                     logKey + "/Trajectory",

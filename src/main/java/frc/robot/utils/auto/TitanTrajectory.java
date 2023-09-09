@@ -64,16 +64,6 @@ public class TitanTrajectory extends PathPlannerTrajectory {
         );
     }
 
-    public TitanTrajectory(
-            final List<State> states,
-            final List<EventMarker> markers,
-            final StopEvent startStopEvent,
-            final StopEvent endStopEvent,
-            final boolean fromGUI
-    ) {
-        this(states, markers, startStopEvent, endStopEvent, fromGUI, null, Map.of());
-    }
-
     public TrajectoryFollower.FollowerContext getFollowerContext() {
         return followerContext;
     }
@@ -123,14 +113,16 @@ public class TitanTrajectory extends PathPlannerTrajectory {
     }
 
     public static TitanTrajectory fromNoMarkersPathPlannerTrajectory(
-            final PathPlannerTrajectory pathPlannerTrajectory
-    ) {
+            final PathPlannerTrajectory pathPlannerTrajectory,
+            final TrajectoryFollower.FollowerContext followerContext
+            ) {
         return new TitanTrajectory(
                 pathPlannerTrajectory.getStates(),
                 pathPlannerTrajectory.getMarkers(),
                 pathPlannerTrajectory.getStartStopEvent(),
                 pathPlannerTrajectory.getEndStopEvent(),
-                pathPlannerTrajectory.fromGUI
+                pathPlannerTrajectory.fromGUI,
+                followerContext
         );
     }
 
@@ -320,7 +312,7 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             return heading;
         }
 
-        public TitanTrajectory build() {
+        public TitanTrajectory build(final TrajectoryFollower.FollowerContext followerContext) {
             final List<PathPoint> regenerated = IntStream.range(0, pathPoints.size())
                     .mapToObj(i -> {
                         final PathPoint point = pathPoints.get(i);
@@ -345,7 +337,8 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                     .toList();
 
             return TitanTrajectory.fromNoMarkersPathPlannerTrajectory(
-                    PathPlanner.generatePath(constraints, regenerated)
+                    PathPlanner.generatePath(constraints, regenerated),
+                    followerContext
             );
         }
     }

@@ -387,7 +387,13 @@ public class RobotContainer {
 
         //Auto Commands
         trajectoryManager = new TrajectoryManager(
-                swerve, holonomicDriveController, holdPositionDriveController, photonVision, claw, elevator
+                swerve,
+                holonomicDriveController,
+                holdPositionDriveController,
+                candleController,
+                photonVision,
+                claw,
+                elevator
         );
 
         //Driver Profile Selector
@@ -415,7 +421,7 @@ public class RobotContainer {
                         Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addAutoOption(new AutoOption("DropAndCharge", Constants.CompetitionType.COMPETITION));
+        autoChooser.addAutoOption(new AutoOption("DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION));
         autoChooser.addAutoOption(
                 new AutoOption(
                         "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION

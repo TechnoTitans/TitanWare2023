@@ -272,8 +272,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
                     Commands.race(
                             Commands.waitSeconds(timeoutSec),
                             Commands.waitUntil(
-                                    () -> isClawState.apply(clawState) ||
-                                            !isDesiredClawState.apply(clawState)
+                                    () -> isClawState.apply(clawState) || !isDesiredClawState.apply(clawState)
                             )
                     )
             );

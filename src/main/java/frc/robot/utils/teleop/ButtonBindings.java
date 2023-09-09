@@ -112,8 +112,9 @@ public class ButtonBindings {
                 new ElevatorClawCommand.Builder(elevator, claw)
                         .endIfNotInState(SuperstructureStates.ElevatorClawStateType.SCORING)
                         .withClawState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
-                        .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
-                        .wait(0.3)
+                        //TODO: fix wait until state
+//                        .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
+                        .wait(0.8)
                         .withElevatorClawStates(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY, SuperstructureStates.ClawState.CLAW_STANDBY)
                         .build()
         );

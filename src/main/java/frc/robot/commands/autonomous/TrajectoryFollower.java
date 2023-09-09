@@ -16,9 +16,11 @@ import frc.robot.Constants;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.control.DriveToPoseController;
+import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
@@ -38,6 +40,7 @@ public class TrajectoryFollower extends CommandBase {
     private final Timer timer;
 
     private final Swerve swerve;
+    private final CandleController candleController;
     private final DriveController holonomicDriveController;
     private final DriveToPoseController holdPositionController;
     private final PhotonVision photonVision;
@@ -56,6 +59,7 @@ public class TrajectoryFollower extends CommandBase {
 
     public TrajectoryFollower(
             final Swerve swerve,
+            final CandleController candleController,
             final DriveController holonomicDriveController,
             final DriveToPoseController holdPositionController,
             final PhotonVision photonVision,
@@ -67,6 +71,7 @@ public class TrajectoryFollower extends CommandBase {
         this.eventMarkerNavigableMap = new TreeMap<>();
 
         this.swerve = swerve;
+        this.candleController = candleController;
         this.holonomicDriveController = holonomicDriveController;
         this.holdPositionController = holdPositionController;
         this.photonVision = photonVision;
@@ -129,6 +134,8 @@ public class TrajectoryFollower extends CommandBase {
                         eventMarker -> new Pose2d(eventMarker.positionMeters, Rotation2d.fromDegrees(0))
                 ).toArray(Pose2d[]::new)
         );
+
+        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.5);
 
         reset();
     }
@@ -232,6 +239,7 @@ public class TrajectoryFollower extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
+        candleController.setState(SuperstructureStates.CANdleState.OFF);
         swerve.stop();
         timer.stop();
     }
