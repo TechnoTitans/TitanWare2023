@@ -24,7 +24,7 @@ public enum MarkerCommand {
             ((followerContext, args) ->
                     new ElevatorClawCommand.Builder(followerContext.getElevator(), followerContext.getClaw())
                             .withClawState(
-                                    SuperstructureStates.ClawState.valueOf(args.get(0))
+                                    SuperstructureStates.ClawState.valueOf(args.get(0).toUpperCase())
                             )
                             .build()
             )
@@ -35,7 +35,7 @@ public enum MarkerCommand {
             ((followerContext, args) ->
                     new ElevatorClawCommand.Builder(followerContext.getElevator(), followerContext.getClaw())
                             .withElevatorState(
-                                    SuperstructureStates.ElevatorState.valueOf(args.get(0))
+                                    SuperstructureStates.ElevatorState.valueOf(args.get(0).toUpperCase())
                             )
                             .build()
             )
@@ -94,20 +94,20 @@ public enum MarkerCommand {
     WAIT(
             "wait",
             List.of(ArgumentChecker.doubleChecker()),
-            ((followerContext, args) -> Commands.waitSeconds(Double.parseDouble(args.get(0).toUpperCase())))
+            ((followerContext, args) -> Commands.waitSeconds(Double.parseDouble(args.get(0))))
     ),
     WHEEL_X(
             "wheelx",
             List.of(ArgumentChecker.booleanChecker()),
             ((followerContext, args) -> Commands.runOnce(
-                    () -> followerContext.setWheelX(Boolean.parseBoolean(args.get(0).toUpperCase()))
+                    () -> followerContext.setWheelX(Boolean.parseBoolean(args.get(0)))
             ))
     ),
     DT_PAUSE(
             "dtpause",
             List.of(ArgumentChecker.booleanChecker()),
             ((followerContext, args) -> Commands.runOnce(
-                    () -> followerContext.setPaused(Boolean.parseBoolean(args.get(0).toUpperCase()))
+                    () -> followerContext.setPaused(Boolean.parseBoolean(args.get(0)))
             ))
     );
 
@@ -121,7 +121,7 @@ public enum MarkerCommand {
 
     private static final Map<String, MarkerCommand> markerCommandMap = Arrays.stream(values())
                     .collect(Collectors.toUnmodifiableMap(
-                            MarkerCommand::getName,
+                            markerCommand -> markerCommand.getName().toUpperCase(),
                             markerCommand -> markerCommand
                     ));
 
@@ -142,7 +142,7 @@ public enum MarkerCommand {
             return Commands.none();
         }
 
-        final MarkerCommand markerCommand = markerCommandMap.get(args[0]);
+        final MarkerCommand markerCommand = markerCommandMap.get(args[0].toUpperCase());
         return markerCommand != null
                 ? markerCommand.command(followerContext, Arrays.stream(args).toList())
                 : Commands.none();
@@ -174,7 +174,7 @@ public enum MarkerCommand {
 
         while (argsCheckerIterator.hasNext() && argsIterator.hasNext()) {
             final ArgumentChecker<String> argumentChecker = argsCheckerIterator.next();
-            final String arg = argsIterator.next();
+            final String arg = argsIterator.next().toUpperCase();
 
             final boolean argIsOk = argumentChecker.check(arg);
             if (!argIsOk) {
