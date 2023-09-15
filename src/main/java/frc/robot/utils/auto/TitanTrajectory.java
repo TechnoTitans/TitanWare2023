@@ -91,7 +91,7 @@ public class TitanTrajectory extends PathPlannerTrajectory {
         final String[] splitStringCommands = markerCommands.split(MarkerCommand.COMMAND_DELIMITER);
 
         for (final String stringCommand : splitStringCommands) {
-            final Command command = MarkerCommand.get(stringCommand, followerContext);
+            final Command command = MarkerCommand.get(stringCommand.toUpperCase(), followerContext);
             commandGroup.addCommands(command);
         }
 

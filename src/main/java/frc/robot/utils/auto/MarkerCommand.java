@@ -24,7 +24,7 @@ public enum MarkerCommand {
             ((followerContext, args) ->
                     new ElevatorClawCommand.Builder(followerContext.getElevator(), followerContext.getClaw())
                             .withClawState(
-                                    SuperstructureStates.ClawState.valueOf(args.get(0).toUpperCase())
+                                    SuperstructureStates.ClawState.valueOf(args.get(0))
                             )
                             .build()
             )
@@ -35,7 +35,7 @@ public enum MarkerCommand {
             ((followerContext, args) ->
                     new ElevatorClawCommand.Builder(followerContext.getElevator(), followerContext.getClaw())
                             .withElevatorState(
-                                    SuperstructureStates.ElevatorState.valueOf(args.get(0).toUpperCase())
+                                    SuperstructureStates.ElevatorState.valueOf(args.get(0))
                             )
                             .build()
             )
@@ -61,7 +61,7 @@ public enum MarkerCommand {
             List.of(ArgumentChecker.enumChecker(SuperstructureStates.IntakeMode.class)),
             ((followerContext, args) -> {
                 final SuperstructureStates.IntakeMode intakeMode =
-                        SuperstructureStates.IntakeMode.valueOf(args.get(0).toUpperCase());
+                        SuperstructureStates.IntakeMode.valueOf(args.get(0));
 
                 return new ElevatorClawCommand.Builder(followerContext.getElevator(), followerContext.getClaw())
                         .withElevatorClawStates(
@@ -121,7 +121,7 @@ public enum MarkerCommand {
 
     private static final Map<String, MarkerCommand> markerCommandMap = Arrays.stream(values())
                     .collect(Collectors.toUnmodifiableMap(
-                            markerCommand -> markerCommand.getName().toUpperCase(),
+                            MarkerCommand::getName,
                             markerCommand -> markerCommand
                     ));
 
@@ -130,7 +130,7 @@ public enum MarkerCommand {
             final List<ArgumentChecker<String>> argumentCheckers,
             final BiFunction<TrajectoryFollower.FollowerContext, List<String>, Command> commandFunction
     ) {
-        this.name = name;
+        this.name = name.toUpperCase();
         this.argumentCheckers = argumentCheckers;
         this.argCount = argumentCheckers.size();
         this.commandFunction = commandFunction;
@@ -142,7 +142,7 @@ public enum MarkerCommand {
             return Commands.none();
         }
 
-        final MarkerCommand markerCommand = markerCommandMap.get(args[0].toUpperCase());
+        final MarkerCommand markerCommand = markerCommandMap.get(args[0]);
         return markerCommand != null
                 ? markerCommand.command(followerContext, Arrays.stream(args).toList())
                 : Commands.none();
@@ -174,7 +174,7 @@ public enum MarkerCommand {
 
         while (argsCheckerIterator.hasNext() && argsIterator.hasNext()) {
             final ArgumentChecker<String> argumentChecker = argsCheckerIterator.next();
-            final String arg = argsIterator.next().toUpperCase();
+            final String arg = argsIterator.next();
 
             final boolean argIsOk = argumentChecker.check(arg);
             if (!argIsOk) {
