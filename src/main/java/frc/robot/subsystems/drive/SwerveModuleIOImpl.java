@@ -17,6 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
+import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
@@ -37,6 +38,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     private final PositionVoltage positionVoltage;
 
     private final boolean isReal;
+    private final DeltaTime deltaTime;
 
     public SwerveModuleIOImpl(
             final TalonFX driveMotor,
@@ -79,6 +81,7 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
         this.positionVoltage = new PositionVoltage(0);
 
         this.isReal = Constants.CURRENT_MODE == Constants.RobotMode.REAL;
+        this.deltaTime = new DeltaTime();
 
         config();
     }
@@ -128,8 +131,9 @@ public class SwerveModuleIOImpl implements SwerveModuleIO {
     @Override
     public void periodic() {
         if (!isReal) {
-            driveSim.update(Constants.LOOP_PERIOD_SECONDS);
-            turnSim.update(Constants.LOOP_PERIOD_SECONDS);
+            final double dtSeconds = deltaTime.get();
+            driveSim.update(dtSeconds);
+            turnSim.update(dtSeconds);
         }
     }
 

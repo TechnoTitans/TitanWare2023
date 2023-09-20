@@ -18,6 +18,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.utils.SuperstructureStates;
+import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.rev.RevUtils;
@@ -29,6 +30,7 @@ import frc.robot.wrappers.motors.TitanSparkMAX;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final ElevatorSimSolver elevatorSimSolver;
+    private final DeltaTime deltaTime;
 
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
     private final CTREPhoenix6TalonFXSim verticalElevatorSimMotors;
@@ -78,6 +80,7 @@ public class ElevatorIOSim implements ElevatorIO {
             final ElevatorSimSolver elevatorSimSolver
     ) {
         this.elevatorSimSolver = elevatorSimSolver;
+        this.deltaTime = new DeltaTime();
 
         // Vertical Elevator
         this.verticalElevatorMotor = verticalElevatorMotor;
@@ -157,7 +160,7 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     private void updateSimulation() {
-        elevatorSimSolver.update(Constants.LOOP_PERIOD_SECONDS);
+        elevatorSimSolver.update(deltaTime.get());
         // TODO: do these checks need to be <= 0 instead of == 0? that could cause us to miss a -0.25 initialize again
         verticalElevatorLimitSwitchSim.setValue(getVEPosition() == 0);
         horizontalElevatorRearLimitSwitchSim.setValue(getHEPosition() == 0);

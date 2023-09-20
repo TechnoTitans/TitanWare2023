@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.SuperstructureStates;
+import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.utils.rev.RevUtils;
@@ -27,6 +28,7 @@ import java.util.function.Supplier;
 
 public class ClawIOSim implements ClawIO {
     private final ClawSimSolver clawSimSolver;
+    private final DeltaTime deltaTime;
 
     private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
     private final InvertType clawMainWheelBagInverted;
@@ -69,6 +71,7 @@ public class ClawIOSim implements ClawIO {
                 clawTiltNeo,
                 clawTiltEncoder
         );
+        this.deltaTime = new DeltaTime();
 
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
@@ -101,7 +104,7 @@ public class ClawIOSim implements ClawIO {
     @Override
     public void periodic() {
         final ElevatorSimSolver.ElevatorSimState elevatorSimState = elevatorSimStateSupplier.get();
-        clawSimSolver.update(Constants.LOOP_PERIOD_SECONDS, elevatorSimState);
+        clawSimSolver.update(deltaTime.get(), elevatorSimState);
 
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
 
