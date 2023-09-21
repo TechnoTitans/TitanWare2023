@@ -1,5 +1,7 @@
 package frc.robot.utils.rev;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 import edu.wpi.first.math.MathUtil;
@@ -51,5 +53,19 @@ public class RevUtils {
         } else {
             throw new UnsupportedOperationException("not implemented yet!");
         }
+    }
+
+    public static CANSparkMax.IdleMode convertNeutralModeToIdleMode(final NeutralModeValue neutralModeValue) {
+        return switch (neutralModeValue) {
+            case Coast -> CANSparkMax.IdleMode.kCoast;
+            case Brake -> CANSparkMax.IdleMode.kBrake;
+        };
+    }
+
+    public static boolean convertInvertedModeToBoolean(final InvertedValue neutralModeValue) {
+        return switch (neutralModeValue) {
+            case CounterClockwise_Positive -> true;
+            case Clockwise_Positive -> false;
+        };
     }
 }

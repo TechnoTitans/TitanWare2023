@@ -13,6 +13,7 @@ public interface Constants {
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
+    boolean DRIVE_WITH_FALCONS = true;
 
     enum RobotMode {
         REAL,

@@ -29,10 +29,7 @@ import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.claw.ClawIO;
 import frc.robot.subsystems.claw.ClawIOReal;
 import frc.robot.subsystems.claw.ClawIOSim;
-import frc.robot.subsystems.drive.Swerve;
-import frc.robot.subsystems.drive.SwerveModule;
-import frc.robot.subsystems.drive.SwerveModuleIO;
-import frc.robot.subsystems.drive.SwerveModuleIOImpl;
+import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
@@ -50,11 +47,6 @@ import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsImpl;
 import java.util.List;
 
 public class RobotContainer {
-    //Motors
-    public final TalonFX frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
-    public final TalonFX frontLeftTurn, frontRightTurn, backLeftTurn, backRightTurn;
-    public final CANcoder frontLeftEncoder, frontRightEncoder, backLeftEncoder, backRightEncoder;
-
     //Elevator
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
     public final CANcoder elevatorVerticalEncoder, elevatorHorizontalEncoder;
@@ -121,66 +113,181 @@ public class RobotContainer {
         powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
         powerDistribution.clearStickyFaults();
 
-        //Swerve Drive Motors
-        frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
-        frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
-        backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
-        backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
-
-        //Swerve Turning Motors
-        frontLeftTurn = new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME);
-        frontRightTurn = new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME);
-        backLeftTurn = new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME);
-        backRightTurn = new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME);
-
-        //Swerve CANCoders
-        frontLeftEncoder = new CANcoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
-        frontRightEncoder = new CANcoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
-        backLeftEncoder = new CANcoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
-        backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
-
         //Swerve Modules
         frontLeft = switch (Constants.CURRENT_MODE) {
-            case REAL, SIM -> new SwerveModule(
-                    new SwerveModuleIOImpl(
+            case REAL -> {
+                if (Constants.DRIVE_WITH_FALCONS) {
+                    final TalonFX frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+                    final TalonFX frontLeftTurn = new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME);
+                    final CANcoder frontLeftEncoder = new CANcoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+                    yield new SwerveModule(
+                            new SwerveModuleIOFalcon(
                             frontLeftDrive, frontLeftTurn, frontLeftEncoder,
                             RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
                     ),
-                    "FrontLeft"
-            );
+                        "FrontLeft"
+                    );
+                } else {
+                    final TitanSparkMAX frontLeftDrive = new TitanSparkMAX(
+                            RobotMap.frontLeftDrive, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    final TitanSparkMAX frontLeftTurn = new TitanSparkMAX(
+                            RobotMap.frontLeftTurn, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    yield new SwerveModule(
+                            new SwerveModuleIONeo(
+                                    frontLeftDrive, frontLeftTurn,
+                                    RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
+                            ),
+                            "FrontLeft"
+                    );
+                }
+            }
+            case SIM -> {
+                final TalonFX frontLeftDrive = new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+                final TalonFX frontLeftTurn = new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME);
+                final CANcoder frontLeftEncoder = new CANcoder(RobotMap.frontLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+
+                yield new SwerveModule(
+                        new SwerveModuleIOSim(
+                                frontLeftDrive, frontLeftTurn, frontLeftEncoder,
+                                RobotMap.frontLeftDriveR, RobotMap.frontLeftTurnR, 0.320556640625
+                        ),
+                        "FrontLeft"
+                );
+            }
             case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "FrontLeft");
         };
 
         frontRight = switch (Constants.CURRENT_MODE) {
-            case REAL, SIM -> new SwerveModule(
-                    new SwerveModuleIOImpl(
-                            frontRightDrive, frontRightTurn, frontRightEncoder,
-                            RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
-                    ),
-                    "FrontRight"
-            );
+            case REAL -> {
+                if (Constants.DRIVE_WITH_FALCONS) {
+                    final TalonFX frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
+                    final TalonFX frontRightTurn = new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME);
+                    final CANcoder frontRightEncoder = new CANcoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+                    yield new SwerveModule(
+                            new SwerveModuleIOFalcon(
+                                    frontRightDrive, frontRightTurn, frontRightEncoder,
+                                    RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
+                            ),
+                            "FrontRight"
+                    );
+                } else {
+                    final TitanSparkMAX frontRightDrive = new TitanSparkMAX(
+                            RobotMap.frontRightDrive, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    final TitanSparkMAX frontRightTurn = new TitanSparkMAX(
+                            RobotMap.frontRightTurn, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    yield new SwerveModule(
+                            new SwerveModuleIONeo(
+                                    frontRightDrive, frontRightTurn,
+                                    RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
+                            ),
+                            "FrontRight"
+                    );
+                }
+            }
+            case SIM -> {
+                final TalonFX frontRightDrive = new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME);
+                final TalonFX frontRightTurn = new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME);
+                final CANcoder frontRightEncoder = new CANcoder(RobotMap.frontRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+                yield new SwerveModule(
+                        new SwerveModuleIOSim(
+                                frontRightDrive, frontRightTurn, frontRightEncoder,
+                                RobotMap.frontRightDriveR, RobotMap.frontRightTurnR, 0.33251953125
+                        ),
+                        "FrontRight"
+                );
+            }
             case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "FrontRight");
         };
 
         backLeft = switch (Constants.CURRENT_MODE) {
-            case REAL, SIM -> new SwerveModule(
-                    new SwerveModuleIOImpl(
-                            backLeftDrive, backLeftTurn, backLeftEncoder,
-                            RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
-                    ),
-                    "BackLeft"
-            );
+            case REAL -> {
+                if (Constants.DRIVE_WITH_FALCONS) {
+                    final TalonFX backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+                    final TalonFX backLeftTurn = new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME);
+                    final CANcoder backLeftEncoder = new CANcoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+                    yield new SwerveModule(
+                            new SwerveModuleIOFalcon(
+                                    backLeftDrive, backLeftTurn, backLeftEncoder,
+                                    RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
+                            ),
+                            "BackLeft"
+                    );
+                } else {
+                    final TitanSparkMAX backLeftDrive = new TitanSparkMAX(
+                            RobotMap.backLeftDrive, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    final TitanSparkMAX backLeftTurn = new TitanSparkMAX(
+                            RobotMap.backLeftTurn, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    yield new SwerveModule(
+                            new SwerveModuleIONeo(
+                                    backLeftDrive, backLeftTurn,
+                                    RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
+                            ),
+                            "BackLeft"
+                    );
+                }
+            }
+            case SIM -> {
+                final TalonFX backLeftDrive = new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME);
+                final TalonFX backLeftTurn = new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME);
+                final CANcoder backLeftEncoder = new CANcoder(RobotMap.backLeftEncoder, RobotMap.CANIVORE_CAN_NAME);
+                yield new SwerveModule(
+                        new SwerveModuleIOSim(
+                                backLeftDrive, backLeftTurn, backLeftEncoder,
+                                RobotMap.backLeftDriveR, RobotMap.backLeftTurnR, 0.0478515625
+                        ),
+                        "BackLeft"
+                );
+            }
             case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "BackLeft");
         };
 
         backRight = switch (Constants.CURRENT_MODE) {
-            case REAL, SIM -> new SwerveModule(
-                    new SwerveModuleIOImpl(
-                            backRightDrive, backRightTurn, backRightEncoder,
-                            RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
-                    ),
-                    "BackRight"
-            );
+            case REAL -> {
+                if (Constants.DRIVE_WITH_FALCONS) {
+                    final TalonFX backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
+                    final TalonFX backRightTurn = new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME);
+                    final CANcoder backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+                    yield new SwerveModule(
+                            new SwerveModuleIOFalcon(
+                                    backRightDrive, backRightTurn, backRightEncoder,
+                                    RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
+                            ),
+                            "BackRight"
+                    );
+                } else {
+                    final TitanSparkMAX backRightDrive = new TitanSparkMAX(
+                            RobotMap.backRightDrive, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    final TitanSparkMAX backRightTurn = new TitanSparkMAX(
+                            RobotMap.backRightTurn, CANSparkMaxLowLevel.MotorType.kBrushless
+                    );
+                    yield new SwerveModule(
+                            new SwerveModuleIONeo(
+                                    backRightDrive, backRightTurn,
+                                    RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
+                            ),
+                            "BackRight"
+                    );
+                }
+            }
+            case SIM -> {
+                final TalonFX backRightDrive = new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME);
+                final TalonFX backRightTurn = new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME);
+                final CANcoder backRightEncoder = new CANcoder(RobotMap.backRightEncoder, RobotMap.CANIVORE_CAN_NAME);
+                yield new SwerveModule(
+                        new SwerveModuleIOSim(
+                                backRightDrive, backRightTurn, backRightEncoder,
+                                RobotMap.backRightDriveR, RobotMap.backRightTurnR, 0.283203125
+                        ),
+                        "BackRight"
+                );
+            }
             case REPLAY -> new SwerveModule(new SwerveModuleIO() {}, "BackRight");
         };
 
@@ -365,12 +472,12 @@ public class RobotContainer {
 
         photonVision = switch (Constants.CURRENT_MODE) {
             case REAL, SIM -> new PhotonVision(
-                        new PhotonVisionIOApriltagsImpl(swerve, visionIndependentOdometry, apriltagCameras),
-                        swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
-                );
+                    new PhotonVisionIOApriltagsImpl(swerve, visionIndependentOdometry, apriltagCameras),
+                    swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
+            );
             case REPLAY -> new PhotonVision(
-                        new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
-                );
+                    new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
+            );
         };
 
         //LEDs

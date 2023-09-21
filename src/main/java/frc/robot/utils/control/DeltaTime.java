@@ -32,6 +32,9 @@ public class DeltaTime {
                     true
             );
         }
+
+        this.timer.reset();
+        this.timer.start();
     }
 
     /**
