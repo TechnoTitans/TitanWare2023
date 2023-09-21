@@ -59,13 +59,13 @@ public interface RobotMap {
     SensorDirectionValue verticalElevatorEncoderR = SensorDirectionValue.CounterClockwise_Positive;
     int horizontalElevatorEncoder = 13;
     SensorDirectionValue horizontalElevatorEncoderR = SensorDirectionValue.Clockwise_Positive;
-    int horizontalElevatorNeo = 2;
+    int horizontalElevatorNeo = 15; // 2
     int verticalLimitSwitch = 6;
     int horizontalLimitSwitch = 8;
     int horizontalLimitHighSwitch = 5;
 
     //Claw Motors
-    int clawTiltNeo = 3;
+    int clawTiltNeo = 16; // 3
     int clawOpenCloseMotor = 12; // Used to be 6
     InvertType clawOpenCloseMotorInverted = InvertType.None;
     int clawOpenCloseEncoder = 9;

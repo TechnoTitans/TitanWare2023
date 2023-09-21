@@ -32,9 +32,6 @@ public class DeltaTime {
                     true
             );
         }
-
-        this.timer.reset();
-        this.timer.start();
     }
 
     /**
@@ -56,6 +53,7 @@ public class DeltaTime {
     public double getOrElse(final double orElseSeconds) {
         if (isFirstCall) {
             isFirstCall = false;
+            timer.start();
             return orElseSeconds;
         } else if (!disableLoggedTimestamps) {
             final double dtSeconds = timer.get();

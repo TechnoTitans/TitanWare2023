@@ -19,7 +19,7 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
 
-public class SwerveModuleIOSim implements SwerveModuleIO {
+public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     private final TalonFX driveMotor, turnMotor;
     private final CTREPhoenix6TalonFXSim driveSim, turnSim;
     private final CANcoder turnEncoder;
@@ -34,7 +34,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
     private final DeltaTime deltaTime;
 
-    public SwerveModuleIOSim(
+    public SwerveModuleIOFalconSim(
             final TalonFX driveMotor,
             final TalonFX turnMotor,
             final CANcoder turnEncoder,
