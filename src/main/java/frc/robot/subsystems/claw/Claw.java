@@ -23,7 +23,6 @@ public class Claw extends SubsystemBase {
         setDesiredState(desiredState);
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
         final double clawIOPeriodicStart = Logger.getInstance().getRealTimestamp();
@@ -146,6 +145,7 @@ public class Claw extends SubsystemBase {
      * @see Claw#isAtState(SuperstructureStates.ClawState)
      * @see Claw#getCurrentStateWithNullAsTransition()
      */
+    @SuppressWarnings("unused")
     public SuperstructureStates.ClawState getCurrentState() {
         return currentState;
     }
