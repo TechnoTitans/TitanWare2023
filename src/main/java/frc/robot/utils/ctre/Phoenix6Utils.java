@@ -3,6 +3,8 @@ package frc.robot.utils.ctre;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class Phoenix6Utils {
     /**
@@ -59,6 +61,19 @@ public class Phoenix6Utils {
     public static void assertIsOK(final StatusCode statusCode) {
         if (!statusCode.isOK()) {
             throw new StatusCodeAssertionException(statusCode);
+        }
+    }
+
+    public static void reportIfNotOk(final ParentDevice parentDevice, final StatusCode statusCode) {
+        if (!statusCode.isOK()) {
+            DriverStation.reportError(
+                    String.format(
+                            "Failed on Device %d: %s",
+                            parentDevice.getDeviceID(),
+                            statusCode.getName()
+                    ),
+                    false
+            );
         }
     }
 }

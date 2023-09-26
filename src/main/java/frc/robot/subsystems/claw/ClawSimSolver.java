@@ -14,21 +14,19 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.sim.CTREPhoenix5TalonSRXSim;
-import frc.robot.utils.sim.RevSparkMAXSim;
+import frc.robot.utils.sim.feedback.SimPhoenix5CANCoder;
+import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
+import frc.robot.utils.sim.motors.CTREPhoenix5TalonSRXSim;
+import frc.robot.utils.sim.motors.RevSparkMAXSim;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.Sim.Claw;
 
 public class ClawSimSolver {
-    private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
     private final CTREPhoenix5TalonSRXSim clawMainWheelSim, clawFollowerWheelSim;
-    private final TalonSRX clawOpenCloseMotor;
     private final CTREPhoenix5TalonSRXSim clawOpenCloseSim;
-    private final CANCoder clawOpenCloseEncoder;
 
-    private final TitanSparkMAX clawTiltNeo;
     private final CANcoder clawTiltEncoder;
     private final SingleJointedArmSim clawTiltSim;
     private final RevSparkMAXSim clawTiltSimMotor;
@@ -45,9 +43,6 @@ public class ClawSimSolver {
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder
     ) {
-        this.clawMainWheelBag = clawMainWheelBag;
-        this.clawFollowerWheelBag = clawFollowerWheelBag;
-
         this.clawMainWheelSim = new CTREPhoenix5TalonSRXSim(
                 clawMainWheelBag,
                 Claw.INTAKE_WHEELS_GEARING,
@@ -68,10 +63,8 @@ public class ClawSimSolver {
                 )
         );
 
-        this.clawTiltNeo = clawTiltNeo;
-        this.clawTiltEncoder = clawTiltEncoder;
-
         final DCMotor tiltDCMotor = DCMotor.getNEO(1);
+        this.clawTiltEncoder = clawTiltEncoder;
         this.clawTiltSim = new SingleJointedArmSim(
                 tiltDCMotor,
                 Claw.TILT_GEARING,
@@ -91,10 +84,8 @@ public class ClawSimSolver {
                         Claw.TILT_MOI
                 )
         );
-        this.clawTiltSimMotor.attachRemoteSensor(clawTiltEncoder);
+        this.clawTiltSimMotor.attachFeedbackSensor(new SimPhoenix6CANCoder(clawTiltEncoder));
 
-        this.clawOpenCloseMotor = clawOpenCloseMotor;
-        this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawOpenCloseSim = new CTREPhoenix5TalonSRXSim(
                 clawOpenCloseMotor,
                 Claw.OPEN_CLOSE_GEARING,
@@ -104,7 +95,7 @@ public class ClawSimSolver {
                         Claw.OPEN_CLOSE_MOI
                 )
         );
-        this.clawOpenCloseSim.attachRemoteSensor(clawOpenCloseEncoder);
+        this.clawOpenCloseSim.attachFeedbackSensor(new SimPhoenix5CANCoder(clawOpenCloseEncoder));
     }
 
     public SingleJointedArmSim getClawTiltSim() {

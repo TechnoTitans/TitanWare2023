@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import static com.revrobotics.CANSparkMax.ControlType;
 
 public class RevUtils {
+    public static final int SECONDS_PER_MINUTE = 60;
     public static boolean revErrorIsOk(final REVLibError revLibError) {
         return revLibError == REVLibError.kOk;
     }
@@ -55,17 +56,25 @@ public class RevUtils {
         }
     }
 
-    public static CANSparkMax.IdleMode convertNeutralModeToIdleMode(final NeutralModeValue neutralModeValue) {
+    public static CANSparkMax.IdleMode neutralModeToIdleMode(final NeutralModeValue neutralModeValue) {
         return switch (neutralModeValue) {
             case Coast -> CANSparkMax.IdleMode.kCoast;
             case Brake -> CANSparkMax.IdleMode.kBrake;
         };
     }
 
-    public static boolean convertInvertedModeToBoolean(final InvertedValue neutralModeValue) {
+    public static boolean invertedValueToBoolean(final InvertedValue neutralModeValue) {
         return switch (neutralModeValue) {
-            case CounterClockwise_Positive -> true;
-            case Clockwise_Positive -> false;
+            case CounterClockwise_Positive -> false;
+            case Clockwise_Positive -> true;
         };
+    }
+
+    public static double rotationsPerMinuteToRotationsPerSecond(final double rpm) {
+        return rpm / SECONDS_PER_MINUTE;
+    }
+
+    public static double rotationsPerSecondToRotationsPerMinute(final double rps) {
+        return rps * SECONDS_PER_MINUTE;
     }
 }

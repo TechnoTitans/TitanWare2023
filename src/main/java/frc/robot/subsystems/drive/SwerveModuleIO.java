@@ -6,14 +6,38 @@ import org.littletonrobotics.junction.AutoLog;
 public interface SwerveModuleIO {
     @AutoLog
     class SwerveModuleIOInputs {
+        /**
+         * Drive wheel (mechanism) position, in rotations
+         */
         public double drivePositionRots = 0.0;
+        /**
+         * Drive wheel (mechanism) velocity, in rots/sec
+         */
         public double driveVelocityRotsPerSec = 0.0;
+        /**
+         * Output current of the drive motor, in Amps
+         */
         public double driveCurrentAmps = 0.0;
+        /**
+         * Temperature of the drive motor, in Celsius
+         */
         public double driveTempCelsius = 0.0;
 
+        /**
+         * Turn wheel (mechanism) absolute position, in rotations
+         */
         public double turnAbsolutePositionRots = 0.0;
+        /**
+         * Turn wheel (mechanism) velocity, in rots/sec
+         */
         public double turnVelocityRotsPerSec = 0.0;
+        /**
+         * Output current of the turn motor, in Amps
+         */
         public double turnCurrentAmps = 0.0;
+        /**
+         * Temperature of the turn motor, in Celsius
+         */
         public double turnTempCelsius = 0.0;
     }
 
@@ -37,8 +61,8 @@ public interface SwerveModuleIO {
 
     /**
      * Set the desired inputs of the {@link SwerveModuleIO}
-     * @param desiredDriverVelocity the desired driver motor velocity (in rotor rots/sec)
-     * @param desiredTurnerRotations the desired turner motor rotations (in rotor rotations)
+     * @param desiredDriverVelocity the desired driver motor velocity (in mechanism rots/sec)
+     * @param desiredTurnerRotations the desired turner motor rotations (in mechanism rotations)
      */
     default void setInputs(final double desiredDriverVelocity, final double desiredTurnerRotations) {}
 

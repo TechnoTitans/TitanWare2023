@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -12,20 +13,25 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.SimUtils;
+import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
+import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
 
 public class SwerveModuleIOFalconSim implements SwerveModuleIO {
-    private final TalonFX driveMotor, turnMotor;
-    private final CTREPhoenix6TalonFXSim driveSim, turnSim;
+    private final TalonFX driveMotor;
+    private final TalonFX turnMotor;
+    private final CTREPhoenix6TalonFXSim driveSim;
+    private final CTREPhoenix6TalonFXSim turnSim;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
 
-    private final InvertedValue driveInvertedValue, turnInvertedValue;
+    private final InvertedValue driveInvertedValue;
+    private final InvertedValue turnInvertedValue;
     private final TalonFXConfiguration driveTalonFXConfiguration = new TalonFXConfiguration();
     private final TalonFXConfiguration turnTalonFXConfiguration = new TalonFXConfiguration();
 
@@ -68,14 +74,12 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                         Constants.Modules.TURN_WHEEL_MOMENT_OF_INERTIA
                 )
         );
-        this.turnSim.attachRemoteSensor(turnEncoder);
+        this.turnSim.attachFeedbackSensor(new SimPhoenix6CANCoder(turnEncoder));
 
         this.velocityVoltage = new VelocityVoltage(0);
         this.positionVoltage = new PositionVoltage(0);
 
         this.deltaTime = new DeltaTime();
-
-        config();
     }
 
     @Override
@@ -88,7 +92,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         // TODO: I think we need to look at VoltageConfigs and/or CurrentLimitConfigs for limiting the
         //  current we can apply in sim, this is cause we use VelocityVoltage in sim instead of VelocityTorqueCurrentFOC
         //  which means that TorqueCurrent.PeakForwardTorqueCurrent and related won't affect it
-        driveTalonFXConfiguration.Slot0 = Constants.Sim.Modules.DRIVE_MOTOR_CONSTANTS;
+        driveTalonFXConfiguration.Slot0 = Constants.Sim.Modules.Falcon.DRIVE_MOTOR_CONSTANTS;
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -97,7 +101,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
-        turnTalonFXConfiguration.Slot0 = Constants.Sim.Modules.TURN_MOTOR_CONSTANTS;
+        turnTalonFXConfiguration.Slot0 = Constants.Sim.Modules.Falcon.TURN_MOTOR_CONSTANTS;
         turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
         turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
@@ -109,7 +113,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         turnMotor.getConfigurator().apply(turnTalonFXConfiguration);
 
         // TODO: this fix for CANCoder initialization in sim doesn't seem to work all the time...investigate!
-//            SimUtils.initializeCTRECANCoderSim(turnEncoder);
+//      SimUtils.initializeCTRECANCoderSim(turnEncoder);
         SimUtils.setCTRETalonFXSimStateMotorInverted(driveMotor, driveInvertedValue);
         SimUtils.setCTRETalonFXSimStateMotorInverted(turnMotor, turnInvertedValue);
     }
@@ -158,5 +162,26 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
 
     @Override
     public void setNeutralMode(final NeutralModeValue neutralMode) {
+        if (Constants.CTRE.DISABLE_NEUTRAL_MODE_IN_SIM) {
+            // just ignore setNeutralMode call if NeutralMode setting in Simulation is turned off
+            return;
+        }
+
+        final StatusCode refreshCode = driveMotor.getConfigurator().refresh(turnTalonFXConfiguration);
+        if (!refreshCode.isOK()) {
+            // warn if the refresh call failed in sim, which might happen pretty often as
+            // there seems to be an issue with calling refresh while disabled in sim
+            DriverStation.reportWarning(
+                    String.format(
+                            "Failed to set NeutralMode on TalonFX %s (%s)",
+                            driveMotor.getDeviceID(),
+                            driveMotor.getCANBus()
+                    ), false
+            );
+            return;
+        }
+
+        turnTalonFXConfiguration.MotorOutput.NeutralMode = neutralMode;
+        driveMotor.getConfigurator().apply(turnTalonFXConfiguration);
     }
 }

@@ -1,6 +1,7 @@
 package frc.robot.wrappers.motors;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.REVLibError;
 import com.revrobotics.jni.CANSparkMaxJNI;
 import edu.wpi.first.math.MathUtil;
@@ -53,5 +54,13 @@ public class TitanSparkMAX extends CANSparkMax {
      */
     public boolean isClosed() {
         return isClosed.get();
+    }
+
+    /**
+     * Internal Rev method, made public through overriding {@link CANSparkMaxLowLevel#throwIfClosed()}
+     */
+    @Override
+    public void throwIfClosed() {
+        super.throwIfClosed();
     }
 }

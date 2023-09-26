@@ -16,10 +16,11 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PhotonRunnable implements Runnable {
+    public final String logKey;
+
     private final PhotonCamera photonCamera;
     private final PhotonPoseEstimator poseEstimator;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedPose = new AtomicReference<>();
-    private final String logKey = "PoseEstimator";
     /**
      * A stable {@link AtomicReference} to a {@link EstimatedRobotPose}, this does NOT get set to null after we get
      * the estimated pose, thus, it is stable and represents the last estimated pose.
@@ -30,6 +31,7 @@ public class PhotonRunnable implements Runnable {
 
     public PhotonRunnable(final TitanCamera titanCamera, final AprilTagFieldLayout aprilTagFieldLayout) {
         this.photonCamera = titanCamera.getPhotonCamera();
+        this.logKey = String.format("%s_PoseEstimator", photonCamera.getName());
         this.poseEstimator = new PhotonPoseEstimator(
                 aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, titanCamera.getRobotRelativeToCameraTransform()
         );

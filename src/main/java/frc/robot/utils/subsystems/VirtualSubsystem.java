@@ -1,17 +1,16 @@
 package frc.robot.utils.subsystems;
 
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.utils.closeables.ToClose;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class VirtualSubsystem implements Subsystem {
-    private static final Set<VirtualSubsystem> registeredSubsystems = new HashSet<>();
+public class VirtualSubsystem {
+    private static final Set<VirtualSubsystem> loopPeriodSubsystems = new HashSet<>();
     private static final HashMap<VirtualSubsystem, Notifier> subsystemNotifierMap = new HashMap<>();
 
     public VirtualSubsystem(final double loopPeriodSeconds) {
@@ -22,10 +21,8 @@ public class VirtualSubsystem implements Subsystem {
             subsystemNotifier.startPeriodic(loopPeriodSeconds);
             subsystemNotifierMap.put(this, subsystemNotifier);
         } else {
-            CommandScheduler.getInstance().registerSubsystem(this);
+            loopPeriodSubsystems.add(this);
         }
-
-        registeredSubsystems.add(this);
     }
 
     public VirtualSubsystem() {
@@ -33,13 +30,31 @@ public class VirtualSubsystem implements Subsystem {
     }
 
     /**
-     * Get the registered {@link VirtualSubsystem}s, this returns an internal
-     * mutable reference {@link Set}, so it should not be modified.
-     * @return the {@link Set} of registered {@link VirtualSubsystem}s
+     * Periodic call of the {@link VirtualSubsystem}.
+     */
+    public void periodic() {
+        throw new IllegalStateException("Non implemented periodic() should not exist!");
+    }
+
+    /**
+     * Runs all virtual subsystems that are bound to the loop cycle
+     * (has a loop period of {@link Constants#LOOP_PERIOD_SECONDS}).
+     * <p>Should be called in {@link Robot#robotPeriodic()}</p>
+     */
+    public static void run() {
+        for (final VirtualSubsystem subsystem : loopPeriodSubsystems) {
+            subsystem.periodic();
+        }
+    }
+
+    /**
+     * Get the {@link VirtualSubsystem}s running on the {@link Constants#LOOP_PERIOD_SECONDS}, this
+     * returns an internal mutable reference {@link Set}, so it should not be modified.
+     * @return the {@link Set} of registered {@link VirtualSubsystem}s that run periodically on the loop period
      */
     @SuppressWarnings("unused")
-    public static Set<VirtualSubsystem> getRegisteredSubsystems() {
-        return registeredSubsystems;
+    public static Set<VirtualSubsystem> getLoopPeriodSubsystems() {
+        return loopPeriodSubsystems;
     }
 
     /**

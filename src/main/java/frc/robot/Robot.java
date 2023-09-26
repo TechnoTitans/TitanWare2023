@@ -13,6 +13,7 @@ import frc.robot.utils.TitanBoard;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
+import frc.robot.utils.subsystems.VirtualSubsystem;
 import frc.robot.utils.teleop.ButtonBindings;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -110,6 +111,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
+        VirtualSubsystem.run();
         CommandScheduler.getInstance().run();
     }
 
