@@ -22,9 +22,9 @@ import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.rev.RevUtils;
-import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
+import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 

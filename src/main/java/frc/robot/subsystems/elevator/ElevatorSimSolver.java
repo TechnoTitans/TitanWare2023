@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.sim.CTREPhoenix6TalonFXSim;
-import frc.robot.utils.sim.RevSparkMAXSim;
+import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
+import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
+import frc.robot.utils.sim.motors.RevSparkMAXSim;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
@@ -95,7 +96,7 @@ public class ElevatorSimSolver {
                         Constants.Sim.Elevator.Vertical.EXT_MOI
                 )
         );
-        this.verticalElevatorSimMotors.attachRemoteSensor(verticalElevatorEncoder);
+        this.verticalElevatorSimMotors.attachFeedbackSensor(new SimPhoenix6CANCoder(verticalElevatorEncoder));
 
         final DCMotor horizontalElevatorDCMotor = DCMotor.getNEO(1);
         this.horizontalElevatorSim = new ElevatorSim(
@@ -117,7 +118,7 @@ public class ElevatorSimSolver {
                         Constants.Sim.Elevator.Horizontal.EXT_MOI
                 )
         );
-        this.horizontalElevatorSimMotor.attachRemoteSensor(horizontalElevatorEncoder);
+        this.horizontalElevatorSimMotor.attachFeedbackSensor(new SimPhoenix6CANCoder(horizontalElevatorEncoder));
     }
 
     public void updateVerticalElevatorPoses() {

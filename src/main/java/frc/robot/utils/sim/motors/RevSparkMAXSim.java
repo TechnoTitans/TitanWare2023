@@ -1,7 +1,5 @@
-package frc.robot.utils.sim;
+package frc.robot.utils.sim.motors;
 
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
@@ -9,18 +7,20 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.utils.rev.RevUtils;
+import frc.robot.utils.sim.feedback.SimFeedbackSensor;
 import frc.robot.wrappers.motors.TitanSparkMAX;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
 
-public class RevSparkMAXSim {
+public class RevSparkMAXSim implements SimMotorController {
     private final List<TitanSparkMAX> sparkMaxes;
     private final DCMotor dcMotor;
     private final DCMotorSim dcMotorSim;
     private final boolean isSingularSparkMax;
 
     private boolean hasRemoteSensor = false;
-    private CANcoderSimState cancoderSimState;
+    private SimFeedbackSensor feedbackSensor;
 
     public RevSparkMAXSim(
             final List<TitanSparkMAX> sparkMaxes,
@@ -48,13 +48,14 @@ public class RevSparkMAXSim {
         this(List.of(canSparkMax), dcMotor, dcMotorSim);
     }
 
-    public void attachRemoteSensor(final CANcoder canCoder) {
+    @Override
+    public void attachFeedbackSensor(final SimFeedbackSensor feedbackSensor) {
         if (hasRemoteSensor) {
-            throw new RuntimeException("attempt to attach remote sensor when one is already attached!");
+            throw new RuntimeException("Attempt to attach SimFeedbackSensor when one is already attached!");
         }
 
         this.hasRemoteSensor = true;
-        this.cancoderSimState = canCoder.getSimState();
+        this.feedbackSensor = feedbackSensor;
     }
 
     private void setupSparkMaxSims() {
@@ -80,7 +81,7 @@ public class RevSparkMAXSim {
      * @param dt the amount of time since the last update call (in seconds)
      */
     private void updateSparkMaxesInternal(final double dt) {
-        final double dt_ms = Units.secondsToMilliseconds(dt);
+        final double dtMs = Units.secondsToMilliseconds(dt);
         for (final TitanSparkMAX sparkMax : sparkMaxes) {
             final RelativeEncoder relativeEncoder = sparkMax.getEncoder();
 
@@ -88,14 +89,14 @@ public class RevSparkMAXSim {
             final double velocity = relativeEncoder.getVelocity();
             final double positionConversionFactor = relativeEncoder.getPositionConversionFactor();
 
-            relativeEncoder.setPosition(position + velocity * dt_ms / 60000.0 * positionConversionFactor);
+            Logger.getInstance().recordOutput(String.format("SparkMax_%d_position", sparkMax.getDeviceId()), position);
+            Logger.getInstance().recordOutput(String.format("SparkMax_%d_velocity", sparkMax.getDeviceId()), velocity);
+
+            relativeEncoder.setPosition(position + velocity * dtMs / 60000.0 * positionConversionFactor);
         }
     }
 
-    /**
-     * Updates SparkMAX controllers with time.
-     * @param dt the amount of time since the last update call (in seconds)
-     */
+    @Override
     public void update(final double dt) {
         final double motorVoltage = getMotorVoltage(CANSparkMax.ControlType.kVoltage);
         dcMotorSim.setInputVoltage(motorVoltage);
@@ -107,38 +108,34 @@ public class RevSparkMAXSim {
         final double mechanismAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
 
         if (hasRemoteSensor) {
-            cancoderSimState.setRawPosition(mechanismAngularPositionRots);
-            cancoderSimState.setVelocity(mechanismAngularVelocityRotsPerSec);
+            feedbackSensor.setRawPosition(mechanismAngularPositionRots);
+            feedbackSensor.setVelocity(mechanismAngularVelocityRotsPerSec);
         }
     }
 
+    @Override
     public void rawUpdate(final double mechanismPositionRots, final double mechanismVelocityRotsPerSec) {
         updateSparkMaxesRawInternal(mechanismPositionRots);
 
         if (hasRemoteSensor) {
-            cancoderSimState.setRawPosition(mechanismPositionRots);
-            cancoderSimState.setVelocity(mechanismVelocityRotsPerSec);
+            feedbackSensor.setRawPosition(mechanismPositionRots);
+            feedbackSensor.setVelocity(mechanismVelocityRotsPerSec);
         }
     }
 
-    /**
-     * Position of the simulated motor (output shaft, or mechanism, position)
-     * @return the position, in rotations
-     */
+    @Override
     public double getAngularPositionRots() {
         return dcMotorSim.getAngularPositionRotations();
     }
 
-    /**
-     * Velocity of the simulated motor (output shaft, or mechanism, velocity)
-     * @return the velocity, in rotations/sec
-     */
+    @Override
     public double getAngularVelocityRotsPerSec() {
         return Units.radiansToRotations(dcMotorSim.getAngularVelocityRadPerSec());
     }
 
     /**
      * Get the output voltage of the motor(s)
+     * @param controlType the {@link com.revrobotics.CANSparkMax.ControlType} of the SparkMAX(s)
      * @return the output voltage (in volts)
      */
     public double getMotorVoltage(final CANSparkMax.ControlType controlType) {
@@ -150,5 +147,10 @@ public class RevSparkMAXSim {
                     .average()
                     .orElseThrow();
         }
+    }
+
+    @Override
+    public double getMotorVoltage() {
+        return getMotorVoltage(CANSparkMax.ControlType.kVoltage);
     }
 }

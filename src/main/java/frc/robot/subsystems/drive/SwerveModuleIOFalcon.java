@@ -17,11 +17,13 @@ import frc.robot.Constants;
 import frc.robot.utils.ctre.Phoenix6Utils;
 
 public class SwerveModuleIOFalcon implements SwerveModuleIO {
-    private final TalonFX driveMotor, turnMotor;
+    private final TalonFX driveMotor;
+    private final TalonFX turnMotor;
     private final CANcoder turnEncoder;
     private final double magnetOffset;
 
-    private final InvertedValue driveInvertedValue, turnInvertedValue;
+    private final InvertedValue driveInvertedValue;
+    private final InvertedValue turnInvertedValue;
     private final TalonFXConfiguration driveTalonFXConfiguration = new TalonFXConfiguration();
     private final TalonFXConfiguration turnTalonFXConfiguration = new TalonFXConfiguration();
 
@@ -47,8 +49,6 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
 
         this.velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0);
         this.positionVoltage = new PositionVoltage(0);
-
-        config();
     }
 
     @Override
@@ -58,10 +58,7 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         canCoderConfiguration.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
-        // TODO: I think we need to look at VoltageConfigs and/or CurrentLimitConfigs for limiting the
-        //  current we can apply in sim, this is cause we use VelocityVoltage in sim instead of VelocityTorqueCurrentFOC
-        //  which means that TorqueCurrent.PeakForwardTorqueCurrent and related won't affect it
-        driveTalonFXConfiguration.Slot0 = Constants.Modules.DRIVE_MOTOR_CONSTANTS;
+        driveTalonFXConfiguration.Slot0 = Constants.Modules.Falcon.DRIVE_MOTOR_CONSTANTS;
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -70,7 +67,7 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
-        turnTalonFXConfiguration.Slot0 = Constants.Modules.TURN_MOTOR_CONSTANTS;
+        turnTalonFXConfiguration.Slot0 = Constants.Modules.Falcon.TURN_MOTOR_CONSTANTS;
         turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
         turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
@@ -121,7 +118,6 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
     public void setNeutralMode(final NeutralModeValue neutralMode) {
         final StatusCode refreshCode = driveMotor.getConfigurator().refresh(turnTalonFXConfiguration);
         if (!refreshCode.isOK()) {
-            // only warn if in real, there seems to be an issue with calling refresh while disabled in sim
             DriverStation.reportWarning(
                     String.format(
                             "Failed to set NeutralMode on TalonFX %s (%s)",
@@ -133,7 +129,6 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         }
 
         turnTalonFXConfiguration.MotorOutput.NeutralMode = neutralMode;
-
         driveMotor.getConfigurator().apply(turnTalonFXConfiguration);
     }
 }

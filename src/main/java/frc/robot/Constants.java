@@ -9,11 +9,16 @@ import frc.robot.wrappers.control.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
+    Robot ROBOT = Robot.ROBOT_2023_NEO_SWERVE;
     RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
-    boolean DRIVE_WITH_FALCONS = false;
+
+    enum Robot {
+        ROBOT_2023_FALCON_SWERVE,
+        ROBOT_2023_NEO_SWERVE
+    }
 
     enum RobotMode {
         REAL,
@@ -34,6 +39,20 @@ public interface Constants {
         String PHOENIX_5_CANCODER_UNIT_STRING_ROTS = "rots";
 
         boolean DISABLE_NEUTRAL_MODE_IN_SIM = true;
+    }
+
+    interface Rev {
+        boolean SIM_USE_ROBORIO_PID_FOR_POSITION = true;
+    }
+
+    interface PDH {
+        double BATTERY_NOMINAL_VOLTAGE = 12;
+        double BATTERY_RESISTANCE_OHMS = 0.02;
+
+        int[] DRIVETRAIN_CHANNELS = {0, 1, 2, 3, 4, 5, 6, 7};
+        int[] VERTICAL_ELEVATOR_CHANNELS = {10, 11};
+        int[] HORIZONTAL_ELEVATOR_CHANNELS = {12};
+        int[] CLAW_CHANNELS = {13, 14, 15, 16};
     }
 
     interface NetworkTables {
@@ -90,11 +109,11 @@ public interface Constants {
             boolean TILT_SIMULATE_GRAVITY = false;
 
             double CLAW_LENGTH_M = 0.50421;
-            double CLAW_HALF_LENGTH_M = CLAW_LENGTH_M * 0.5;
         }
 
-
-        // Elevator Sim (all length/height units are meters)
+        /**
+         * Elevator Sim (all length/height units are meters)
+         */
         interface Elevator {
             interface Vertical {
                 Pose3d ROBOT_TO_ROOT_MOUNT_POSE = new Pose3d();
@@ -144,9 +163,15 @@ public interface Constants {
             // - keep this true until CTRE adds support for VelocityTorqueCurrentFOC
             boolean USE_VELOCITY_VOLTAGE_IN_SIM = true;
 
-            //        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0.913);
-            Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0, 0, 0, 0.913);
-            Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(40, 0, 0, 0);
+            interface Falcon {
+                Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0, 0, 0, 0.913);
+                Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(40, 0, 0, 0);
+            }
+
+            interface Neo {
+                Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0);
+                Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(0.1, 0, 0, 0);
+            }
         }
     }
 
@@ -160,15 +185,21 @@ public interface Constants {
 
         double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
-        Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(60, 0, 3, 0);
-        Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0.5, 0);
+        // TODO: we need to separate out these gains for different setups
+        interface Falcon {
+            Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(60, 0, 3, 0);
+            Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0.5, 0);
+        }
+
+        interface Neo {
+            Slot0Configs DRIVE_MOTOR_CONSTANTS = new Slot0Configs(60, 0, 3, 0);
+            Slot0Configs TURN_MOTOR_CONSTANTS = new Slot0Configs(30, 0, 0.5, 0);
+        }
     }
 
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
-        double MAX_WIDTH = Math.max(WHEEL_BASE, TRACK_WIDTH);
-        double HALF_MAX_WIDTH = 0.5 * MAX_WIDTH;
         double ROBOT_MAX_SPEED = Units.feetToMeters(13.5);
         double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = Math.PI;

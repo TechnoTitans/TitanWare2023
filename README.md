@@ -1,34 +1,29 @@
 # TitanWare2023
+FRC 1683's primarily code repository for Charged Up 2023.
 
-# Code Build Status: ![CI](https://github.com/TechnoTitans/TitanWare2023/actions/workflows/CI.yml/badge.svg)
+![CI](https://github.com/TechnoTitans/TitanWare2023/actions/workflows/CI.yml/badge.svg)
 
-## TODO:
-- [x] Upgrade project to 2023
-- [x] Upgrade vendor libraries
-- [x] Change GYRO to pigeon
-- [x] Add Swerve Code
-- [x] Config RobotMap.java
-- [x] Add Elevator
-- [x] Add AutoBalance
-- [x] Fix Auto !!!
-- [x] Odometry assisted lineup
-- [x] Auto Paths
-- [x] Add Candle
-- [x] Figure out controls
-- [x] Switch to Phoenix Pro (https://api.ctr-electronics.com/phoenixpro/release/java/index.html)
+## Structure
+```
+src - RobotCode
+├── main - Functional code, deployed to the robot
+│   ├── deploy - Files/resources deployed to the robot (not main RobotCode)
+│   ├── java/frc/robot - Primary RobotCode root
+└── test/java - Unit/Integration tests
+    ├── frc/robot - Test classes
+    └── testutils - Test utilities (if present)
+```
 
-## Drivetrain (Swerve):
-- [x] Set Module Offsets
-- [x] Config Odometry/Kinematics
-- [x] Tune PID
-- [x] Run path planning paths
-- [x] Locking System
-- [x] Vision alignment 
+## Contributing
+For 2023, our guidelines for any and all contributions are as follows:
+- Code pushed should compile (except under very specific/extreme circumstances)
+- Code pushed should pass CI and all tests (if there are tests) on the local machine
+- Non-working code should be properly noted as such (with a TODO)
+- Keep code clean and follow the codebase conventions
 
-## Elevator:
-- [x] Tune PID
-- [x] Config Preset Ticks
-
-## Claw:
-- [x] Tune PID
-- [x] Config Preset Ticks
+### Always Keep Cooking...
+1. Fix auto!!!
+2. Re-fix auto!!
+3. Break auto...
+4. Fix auto again!
+5. Repeat

@@ -1,24 +1,23 @@
-package frc.robot.utils.sim;
+package frc.robot.utils.sim.motors;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderSimCollection;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.utils.ctre.Phoenix5Utils;
+import frc.robot.utils.sim.feedback.SimFeedbackSensor;
 
 import java.util.List;
 
-public class CTREPhoenix5TalonSRXSim {
+public class CTREPhoenix5TalonSRXSim implements SimMotorController {
     private final List<TalonSRXSimCollection> simCollections;
     private final DCMotorSim dcMotorSim;
     private final double gearRatio;
     private final boolean isSingularTalonSRX;
 
     private boolean hasRemoteSensor = false;
-    private CANCoderSimCollection canCoderSimCollection;
+    private SimFeedbackSensor feedbackSensor;
 
     private CTREPhoenix5TalonSRXSim(
             final List<TalonSRX> talonSRXControllers,
@@ -54,15 +53,17 @@ public class CTREPhoenix5TalonSRXSim {
         this(List.of(talonSRX), gearRatio, motorSim);
     }
 
-    public void attachRemoteSensor(final CANCoder canCoder) {
+    @Override
+    public void attachFeedbackSensor(final SimFeedbackSensor feedbackSensor) {
         if (hasRemoteSensor) {
-            throw new RuntimeException("attempt to attach remote sensor when one is already attached!");
+            throw new RuntimeException("Attempt to attach SimFeedbackSensor when one is already attached!");
         }
 
         this.hasRemoteSensor = true;
-        this.canCoderSimCollection = canCoder.getSimCollection();
+        this.feedbackSensor = feedbackSensor;
     }
 
+    @Override
     public void update(final double dt) {
         final double batteryVoltage = RobotController.getBatteryVoltage();
         for (final TalonSRXSimCollection simCollection : simCollections) {
@@ -74,7 +75,7 @@ public class CTREPhoenix5TalonSRXSim {
         dcMotorSim.update(dt);
 
         final double mechanismAngularPositionRots = dcMotorSim.getAngularPositionRotations();
-        final double angularVelocityRotsPerSec = Units.radiansToRotations(
+        final double mechanismAngularVelocityRotsPerSec = Units.radiansToRotations(
                 dcMotorSim.getAngularVelocityRadPerSec()
         );
 
@@ -82,42 +83,45 @@ public class CTREPhoenix5TalonSRXSim {
             simCollection.setQuadratureRawPosition(
                     Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(gearRatio * mechanismAngularPositionRots)
             );
-
             simCollection.setQuadratureVelocity(
-                    Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(gearRatio * angularVelocityRotsPerSec)
+                    Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(gearRatio * mechanismAngularVelocityRotsPerSec)
             );
         }
 
         if (hasRemoteSensor) {
-            canCoderSimCollection.setRawPosition(
-                    Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(mechanismAngularPositionRots)
-            );
-            canCoderSimCollection.setRawPosition(
-                    Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(mechanismAngularPositionRots)
-            );
+            feedbackSensor.setRawPosition(mechanismAngularPositionRots);
+            feedbackSensor.setVelocity(mechanismAngularVelocityRotsPerSec);
         }
     }
 
-    /**
-     * Position of the simulated motor
-     * @return the position, in rotations
-     */
+    @Override
+    public void rawUpdate(double mechanismPositionRots, double mechanismVelocityRotsPerSec) {
+        for (final TalonSRXSimCollection simCollection : simCollections) {
+            simCollection.setQuadratureRawPosition(
+                    Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(gearRatio * mechanismPositionRots)
+            );
+            simCollection.setQuadratureVelocity(
+                    Phoenix5Utils.rotationsToCTREPhoenix5NativeUnits(gearRatio * mechanismVelocityRotsPerSec)
+            );
+        }
+
+        if (hasRemoteSensor) {
+            feedbackSensor.setRawPosition(mechanismPositionRots);
+            feedbackSensor.setVelocity(mechanismVelocityRotsPerSec);
+        }
+    }
+
+    @Override
     public double getAngularPositionRots() {
         return dcMotorSim.getAngularPositionRotations();
     }
 
-    /**
-     * Velocity of the simulated motor
-     * @return the velocity, in rotations/sec
-     */
+    @Override
     public double getAngularVelocityRotsPerSec() {
         return Units.radiansToRotations(dcMotorSim.getAngularVelocityRadPerSec());
     }
 
-    /**
-     * Get the output voltage of the motor(s)
-     * @return the output voltage (in volts)
-     */
+    @Override
     public double getMotorVoltage() {
         if (isSingularTalonSRX) {
             return simCollections.get(0).getMotorOutputLeadVoltage();
