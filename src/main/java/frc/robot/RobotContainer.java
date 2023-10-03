@@ -25,10 +25,7 @@ import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.claw.Claw;
-import frc.robot.subsystems.claw.ClawIO;
-import frc.robot.subsystems.claw.ClawIOReal;
-import frc.robot.subsystems.claw.ClawIOSim;
+import frc.robot.subsystems.claw.*;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.elevator.*;
@@ -288,7 +285,7 @@ public class RobotContainer {
         };
 
         claw = switch (Constants.CURRENT_MODE) {
-            case REAL -> new Claw(new ClawIOReal(
+            case REAL -> new Claw(new ClawIOStateSpace(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,

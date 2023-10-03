@@ -9,9 +9,9 @@ import frc.robot.wrappers.control.Slot0Configs;
 
 @SuppressWarnings("unused")
 public interface Constants {
-    Robot ROBOT = Robot.ROBOT_2023_NEO_SWERVE;
-    RobotMode CURRENT_MODE = RobotMode.SIM;
-    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
+    Robot ROBOT = Robot.ROBOT_2023_FALCON_SWERVE;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
+    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.COMPETITION;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
 
