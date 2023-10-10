@@ -184,12 +184,14 @@ public class TrajectoryAutoAlignment extends CommandBase {
             final double endVelocity = (constraints.maxAcceleration * approxDistance) / constraints.maxVelocity;
 
             final TitanTrajectory trajectory = new TitanTrajectory.Builder()
-                    .withConstraints(new TitanTrajectory.Constraints(
-                    Constants.Swerve.TRAJECTORY_MAX_SPEED/2,
-                    Constants.Swerve.TRAJECTORY_MAX_ACCELERATION/2,
-                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED/2,
-                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION/2
-                    ))
+                    .withConstraints(
+                            new TitanTrajectory.Constraints(
+                                    Constants.Swerve.TRAJECTORY_MAX_SPEED / 2,
+                                    Constants.Swerve.TRAJECTORY_MAX_ACCELERATION / 2,
+                                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED / 2,
+                                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION / 2
+                            )
+                    )
 //                    .withConstraints(TitanTrajectory.Constraints.getDefault())
                     .add(currentPose, swerveChassisSpeeds)
                     .add(trajectoryTarget)
@@ -201,7 +203,7 @@ public class TrajectoryAutoAlignment extends CommandBase {
                     LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
             );
 
-            commandGroup.addCommands(trajectoryManager.getCommand(trajectory));
+            commandGroup.addCommands(trajectoryManager.getTrajectoryFollower(trajectory));
         }
 
         //Score Sequence

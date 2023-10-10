@@ -25,10 +25,7 @@ import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.claw.Claw;
-import frc.robot.subsystems.claw.ClawIO;
-import frc.robot.subsystems.claw.ClawIOStateSpace;
-import frc.robot.subsystems.claw.ClawIOStateSpaceSim;
+import frc.robot.subsystems.claw.*;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.elevator.*;
@@ -283,18 +280,8 @@ public class RobotContainer {
             case REPLAY -> new Elevator(new ElevatorIO() {}, elevatorSimSolver);
         };
 
-        claw = switch (Constants.CURRENT_MODE) {
-            case REAL -> new Claw(new ClawIOStateSpace(
-                    clawMainWheelsMotor,
-                    clawFollowerWheelsMotor,
-                    RobotMap.clawMainWheelsMotorInverted,
-                    clawOpenCloseMotor,
-                    RobotMap.clawOpenCloseMotorInverted,
-                    clawOpenCloseEncoder,
-                    clawTiltNeo,
-                    clawTiltEncoder
-            ));
-            case SIM -> new Claw(new ClawIOStateSpaceSim(
+        claw = switch (Constants.Claw.CONTROLLER) {
+            case PID -> Claw.Builder.clawStateSpaceController(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,
@@ -303,9 +290,21 @@ public class RobotContainer {
                     clawOpenCloseEncoder,
                     clawTiltNeo,
                     clawTiltEncoder,
-                    elevator::getElevatorSimState
-            ));
-            case REPLAY -> new Claw(new ClawIO() {});
+                    elevator::getElevatorSimState,
+                    Constants.CURRENT_MODE
+            );
+            case STATE_SPACE -> Claw.Builder.clawPIDController(
+                    clawMainWheelsMotor,
+                    clawFollowerWheelsMotor,
+                    RobotMap.clawMainWheelsMotorInverted,
+                    clawOpenCloseMotor,
+                    RobotMap.clawOpenCloseMotorInverted,
+                    clawOpenCloseEncoder,
+                    clawTiltNeo,
+                    clawTiltEncoder,
+                    elevator::getElevatorSimState,
+                    Constants.CURRENT_MODE
+            );
         };
 
         //Swerve
@@ -456,9 +455,15 @@ public class RobotContainer {
         autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
         autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
 
+        autoChooser.addAutoOption(new AutoOption(
+                "NonStop3Piece",
+                List.of("NonStop1", "NonStop2"),
+                Constants.CompetitionType.TESTING
+        ));
+
         //Add the remaining paths automatically
         autoChooser.addOptionsIfNotPresent(
-                AutoOption::pathName,
+                AutoOption::getDescriptiveName,
                 AutoOption::new,
                 PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
         );
@@ -467,7 +472,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         final AutoOption selectedAutoOption = autoChooser.getSelected();
         return selectedAutoOption != null
-                ? trajectoryManager.getCommand(selectedAutoOption)
+                ? trajectoryManager.getTrajectoryFollowerSequence(selectedAutoOption)
                 : Commands.waitUntil(() -> !RobotState.isAutonomous());
     }
 }

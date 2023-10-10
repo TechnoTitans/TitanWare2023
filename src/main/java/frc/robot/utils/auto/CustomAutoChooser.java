@@ -49,7 +49,7 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
         this.ntTableName = ntTableName;
         this.ignoredSet = new HashSet<>();
         this.defaultAuto = defaultAuto;
-        this.selectedAuto = defaultAuto.pathName();
+        this.selectedAuto = defaultAuto.getDescriptiveName();
 
         final NetworkTable ntTable = NetworkTableInstance.getDefault().getTable(ntTableName);
         this.autoPublisher = ntTable.getStringArrayTopic(ntPubName).publish();
@@ -80,7 +80,7 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
      * @see CustomAutoChooser#addOption(String, AutoOption)
      */
     public void addAutoOption(final V object) {
-        addOption(object.pathName(), object);
+        addOption(object.getDescriptiveName(), object);
     }
 
     public V getSelected() {
@@ -97,6 +97,14 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
                 addOption(nameFunction.apply(computedObject), computedObject);
             }
         }
+    }
+
+    /**
+     * Get a copy of the currently registered {@link V}s
+     * @return a {@link List} of currently registered {@link V}s
+     */
+    public List<V> getRegisteredOptions() {
+        return autoMap.values().stream().toList();
     }
 
     @Override

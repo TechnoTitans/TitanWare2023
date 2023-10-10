@@ -33,7 +33,7 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class ClawIOStateSpace implements ClawIO {
+public class ClawIOStateSpaceReal implements ClawIO {
     private final DeltaTime deltaTime;
 
     private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
@@ -65,7 +65,7 @@ public class ClawIOStateSpace implements ClawIO {
     //Claw Open Close Control Input
     private double desiredOpenCloseControlInput;
 
-    public ClawIOStateSpace(
+    public ClawIOStateSpaceReal(
             final TalonSRX clawMainWheelBag,
             final TalonSRX clawFollowerWheelBag,
             final InvertType clawMainWheelBagInverted,

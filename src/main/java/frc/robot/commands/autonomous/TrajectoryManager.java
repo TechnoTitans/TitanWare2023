@@ -1,6 +1,8 @@
 package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
@@ -10,6 +12,9 @@ import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class TrajectoryManager {
     private final Swerve swerve;
     private final DriveController controller;
@@ -18,6 +23,8 @@ public class TrajectoryManager {
 
     private final Claw claw;
     private final Elevator elevator;
+
+    private final HashMap<AutoOption, List<TitanTrajectory>> cachedTitanTrajectories;
 
     public TrajectoryManager(
             final Swerve swerve,
@@ -34,10 +41,20 @@ public class TrajectoryManager {
 
         this.claw = claw;
         this.elevator = elevator;
+
+        this.cachedTitanTrajectories = new HashMap<>();
     }
 
-    public TitanTrajectory getTrajectoryFromPath(
-            final String trajectoryDir,
+    public void precomputeMarkerCommands(final List<AutoOption> autoOptions) {
+        for (final AutoOption autoOption : autoOptions) {
+            if (!cachedTitanTrajectories.containsKey(autoOption)) {
+                cachedTitanTrajectories.put(autoOption, getTrajectoriesFromPath(autoOption));
+            }
+        }
+    }
+
+    public List<TitanTrajectory> getTrajectoriesFromPath(
+            final List<String> paths,
             final double maxVel,
             final double maxAccel,
             final boolean reverseTrajectory
@@ -45,19 +62,28 @@ public class TrajectoryManager {
         final TrajectoryFollower.FollowerContext followerContext =
                 new TrajectoryFollower.FollowerContext(elevator, claw);
 
-        return TitanTrajectory.fromPathPlannerTrajectory(
-                PathPlanner.loadPath(trajectoryDir, maxVel, maxAccel, reverseTrajectory),
-                followerContext
+        return paths.stream()
+                .map(
+                        (path) -> TitanTrajectory.fromPathPlannerTrajectory(
+                                PathPlanner.loadPath(path, maxVel, maxAccel, reverseTrajectory),
+                                followerContext
+                        )
+                )
+                .toList();
+    }
+
+    public List<TitanTrajectory> getTrajectoriesFromPath(final AutoOption autoOption) {
+        final List<TitanTrajectory> cachedTrajectories = cachedTitanTrajectories.get(autoOption);
+        if (cachedTrajectories != null) {
+            return cachedTrajectories;
+        }
+
+        return getTrajectoriesFromPath(
+                autoOption.pathNames(), autoOption.maxVelocity(), autoOption.maxAcceleration(), false
         );
     }
 
-    public TitanTrajectory getTrajectoryFromPath(final AutoOption autoOption) {
-        return getTrajectoryFromPath(
-                autoOption.pathName(), autoOption.maxVelocity(), autoOption.maxAcceleration(), false
-        );
-    }
-
-    public TrajectoryFollower getCommand(final TitanTrajectory trajectory) {
+    public TrajectoryFollower getTrajectoryFollower(final TitanTrajectory trajectory) {
         // TODO: what happens if transformForAlliance is true?
         return new TrajectoryFollower(
                 swerve,
@@ -70,20 +96,29 @@ public class TrajectoryManager {
         );
     }
 
-    public TrajectoryFollower getCommand(final AutoOption autoOption) {
-        final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
-        return new TrajectoryFollower(
-                swerve,
-                controller,
-                holdPositionController,
-                photonVision,
-                trajectory,
-                true,
-                trajectory.getFollowerContext()
+    public List<TrajectoryFollower> getTrajectoryFollowers(final AutoOption autoOption) {
+        final List<TitanTrajectory> trajectories = getTrajectoriesFromPath(autoOption);
+        return trajectories.stream()
+                .map((trajectory) -> new TrajectoryFollower(
+                        swerve,
+                        controller,
+                        holdPositionController,
+                        photonVision,
+                        trajectory,
+                        true,
+                        trajectory.getFollowerContext()
+                ))
+                .toList();
+    }
+
+    public SequentialCommandGroup getTrajectoryFollowerSequence(final AutoOption autoOption) {
+        return new SequentialCommandGroup(
+                getTrajectoryFollowers(autoOption).toArray(Command[]::new)
         );
     }
 
+    @SuppressWarnings("unused")
     public void follow(final AutoOption autoOption) {
-        getCommand(autoOption).schedule();
+        getTrajectoryFollowerSequence(autoOption).schedule();
     }
 }

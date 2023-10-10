@@ -112,20 +112,6 @@ public class TitanTrajectory extends PathPlannerTrajectory {
         );
     }
 
-    public static TitanTrajectory fromNoMarkersPathPlannerTrajectory(
-            final PathPlannerTrajectory pathPlannerTrajectory,
-            final TrajectoryFollower.FollowerContext followerContext
-            ) {
-        return new TitanTrajectory(
-                pathPlannerTrajectory.getStates(),
-                pathPlannerTrajectory.getMarkers(),
-                pathPlannerTrajectory.getStartStopEvent(),
-                pathPlannerTrajectory.getEndStopEvent(),
-                pathPlannerTrajectory.fromGUI,
-                followerContext
-        );
-    }
-
     public static EventMarker transformMarkerForAlliance(
             final EventMarker marker,
             final DriverStation.Alliance alliance
@@ -336,7 +322,7 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                     })
                     .toList();
 
-            return TitanTrajectory.fromNoMarkersPathPlannerTrajectory(
+            return TitanTrajectory.fromPathPlannerTrajectory(
                     PathPlanner.generatePath(constraints, regenerated),
                     followerContext
             );

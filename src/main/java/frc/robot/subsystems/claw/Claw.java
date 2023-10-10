@@ -1,13 +1,84 @@
 package frc.robot.subsystems.claw;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants;
+import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
+import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Supplier;
 
 public class Claw extends SubsystemBase {
     protected static final String logKey = "Claw";
+
+    public static class Builder {
+        public static Claw clawPIDController(
+                final TalonSRX clawMainWheelBag,
+                final TalonSRX clawFollowerWheelBag,
+                final InvertType clawMainWheelBagInverted,
+                final TalonSRX clawOpenCloseMotor,
+                final InvertType clawOpenCloseMotorInverted,
+                final CANCoder clawOpenCloseEncoder,
+                final TitanSparkMAX clawTiltNeo,
+                final CANcoder clawTiltEncoder,
+                final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier,
+                final Constants.RobotMode robotMode
+        ) {
+            final ClawIO io = switch (robotMode) {
+                case REAL -> new ClawIOReal(
+                        clawMainWheelBag, clawFollowerWheelBag, clawMainWheelBagInverted,
+                        clawOpenCloseMotor, clawOpenCloseMotorInverted, clawOpenCloseEncoder,
+                        clawTiltNeo, clawTiltEncoder
+                );
+                case SIM -> new ClawIOSim(
+                        clawMainWheelBag, clawFollowerWheelBag, clawMainWheelBagInverted,
+                        clawOpenCloseMotor, clawOpenCloseMotorInverted, clawOpenCloseEncoder,
+                        clawTiltNeo, clawTiltEncoder,
+                        elevatorSimStateSupplier
+                );
+                case REPLAY -> new ClawIO() {};
+            };
+
+            return new Claw(io);
+        }
+
+        public static Claw clawStateSpaceController(
+                final TalonSRX clawMainWheelBag,
+                final TalonSRX clawFollowerWheelBag,
+                final InvertType clawMainWheelBagInverted,
+                final TalonSRX clawOpenCloseMotor,
+                final InvertType clawOpenCloseMotorInverted,
+                final CANCoder clawOpenCloseEncoder,
+                final TitanSparkMAX clawTiltNeo,
+                final CANcoder clawTiltEncoder,
+                final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier,
+                final Constants.RobotMode robotMode
+        ) {
+            final ClawIO io = switch (robotMode) {
+                case REAL -> new ClawIOStateSpaceReal(
+                        clawMainWheelBag, clawFollowerWheelBag, clawMainWheelBagInverted,
+                        clawOpenCloseMotor, clawOpenCloseMotorInverted, clawOpenCloseEncoder,
+                        clawTiltNeo, clawTiltEncoder
+                );
+                case SIM -> new ClawIOStateSpaceSim(
+                        clawMainWheelBag, clawFollowerWheelBag, clawMainWheelBagInverted,
+                        clawOpenCloseMotor, clawOpenCloseMotorInverted, clawOpenCloseEncoder,
+                        clawTiltNeo, clawTiltEncoder,
+                        elevatorSimStateSupplier
+                );
+                case REPLAY -> new ClawIO() {};
+            };
+
+            return new Claw(io);
+        }
+    }
 
     private final ClawIO clawIO;
     private final ClawIOInputsAutoLogged inputs;

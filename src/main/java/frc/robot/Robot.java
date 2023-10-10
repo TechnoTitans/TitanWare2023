@@ -101,6 +101,10 @@ public class Robot extends LoggedRobot {
         }
 
         robotContainer = new RobotContainer();
+        // precompute MarkerCommands from registered options on the auto chooser
+        robotContainer.trajectoryManager.precomputeMarkerCommands(
+                robotContainer.autoChooser.getRegisteredOptions()
+        );
 
         TitanBoard.addDouble("Yaw", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getYaw));
         TitanBoard.addDouble("Pitch", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getPitch));

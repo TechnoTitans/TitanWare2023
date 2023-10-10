@@ -32,6 +32,11 @@ public interface Constants {
         COMPETITION
     }
 
+    enum ClosedLoopControllerType {
+        PID,
+        STATE_SPACE
+    }
+
     interface CTRE {
         double PHOENIX_5_100ms_PER_SECOND = 10;
         double PHOENIX_5_CANCODER_TICKS_PER_ROTATION = 4096d;
@@ -113,7 +118,7 @@ public interface Constants {
     }
 
     interface Claw {
-        boolean USE_STATE_SPACE = true;
+        ClosedLoopControllerType CONTROLLER = ClosedLoopControllerType.STATE_SPACE;
     }
 
     interface Vision {
