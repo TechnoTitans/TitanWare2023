@@ -7,9 +7,6 @@ import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
-import com.revrobotics.CANSparkMax;
-import frc.robot.utils.sim.motors.RevSparkMAXSim;
-import frc.robot.utils.sim.motors.SimMotorController;
 
 /**
  * Simulation shared utility methods/functions
@@ -68,13 +65,13 @@ public class SimUtils {
         return canCoder.setPosition(0);
     }
 
-    public static double getSimSparkMaxTorqueCurrent(final CANSparkMax sparkMax, final RevSparkMAXSim sparkMAXSim, final boolean inverted) {
+//    public static double getSimSparkMaxTorqueCurrent(final CANSparkMax sparkMax, final RevSparkMAXSim sparkMAXSim, final boolean inverted) {
 //        final double velocityCCWPositive = sparkMAXSim.getAngularVelocityRotsPerSec();
 //        final double sparkMaxEncoderVelocity = sparkMax.getEncoder().getVelocity();
 //
 //        final double outputCurrent = sparkMAXSim.getMotorCurrent();
 //
 //        return outputCurrent
-        return 0.0;
-    }
+//        return 0.0;
+//    }
 }

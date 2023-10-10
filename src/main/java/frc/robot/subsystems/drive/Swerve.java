@@ -15,7 +15,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.gyro.GyroIOSim;
-import frc.robot.utils.PoseUtils;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.sim.CurrentDrawSim;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
