@@ -10,13 +10,13 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 public interface Constants {
-    Robot ROBOT = Robot.ROBOT_2023_FALCON_SWERVE;
+    RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
     RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
 
-    enum Robot {
+    enum RobotHardware {
         ROBOT_2023_FALCON_SWERVE,
         ROBOT_2023_NEO_SWERVE
     }

@@ -111,7 +111,7 @@ public class RobotContainer {
         powerDistribution.clearStickyFaults();
 
         //Swerve Modules
-        frontLeft = switch (Constants.ROBOT) {
+        frontLeft = switch (Constants.ROBOT_HARDWARE) {
             case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "FrontLeft",
                     new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME),
@@ -133,7 +133,7 @@ public class RobotContainer {
             );
         };
 
-        frontRight = switch (Constants.ROBOT) {
+        frontRight = switch (Constants.ROBOT_HARDWARE) {
             case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "FrontRight",
                     new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME),
@@ -155,7 +155,7 @@ public class RobotContainer {
             );
         };
 
-        backLeft = switch (Constants.ROBOT) {
+        backLeft = switch (Constants.ROBOT_HARDWARE) {
             case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "BackLeft",
                     new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME),
@@ -177,7 +177,7 @@ public class RobotContainer {
             );
         };
 
-        backRight = switch (Constants.ROBOT) {
+        backRight = switch (Constants.ROBOT_HARDWARE) {
             case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "BackRight",
                     new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME),
