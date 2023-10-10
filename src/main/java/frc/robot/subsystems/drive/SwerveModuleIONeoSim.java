@@ -10,7 +10,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.feedback.SimSparkMaxAbsoluteEncoder;
@@ -31,6 +32,7 @@ public class SwerveModuleIONeoSim implements SwerveModuleIO {
     private final RelativeEncoder driveRelativeEncoder;
     private final SparkMaxPIDController driveSparkMaxPID;
 
+    private final Slot0Configs turnMotorGains = new Slot0Configs(0.1, 0, 0, 0);
     private final SparkMaxPIDController turnSparkMaxControllerPID;
     private final PIDController turnSparkMaxRoborioPID;
     private final SimpleMotorFeedforward turnMotorFeedforward;
@@ -83,7 +85,6 @@ public class SwerveModuleIONeoSim implements SwerveModuleIO {
 
         this.deltaTime = new DeltaTime();
 
-        final Slot0Configs turnMotorGains = Constants.Sim.Modules.Neo.TURN_MOTOR_CONSTANTS;
         this.turnSparkMaxRoborioPID = new PIDController(turnMotorGains.kP, turnMotorGains.kI, turnMotorGains.kD);
         this.turnSparkMaxRoborioPID.enableContinuousInput(-1, 1);
 
@@ -106,7 +107,7 @@ public class SwerveModuleIONeoSim implements SwerveModuleIO {
         // TODO: we should probably stop using Phoenix 6 stuff within rev configurations
         //  it'll probably be better for us to just make a PID gains wrapper for rev instead
         //  particularly because kV doesn't even exist for rev
-        final Slot0Configs driveMotorGains = Constants.Sim.Modules.Neo.DRIVE_MOTOR_CONSTANTS;
+        final Slot0Configs driveMotorGains = new Slot0Configs(0.1, 0, 0, 0);
         driveSparkMaxPID.setP(driveMotorGains.kP);
         driveSparkMaxPID.setI(driveMotorGains.kI);
         driveSparkMaxPID.setD(driveMotorGains.kD);
@@ -124,7 +125,6 @@ public class SwerveModuleIONeoSim implements SwerveModuleIO {
         turnMotor.setInverted(RevUtils.invertedValueToBoolean(turnInvertedValue));
         turnMotor.setSmartCurrentLimit(35);
 
-        final Slot0Configs turnMotorGains = Constants.Sim.Modules.Neo.TURN_MOTOR_CONSTANTS;
         turnSparkMaxControllerPID.setP(turnMotorGains.kP);
         turnSparkMaxControllerPID.setI(turnMotorGains.kI);
         turnSparkMaxControllerPID.setD(turnMotorGains.kD);
@@ -205,7 +205,7 @@ public class SwerveModuleIONeoSim implements SwerveModuleIO {
                 CANSparkMax.ControlType.kVelocity
         );
 
-        if (Constants.Rev.SIM_USE_ROBORIO_PID_FOR_POSITION) {
+        if (SimConstants.Rev.SIM_USE_ROBORIO_PID_FOR_POSITION) {
             turnSparkMaxControllerPID.setReference(
                     turnSparkMaxRoborioPID.calculate(getRawAngle(), desiredTurnerRotations)
                             + turnMotorFeedforward.calculate(0),

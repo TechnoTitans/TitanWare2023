@@ -1,8 +1,7 @@
 package frc.robot.utils.subsystems;
 
 import edu.wpi.first.wpilibj.Notifier;
-import frc.robot.Constants;
-import frc.robot.Robot;
+import frc.robot.constants.Constants;
 import frc.robot.utils.closeables.ToClose;
 
 import java.util.HashMap;

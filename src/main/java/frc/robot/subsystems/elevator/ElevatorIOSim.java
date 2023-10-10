@@ -17,7 +17,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.control.PIDUtils;
@@ -305,7 +305,7 @@ public class ElevatorIOSim implements ElevatorIO {
         VEConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
 
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        VEConfig.Feedback.RotorToSensorRatio = Constants.Sim.Elevator.Vertical.GEARING;
+        VEConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;
         VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
 
         VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

@@ -8,7 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import frc.robot.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.SimUtils;
@@ -67,28 +67,28 @@ public class ElevatorSimSolver {
             final TitanSparkMAX horizontalElevatorMotor
     ) {
         // Elevator root position
-        this.elevatorRootPose = Constants.Sim.Elevator.Vertical.ROBOT_TO_ROOT_MOUNT_POSE;
+        this.elevatorRootPose = SimConstants.Elevator.Vertical.ROBOT_TO_ROOT_MOUNT_POSE;
 
         // TODO: maybe a way to check if we're using FOC? or perhaps we can just assume we're always using FOC
         final DCMotor verticalElevatorDCMotors = SimUtils.getFalcon500FOC(2);
         this.verticalElevatorSim = new ElevatorSim(
                 verticalElevatorDCMotors,
-                Constants.Sim.Elevator.Vertical.GEARING,
-                Constants.Sim.Elevator.Vertical.MOVING_MASS_KG,
-                Constants.Sim.Elevator.Vertical.SPROCKET_RADIUS_M,
-                Constants.Sim.Elevator.Vertical.MIN_TOTAL_EXT_M,
-                Constants.Sim.Elevator.Vertical.MAX_TOTAL_EXT_M,
-                Constants.Sim.Elevator.Vertical.SIMULATE_GRAVITY
+                SimConstants.Elevator.Vertical.GEARING,
+                SimConstants.Elevator.Vertical.MOVING_MASS_KG,
+                SimConstants.Elevator.Vertical.SPROCKET_RADIUS_M,
+                SimConstants.Elevator.Vertical.MIN_TOTAL_EXT_M,
+                SimConstants.Elevator.Vertical.MAX_TOTAL_EXT_M,
+                SimConstants.Elevator.Vertical.SIMULATE_GRAVITY
         );
 
         this.verticalElevatorEncoder = verticalElevatorEncoder;
         this.verticalElevatorSimMotors = new CTREPhoenix6TalonFXSim(
                 List.of(verticalElevatorMotor, verticalElevatorMotorFollower),
-                Constants.Sim.Elevator.Vertical.GEARING,
+                SimConstants.Elevator.Vertical.GEARING,
                 new DCMotorSim(
                         verticalElevatorDCMotors,
-                        Constants.Sim.Elevator.Vertical.GEARING,
-                        Constants.Sim.Elevator.Vertical.EXT_MOI
+                        SimConstants.Elevator.Vertical.GEARING,
+                        SimConstants.Elevator.Vertical.EXT_MOI
                 )
         );
         this.verticalElevatorSimMotors.attachFeedbackSensor(new SimPhoenix6CANCoder(verticalElevatorEncoder));
@@ -96,12 +96,12 @@ public class ElevatorSimSolver {
         final DCMotor horizontalElevatorDCMotor = DCMotor.getNEO(1);
         this.horizontalElevatorSim = new ElevatorSim(
                 horizontalElevatorDCMotor,
-                Constants.Sim.Elevator.Horizontal.GEARING,
-                Constants.Sim.Elevator.Horizontal.MOVING_MASS_KG,
-                Constants.Sim.Elevator.Horizontal.SPROCKET_RADIUS_M,
-                Constants.Sim.Elevator.Horizontal.MIN_TOTAL_EXT_M,
-                Constants.Sim.Elevator.Horizontal.MAX_TOTAL_EXT_M,
-                Constants.Sim.Elevator.Horizontal.SIMULATE_GRAVITY
+                SimConstants.Elevator.Horizontal.GEARING,
+                SimConstants.Elevator.Horizontal.MOVING_MASS_KG,
+                SimConstants.Elevator.Horizontal.SPROCKET_RADIUS_M,
+                SimConstants.Elevator.Horizontal.MIN_TOTAL_EXT_M,
+                SimConstants.Elevator.Horizontal.MAX_TOTAL_EXT_M,
+                SimConstants.Elevator.Horizontal.SIMULATE_GRAVITY
         );
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
         this.horizontalElevatorSimMotor = new RevSparkMAXSim(
@@ -109,8 +109,8 @@ public class ElevatorSimSolver {
                 horizontalElevatorDCMotor,
                 new DCMotorSim(
                         horizontalElevatorDCMotor,
-                        Constants.Sim.Elevator.Horizontal.GEARING,
-                        Constants.Sim.Elevator.Horizontal.EXT_MOI
+                        SimConstants.Elevator.Horizontal.GEARING,
+                        SimConstants.Elevator.Horizontal.EXT_MOI
                 )
         );
         this.horizontalElevatorSimMotor.attachFeedbackSensor(new SimPhoenix6CANCoder(horizontalElevatorEncoder));
@@ -127,7 +127,7 @@ public class ElevatorSimSolver {
         this.verticalStageOneUpperBoundPose = PoseUtils.withAxisOffset(
                 verticalStageOneLowerBoundPose,
                 PoseUtils.Axis.Z,
-                Constants.Sim.Elevator.Vertical.STAGE_ONE_HEIGHT
+                SimConstants.Elevator.Vertical.STAGE_ONE_HEIGHT
         );
 
         this.verticalStageOneCenterPose = new Pose3d(
@@ -149,7 +149,7 @@ public class ElevatorSimSolver {
         this.verticalStageTwoUpperBoundPose = PoseUtils.withAxisOffset(
                 verticalStageTwoLowerBoundPose,
                 PoseUtils.Axis.Z,
-                Constants.Sim.Elevator.Vertical.STAGE_TWO_HEIGHT
+                SimConstants.Elevator.Vertical.STAGE_TWO_HEIGHT
         );
 
         this.verticalStageTwoCenterPose = new Pose3d(
@@ -178,7 +178,7 @@ public class ElevatorSimSolver {
         this.horizontalStageOneFrontBoundPose = PoseUtils.withAxisOffset(
                 horizontalStageOneBackBoundPose,
                 PoseUtils.Axis.X,
-                Constants.Sim.Elevator.Horizontal.STAGE_ONE_LENGTH
+                SimConstants.Elevator.Horizontal.STAGE_ONE_LENGTH
         );
 
         this.horizontalStageOneCenterPose = new Pose3d(
@@ -200,7 +200,7 @@ public class ElevatorSimSolver {
         this.horizontalStageTwoFrontBoundPose = PoseUtils.withAxisOffset(
                 horizontalStageTwoBackBoundPose,
                 PoseUtils.Axis.X,
-                Constants.Sim.Elevator.Horizontal.STAGE_TWO_LENGTH
+                SimConstants.Elevator.Horizontal.STAGE_TWO_LENGTH
         );
 
         this.horizontalStageTwoCenterPose = new Pose3d(
@@ -214,19 +214,19 @@ public class ElevatorSimSolver {
     }
 
     private double fromVerticalOutputRotationsToLinearDistanceMeters(final double outputRotations) {
-        return outputRotations * Constants.Sim.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
+        return outputRotations * SimConstants.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double fromVerticalLinearDistanceMetersToOutputRotations(final double linearDistance) {
-        return linearDistance / Constants.Sim.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
+        return linearDistance / SimConstants.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double fromHorizontalOutputRotationsToLinearDistanceMeters(final double outputRotations) {
-        return outputRotations * Constants.Sim.Elevator.Horizontal.SPROCKET_CIRCUMFERENCE_M;
+        return outputRotations * SimConstants.Elevator.Horizontal.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double fromHorizontalLinearDistanceMetersToOutputRotations(final double linearDistance) {
-        return linearDistance / Constants.Sim.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
+        return linearDistance / SimConstants.Elevator.Vertical.SPROCKET_CIRCUMFERENCE_M;
     }
 
     private double cascadeFromPreviousStage(
@@ -245,10 +245,10 @@ public class ElevatorSimSolver {
         final double stageOneExtension = fromVerticalOutputRotationsToLinearDistanceMeters(verticalOutputPositionRots);
         final double stageTwoExtension = cascadeFromPreviousStage(
                 stageOneExtension,
-                Constants.Sim.Elevator.Vertical.STAGE_ONE_OFFSET,
-                Constants.Sim.Elevator.Vertical.STAGE_ONE_EXT_HEIGHT,
-                Constants.Sim.Elevator.Vertical.STAGE_TWO_OFFSET,
-                Constants.Sim.Elevator.Vertical.STAGE_TWO_EXT_HEIGHT
+                SimConstants.Elevator.Vertical.STAGE_ONE_OFFSET,
+                SimConstants.Elevator.Vertical.STAGE_ONE_EXT_HEIGHT,
+                SimConstants.Elevator.Vertical.STAGE_TWO_OFFSET,
+                SimConstants.Elevator.Vertical.STAGE_TWO_EXT_HEIGHT
         );
 
         verticalStageOneExtension = stageOneExtension;
@@ -262,10 +262,10 @@ public class ElevatorSimSolver {
         );
         final double stageTwoExtension = cascadeFromPreviousStage(
                 stageOneExtension,
-                Constants.Sim.Elevator.Horizontal.STAGE_ONE_OFFSET,
-                Constants.Sim.Elevator.Horizontal.STAGE_ONE_EXT_LENGTH,
-                Constants.Sim.Elevator.Horizontal.STAGE_TWO_OFFSET,
-                Constants.Sim.Elevator.Horizontal.STAGE_TWO_EXT_LENGTH
+                SimConstants.Elevator.Horizontal.STAGE_ONE_OFFSET,
+                SimConstants.Elevator.Horizontal.STAGE_ONE_EXT_LENGTH,
+                SimConstants.Elevator.Horizontal.STAGE_TWO_OFFSET,
+                SimConstants.Elevator.Horizontal.STAGE_TWO_EXT_LENGTH
         );
 
         horizontalStageOneExtension = stageOneExtension;

@@ -17,7 +17,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
@@ -260,7 +260,7 @@ public class ElevatorIOReal implements ElevatorIO {
         final TalonFXConfiguration verticalElevatorMotorConfig = new TalonFXConfiguration();
         verticalElevatorMotorConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
         verticalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        verticalElevatorMotorConfig.Feedback.RotorToSensorRatio = Constants.Sim.Elevator.Vertical.GEARING;
+        verticalElevatorMotorConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;
         verticalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         verticalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorR;

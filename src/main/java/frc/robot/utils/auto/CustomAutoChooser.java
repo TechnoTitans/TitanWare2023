@@ -4,7 +4,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.networktables.StringSubscriber;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import frc.robot.utils.closeables.ToClose;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;

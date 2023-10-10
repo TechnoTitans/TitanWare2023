@@ -1,6 +1,6 @@
 package frc.robot.utils.auto;
 
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 
 import java.util.Arrays;
 import java.util.HashSet;

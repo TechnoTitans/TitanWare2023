@@ -14,12 +14,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.SimUtils;
 import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
 import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
+import frc.robot.wrappers.control.Slot0Configs;
 
 public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     private final TalonFX driveMotor;
@@ -91,7 +92,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         // TODO: I think we need to look at VoltageConfigs and/or CurrentLimitConfigs for limiting the
         //  current we can apply in sim, this is cause we use VelocityVoltage in sim instead of VelocityTorqueCurrentFOC
         //  which means that TorqueCurrent.PeakForwardTorqueCurrent and related won't affect it
-        driveTalonFXConfiguration.Slot0 = Constants.Sim.Modules.Falcon.DRIVE_MOTOR_CONSTANTS;
+        driveTalonFXConfiguration.Slot0 = new Slot0Configs(0, 0, 0, 0.913);
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
@@ -100,7 +101,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
-        turnTalonFXConfiguration.Slot0 = Constants.Sim.Modules.Falcon.TURN_MOTOR_CONSTANTS;
+        turnTalonFXConfiguration.Slot0 = new Slot0Configs(40, 0, 0, 0);
         turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
         turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();

@@ -7,7 +7,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
@@ -67,7 +67,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
         // TODO: we should probably stop using Phoenix 6 stuff within rev configurations
         //  it'll probably be better for us to just make a PID gains wrapper for rev instead
         //  particularly because kV doesn't even exist for rev
-        final Slot0Configs driveMotorGains = Constants.Modules.Neo.DRIVE_MOTOR_CONSTANTS;
+        final Slot0Configs driveMotorGains = new Slot0Configs(60, 0, 3, 0);
         driveSparkMaxPID.setP(driveMotorGains.kP);
         driveSparkMaxPID.setI(driveMotorGains.kI);
         driveSparkMaxPID.setD(driveMotorGains.kD);
@@ -87,7 +87,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
         turnSparkMaxPID.setFeedbackDevice(turnAbsoluteEncoder);
 
-        final Slot0Configs turnMotorGains = Constants.Modules.Neo.TURN_MOTOR_CONSTANTS;
+        final Slot0Configs turnMotorGains = new Slot0Configs(30, 0, 0.5, 0);
         turnSparkMaxPID.setP(turnMotorGains.kP);
         turnSparkMaxPID.setI(turnMotorGains.kI);
         turnSparkMaxPID.setD(turnMotorGains.kD);

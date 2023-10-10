@@ -4,8 +4,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.Constants;
 import frc.robot.RobotMap;
+import frc.robot.constants.Constants;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.SimCameraProperties;
 

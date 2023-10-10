@@ -14,7 +14,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;

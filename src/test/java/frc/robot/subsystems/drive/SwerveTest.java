@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.junit.jupiter.api.BeforeAll;

@@ -7,7 +7,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
@@ -176,7 +176,7 @@ public class SwerveModule {
          * @param driveMotorInvertedValue {@link InvertedValue} of the drive {@link TalonFX}
          * @param turnMotorInvertedValue {@link InvertedValue} of the turn {@link TalonFX}
          * @param magnetOffset the magnet offset of the turn {@link CANcoder}
-         * @param robotMode the {@link frc.robot.Constants.RobotMode} describing the current mode
+         * @param robotMode the {@link Constants.RobotMode} describing the current mode
          * @return the constructed {@link SwerveModule}
          */
         public static SwerveModule SDSMK4iFalcon500CANCoder(
@@ -213,7 +213,7 @@ public class SwerveModule {
          * @param driveMotorInvertedValue {@link InvertedValue} of the drive {@link TitanSparkMAX}
          * @param turnMotorInvertedValue {@link InvertedValue} of the turn {@link TitanSparkMAX}
          * @param magnetOffset the magnet offset of the turn {@link com.revrobotics.AbsoluteEncoder}
-         * @param robotMode the {@link frc.robot.Constants.RobotMode} describing the current mode
+         * @param robotMode the {@link Constants.RobotMode} describing the current mode
          * @return the constructed {@link SwerveModule}
          */
         public static SwerveModule SDSMk4iSparkMAX(

@@ -2,7 +2,7 @@ package frc.robot.subsystems.gyro;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class Gyro {

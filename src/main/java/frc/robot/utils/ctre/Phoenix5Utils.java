@@ -3,7 +3,7 @@ package frc.robot.utils.ctre;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 
 public class Phoenix5Utils {
     public static final int HUNDRED_MILLISECONDS_PER_SECOND = 10;

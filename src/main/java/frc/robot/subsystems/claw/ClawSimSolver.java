@@ -20,7 +20,7 @@ import frc.robot.utils.sim.motors.RevSparkMAXSim;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
-import static frc.robot.Constants.Sim.Claw;
+import static frc.robot.constants.SimConstants.Claw;
 
 public class ClawSimSolver {
     private final CTREPhoenix5TalonSRXSim clawMainWheelSim, clawFollowerWheelSim;

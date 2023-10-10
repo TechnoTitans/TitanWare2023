@@ -4,7 +4,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.utils.sim.feedback.SimFeedbackSensor;
 
 import java.util.List;
@@ -71,7 +71,7 @@ public class CTREPhoenix6TalonFXSim implements SimMotorController {
             simState.setRawRotorPosition(gearRatio * mechanismAngularPositionRots);
             simState.setRotorVelocity(gearRatio * mechanismAngularVelocityRotsPerSec);
             simState.setSupplyVoltage(
-                    12 - (simState.getSupplyCurrent() * Constants.Sim.FALCON_MOTOR_RESISTANCE)
+                    12 - (simState.getSupplyCurrent() * SimConstants.FALCON_MOTOR_RESISTANCE)
             );
         }
 

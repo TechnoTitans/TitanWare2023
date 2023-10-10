@@ -2,7 +2,7 @@ package frc.robot.utils.gyro;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 
 import java.util.function.Supplier;
 

@@ -24,7 +24,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
+import frc.robot.constants.SimConstants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;
@@ -107,8 +108,8 @@ public class ClawIOStateSpaceSim implements ClawIO {
 
         this.tiltPlant = LinearSystemId.createSingleJointedArmSystem(
                 DCMotor.getNEO(1),
-                Constants.Sim.Claw.TILT_MOI,
-                Constants.Sim.Claw.TILT_GEARING
+                SimConstants.Claw.TILT_MOI,
+                SimConstants.Claw.TILT_GEARING
         );
 
         this.tiltObserver = new KalmanFilter<>(

@@ -1,7 +1,7 @@
 package frc.robot.profiler;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
+import frc.robot.constants.Constants;
 
 public class Profiler {
     private static DriverProfile driverProfile = DriverProfile.DEFAULT;
