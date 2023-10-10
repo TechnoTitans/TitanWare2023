@@ -230,6 +230,7 @@ public class Elevator extends SubsystemBase {
      * @see Elevator#isAtState(SuperstructureStates.ElevatorState)
      * @see Elevator#getCurrentStateWithNullAsTransition()
      */
+    @SuppressWarnings("unused")
     public SuperstructureStates.ElevatorState getCurrentState() {
         return currentState;
     }

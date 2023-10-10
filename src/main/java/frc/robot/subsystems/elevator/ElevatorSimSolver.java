@@ -325,10 +325,6 @@ public class ElevatorSimSolver {
         updateHorizontal(dt);
     }
 
-    public CTREPhoenix6TalonFXSim getVerticalElevatorSimMotors() {
-        return verticalElevatorSimMotors;
-    }
-
     public ElevatorSimSolver.ElevatorSimState getElevatorSimState() {
         return new ElevatorSimSolver.ElevatorSimState(
                 elevatorRootPose,
