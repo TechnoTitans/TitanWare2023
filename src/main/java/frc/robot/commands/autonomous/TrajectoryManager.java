@@ -8,14 +8,12 @@ import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.control.DriveToPoseController;
-import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 public class TrajectoryManager {
     private final Swerve swerve;
     private final DriveController controller;
     private final DriveToPoseController holdPositionController;
-    private final CandleController candleController;
     private final PhotonVision photonVision;
 
     private final Claw claw;
@@ -25,7 +23,6 @@ public class TrajectoryManager {
             final Swerve swerve,
             final DriveController controller,
             final DriveToPoseController holdPositionController,
-            final CandleController candleController,
             final PhotonVision photonVision,
             final Claw claw,
             final Elevator elevator
@@ -33,7 +30,6 @@ public class TrajectoryManager {
         this.swerve = swerve;
         this.controller = controller;
         this.holdPositionController = holdPositionController;
-        this.candleController = candleController;
         this.photonVision = photonVision;
 
         this.claw = claw;
@@ -65,7 +61,6 @@ public class TrajectoryManager {
         // TODO: what happens if transformForAlliance is true?
         return new TrajectoryFollower(
                 swerve,
-                candleController,
                 controller,
                 holdPositionController,
                 photonVision,
@@ -79,7 +74,6 @@ public class TrajectoryManager {
         final TitanTrajectory trajectory = getTrajectoryFromPath(autoOption);
         return new TrajectoryFollower(
                 swerve,
-                candleController,
                 controller,
                 holdPositionController,
                 photonVision,

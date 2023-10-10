@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.alignment.AlignmentZone;
+import frc.robot.wrappers.leds.CandleController;
 
 public class ButtonBindings {
     public static void bindAll(final RobotContainer robotContainer) {
@@ -61,10 +62,10 @@ public class ButtonBindings {
 
         // Co Driver
         coDriverController.y().onTrue(
-                Commands.runOnce(() -> robotContainer.candleController.setState(SuperstructureStates.CANdleState.YELLOW))
+                Commands.runOnce(() -> CandleController.getInstance().setState(SuperstructureStates.CANdleState.YELLOW))
         );
         coDriverController.x().onTrue(
-                Commands.runOnce(() -> robotContainer.candleController.setState(SuperstructureStates.CANdleState.PURPLE))
+                Commands.runOnce(() -> CandleController.getInstance().setState(SuperstructureStates.CANdleState.PURPLE))
         );
 
         // ElevatorClawTeleop
@@ -75,6 +76,7 @@ public class ButtonBindings {
         ElevatorClawTeleop.addMapping(
                 driverController.a(),
                 new ElevatorClawCommand.Builder(elevator, claw)
+                        .endIfInState(SuperstructureStates.ElevatorClawStateType.SCORING)
                         .withConditionalElevatorState(
                                 SuperstructureStates.ElevatorState.ELEVATOR_CUBE, SuperstructureStates.ElevatorState.ELEVATOR_STANDBY
                         )

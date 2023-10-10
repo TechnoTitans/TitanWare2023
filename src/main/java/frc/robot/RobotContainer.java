@@ -1,6 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -84,10 +83,6 @@ public class RobotContainer {
     public final TitanCamera photonDriveCamera;
     public final TitanCamera photonFR_Apriltag_R, photonFR_Apriltag_F, photonFL_Apriltag_L, photonBR_Apriltag_B;
     public final PhotonVision photonVision;
-
-    //Candle
-    public final CANdle cANdle;
-    public final CandleController candleController;
 
     //SubSystems
     public final Swerve swerve;
@@ -393,8 +388,7 @@ public class RobotContainer {
         };
 
         //LEDs
-        cANdle = new CANdle(RobotMap.CANdle_ID);
-        candleController = new CandleController(cANdle);
+        CandleController.getInstance();
 
         //Controllers
         driverController = new CommandXboxController(RobotMap.MainController);
@@ -409,7 +403,6 @@ public class RobotContainer {
                 swerve,
                 holonomicDriveController,
                 holdPositionDriveController,
-                candleController,
                 photonVision,
                 claw,
                 elevator

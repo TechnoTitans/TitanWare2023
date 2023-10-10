@@ -59,7 +59,6 @@ public class TrajectoryFollower extends CommandBase {
 
     public TrajectoryFollower(
             final Swerve swerve,
-            final CandleController candleController,
             final DriveController holonomicDriveController,
             final DriveToPoseController holdPositionController,
             final PhotonVision photonVision,
@@ -71,7 +70,7 @@ public class TrajectoryFollower extends CommandBase {
         this.eventMarkerNavigableMap = new TreeMap<>();
 
         this.swerve = swerve;
-        this.candleController = candleController;
+        this.candleController = CandleController.getInstance();
         this.holonomicDriveController = holonomicDriveController;
         this.holdPositionController = holdPositionController;
         this.photonVision = photonVision;

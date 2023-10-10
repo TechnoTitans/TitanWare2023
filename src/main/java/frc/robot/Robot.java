@@ -15,6 +15,7 @@ import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.subsystems.VirtualSubsystem;
 import frc.robot.utils.teleop.ButtonBindings;
+import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -125,7 +126,7 @@ public class Robot extends LoggedRobot {
 
         ButtonBindings.clear();
 
-        robotContainer.candleController.setState(SuperstructureStates.CANdleState.OFF);
+        CandleController.getInstance().setState(SuperstructureStates.CANdleState.OFF);
     }
 
     @Override

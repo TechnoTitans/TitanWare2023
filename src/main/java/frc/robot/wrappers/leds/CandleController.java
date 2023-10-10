@@ -2,9 +2,18 @@ package frc.robot.wrappers.leds;
 
 import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.RobotMap;
 import frc.robot.utils.SuperstructureStates;
 
 public class CandleController {
+    private static CandleController INSTANCE;
+    public static CandleController getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new CandleController(new CANdle(RobotMap.CANdle_ID));
+        }
+        return INSTANCE;
+    }
+
     private final CANdle candle;
     private SuperstructureStates.CANdleState currentState;
 

@@ -203,11 +203,11 @@ public class Elevator extends SubsystemBase {
         return MathUtils.withinTolerance(
                 getVEControlMeasurement(verticalElevatorMode),
                 desiredState.getVEControlInput(),
-                0.05
+                0.4
         ) && MathUtils.withinTolerance(
                 getHEControlMeasurement(horizontalElevatorMode),
                 desiredState.getHEControlInput(),
-                0.05
+                0.4
         );
     }
 

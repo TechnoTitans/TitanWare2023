@@ -99,21 +99,21 @@ public class Claw extends SubsystemBase {
                     MathUtils.withinTolerance(
                             inputs.intakeWheelsPercentOutput,
                             desiredState.getIntakeWheelsPercentOutput(),
-                            0.05
+                            0.15
                     ) && MathUtils.withinTolerance(
                             switch (openCloseControlMode) {
                                 case POSITION -> inputs.openCloseEncoderPositionRots;
                                 case DUTY_CYCLE -> inputs.openClosePercentOutput;
                             },
                             desiredState.getOpenCloseControlInput(),
-                            0.05
+                            0.4
                     ) && MathUtils.withinTolerance(
                             switch (tiltControlMode) {
                                 case POSITION -> inputs.tiltEncoderPositionRots;
                                 case DUTY_CYCLE -> inputs.tiltPercentOutput;
                             },
                             desiredState.getTiltControlInput(),
-                            0.05
+                            0.4
                     );
 
             if (isAtDesired) {
