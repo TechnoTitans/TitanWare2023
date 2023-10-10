@@ -132,4 +132,9 @@ public class CTREPhoenix5TalonSRXSim implements SimMotorController {
                     .orElseThrow();
         }
     }
+
+    @Override
+    public double getMotorCurrent() {
+        return dcMotorSim.getCurrentDrawAmps();
+    }
 }

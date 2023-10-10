@@ -204,24 +204,6 @@ public class PoseUtils {
                 && pose3d.getZ() <= FieldConstants.FIELD_WITHIN_Z_MARGIN;
     }
 
-    public static Twist2d log(final Pose2d transform) {
-        final double dTheta = transform.getRotation().getRadians();
-        final double halfDTheta = 0.5 * dTheta;
-        final double cosMinusOne = transform.getRotation().getCos() - 1.0;
-
-        final double halfThetaByTanOfHalfTheta;
-        if (Math.abs(cosMinusOne) < EPSILON) {
-            halfThetaByTanOfHalfTheta = 1.0 - 1.0 / 12.0 * dTheta * dTheta;
-        } else {
-            halfThetaByTanOfHalfTheta = -(halfDTheta * transform.getRotation().getSin()) / cosMinusOne;
-        }
-
-        final Translation2d translation_part = transform.getTranslation()
-                .rotateBy(new Rotation2d(halfThetaByTanOfHalfTheta, -halfDTheta));
-
-        return new Twist2d(translation_part.getX(), translation_part.getY(), dTheta);
-    }
-
     public enum Axis {
         X(new Transform3d(new Translation3d(1, 0, 0), new Rotation3d())),
         Y(new Transform3d(new Translation3d(0, 1, 0), new Rotation3d())),

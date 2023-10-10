@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.Constants;
 import frc.robot.utils.subsystems.VirtualSubsystem;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
 
 import java.util.HashMap;
@@ -101,13 +102,17 @@ public class CurrentDrawSim extends VirtualSubsystem {
     @Override
     public void periodic() {
         this.isDataOld = true;
+        Logger.getInstance().recordOutput("TotalCurrentDraw", getTotalCurrentDraw());
+        Logger.getInstance().recordOutput("CurrentDraws", currentDraws.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .toArray()
+        );
+
         RoboRioSim.setVInVoltage(
                 BatterySim.calculateLoadedBatteryVoltage(
                         Constants.PDH.BATTERY_NOMINAL_VOLTAGE,
                         Constants.PDH.BATTERY_RESISTANCE_OHMS,
-                        currentDraws.values().stream()
-                                .mapToDouble(Double::doubleValue)
-                                .toArray()
+                        getTotalCurrentDraw()
                 )
         );
     }

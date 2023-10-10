@@ -77,4 +77,8 @@ public class RevUtils {
     public static double rotationsPerSecondToRotationsPerMinute(final double rps) {
         return rps * SECONDS_PER_MINUTE;
     }
+
+    public static double getSparkMaxTorqueCurrent(final CANSparkMax sparkMax) {
+        return 0.0;
+    }
 }

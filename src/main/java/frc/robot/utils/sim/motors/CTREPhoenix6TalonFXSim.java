@@ -110,4 +110,11 @@ public class CTREPhoenix6TalonFXSim implements SimMotorController {
                 ? simStates.get(0).getMotorVoltage()
                 : simStates.stream().mapToDouble(TalonFXSimState::getMotorVoltage).average().orElseThrow();
     }
+
+    @Override
+    public double getMotorCurrent() {
+        return isSingularTalonFX
+                ? simStates.get(0).getTorqueCurrent()
+                : simStates.stream().mapToDouble(TalonFXSimState::getTorqueCurrent).average().orElseThrow();
+    }
 }

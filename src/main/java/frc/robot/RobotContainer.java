@@ -295,7 +295,7 @@ public class RobotContainer {
                     clawTiltNeo,
                     clawTiltEncoder
             ));
-            case SIM -> new Claw(new ClawIOSim(
+            case SIM -> new Claw(new ClawIOStateSpaceSim(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,

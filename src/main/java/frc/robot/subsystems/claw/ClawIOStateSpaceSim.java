@@ -25,14 +25,19 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
+import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.ctre.Phoenix5Utils;
-import frc.robot.utils.ctre.Phoenix6Utils;
+import frc.robot.utils.sim.SimUtils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Supplier;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class ClawIOStateSpace implements ClawIO {
+public class ClawIOStateSpaceSim implements ClawIO {
+    private final ClawSimSolver clawSimSolver;
     private final DeltaTime deltaTime;
 
     private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
@@ -42,6 +47,8 @@ public class ClawIOStateSpace implements ClawIO {
     private final CANCoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
+
+    private final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier;
 
     private TrapezoidProfile.State lastProfiledState = new TrapezoidProfile.State();
     private final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
@@ -64,7 +71,7 @@ public class ClawIOStateSpace implements ClawIO {
     //Claw Open Close Control Input
     private double desiredOpenCloseControlInput;
 
-    public ClawIOStateSpace(
+    public ClawIOStateSpaceSim(
             final TalonSRX clawMainWheelBag,
             final TalonSRX clawFollowerWheelBag,
             final InvertType clawMainWheelBagInverted,
@@ -72,8 +79,19 @@ public class ClawIOStateSpace implements ClawIO {
             final InvertType clawOpenCloseMotorInverted,
             final CANCoder clawOpenCloseEncoder,
             final TitanSparkMAX clawTiltNeo,
-            final CANcoder clawTiltEncoder
+            final CANcoder clawTiltEncoder,
+            final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier
     ) {
+        this.clawSimSolver = new ClawSimSolver(
+                clawMainWheelBag,
+                clawFollowerWheelBag,
+                clawOpenCloseMotor,
+                clawOpenCloseEncoder,
+                clawTiltNeo,
+                clawTiltEncoder
+        );
+        this.deltaTime = new DeltaTime();
+
         this.clawMainWheelBag = clawMainWheelBag;
         this.clawFollowerWheelBag = clawFollowerWheelBag;
         this.clawMainWheelBagInverted = clawMainWheelBagInverted;
@@ -85,9 +103,7 @@ public class ClawIOStateSpace implements ClawIO {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
 
-        config();
-
-        this.deltaTime = new DeltaTime();
+        this.elevatorSimStateSupplier = elevatorSimStateSupplier;
 
         this.tiltPlant = LinearSystemId.createSingleJointedArmSystem(
                 DCMotor.getNEO(1),
@@ -126,36 +142,33 @@ public class ClawIOStateSpace implements ClawIO {
                 tiltPlant,
                 tiltController,
                 tiltObserver,
-                Constants.PDH.BATTERY_NOMINAL_VOLTAGE,
+                12.0,
                 Constants.LOOP_PERIOD_SECONDS
         );
 
-        final double tiltEncoderAbsolutePositionRads = Units.rotationsToRadians(getTiltAbsolutePositionRots());
-        final double tiltEncoderVelocityRadsPerSec = Units.rotationsToRadians(
-                clawTiltEncoder.getVelocity().refresh().getValue()
-        );
+        config();
 
+//        final double tiltEncoderAbsolutePosition = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
+//        final double tiltEncoderVelocity = clawTiltEncoder.getVelocity().refresh().getValue();
+
+        // TODO: again some issue with CANCoder initialization in sim not being correct
+        //  resulting in erroneous reporting of absolute position and velocity at startup
         tiltSystemLoop.reset(VecBuilder.fill(
-                tiltEncoderAbsolutePositionRads,
-                tiltEncoderVelocityRadsPerSec
+                0,
+                0
         ));
 
         lastProfiledState = new TrapezoidProfile.State(
-                tiltEncoderAbsolutePositionRads,
-                tiltEncoderVelocityRadsPerSec
-        );
-    }
-
-    public double getTiltAbsolutePositionRots() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                clawTiltEncoder.getAbsolutePosition(),
-                clawTiltEncoder.getVelocity()
+                0,
+                0
         );
     }
 
     @Override
     public void periodic() {
         final double dtSeconds = deltaTime.get();
+        final ElevatorSimSolver.ElevatorSimState elevatorSimState = elevatorSimStateSupplier.get();
+        clawSimSolver.update(dtSeconds, elevatorSimState);
 
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
         clawOpenCloseMotor.set(
@@ -172,28 +185,30 @@ public class ClawIOStateSpace implements ClawIO {
                         0
                 );
                 final TrapezoidProfile profile = new TrapezoidProfile(constraints, goal, lastProfiledState);
-
                 lastProfiledState = profile.calculate(dtSeconds);
 
                 tiltSystemLoop.setNextR(lastProfiledState.position, lastProfiledState.velocity);
                 tiltSystemLoop.correct(
-                        VecBuilder.fill(getTiltAbsolutePositionRots())
+                        VecBuilder.fill(
+                                Units.rotationsToRadians(clawTiltEncoder.getAbsolutePosition().refresh().getValue())
+                        )
                 );
                 tiltSystemLoop.predict(dtSeconds);
 
                 final double nextInputVoltage = tiltSystemLoop.getU(0);
+                Logger.getInstance().recordOutput("NextInputVoltage", nextInputVoltage);
                 clawTiltNeo.getPIDController().setReference(nextInputVoltage, CANSparkMax.ControlType.kVoltage);
             }
-            case DUTY_CYCLE -> clawTiltNeo.getPIDController().setReference(
-                    desiredTiltControlInput,
-                    CANSparkMax.ControlType.kDutyCycle
-            );
+            case DUTY_CYCLE -> throw new RuntimeException("UhOh!");
         }
     }
 
     @Override
-    public void updateInputs(final ClawIOInputs inputs) {
-        inputs.tiltEncoderPositionRots = getTiltAbsolutePositionRots();
+    public void updateInputs(final ClawIO.ClawIOInputs inputs) {
+        final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
+        clawSimState.log(Claw.logKey + "SimState");
+
+        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
 
@@ -204,7 +219,6 @@ public class ClawIOStateSpace implements ClawIO {
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
         // Bag Motors
@@ -244,10 +258,13 @@ public class ClawIOStateSpace implements ClawIO {
         clawTiltNeo.setIdleMode(CANSparkMax.IdleMode.kBrake);
         clawTiltNeo.setSmartCurrentLimit(25);
 
+        final SensorDirectionValue clawTiltEncoderSensorDirection = SensorDirectionValue.Clockwise_Positive;
         final CANcoderConfiguration clawTiltEncoderConfig = new CANcoderConfiguration();
-        clawTiltEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        clawTiltEncoderConfig.MagnetSensor.SensorDirection = clawTiltEncoderSensorDirection;
         clawTiltEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         clawTiltEncoderConfig.MagnetSensor.MagnetOffset = -0.17;
+
+        SimUtils.setCTRECANCoderSimStateSensorDirection(clawTiltEncoder, clawTiltEncoderSensorDirection);
 
         clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }

@@ -157,12 +157,18 @@ public class SwerveModuleIONeoSim implements SwerveModuleIO {
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
-        inputs.driveCurrentAmps = driveMotor.getOutputCurrent();
+        // TODO: getOutputCurrent doesn't even work in sim... figure out a way to calculate a semi-correct current
+        //  for NEOs in sim
+        inputs.driveTorqueCurrentAmps = driveMotor.getOutputCurrent();
+        inputs.driveStatorCurrentAmps = 0;
         inputs.driveTempCelsius = driveMotor.getMotorTemperature();
 
         inputs.turnAbsolutePositionRots = getRawAngle();
         inputs.turnVelocityRotsPerSec = turnAbsoluteEncoder.getVelocity();
-        inputs.turnCurrentAmps = turnMotor.getOutputCurrent();
+        // TODO: getOutputCurrent doesn't even work in sim... figure out a way to calculate a semi-correct current
+        //  for NEOs in sim
+        inputs.turnTorqueCurrentAmps = turnMotor.getOutputCurrent();
+        inputs.turnStatorCurrentAmps = 0;
         inputs.turnTempCelsius = turnMotor.getMotorTemperature();
     }
 

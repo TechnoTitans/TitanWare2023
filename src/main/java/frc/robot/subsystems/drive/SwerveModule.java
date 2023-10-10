@@ -51,10 +51,10 @@ public class SwerveModule {
     }
 
     /**
-     * Get the current draw of the {@link SwerveModule} (drive & turn motors)
+     * Get the current draw (stator current) of the {@link SwerveModule} (drive & turn motors)
      * @return the total current draw of the {@link SwerveModule}, in amps
      */
-    public double getCurrent() { return inputs.driveCurrentAmps + inputs.turnCurrentAmps; }
+    public double getCurrentDrawAmps() { return inputs.driveStatorCurrentAmps + inputs.driveStatorCurrentAmps; }
 
     /**
      * Get a {@link Rotation2d} of the current absolute turn position (computed from encoder rotations)

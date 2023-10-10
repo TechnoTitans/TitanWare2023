@@ -15,9 +15,13 @@ public interface SwerveModuleIO {
          */
         public double driveVelocityRotsPerSec = 0.0;
         /**
-         * Output current of the drive motor, in Amps
+         * Torque output current of the drive motor (rotor), in Amps
          */
-        public double driveCurrentAmps = 0.0;
+        public double driveTorqueCurrentAmps = 0.0;
+        /**
+         * Stator current of the drive motor (rotor), in Amps
+         */
+        public double driveStatorCurrentAmps = 0.0;
         /**
          * Temperature of the drive motor, in Celsius
          */
@@ -32,9 +36,13 @@ public interface SwerveModuleIO {
          */
         public double turnVelocityRotsPerSec = 0.0;
         /**
-         * Output current of the turn motor, in Amps
+         * Torque output current of the turn motor (rotor), in Amps
          */
-        public double turnCurrentAmps = 0.0;
+        public double turnTorqueCurrentAmps = 0.0;
+        /**
+         * Stator current of the turn motor (rotor), in Amps
+         */
+        public double turnStatorCurrentAmps = 0.0;
         /**
          * Temperature of the turn motor, in Celsius
          */

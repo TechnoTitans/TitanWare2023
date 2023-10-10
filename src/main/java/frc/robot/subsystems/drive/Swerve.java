@@ -100,7 +100,7 @@ public class Swerve extends SubsystemBase {
         //report current draws in sim
         CurrentDrawSim.reportIfEnabled(
                 Arrays.stream(swerveModules)
-                        .map(SwerveModule::getCurrent)
+                        .map(SwerveModule::getCurrentDrawAmps)
                         .mapToDouble(Double::doubleValue)
                         .sum(),
                 Constants.PDH.DRIVETRAIN_CHANNELS
@@ -236,17 +236,19 @@ public class Swerve extends SubsystemBase {
     public void drive(final ChassisSpeeds speeds) {
         final ChassisSpeeds correctedSpeeds;
         if (Constants.Swerve.USE_SWERVE_SKEW_FIX) {
-            final Pose2d lookaheadRobotPose = new Pose2d(
-                    speeds.vxMetersPerSecond * Constants.LOOP_PERIOD_SECONDS,
-                    speeds.vyMetersPerSecond * Constants.LOOP_PERIOD_SECONDS,
-                    Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * Constants.LOOP_PERIOD_SECONDS)
+            // TODO: replace with ChassisSpeeds.discretize() once we get wpilib updated
+            final double dtSeconds = Constants.LOOP_PERIOD_SECONDS;
+            final Pose2d desiredDeltaPose = new Pose2d(
+                    speeds.vxMetersPerSecond * dtSeconds,
+                    speeds.vyMetersPerSecond * dtSeconds,
+                    Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dtSeconds)
             );
 
-            final Twist2d twist2d = PoseUtils.log(lookaheadRobotPose);
+            final Twist2d twist2d = new Pose2d().log(desiredDeltaPose);
             correctedSpeeds = new ChassisSpeeds(
-                    twist2d.dx / Constants.LOOP_PERIOD_SECONDS,
-                    twist2d.dy / Constants.LOOP_PERIOD_SECONDS,
-                    twist2d.dtheta / Constants.LOOP_PERIOD_SECONDS
+                    twist2d.dx / dtSeconds,
+                    twist2d.dy / dtSeconds,
+                    twist2d.dtheta / dtSeconds
             );
         } else {
             correctedSpeeds = speeds;

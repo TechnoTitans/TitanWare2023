@@ -310,7 +310,7 @@ public class ElevatorSimSolver {
                 fromHorizontalLinearDistanceMetersToOutputRotations(horizontalElevatorSim.getVelocityMetersPerSecond())
         );
 
-        final double motorVoltage = horizontalElevatorSimMotor.getMotorVoltage(CANSparkMax.ControlType.kVoltage);
+        final double motorVoltage = horizontalElevatorSimMotor.getMotorVoltage();
         horizontalElevatorSim.setInputVoltage(motorVoltage);
         horizontalElevatorSim.update(dt);
 

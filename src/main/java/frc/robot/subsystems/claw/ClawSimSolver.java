@@ -137,7 +137,15 @@ public class ClawSimSolver {
                 Units.radiansToRotations(clawTiltSim.getVelocityRadPerSec())
         );
 
-        clawTiltSim.setInputVoltage(clawTiltSimMotor.getMotorVoltage(CANSparkMax.ControlType.kVoltage));
+        final double clawTiltMotorVoltage = clawTiltSimMotor.getMotorVoltage();
+        Logger.getInstance().recordOutput("ClawTiltMotorVoltage", clawTiltMotorVoltage);
+        Logger.getInstance().recordOutput("ClawTiltAngleRots", Units.radiansToRotations(clawTiltSim.getAngleRads()));
+        Logger.getInstance().recordOutput(
+                "ClawTiltVelocityRotsPerSec",
+                Units.radiansToRotations(clawTiltSim.getVelocityRadPerSec())
+        );
+
+        clawTiltSim.setInputVoltage(clawTiltMotorVoltage);
         clawTiltSim.update(dt);
 
         clawRootPose =

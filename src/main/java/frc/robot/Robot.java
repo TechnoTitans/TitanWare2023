@@ -81,6 +81,7 @@ public class Robot extends LoggedRobot {
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
                 // figure out which port is occupied, use sda1 if sda is used
+                // sda1 on Odin2023 is the CANivore, sda is open port
                 logger.addDataReceiver(new WPILOGWriter("/media/sda"));
                 logger.addDataReceiver(new NT4Publisher());
             }
@@ -111,8 +112,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        VirtualSubsystem.run();
         CommandScheduler.getInstance().run();
+        VirtualSubsystem.run();
     }
 
     @Override
@@ -151,7 +152,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        //todo unbind after driver tryouts
         ButtonBindings.bindAll(robotContainer);
 
         final PhotonVision photonVision = robotContainer.photonVision;

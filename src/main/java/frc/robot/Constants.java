@@ -10,8 +10,8 @@ import frc.robot.wrappers.control.Slot0Configs;
 @SuppressWarnings("unused")
 public interface Constants {
     Robot ROBOT = Robot.ROBOT_2023_FALCON_SWERVE;
-    RobotMode CURRENT_MODE = RobotMode.REAL;
-    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.COMPETITION;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
+    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
 
@@ -102,7 +102,8 @@ public interface Constants {
 
             double TILT_GEARING = 80;
             double TILT_MASS_KG = Units.lbsToKilograms(9.67);
-            double TILT_MIN_ANGLE_RAD = Units.degreesToRadians(-10);
+            // TODO: something's wrong with the min angle here
+            double TILT_MIN_ANGLE_RAD = Units.degreesToRadians(-30);
             double TILT_MAX_ANGLE_RAD = Units.degreesToRadians(170);
             double TILT_MOI = 1.23814727; // in kg/m^2
 

@@ -89,8 +89,8 @@ public class RevSparkMAXSim implements SimMotorController {
             final double velocity = relativeEncoder.getVelocity();
             final double positionConversionFactor = relativeEncoder.getPositionConversionFactor();
 
-            Logger.getInstance().recordOutput(String.format("SparkMax_%d_position", sparkMax.getDeviceId()), position);
-            Logger.getInstance().recordOutput(String.format("SparkMax_%d_velocity", sparkMax.getDeviceId()), velocity);
+//            Logger.getInstance().recordOutput(String.format("SparkMax_%d_position", sparkMax.getDeviceId()), position);
+//            Logger.getInstance().recordOutput(String.format("SparkMax_%d_velocity", sparkMax.getDeviceId()), velocity);
 
             relativeEncoder.setPosition(position + velocity * dtMs / 60000.0 * positionConversionFactor);
         }
@@ -98,14 +98,26 @@ public class RevSparkMAXSim implements SimMotorController {
 
     @Override
     public void update(final double dt) {
-        final double motorVoltage = getMotorVoltage(CANSparkMax.ControlType.kVoltage);
+        updateSparkMaxesInternal(dt);
+
+        final double motorVoltage = getMotorVoltage();
         dcMotorSim.setInputVoltage(motorVoltage);
         dcMotorSim.update(dt);
 
-        updateSparkMaxesInternal(dt);
-
         final double mechanismAngularPositionRots = getAngularPositionRots();
         final double mechanismAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
+
+        for (final CANSparkMax sparkMax : sparkMaxes) {
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_appliedOutput", sparkMax.getDeviceId()), sparkMax.getAppliedOutput());
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_busVoltage", sparkMax.getDeviceId()), sparkMax.getBusVoltage());
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_motorLeadVoltage", sparkMax.getDeviceId()), motorVoltage);
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_internalPosition", sparkMax.getDeviceId()), sparkMax.getEncoder().getPosition());
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_internalVelocity", sparkMax.getDeviceId()), sparkMax.getEncoder().getVelocity() / 60);
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_mechanismPosition", sparkMax.getDeviceId()), dcMotorSim.getAngularPositionRotations());
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_mechanismVelocity", sparkMax.getDeviceId()), dcMotorSim.getAngularVelocityRPM() / 60);
+            Logger.getInstance().recordOutput(String.format("sparkMax_%d_motorCurrent", sparkMax.getDeviceId()), dcMotorSim.getCurrentDrawAmps());
+        }
+
 
         if (hasRemoteSensor) {
             feedbackSensor.setRawPosition(mechanismAngularPositionRots);
@@ -152,5 +164,10 @@ public class RevSparkMAXSim implements SimMotorController {
     @Override
     public double getMotorVoltage() {
         return getMotorVoltage(CANSparkMax.ControlType.kVoltage);
+    }
+
+    @Override
+    public double getMotorCurrent() {
+        return dcMotorSim.getCurrentDrawAmps();
     }
 }

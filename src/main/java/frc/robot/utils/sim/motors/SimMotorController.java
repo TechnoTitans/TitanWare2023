@@ -39,4 +39,10 @@ public interface SimMotorController {
      * @return the output voltage (in volts)
      */
     double getMotorVoltage();
+
+    /**
+     * Get the output current of the motor(s)
+     * @return the output current (in amps)
+     */
+    double getMotorCurrent();
 }

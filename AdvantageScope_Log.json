@@ -17,7 +17,7 @@
               "show": true
             },
             {
-              "key": "/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             }
@@ -39,14 +39,14 @@
               "show": true
             },
             {
-              "key": "/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#80588e",
               "show": true
             }
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "FrontLeftModule"
     },
     {
       "type": 1,
@@ -62,22 +62,22 @@
           },
           "fields": [
             {
-              "key": "/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
               "color": "#80588e",
               "show": true
             }
@@ -119,35 +119,38 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "ModuleDrives"
     },
     {
       "type": 1,
       "legends": {
         "left": {
-          "lockedRange": null,
+          "lockedRange": [
+            -0.759024,
+            0.763203
+          ],
           "unitConversion": {
             "type": null,
             "factor": 1
           },
           "fields": [
             {
-              "key": "/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
               "color": "#c0b487",
               "show": true
             }
@@ -158,8 +161,8 @@
         },
         "right": {
           "lockedRange": [
-            -0.7590236442491891,
-            0.7632026611060652
+            -0.759024,
+            0.763203
           ],
           "unitConversion": {
             "type": null,
@@ -189,7 +192,7 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "ModuleTurns"
     },
     {
       "type": 1,
@@ -257,64 +260,7 @@
           ]
         }
       },
-      "title": "Line Graph"
-    },
-    {
-      "type": 1,
-      "legends": {
-        "left": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": [
-            {
-              "key": "/RealOutputs/gyroUseOdometryPose/0",
-              "color": "#e5b31b",
-              "show": true
-            },
-            {
-              "key": "/RealOutputs/gyroUseOdometryPose/1",
-              "color": "#2b66a2",
-              "show": true
-            },
-            {
-              "key": "/RealOutputs/gyroUseOdometryPose/2",
-              "color": "#af2437",
-              "show": true
-            }
-          ]
-        },
-        "discrete": {
-          "fields": []
-        },
-        "right": {
-          "lockedRange": null,
-          "unitConversion": {
-            "type": null,
-            "factor": 1
-          },
-          "fields": [
-            {
-              "key": "/RealOutputs/wheelDeltasTwistDx",
-              "color": "#80588e",
-              "show": true
-            },
-            {
-              "key": "/RealOutputs/wheelDeltasTwistDy",
-              "color": "#e48b32",
-              "show": true
-            },
-            {
-              "key": "/RealOutputs/wheelDeltasTwistDTheta",
-              "color": "#aacaee",
-              "show": true
-            }
-          ]
-        }
-      },
-      "title": "Line Graph"
+      "title": "Gyro"
     },
     {
       "type": 1,
@@ -377,7 +323,7 @@
           ]
         }
       },
-      "title": "Line Graph"
+      "title": "Auto"
     },
     {
       "type": 1,
@@ -429,7 +375,7 @@
           "fields": []
         }
       },
-      "title": "Line Graph"
+      "title": "AutoAlign"
     },
     {
       "type": 5,
@@ -492,7 +438,7 @@
       "fields": [
         "/RealOutputs/Swerve/CurrentStates",
         "/RealOutputs/Swerve/DesiredStates",
-        "/RealOutputs/Odometry/Robot/2"
+        "/RealOutputs/Odometry/Robot2d/2"
       ],
       "listFields": [],
       "options": {

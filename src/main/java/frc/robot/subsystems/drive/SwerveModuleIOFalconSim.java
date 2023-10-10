@@ -126,15 +126,18 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
-        inputs.driveCurrentAmps = driveMotor.getTorqueCurrent().refresh().getValue();
+        inputs.driveTorqueCurrentAmps = driveMotor.getTorqueCurrent().refresh().getValue();
+        inputs.driveStatorCurrentAmps = driveMotor.getStatorCurrent().refresh().getValue();
         inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
 
         inputs.turnAbsolutePositionRots = getAngle().getRotations();
         inputs.turnVelocityRotsPerSec = turnEncoder.getVelocity().refresh().getValue();
-        inputs.turnCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
+        inputs.turnTorqueCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
+        inputs.turnStatorCurrentAmps = turnMotor.getStatorCurrent().refresh().getValue();
         inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();
     }
 
