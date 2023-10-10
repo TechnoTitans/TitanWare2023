@@ -10,6 +10,26 @@ public class SuperstructureStates {
         DUTY_CYCLE
     }
 
+    public enum VerticalTransitionMode {
+        EXTENDING_Z_PLUS,
+        RETRACTING_Z_MINUS
+    }
+
+    public static SuperstructureStates.VerticalTransitionMode getVerticalTransitionMode(
+            final SuperstructureStates.VerticalElevatorMode verticalElevatorMode,
+            final double currentVerticalControl,
+            final double nextVerticalControlInput
+    ) {
+        return switch (verticalElevatorMode) {
+            case MOTION_MAGIC, POSITION -> nextVerticalControlInput >= currentVerticalControl
+                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
+                    : VerticalTransitionMode.RETRACTING_Z_MINUS;
+            case DUTY_CYCLE -> nextVerticalControlInput >= 0
+                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
+                    : VerticalTransitionMode.RETRACTING_Z_MINUS;
+        };
+    }
+
     public enum HorizontalElevatorMode {
         POSITION,
         DUTY_CYCLE

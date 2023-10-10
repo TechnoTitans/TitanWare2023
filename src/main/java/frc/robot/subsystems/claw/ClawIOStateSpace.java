@@ -191,15 +191,20 @@ public class ClawIOStateSpace implements ClawIO {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
-        inputs.tiltEncoderPositionRots = getTiltAbsolutePositionRots();
+        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
+        inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
         inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
+        inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
+        inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();
 
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }

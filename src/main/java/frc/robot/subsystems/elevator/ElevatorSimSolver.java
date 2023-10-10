@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
+import frc.robot.utils.sim.SimUtils;
 import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
 import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
 import frc.robot.utils.sim.motors.RevSparkMAXSim;
@@ -24,7 +25,6 @@ public class ElevatorSimSolver {
 
     // Vertical Elevator Motor Sims
     private final ElevatorSim verticalElevatorSim;
-    private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
     private final CANcoder verticalElevatorEncoder;
     private final CTREPhoenix6TalonFXSim verticalElevatorSimMotors;
 
@@ -43,7 +43,6 @@ public class ElevatorSimSolver {
     // Horizontal Elevator Motor Sims
     private final ElevatorSim horizontalElevatorSim;
     private final CANcoder horizontalElevatorEncoder;
-    private final TitanSparkMAX horizontalElevatorMotor;
     private final RevSparkMAXSim horizontalElevatorSimMotor;
 
     private Pose3d horizontalElevatorRoot = new Pose3d();
@@ -67,12 +66,11 @@ public class ElevatorSimSolver {
             final CANcoder horizontalElevatorEncoder,
             final TitanSparkMAX horizontalElevatorMotor
     ) {
-        this.horizontalElevatorMotor = horizontalElevatorMotor;
-
         // Elevator root position
         this.elevatorRootPose = Constants.Sim.Elevator.Vertical.ROBOT_TO_ROOT_MOUNT_POSE;
 
-        final DCMotor verticalElevatorDCMotors = DCMotor.getFalcon500(2);
+        // TODO: maybe a way to check if we're using FOC? or perhaps we can just assume we're always using FOC
+        final DCMotor verticalElevatorDCMotors = SimUtils.getFalcon500FOC(2);
         this.verticalElevatorSim = new ElevatorSim(
                 verticalElevatorDCMotors,
                 Constants.Sim.Elevator.Vertical.GEARING,
@@ -83,8 +81,6 @@ public class ElevatorSimSolver {
                 Constants.Sim.Elevator.Vertical.SIMULATE_GRAVITY
         );
 
-        this.verticalElevatorMotor = verticalElevatorMotor;
-        this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
         this.verticalElevatorEncoder = verticalElevatorEncoder;
         this.verticalElevatorSimMotors = new CTREPhoenix6TalonFXSim(
                 List.of(verticalElevatorMotor, verticalElevatorMotorFollower),

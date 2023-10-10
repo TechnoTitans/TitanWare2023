@@ -95,7 +95,6 @@ public class Elevator extends SubsystemBase {
         elevatorIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
 
-        Logger.getInstance().recordOutput(logKey + "/HorizontalElevatorMotorDutyCycle", inputs.horizontalElevatorMotorDutyCycle);
         Logger.getInstance().recordOutput(logKey + "/HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
         Logger.getInstance().recordOutput(logKey + "/HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
         Logger.getInstance().recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
@@ -126,29 +125,29 @@ public class Elevator extends SubsystemBase {
     
     private double getVEControlMeasurement(final SuperstructureStates.VerticalElevatorMode verticalElevatorMode) {
         return switch (verticalElevatorMode) {
-            case POSITION, MOTION_MAGIC -> inputs.verticalElevatorEncoderPosition;
-            case DUTY_CYCLE -> inputs.verticalElevatorMotorDutyCycle;
+            case POSITION, MOTION_MAGIC -> inputs.verticalEncoderPositionRots;
+            case DUTY_CYCLE -> inputs.verticalMotorDutyCycle;
         };
     }
 
     private double getVEControlVelocity(final SuperstructureStates.VerticalElevatorMode verticalElevatorMode) {
         return switch (verticalElevatorMode) {
-            case POSITION, MOTION_MAGIC -> inputs.verticalElevatorEncoderVelocity;
-            case DUTY_CYCLE -> Math.copySign(Double.MAX_VALUE, inputs.verticalElevatorMotorDutyCycle);
+            case POSITION, MOTION_MAGIC -> inputs.verticalEncoderVelocityRotsPerSec;
+            case DUTY_CYCLE -> Math.copySign(Double.MAX_VALUE, inputs.verticalMotorDutyCycle);
         };
     }
 
     private double getHEControlMeasurement(final SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode) {
         return switch (horizontalElevatorMode) {
-            case POSITION -> inputs.horizontalElevatorEncoderPosition;
-            case DUTY_CYCLE -> inputs.horizontalElevatorMotorDutyCycle;
+            case POSITION -> inputs.horizontalEncoderPositionRots;
+            case DUTY_CYCLE -> inputs.horizontalMotorDutyCycle;
         };
     }
 
     private double getHEControlVelocity(final SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode) {
         return switch (horizontalElevatorMode) {
-            case POSITION -> inputs.horizontalElevatorEncoderVelocity;
-            case DUTY_CYCLE -> Math.copySign(Double.MAX_VALUE, inputs.horizontalElevatorMotorDutyCycle);
+            case POSITION -> inputs.horizontalEncoderVelocityRotsPerSec;
+            case DUTY_CYCLE -> Math.copySign(Double.MAX_VALUE, inputs.horizontalMotorDutyCycle);
         };
     }
 

@@ -1,10 +1,11 @@
 package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,7 +25,6 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
-import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
@@ -33,7 +33,6 @@ public class ElevatorIOSim implements ElevatorIO {
     private final DeltaTime deltaTime;
 
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
-    private final CTREPhoenix6TalonFXSim verticalElevatorSimMotors;
     private final InvertedValue verticalElevatorMotorInverted, verticalElevatorMotorFollowerInverted;
     private final TitanSparkMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
@@ -43,8 +42,11 @@ public class ElevatorIOSim implements ElevatorIO {
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
 
+    private final MotionMagicConfigs verticalExtensionMotionMagicConfig;
+    private final MotionMagicConfigs verticalRetractionMotionMagicConfig;
+
     private final PositionVoltage positionVoltage;
-    private final MotionMagicVoltage motionMagicVoltage;
+    private final DynamicMotionMagicVoltage dynamicMotionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
     private SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
@@ -59,7 +61,7 @@ public class ElevatorIOSim implements ElevatorIO {
      * <p>Units can be PositionRots, DutyCycle</p>
      * @see SuperstructureStates.VerticalElevatorMode
      */
-    private double VEControlInput = desiredState.getVEControlInput(); //Vertical Elevator Target Rotations
+    private double VEControlInput = desiredState.getVEControlInput();
 
     private boolean verticalElevatorReset = false;
     private boolean horizontalElevatorReset = false;
@@ -94,8 +96,6 @@ public class ElevatorIOSim implements ElevatorIO {
         this.verticalElevatorLimitSwitchSim = new LimitSwitchSim(verticalElevatorLimitSwitch);
         this.verticalElevatorLimitSwitchSim.setInitialized(true);
 
-        this.verticalElevatorSimMotors = elevatorSimSolver.getVerticalElevatorSimMotors();
-
         // Horizontal Elevator
         this.horizontalElevatorMotor = horizontalElevatorMotor;
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
@@ -106,7 +106,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
         config();
 
-        this.horizontalElevatorPID = new ProfiledPIDController(0.3, 0, 0,
+        this.horizontalElevatorPID = new ProfiledPIDController(
+                0.3, 0, 0,
                 new TrapezoidProfile.Constraints(10, 20)
         );
 
@@ -116,8 +117,23 @@ public class ElevatorIOSim implements ElevatorIO {
                 horizontalElevatorEncoder.getVelocity().waitForUpdate(0.25)
         );
 
+        this.verticalExtensionMotionMagicConfig = new MotionMagicConfigs();
+        verticalExtensionMotionMagicConfig.MotionMagicCruiseVelocity = 12;
+        verticalExtensionMotionMagicConfig.MotionMagicAcceleration = 55;
+        verticalExtensionMotionMagicConfig.MotionMagicJerk = 100;
+
+        this.verticalRetractionMotionMagicConfig = new MotionMagicConfigs();
+        verticalRetractionMotionMagicConfig.MotionMagicCruiseVelocity = 8;
+        verticalRetractionMotionMagicConfig.MotionMagicAcceleration = 30;
+        verticalRetractionMotionMagicConfig.MotionMagicJerk = 80;
+
         this.positionVoltage = new PositionVoltage(0);
-        this.motionMagicVoltage = new MotionMagicVoltage(0);
+        this.dynamicMotionMagicVoltage = new DynamicMotionMagicVoltage(
+                0,
+                verticalExtensionMotionMagicConfig.MotionMagicCruiseVelocity,
+                verticalExtensionMotionMagicConfig.MotionMagicAcceleration,
+                verticalExtensionMotionMagicConfig.MotionMagicJerk
+        );
         this.dutyCycleOut = new DutyCycleOut(0);
     }
 
@@ -145,6 +161,13 @@ public class ElevatorIOSim implements ElevatorIO {
         return verticalElevatorReset && horizontalElevatorReset;
     }
 
+    private double getVEControl() {
+        return switch (verticalElevatorMode) {
+            case POSITION, MOTION_MAGIC -> getVEPosition();
+            case DUTY_CYCLE -> verticalElevatorMotor.getDutyCycle().refresh().getValue();
+        };
+    }
+
     private double getVEPosition() {
         return Phoenix6Utils.latencyCompensateIfSignalIsGood(
                 verticalElevatorEncoder.getPosition(),
@@ -166,6 +189,17 @@ public class ElevatorIOSim implements ElevatorIO {
         horizontalElevatorRearLimitSwitchSim.setValue(getHEPosition() == 0);
     }
 
+    private MotionMagicConfigs getVerticalMotionMagicConfig() {
+        final SuperstructureStates.VerticalTransitionMode verticalTransitionMode =
+                SuperstructureStates.getVerticalTransitionMode(verticalElevatorMode, getVEControl(), VEControlInput);
+
+        return switch (verticalTransitionMode) {
+            case EXTENDING_Z_PLUS -> verticalExtensionMotionMagicConfig;
+            case RETRACTING_Z_MINUS -> verticalRetractionMotionMagicConfig;
+        };
+    }
+
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
         updateSimulation();
@@ -180,21 +214,28 @@ public class ElevatorIOSim implements ElevatorIO {
             }
         }
 
+
         switch (verticalElevatorMode) {
             case POSITION -> verticalElevatorMotor.setControl(
                     positionVoltage.withPosition(VEControlInput)
             );
-            case MOTION_MAGIC -> verticalElevatorMotor.setControl(
-                    motionMagicVoltage.withPosition(VEControlInput)
-            );
+            case MOTION_MAGIC -> {
+                final MotionMagicConfigs motionMagicConfig = getVerticalMotionMagicConfig();
+                verticalElevatorMotor.setControl(
+                        dynamicMotionMagicVoltage
+                                .withPosition(VEControlInput)
+                                .withVelocity(motionMagicConfig.MotionMagicCruiseVelocity)
+                                .withAcceleration(motionMagicConfig.MotionMagicAcceleration)
+                                .withJerk(motionMagicConfig.MotionMagicJerk)
+                );
+            }
             case DUTY_CYCLE -> verticalElevatorMotor.setControl(
                     dutyCycleOut.withOutput(VEControlInput)
             );
         }
 
         switch (horizontalElevatorMode) {
-            case POSITION -> horizontalElevatorMotor.set(
-                    CANSparkMax.ControlType.kVoltage,
+            case POSITION -> horizontalElevatorMotor.getPIDController().setReference(
                     RevUtils.convertControlTypeOutput(
                             horizontalElevatorMotor,
                             CANSparkMax.ControlType.kDutyCycle,
@@ -203,37 +244,50 @@ public class ElevatorIOSim implements ElevatorIO {
                                     horizontalElevatorEncoder.getPosition().refresh().getValue(),
                                     HEControlInput
                             )
-                    )
+                    ),
+                    CANSparkMax.ControlType.kVoltage
             );
-            case DUTY_CYCLE -> horizontalElevatorMotor.set(
-                    CANSparkMax.ControlType.kVoltage,
+            // TODO: we can likely just use kDutyCycle control here, im fairly sure it works in sim
+            case DUTY_CYCLE -> horizontalElevatorMotor.getPIDController().setReference(
                     RevUtils.convertControlTypeOutput(
                             horizontalElevatorMotor,
                             CANSparkMax.ControlType.kDutyCycle,
                             CANSparkMax.ControlType.kVoltage,
                             HEControlInput
-                    )
+                    ),
+                    CANSparkMax.ControlType.kVoltage
             );
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
         final ElevatorSimSolver.ElevatorSimState simState = elevatorSimSolver.getElevatorSimState();
         simState.log(Elevator.logKey + "SimState");
 
-        inputs.verticalElevatorMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
-        inputs.verticalElevatorEncoderPosition = getVEPosition();
-        inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.verticalEncoderPositionRots = getVEPosition();
+        inputs.verticalEncoderVelocityRotsPerSec = verticalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.verticalMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
+        inputs.verticalMotorCurrentsAmps = new double[] {
+                verticalElevatorMotor.getTorqueCurrent().refresh().getValue(),
+                verticalElevatorMotorFollower.getTorqueCurrent().refresh().getValue()
+        };
+        inputs.verticalMotorTempsCelsius = new double[] {
+                verticalElevatorMotor.getDeviceTemp().refresh().getValue(),
+                verticalElevatorMotorFollower.getDeviceTemp().refresh().getValue()
+        };
 
-        inputs.horizontalElevatorMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
-        inputs.horizontalElevatorEncoderPosition = getHEPosition();
-        inputs.horizontalElevatorEncoderVelocity = horizontalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.horizontalEncoderPositionRots = getHEPosition();
+        inputs.horizontalEncoderVelocityRotsPerSec = horizontalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
+        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getMotorTemperature();
 
-        inputs.verticalElevatorLimitSwitch = verticalElevatorLimitSwitchSim.getValue();
-        inputs.horizontalElevatorLimitSwitch = horizontalElevatorRearLimitSwitchSim.getValue();
+        inputs.verticalLimitSwitch = verticalElevatorLimitSwitchSim.getValue();
+        inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitchSim.getValue();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
         // Vertical Elevator

@@ -7,6 +7,8 @@ import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 
 /**
  * Simulation shared utility methods/functions
@@ -63,6 +65,17 @@ public class SimUtils {
         }
         // TODO: this doesn't seem to work for all CANCoders
         return canCoder.setPosition(0);
+    }
+
+    public static DCMotor getFalcon500FOC(final int numMotors) {
+        return new DCMotor(
+                12,
+                5.84,
+                304,
+                1.5,
+                Units.rotationsPerMinuteToRadiansPerSecond(5970),
+                numMotors
+        );
     }
 
 //    public static double getSimSparkMaxTorqueCurrent(final CANSparkMax sparkMax, final RevSparkMAXSim sparkMAXSim, final boolean inverted) {

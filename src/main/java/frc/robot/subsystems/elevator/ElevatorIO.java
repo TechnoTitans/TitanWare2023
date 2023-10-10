@@ -6,16 +6,20 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
     @AutoLog
     class ElevatorIOInputs {
-        public double verticalElevatorMotorDutyCycle = 0.0;
-        public double verticalElevatorEncoderPosition = 0.0;
-        public double verticalElevatorEncoderVelocity = 0.0;
+        public double verticalEncoderPositionRots = 0.0;
+        public double verticalEncoderVelocityRotsPerSec = 0.0;
+        public double verticalMotorDutyCycle = 0.0;
+        public double[] verticalMotorCurrentsAmps = new double[] { 0.0, 0.0 };
+        public double[] verticalMotorTempsCelsius = new double[] { 0.0, 0.0 };
 
-        public double horizontalElevatorMotorDutyCycle = 0.0;
-        public double horizontalElevatorEncoderPosition = 0.0;
-        public double horizontalElevatorEncoderVelocity = 0.0;
+        public double horizontalEncoderPositionRots = 0.0;
+        public double horizontalEncoderVelocityRotsPerSec = 0.0;
+        public double horizontalMotorDutyCycle = 0.0;
+        public double horizontalMotorCurrentAmps = 0.0;
+        public double horizontalMotorTempCelsius = 0.0;
 
-        public boolean verticalElevatorLimitSwitch = false;
-        public boolean horizontalElevatorLimitSwitch = false;
+        public boolean verticalLimitSwitch = false;
+        public boolean horizontalLimitSwitch = false;
     }
 
     /**

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CurrentDrawSim extends VirtualSubsystem {
+    protected static final String logKey = "CurrentDrawSim";
     private static final int RESERVED_CHANNEL = -1;
     private static CurrentDrawSim INSTANCE;
 
@@ -102,17 +103,20 @@ public class CurrentDrawSim extends VirtualSubsystem {
     @Override
     public void periodic() {
         this.isDataOld = true;
-        Logger.getInstance().recordOutput("TotalCurrentDraw", getTotalCurrentDraw());
-        Logger.getInstance().recordOutput("CurrentDraws", currentDraws.values().stream()
+        Logger.getInstance().recordOutput(logKey + "/TotalCurrentDraw", getTotalCurrentDraw());
+        Logger.getInstance().recordOutput(logKey + "/CurrentDraws", currentDraws.values().stream()
                 .mapToDouble(Double::doubleValue)
                 .toArray()
         );
 
         RoboRioSim.setVInVoltage(
-                BatterySim.calculateLoadedBatteryVoltage(
-                        Constants.PDH.BATTERY_NOMINAL_VOLTAGE,
-                        Constants.PDH.BATTERY_RESISTANCE_OHMS,
-                        getTotalCurrentDraw()
+                Math.max(
+                        BatterySim.calculateLoadedBatteryVoltage(
+                                Constants.PDH.BATTERY_NOMINAL_VOLTAGE,
+                                Constants.PDH.BATTERY_RESISTANCE_OHMS,
+                                getTotalCurrentDraw()
+                        ),
+                        0
                 )
         );
     }

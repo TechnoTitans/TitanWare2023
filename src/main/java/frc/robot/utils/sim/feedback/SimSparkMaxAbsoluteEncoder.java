@@ -6,7 +6,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 public class SimSparkMaxAbsoluteEncoder implements AbsoluteEncoder, SimFeedbackSensor {
     private final TitanSparkMAX sparkMax;
@@ -39,9 +38,6 @@ public class SimSparkMaxAbsoluteEncoder implements AbsoluteEncoder, SimFeedbackS
                 0,
                 1
         );
-        Logger.getInstance().recordOutput(String.format("SparkMax_%d_relativeEncoderPosition", sparkMax.getDeviceId()), relativeEncoder.getPosition());
-        Logger.getInstance().recordOutput(String.format("SparkMax_%d_relativePositionConvFactor", sparkMax.getDeviceId()), relativeEncoder.getPositionConversionFactor());
-        Logger.getInstance().recordOutput(String.format("SparkMax_%d_relativeReportedAbsPosition", sparkMax.getDeviceId()), relativeReportedAbsolutePosition);
 
         return MathUtil.inputModulus(
                 ((relativeReportedAbsolutePosition - zeroOffset) * getPositionConversionFactor())

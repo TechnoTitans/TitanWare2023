@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.feedback.SimFeedbackSensor;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
 
@@ -106,18 +105,6 @@ public class RevSparkMAXSim implements SimMotorController {
 
         final double mechanismAngularPositionRots = getAngularPositionRots();
         final double mechanismAngularVelocityRotsPerSec = getAngularVelocityRotsPerSec();
-
-        for (final CANSparkMax sparkMax : sparkMaxes) {
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_appliedOutput", sparkMax.getDeviceId()), sparkMax.getAppliedOutput());
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_busVoltage", sparkMax.getDeviceId()), sparkMax.getBusVoltage());
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_motorLeadVoltage", sparkMax.getDeviceId()), motorVoltage);
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_internalPosition", sparkMax.getDeviceId()), sparkMax.getEncoder().getPosition());
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_internalVelocity", sparkMax.getDeviceId()), sparkMax.getEncoder().getVelocity() / 60);
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_mechanismPosition", sparkMax.getDeviceId()), dcMotorSim.getAngularPositionRotations());
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_mechanismVelocity", sparkMax.getDeviceId()), dcMotorSim.getAngularVelocityRPM() / 60);
-            Logger.getInstance().recordOutput(String.format("sparkMax_%d_motorCurrent", sparkMax.getDeviceId()), dcMotorSim.getCurrentDrawAmps());
-        }
-
 
         if (hasRemoteSensor) {
             feedbackSensor.setRawPosition(mechanismAngularPositionRots);

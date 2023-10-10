@@ -12,7 +12,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
@@ -56,7 +55,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                 driveMotor,
                 Constants.Modules.DRIVER_GEAR_RATIO,
                 new DCMotorSim(
-                        DCMotor.getFalcon500(1),
+                        SimUtils.getFalcon500FOC(1),
                         Constants.Modules.DRIVER_GEAR_RATIO,
                         Constants.Modules.DRIVE_WHEEL_MOMENT_OF_INERTIA
                 )
@@ -69,7 +68,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                 turnMotor,
                 Constants.Modules.TURNER_GEAR_RATIO,
                 new DCMotorSim(
-                        DCMotor.getFalcon500(1),
+                        SimUtils.getFalcon500FOC(1),
                         Constants.Modules.TURNER_GEAR_RATIO,
                         Constants.Modules.TURN_WHEEL_MOMENT_OF_INERTIA
                 )

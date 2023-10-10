@@ -1,10 +1,11 @@
 package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,12 +20,13 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
+import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
 public class ElevatorIOReal implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
-    private final InvertedValue verticalElevatorMotorR, verticalElevatorMotorFollowerR;
+    private final InvertedValue verticalElevatorMotorR, verticalElevatorMotorFollowerInverted;
     private final SensorDirectionValue verticalElevatorEncoderR;
     private final TitanSparkMAX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
@@ -33,14 +35,30 @@ public class ElevatorIOReal implements ElevatorIO {
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
 
+    private final MotionMagicConfigs verticalExtensionMotionMagicConfig;
+    private final MotionMagicConfigs verticalRetractionMotionMagicConfig;
+
     private final PositionVoltage positionVoltage;
-    private final MotionMagicVoltage motionMagicVoltage;
+    private final DynamicMotionMagicVoltage dynamicMotionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
-    private SuperstructureStates.VerticalElevatorMode verticalElevatorMode = desiredState.getVerticalElevatorMode();
-    private double VEControlInput = desiredState.getVEControlInput(); //Vertical Elevator Target Rotations
-    private SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
-    private double HEControlInput = desiredState.getHEControlInput(); //Horizontal Elevator Target Rotations
+    private SuperstructureStates.VerticalElevatorMode verticalElevatorMode =
+            desiredState.getVerticalElevatorMode();
+
+    /**
+     * Horizontal Elevator Control Input
+     * <p>Units can be PositionRots, DutyCycle</p>
+     */
+    private double VEControlInput = desiredState.getVEControlInput();
+    private SuperstructureStates.HorizontalElevatorMode horizontalElevatorMode =
+            desiredState.getHorizontalElevatorMode();
+
+    /**
+     * Vertical Elevator Control Input
+     * <p>Units can be PositionRots, DutyCycle</p>
+     * @see SuperstructureStates.VerticalElevatorMode
+     */
+    private double HEControlInput = desiredState.getHEControlInput();
 
     private boolean elevatorsHaveReset = false;
 
@@ -48,7 +66,7 @@ public class ElevatorIOReal implements ElevatorIO {
             final TalonFX verticalElevatorMotor,
             final InvertedValue verticalElevatorMotorR,
             final TalonFX verticalElevatorMotorFollower,
-            final InvertedValue verticalElevatorMotorFollowerR,
+            final InvertedValue verticalElevatorMotorFollowerInverted,
             final CANcoder verticalElevatorEncoder,
             final CANcoder horizontalElevatorEncoder,
             final SensorDirectionValue verticalElevatorEncoderR,
@@ -59,7 +77,7 @@ public class ElevatorIOReal implements ElevatorIO {
         this.verticalElevatorMotor = verticalElevatorMotor;
         this.verticalElevatorMotorR = verticalElevatorMotorR;
         this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
-        this.verticalElevatorMotorFollowerR = verticalElevatorMotorFollowerR;
+        this.verticalElevatorMotorFollowerInverted = verticalElevatorMotorFollowerInverted;
         this.verticalElevatorEncoder = verticalElevatorEncoder;
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
         this.verticalElevatorEncoderR = verticalElevatorEncoderR;
@@ -69,7 +87,8 @@ public class ElevatorIOReal implements ElevatorIO {
 
         config();
 
-        this.horizontalElevatorPID = new ProfiledPIDController(0.5, 0, 0,
+        this.horizontalElevatorPID = new ProfiledPIDController(
+                0.5, 0, 0,
                 new TrapezoidProfile.Constraints(10, 13)
         );
 
@@ -77,8 +96,24 @@ public class ElevatorIOReal implements ElevatorIO {
                 horizontalElevatorPID, horizontalElevatorEncoder.getPosition(), horizontalElevatorEncoder.getVelocity()
         );
 
+        // TODO: tune motion magic configs for extension and retraction
+        this.verticalExtensionMotionMagicConfig = new MotionMagicConfigs();
+        verticalExtensionMotionMagicConfig.MotionMagicCruiseVelocity = 12;
+        verticalExtensionMotionMagicConfig.MotionMagicAcceleration = 55;
+        verticalExtensionMotionMagicConfig.MotionMagicJerk = 100;
+
+        this.verticalRetractionMotionMagicConfig = new MotionMagicConfigs();
+        verticalRetractionMotionMagicConfig.MotionMagicCruiseVelocity = 8;
+        verticalRetractionMotionMagicConfig.MotionMagicAcceleration = 30;
+        verticalRetractionMotionMagicConfig.MotionMagicJerk = 80;
+
         this.positionVoltage = new PositionVoltage(0);
-        this.motionMagicVoltage = new MotionMagicVoltage(0);
+        this.dynamicMotionMagicVoltage = new DynamicMotionMagicVoltage(
+                0,
+                verticalExtensionMotionMagicConfig.MotionMagicCruiseVelocity,
+                verticalExtensionMotionMagicConfig.MotionMagicAcceleration,
+                verticalExtensionMotionMagicConfig.MotionMagicJerk
+        );
         this.dutyCycleOut = new DutyCycleOut(0);
     }
 
@@ -113,6 +148,38 @@ public class ElevatorIOReal implements ElevatorIO {
         return verticalDidReset && horizontalDidReset;
     }
 
+    private double getVEControl() {
+        return switch (verticalElevatorMode) {
+            case POSITION, MOTION_MAGIC -> getVEPosition();
+            case DUTY_CYCLE -> verticalElevatorMotor.getDutyCycle().refresh().getValue();
+        };
+    }
+
+    private double getVEPosition() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                verticalElevatorEncoder.getPosition(),
+                verticalElevatorEncoder.getVelocity()
+        );
+    }
+
+    private double getHEPosition() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                horizontalElevatorEncoder.getPosition(),
+                horizontalElevatorEncoder.getVelocity()
+        );
+    }
+
+    private MotionMagicConfigs getVerticalMotionMagicConfig() {
+        final SuperstructureStates.VerticalTransitionMode verticalTransitionMode =
+                SuperstructureStates.getVerticalTransitionMode(verticalElevatorMode, getVEControl(), VEControlInput);
+
+        return switch (verticalTransitionMode) {
+            case EXTENDING_Z_PLUS -> verticalExtensionMotionMagicConfig;
+            case RETRACTING_Z_MINUS -> verticalRetractionMotionMagicConfig;
+        };
+    }
+
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
         if (desiredState == SuperstructureStates.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
@@ -126,74 +193,98 @@ public class ElevatorIOReal implements ElevatorIO {
             case POSITION -> verticalElevatorMotor.setControl(
                     positionVoltage.withPosition(VEControlInput)
             );
-            case MOTION_MAGIC -> verticalElevatorMotor.setControl(
-                    motionMagicVoltage.withPosition(VEControlInput)
-            );
+            case MOTION_MAGIC -> {
+                final MotionMagicConfigs motionMagicConfig = getVerticalMotionMagicConfig();
+                verticalElevatorMotor.setControl(
+                        dynamicMotionMagicVoltage
+                                .withPosition(VEControlInput)
+                                .withVelocity(motionMagicConfig.MotionMagicCruiseVelocity)
+                                .withAcceleration(motionMagicConfig.MotionMagicAcceleration)
+                                .withJerk(motionMagicConfig.MotionMagicJerk)
+                );
+            }
             case DUTY_CYCLE -> verticalElevatorMotor.setControl(
                     dutyCycleOut.withOutput(VEControlInput)
             );
         }
 
         switch (horizontalElevatorMode) {
-            case POSITION -> horizontalElevatorMotor.set(
-                    CANSparkMax.ControlType.kDutyCycle,
+            case POSITION -> horizontalElevatorMotor.getPIDController().setReference(
                     horizontalElevatorPID.calculate(
                             horizontalElevatorEncoder.getPosition().refresh().getValue(),
                             HEControlInput
-                    )
+                    ),
+                    CANSparkMax.ControlType.kDutyCycle
             );
-            case DUTY_CYCLE -> horizontalElevatorMotor.set(
-                    CANSparkMax.ControlType.kDutyCycle,
-                    HEControlInput
+            case DUTY_CYCLE -> horizontalElevatorMotor.getPIDController().setReference(
+                    HEControlInput,
+                    CANSparkMax.ControlType.kDutyCycle
             );
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
-        inputs.verticalElevatorMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
-        inputs.verticalElevatorEncoderPosition = verticalElevatorEncoder.getPosition().refresh().getValue();
-        inputs.verticalElevatorEncoderVelocity = verticalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.verticalEncoderPositionRots = getVEPosition();
+        inputs.verticalEncoderVelocityRotsPerSec = verticalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.verticalMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
+        inputs.verticalMotorCurrentsAmps = new double[] {
+                verticalElevatorMotor.getTorqueCurrent().refresh().getValue(),
+                verticalElevatorMotorFollower.getTorqueCurrent().refresh().getValue()
+        };
+        inputs.verticalMotorTempsCelsius = new double[] {
+                verticalElevatorMotor.getDeviceTemp().refresh().getValue(),
+                verticalElevatorMotorFollower.getDeviceTemp().refresh().getValue()
+        };
 
-        inputs.horizontalElevatorMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
-        inputs.horizontalElevatorEncoderPosition = horizontalElevatorEncoder.getPosition().refresh().getValue();
-        inputs.horizontalElevatorEncoderVelocity = horizontalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.horizontalEncoderPositionRots = getHEPosition();
+        inputs.horizontalEncoderVelocityRotsPerSec = horizontalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
+        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getMotorTemperature();
 
-        inputs.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch.get();
-        inputs.horizontalElevatorLimitSwitch = horizontalElevatorRearLimitSwitch.get();
+        inputs.verticalLimitSwitch = verticalElevatorLimitSwitch.get();
+        inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitch.get();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
-        final CANcoderConfiguration CVEConfig = new CANcoderConfiguration();
-        CVEConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR;
-        verticalElevatorEncoder.getConfigurator().apply(CVEConfig);
+        // Vertical elevator CANCoder
+        final CANcoderConfiguration verticalElevatorEncoderConfig = new CANcoderConfiguration();
+        verticalElevatorEncoderConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR;
 
-        final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
-        VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        VEConfig.Feedback.RotorToSensorRatio = Constants.Sim.Elevator.Vertical.GEARING;
-        VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
-        VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        VEConfig.MotorOutput.Inverted = verticalElevatorMotorR;
-        VEConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
-        VEConfig.MotionMagic.MotionMagicAcceleration = 40;
-        VEConfig.MotionMagic.MotionMagicJerk = 100;
-        verticalElevatorMotor.getConfigurator().apply(VEConfig);
+        verticalElevatorEncoder.getConfigurator().apply(verticalElevatorEncoderConfig);
 
-        final TalonFXConfiguration VEFConfig = new TalonFXConfiguration();
-        VEFConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        VEFConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerR;
-        verticalElevatorMotorFollower.getConfigurator().apply(VEFConfig);
+        // Vertical elevator motor
+        final TalonFXConfiguration verticalElevatorMotorConfig = new TalonFXConfiguration();
+        verticalElevatorMotorConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
+        verticalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        verticalElevatorMotorConfig.Feedback.RotorToSensorRatio = Constants.Sim.Elevator.Vertical.GEARING;
+        verticalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
+        verticalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorR;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 40;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicJerk = 100;
 
-        final Follower verticalElevatorFollower = new Follower(
+        verticalElevatorMotor.getConfigurator().apply(verticalElevatorMotorConfig);
+
+        // Vertical elevator motor follower
+        final TalonFXConfiguration verticalElevatorMotorFollowerConfig = new TalonFXConfiguration();
+        verticalElevatorMotorFollowerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        verticalElevatorMotorFollowerConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerInverted;
+
+        verticalElevatorMotorFollower.getConfigurator().apply(verticalElevatorMotorFollowerConfig);
+        verticalElevatorMotorFollower.setControl(new Follower(
                 verticalElevatorMotor.getDeviceID(),
                 false
-        );
-        verticalElevatorMotorFollower.setControl(verticalElevatorFollower);
+        ));
 
+        // Horizontal elevator motor
         horizontalElevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
+        // Horizontal elevator CANCoder
         final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();
         horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         horizontalElevatorEncoder.getConfigurator().apply(horizontalElevatorEncoderConfig);

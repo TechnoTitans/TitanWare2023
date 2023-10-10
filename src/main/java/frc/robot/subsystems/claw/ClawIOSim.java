@@ -118,8 +118,7 @@ public class ClawIOSim implements ClawIO {
         );
 
         switch (clawTiltControlMode) {
-            case POSITION -> clawTiltNeo.set(
-                    CANSparkMax.ControlType.kVoltage,
+            case POSITION -> clawTiltNeo.getPIDController().setReference(
                     RevUtils.convertControlTypeOutput(
                             clawTiltNeo,
                             CANSparkMax.ControlType.kDutyCycle,
@@ -127,34 +126,39 @@ public class ClawIOSim implements ClawIO {
                             tiltPID.calculate(
                                     clawTiltEncoder.getAbsolutePosition().refresh().getValue(), desiredTiltControlInput
                             )
-                    )
+                    ),
+                    CANSparkMax.ControlType.kVoltage
             );
-            case DUTY_CYCLE -> clawTiltNeo.set(
-                    CANSparkMax.ControlType.kVoltage,
+            case DUTY_CYCLE -> clawTiltNeo.getPIDController().setReference(
                     RevUtils.convertControlTypeOutput(
                             clawTiltNeo,
                             CANSparkMax.ControlType.kDutyCycle,
                             CANSparkMax.ControlType.kVoltage,
                             desiredTiltControlInput
-                    )
+                    ),
+                    CANSparkMax.ControlType.kVoltage
             );
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIO.ClawIOInputs inputs) {
         final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
         clawSimState.log(Claw.logKey + "SimState");
 
-        inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
+        // TODO: this doesn't work... probably cause adding static friction makes a plant non-linear
         inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
+        inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
-        inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
+        inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
+        inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();
 
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }

@@ -203,6 +203,7 @@ public class ClawIOStateSpaceSim implements ClawIO {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIO.ClawIOInputs inputs) {
         final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
@@ -210,11 +211,16 @@ public class ClawIOStateSpaceSim implements ClawIO {
 
         inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
-        inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
+        inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
+        // TODO: this doesn't work... probably cause adding static friction makes a plant non-linear
+        inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
+        inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
         inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
+        inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
+        inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();
 
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }

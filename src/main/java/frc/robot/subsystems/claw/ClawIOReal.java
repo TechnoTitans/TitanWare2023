@@ -89,23 +89,37 @@ public class ClawIOReal implements ClawIO {
         );
 
         switch (clawTiltControlMode) {
-            case POSITION -> clawTiltNeo.set(tiltPID.calculate(
-                    clawTiltEncoder.getAbsolutePosition().refresh().getValue(), desiredTiltControlInput));
-            case DUTY_CYCLE -> clawTiltNeo.set(desiredTiltControlInput);
+            case POSITION -> clawTiltNeo.getPIDController().setReference(
+                    tiltPID.calculate(
+                            clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
+                            desiredTiltControlInput
+                    ),
+                    CANSparkMax.ControlType.kDutyCycle
+            );
+            case DUTY_CYCLE -> clawTiltNeo.getPIDController().setReference(
+                    desiredTiltControlInput,
+                    CANSparkMax.ControlType.kDutyCycle
+            );
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
         inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
         inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
+        inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
         inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
         inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
+        inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
+        inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();
 
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
+
     }
 
     @Override
