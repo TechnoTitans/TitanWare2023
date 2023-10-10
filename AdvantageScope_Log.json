@@ -13,12 +13,12 @@
           "fields": [
             {
               "key": "/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
-              "color": "#e5b31b",
+              "color": "#2b66a2",
               "show": true
             },
             {
               "key": "/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
-              "color": "#2b66a2",
+              "color": "#e5b31b",
               "show": true
             }
           ]
@@ -63,12 +63,12 @@
           "fields": [
             {
               "key": "/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
-              "color": "#e5b31b",
+              "color": "#2b66a2",
               "show": true
             },
             {
               "key": "/RealOutputs/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
-              "color": "#2b66a2",
+              "color": "#e5b31b",
               "show": true
             },
             {
@@ -136,22 +136,22 @@
           "fields": [
             {
               "key": "/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
-              "color": "#e5b31b",
+              "color": "#2b66a2",
               "show": true
             },
             {
               "key": "/RealOutputs/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
-              "color": "#af2437",
+              "color": "#e5b31b",
               "show": true
             },
             {
               "key": "/RealOutputs/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
-              "color": "#e48b32",
+              "color": "#af2437",
               "show": true
             },
             {
               "key": "/RealOutputs/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
-              "color": "#c0b487",
+              "color": "#80588e",
               "show": true
             }
           ]
@@ -171,17 +171,17 @@
           "fields": [
             {
               "key": "/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
-              "color": "#2b66a2",
+              "color": "#e48b32",
               "show": true
             },
             {
               "key": "/Swerve/Module_FrontRight/TurnAbsolutePositionRots",
-              "color": "#80588e",
+              "color": "#aacaee",
               "show": true
             },
             {
               "key": "/Swerve/Module_BackLeft/TurnAbsolutePositionRots",
-              "color": "#aacaee",
+              "color": "#c0b487",
               "show": true
             },
             {
@@ -206,17 +206,17 @@
           "fields": [
             {
               "key": "/Gyro/PitchPositionDeg",
-              "color": "#af2437",
+              "color": "#2b66a2",
               "show": true
             },
             {
               "key": "/Gyro/RollPositionDeg",
-              "color": "#80588e",
+              "color": "#e5b31b",
               "show": true
             },
             {
               "key": "/Gyro/YawPositionDeg",
-              "color": "#e48b32",
+              "color": "#af2437",
               "show": true
             }
           ]
@@ -225,12 +225,12 @@
           "fields": [
             {
               "key": "/Gyro/HasHardwareFault",
-              "color": "#e5b31b",
+              "color": "#80588e",
               "show": true
             },
             {
               "key": "/RealOutputs/Swerve/IsUsingFallbackSimGyro",
-              "color": "#2b66a2",
+              "color": "#e48b32",
               "show": true
             }
           ]
@@ -277,12 +277,12 @@
           "fields": [
             {
               "key": "/RealOutputs/Auto/EstimatedPose/0",
-              "color": "#e5b31b",
+              "color": "#2b66a2",
               "show": true
             },
             {
               "key": "/RealOutputs/Auto/EstimatedPose/1",
-              "color": "#2b66a2",
+              "color": "#e5b31b",
               "show": true
             },
             {
@@ -337,12 +337,12 @@
           "fields": [
             {
               "key": "/RealOutputs/AutoAlign/PositionError",
-              "color": "#80588e",
+              "color": "#2b66a2",
               "show": true
             },
             {
               "key": "/RealOutputs/AutoAlign/VelocityError",
-              "color": "#e48b32",
+              "color": "#e5b31b",
               "show": true
             }
           ]
@@ -351,17 +351,17 @@
           "fields": [
             {
               "key": "/RealOutputs/AutoAlign/AlignmentZone",
-              "color": "#e5b31b",
+              "color": "#af2437",
               "show": true
             },
             {
               "key": "/RealOutputs/AutoAlign/IsActive",
-              "color": "#2b66a2",
+              "color": "#80588e",
               "show": true
             },
             {
               "key": "/RealOutputs/AutoAlign/AtGoal",
-              "color": "#af2437",
+              "color": "#e48b32",
               "show": true
             }
           ]
@@ -378,78 +378,95 @@
       "title": "AutoAlign"
     },
     {
-      "type": 5,
-      "fields": [],
-      "listFields": [
-        [
-          {
-            "type": "Robot",
-            "key": "/RealOutputs/Odometry/Robot",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Trajectory",
-            "key": "/RealOutputs/AutoAlign/AlignmentZoneTrajectory",
-            "fieldTypeIndex": 0
-          },
-          {
-            "type": "Ghost",
-            "key": "/RealOutputs/AutoAlign/WantedPose",
-            "fieldTypeIndex": 0
-          }
-        ]
+      "type": 9,
+      "fields": [
+        {
+          "key": "/RealOutputs/Swerve/CurrentStates",
+          "sourceTypeIndex": 0,
+          "sourceType": 5
+        },
+        {
+          "key": "/RealOutputs/Swerve/DesiredStates",
+          "sourceTypeIndex": 0,
+          "sourceType": 5
+        },
+        {
+          "key": "/RealOutputs/Odometry/Robot2d/2",
+          "sourceTypeIndex": 0,
+          "sourceType": 2
+        }
       ],
+      "listFields": [],
       "options": {
-        "game": "2023",
-        "unitDistance": "meters",
-        "unitRotation": "radians",
-        "origin": "right",
-        "size": 0.75,
-        "allianceBumpers": "auto",
-        "allianceOrigin": "auto",
-        "orientation": "blue left, red right"
+        "maxSpeed": 4.5,
+        "rotationUnits": "radians",
+        "arrangement": "0,1,2,3",
+        "sizeLeftRight": 0.65,
+        "sizeFrontBack": 0.65,
+        "forwardDirection": "up"
       },
-      "title": "Odometry"
+      "title": "Swerve"
     },
     {
       "type": 6,
       "fields": [],
       "listFields": [
-        [],
         [
           {
+            "type": "Component (Robot)",
+            "key": "/RealOutputs/ElevatorSimState/VerticalStageOneCenterPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "/RealOutputs/ElevatorSimState/VerticalStageTwoCenterPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "/RealOutputs/ElevatorSimState/HorizontalRootPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "/RealOutputs/ElevatorSimState/HorizontalStageOneCenterPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "/RealOutputs/ElevatorSimState/HorizontalStageTwoCenterPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
+            "type": "Component (Robot)",
+            "key": "/RealOutputs/ClawSimState/ClawPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
             "type": "Robot",
-            "key": "/RealOutputs/Odometry/Robot",
-            "fieldTypeIndex": 0
+            "key": "/RealOutputs/Odometry/Robot3d",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
           }
-        ]
+        ],
+        []
       ],
       "options": {
-        "field": "2023",
+        "field": "2023 Field",
         "alliance": "auto",
-        "robot": "KitBot",
+        "robot": "Odin",
         "unitDistance": "meters",
-        "unitRotation": "radians"
+        "unitRotation": "radians",
+        "cameraIndex": -1,
+        "fov": 50
       },
       "title": "3D Field"
-    },
-    {
-      "type": 9,
-      "fields": [
-        "/RealOutputs/Swerve/CurrentStates",
-        "/RealOutputs/Swerve/DesiredStates",
-        "/RealOutputs/Odometry/Robot2d/2"
-      ],
-      "listFields": [],
-      "options": {
-        "maxSpeed": 4,
-        "rotationUnits": "radians",
-        "arrangement": "0,1,2,3",
-        "sizeLeftRight": 0.7366,
-        "sizeFrontBack": 0.7366,
-        "forwardDirection": "up"
-      },
-      "title": "Swerve"
     }
   ]
 }

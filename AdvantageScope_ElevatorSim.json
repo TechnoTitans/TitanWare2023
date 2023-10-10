@@ -293,6 +293,12 @@
           },
           {
             "type": "Component (Robot)",
+            "key": "NT:/AdvantageKit/RealOutputs/ElevatorSimState/HorizontalStageTwoCenterPose",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
+          },
+          {
+            "type": "Component (Robot)",
             "key": "NT:/AdvantageKit/RealOutputs/ClawSimState/ClawPose",
             "sourceTypeIndex": 0,
             "sourceType": 5

@@ -167,3 +167,6 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+
+# Ignore files for simulated CTRE Status Signals
+/ctre_sim/

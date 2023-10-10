@@ -125,7 +125,7 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
                     String.format(
                             "Failed to set NeutralMode on TalonFX %s (%s)",
                             driveMotor.getDeviceID(),
-                            driveMotor.getCANBus()
+                            driveMotor.getNetwork()
                     ), false
             );
             return;
