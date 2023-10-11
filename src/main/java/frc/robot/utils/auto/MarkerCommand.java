@@ -51,7 +51,7 @@ public enum MarkerCommand {
                                     followerContext.getClaw(),
                                     GridNode.Level.valueOf(args.get(0))
                             ),
-                            Commands.waitSeconds(0.4),
+                            Commands.waitSeconds(0.3),
                             Commands.runOnce(() -> followerContext.setPaused(false))
                     )
             ))
@@ -90,6 +90,22 @@ public enum MarkerCommand {
                             )
                             .build()
             )
+    ),
+    SHOOT(
+            "shoot",
+            List.of(ArgumentChecker.enumChecker(GridNode.Level.class)),
+            (((followerContext, args) ->
+                    Commands.sequence(
+                            Commands.runOnce(() -> followerContext.setPaused(true)),
+                            GridNode.buildShootingSequence(
+                                    followerContext.getElevator(),
+                                    followerContext.getClaw(),
+                                    GridNode.Level.valueOf(args.get(0))
+                            ),
+                            Commands.waitSeconds(0.1),
+                            Commands.runOnce(() -> followerContext.setPaused(false))
+                    )
+            ))
     ),
     WAIT(
             "wait",

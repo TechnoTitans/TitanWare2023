@@ -166,6 +166,8 @@ public class Claw extends SubsystemBase {
             final SuperstructureStates.ClawTiltControlMode tiltControlMode = desiredState.getClawTiltControlMode();
             final SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode = desiredState.getClawOpenCloseControlMode();
 
+
+            //todo check accuracy on real robot
             final boolean isAtDesired =
                     MathUtils.withinTolerance(
                             inputs.intakeWheelsPercentOutput,
@@ -177,14 +179,14 @@ public class Claw extends SubsystemBase {
                                 case DUTY_CYCLE -> inputs.openClosePercentOutput;
                             },
                             desiredState.getOpenCloseControlInput(),
-                            0.4
+                            0.1
                     ) && MathUtils.withinTolerance(
                             switch (tiltControlMode) {
                                 case POSITION -> inputs.tiltEncoderPositionRots;
                                 case DUTY_CYCLE -> inputs.tiltPercentOutput;
                             },
                             desiredState.getTiltControlInput(),
-                            0.4
+                            0.1
                     );
 
             if (isAtDesired) {

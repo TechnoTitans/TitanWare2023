@@ -55,17 +55,27 @@ public enum GridNode {
     RIGHT_RIGHT_LOW(NTGridNode.RIGHT_RIGHT_LOW, AlignmentZone.RIGHT, GenericDesiredAlignmentPosition.RIGHT, Level.LOW);
 
     public enum Level {
-        LOW(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY),
-        MID(SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_MID),
-        HIGH(SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_HIGH);
+        LOW(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY, SuperstructureStates.ClawState.CLAW_SHOOT_LOW),
+        MID(SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_MID, SuperstructureStates.ClawState.CLAW_SHOOT_MID),
+        HIGH(SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_HIGH, SuperstructureStates.ClawState.CLAW_SHOOT_HIGH);
 
         private final SuperstructureStates.ElevatorState elevatorState;
-        Level(final SuperstructureStates.ElevatorState elevatorState) {
+        private final SuperstructureStates.ClawState clawShootingState;
+
+        Level(
+                final SuperstructureStates.ElevatorState elevatorState,
+                final SuperstructureStates.ClawState clawShootingState
+        ) {
             this.elevatorState = elevatorState;
+            this.clawShootingState = clawShootingState;
         }
 
         public SuperstructureStates.ElevatorState getElevatorState() {
             return elevatorState;
+        }
+
+        public SuperstructureStates.ClawState getClawShootingState() {
+            return clawShootingState;
         }
     }
 
@@ -121,14 +131,13 @@ public enum GridNode {
         return switch (level) {
             case HIGH, MID -> new ElevatorClawCommand.Builder(elevator, claw)
                     .withElevatorState(toLevelElevatorState)
-                    .wait(0.3)
+//                    .waitUntilState(toLevelElevatorState)
+                    .wait(0.125)
                     .withClawState(SuperstructureStates.ClawState.CLAW_DROP)
-//                    .waitUntilStates(toLevelElevatorState, SuperstructureStates.ClawState.CLAW_DROP)
-                    .wait(0.8)
+                    .waitUntilStates(toLevelElevatorState, SuperstructureStates.ClawState.CLAW_DROP)
                     .withClawState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
-                    //todo fix
-//                    .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
-                    .wait(0.8)
+                    .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
+                    .wait(0.27)
                     .withElevatorClawStates(
                             SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
                             SuperstructureStates.ClawState.CLAW_STANDBY
@@ -143,6 +152,21 @@ public enum GridNode {
                     .withClawState(SuperstructureStates.ClawState.CLAW_STANDBY)
                     .build();
         };
+    }
+
+    public static ElevatorClawCommand buildShootingSequence(
+            final Elevator elevator,
+            final Claw claw,
+            final Level level
+    ) {
+        final SuperstructureStates.ClawState clawShootingState = level.getClawShootingState();
+        return new ElevatorClawCommand.Builder(elevator, claw)
+                .endIfNotInState(SuperstructureStates.ClawState.CLAW_ANGLE_SHOOT)
+                .withClawState(clawShootingState)
+                .waitUntilState(clawShootingState)
+                .wait(0.3)
+                .withClawState(SuperstructureStates.ClawState.CLAW_STANDBY)
+                .build();
     }
 
     public ElevatorClawCommand buildScoringSequence(final Elevator elevator, final Claw claw) {

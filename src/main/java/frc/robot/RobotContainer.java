@@ -6,6 +6,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -456,8 +457,8 @@ public class RobotContainer {
         autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
 
         autoChooser.addAutoOption(new AutoOption(
-                "NonStop3Piece",
-                List.of("NonStop1", "NonStop2"),
+                "NewMethod3Piece",
+                List.of("NewMethod1", "NewMethod2", "NewMethod3"),
                 Constants.CompetitionType.TESTING
         ));
 
@@ -472,7 +473,12 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         final AutoOption selectedAutoOption = autoChooser.getSelected();
         return selectedAutoOption != null
-                ? trajectoryManager.getTrajectoryFollowerSequence(selectedAutoOption)
+                ? Commands.parallel(
+                        trajectoryManager.getTrajectoryFollowerSequence(selectedAutoOption),
+                        Commands.sequence(Commands.waitSeconds(15), Commands.runOnce(() -> {
+                            throw new RuntimeException("YOU SUCK!!!");
+                        }))
+                )
                 : Commands.waitUntil(() -> !RobotState.isAutonomous());
     }
 }
