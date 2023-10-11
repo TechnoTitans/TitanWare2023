@@ -68,7 +68,7 @@ public class DriveController {
         this.useRotFF = useRotFF;
 
         // Auto-configure continuous input for rotation controller
-        this.rotationController.enableContinuousInput(-Math.PI, Math.PI);
+       this.rotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     /**

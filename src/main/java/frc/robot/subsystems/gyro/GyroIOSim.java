@@ -16,13 +16,12 @@ public class GyroIOSim implements GyroIO {
     private final Pigeon2 pigeon;
     private final SwerveDriveKinematics kinematics;
     private final SwerveModule[] swerveModules;
-    private final double[] lastSwerveModulePositionRots = {0.0, 0.0, 0.0, 0.0};
+    private final double[] lastSwerveModulePositionMeters = {0.0, 0.0, 0.0, 0.0};
 
     private Pose2d gyroUseOdometryPose = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
 
     public static final double USE_SIMULATED_PITCH = 0;
     public static final double USE_SIMULATED_ROLL = 0;
-
 
     public GyroIOSim(final Pigeon2 pigeon, final SwerveDriveKinematics kinematics, final SwerveModule[] swerveModules) {
         this.pigeon = pigeon;
@@ -39,13 +38,13 @@ public class GyroIOSim implements GyroIO {
     private void updateGyro() {
         final SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[swerveModules.length];
         for (int i = 0; i < swerveModules.length; i++) {
-            final double currentSwervePosition = swerveModules[i].getDrivePosition();
+            final SwerveModulePosition currentSwervePosition = swerveModules[i].getPosition();
 
             wheelDeltas[i] = new SwerveModulePosition(
-                    (currentSwervePosition - lastSwerveModulePositionRots[i]),
-                    swerveModules[i].getAngle()
+                    (currentSwervePosition.distanceMeters - lastSwerveModulePositionMeters[i]),
+                    currentSwervePosition.angle
             );
-            lastSwerveModulePositionRots[i] = currentSwervePosition;
+            lastSwerveModulePositionMeters[i] = currentSwervePosition.distanceMeters;
         }
 
         final Twist2d wheelDeltasTwist = kinematics.toTwist2d(wheelDeltas);
@@ -55,7 +54,7 @@ public class GyroIOSim implements GyroIO {
         Logger.getInstance().recordOutput(Gyro.logKey + "/WheelDeltasTwistDx", wheelDeltasTwist.dx);
         Logger.getInstance().recordOutput(Gyro.logKey + "/WheelDeltasTwistDy", wheelDeltasTwist.dy);
         Logger.getInstance().recordOutput(Gyro.logKey + "/WheelDeltasTwistDTheta", wheelDeltasTwist.dtheta);
-        Logger.getInstance().recordOutput(Gyro.logKey + "/LastSwerveModulePositionRots", lastSwerveModulePositionRots);
+        Logger.getInstance().recordOutput(Gyro.logKey + "/LastSwerveModulePositionRots", lastSwerveModulePositionMeters);
 
         setAngleInternal(gyroUseOdometryPose.getRotation().getDegrees());
     }
@@ -86,10 +85,10 @@ public class GyroIOSim implements GyroIO {
 
     public double getYaw() {
         updateGyro();
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                pigeon.getYaw(),
-                getYawVelocitySignal()
-        );
+//        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+                return pigeon.getYaw().refresh().getValue();
+//                getYawVelocitySignal()
+//        );
     }
 
     public StatusSignal<Double> getYawVelocitySignal() {

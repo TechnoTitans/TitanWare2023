@@ -12,7 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.FieldConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.constants.Constants;
 

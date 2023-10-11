@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.FieldConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.utils.PoseUtils;
 
 import java.util.*;

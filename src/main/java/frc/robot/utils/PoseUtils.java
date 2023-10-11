@@ -3,7 +3,7 @@ package frc.robot.utils;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.FieldConstants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.utils.alignment.AlignmentZone;
 
 public class PoseUtils {
