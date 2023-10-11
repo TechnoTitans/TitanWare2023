@@ -459,7 +459,7 @@ public class RobotContainer {
         autoChooser.addAutoOption(new AutoOption(
                 "NewMethod3Piece",
                 List.of("NewMethod1", "NewMethod2", "NewMethod3"),
-                Constants.CompetitionType.TESTING
+                Constants.CompetitionType.COMPETITION
         ));
 
         //Add the remaining paths automatically
