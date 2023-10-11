@@ -99,13 +99,13 @@ public interface Constants {
         double TRACK_WIDTH = 0.7366;
         double ROBOT_MAX_SPEED = Units.feetToMeters(13.5);
         double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
-        double ROBOT_MAX_ANGULAR_SPEED = Math.PI;
+        double ROBOT_MAX_ANGULAR_SPEED = 2 * Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJECTORY_MAX_SPEED = 4;
         double TRAJECTORY_MAX_ACCELERATION = 4;
         double TRAJECTORY_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
-        double TRAJECTORY_MAX_ANGULAR_ACCELERATION = Math.PI;
+        double TRAJECTORY_MAX_ANGULAR_ACCELERATION = 1.5 * ROBOT_MAX_ANGULAR_SPEED;
         double ROTATE_P = 1;
 
         boolean USE_SWERVE_SKEW_FIX = true;

@@ -246,9 +246,9 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
-        turnTalonFXConfiguration.Slot0 = new Slot0Configs(40, 0, 0, 0);
-        turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
-        turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
+        turnTalonFXConfiguration.Slot0 = new Slot0Configs(35, 0, 0, 0);
+//        turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
+//        turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
