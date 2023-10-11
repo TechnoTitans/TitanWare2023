@@ -33,23 +33,26 @@ public class PhotonRunnable implements Runnable {
         this.photonCamera = titanCamera.getPhotonCamera();
         this.logKey = String.format("%s_PoseEstimator", photonCamera.getName());
         this.poseEstimator = new PhotonPoseEstimator(
-                aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, titanCamera.getRobotRelativeToCameraTransform()
+                aprilTagFieldLayout,
+                PoseStrategy.MULTI_TAG_PNP,
+                photonCamera,
+                titanCamera.getRobotRelativeToCameraTransform()
         );
 
         this.poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
     private void updatePoseEstimator(final PhotonPipelineResult photonPipelineResult) {
-        Logger.getInstance().recordOutput(
-                logKey + "/PipelineResultTargets",
-                photonPipelineResult.targets.stream().mapToDouble(PhotonTrackedTarget::getFiducialId).toArray()
-        );
+//        Logger.getInstance().recordOutput(
+//                logKey + "/PipelineResultTargets",
+//                photonPipelineResult.targets.stream().mapToDouble(PhotonTrackedTarget::getFiducialId).toArray()
+//        );
 
-        Logger.getInstance().recordOutput(logKey + "/PrimaryStrategy", poseEstimator.getPrimaryStrategy().toString());
+//        Logger.getInstance().recordOutput(logKey + "/PrimaryStrategy", poseEstimator.getPrimaryStrategy().toString());
 
         final Optional<EstimatedRobotPose> optionalEstimatedRobotPose = poseEstimator.update(photonPipelineResult);
 
-        Logger.getInstance().recordOutput(logKey + "/OptionalIsPresent", optionalEstimatedRobotPose.isPresent());
+//        Logger.getInstance().recordOutput(logKey + "/OptionalIsPresent", optionalEstimatedRobotPose.isPresent());
         optionalEstimatedRobotPose.ifPresent(estimatedRobotPose -> {
             atomicEstimatedPose.set(estimatedRobotPose);
             atomicLastStableEstimatedPose.set(estimatedRobotPose);

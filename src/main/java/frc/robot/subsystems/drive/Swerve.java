@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -15,6 +16,7 @@ import frc.robot.constants.Constants;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.gyro.GyroIOSim;
+import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.sim.CurrentDrawSim;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
@@ -24,12 +26,15 @@ import java.util.Arrays;
 
 public class Swerve extends SubsystemBase {
     protected static final String logKey = "Swerve";
+    protected static final String odometryLogKey = "Odometry";
 
     private Gyro gyro;
     private final GyroIOInputsAutoLogged gyroInputs;
-    private final SwerveDriveKinematics kinematics;
-    private final SwerveModule frontLeft, frontRight, backLeft, backRight;
 
+    private final SwerveDriveKinematics kinematics;
+    private final SwerveDrivePoseEstimator poseEstimator;
+
+    private final SwerveModule frontLeft, frontRight, backLeft, backRight;
     private final SwerveModule[] swerveModules;
 
     public Swerve(
@@ -44,6 +49,15 @@ public class Swerve extends SubsystemBase {
         this.gyroInputs = new GyroIOInputsAutoLogged();
 
         this.kinematics = kinematics;
+        this.poseEstimator = new SwerveDrivePoseEstimator(
+                kinematics,
+                getYaw(),
+                getModulePositions(),
+                new Pose2d(),
+                Constants.Vision.STATE_STD_DEVS,
+                Constants.Vision.VISION_MEASUREMENT_STD_DEVS
+        );
+
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
@@ -135,6 +149,23 @@ public class Swerve extends SubsystemBase {
                logKey + "/IsUsingFallbackSimGyro",
                Constants.CURRENT_MODE == Constants.RobotMode.REAL && !gyro.isReal()
         );
+
+        // Update PoseEstimator and Odometry
+        final double odometryUpdateStart = Logger.getInstance().getRealTimestamp();
+        poseEstimator.update(getYaw(), getModulePositions());
+        final double odometryUpdatePeriodMs = LogUtils.microsecondsToMilliseconds(
+                Logger.getInstance().getRealTimestamp() - odometryUpdateStart
+        );
+
+        final Pose2d estimatedPosition = poseEstimator.getEstimatedPosition();
+        Logger.getInstance().recordOutput(
+                odometryLogKey + "/OdometryUpdatePeriodMs", odometryUpdatePeriodMs
+        );
+        Logger.getInstance().recordOutput(odometryLogKey + "/Robot2d", estimatedPosition);
+        Logger.getInstance().recordOutput(odometryLogKey + "/Robot3d", GyroUtils.robotPose2dToPose3dWithGyro(
+                estimatedPosition,
+                GyroUtils.rpyToRotation3d(getRoll(), getPitch(), getYaw())
+        ));
     }
 
     public Gyro getGyro() {

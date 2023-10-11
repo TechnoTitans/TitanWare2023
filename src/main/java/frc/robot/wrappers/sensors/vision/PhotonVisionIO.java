@@ -1,11 +1,12 @@
 package frc.robot.wrappers.sensors.vision;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface PhotonVisionIO {
     @AutoLog
-    class PhotonVisionIOInputs {}
+    class PhotonVisionIOInputs {
+        public double[] pipelineResultTargets = new double[] {};
+    }
 
     /**
      * Updates the set of loggable inputs.
@@ -16,6 +17,4 @@ public interface PhotonVisionIO {
     default void updateInputs(final PhotonVisionIOInputsAutoLogged inputs) {}
 
     default void periodic() {}
-
-    default void resetRobotPose(final Pose3d robotPose) {}
 }

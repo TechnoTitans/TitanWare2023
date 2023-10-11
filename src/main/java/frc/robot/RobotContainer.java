@@ -6,10 +6,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -41,7 +39,7 @@ import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIOApriltagsImpl;
+import frc.robot.wrappers.sensors.vision.PhotonVisionApriltagsSim;
 
 import java.util.List;
 
@@ -59,9 +57,8 @@ public class RobotContainer {
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
 
-    //Odometry, PoseEstimator
+    //Odometry
     public final SwerveDriveOdometry visionIndependentOdometry;
-    public final SwerveDrivePoseEstimator poseEstimator;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -311,18 +308,17 @@ public class RobotContainer {
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
 
-        final Pose2d initialOdometryPose = new Pose2d();
         visionIndependentOdometry = new SwerveDriveOdometry(
-                kinematics, swerve.getYaw(), swerve.getModulePositions(), initialOdometryPose
+                kinematics, swerve.getYaw(), swerve.getModulePositions(), new Pose2d()
         );
-        poseEstimator = new SwerveDrivePoseEstimator(
-                kinematics,
-                swerve.getYaw(),
-                swerve.getModulePositions(),
-                initialOdometryPose,
-                Constants.Vision.STATE_STD_DEVS,
-                Constants.Vision.VISION_MEASUREMENT_STD_DEVS
-        );
+//        poseEstimator = new SwerveDrivePoseEstimator(
+//                kinematics,
+//                swerve.getYaw(),
+//                swerve.getModulePositions(),
+//                initialOdometryPose,
+//                Constants.Vision.STATE_STD_DEVS,
+//                Constants.Vision.VISION_MEASUREMENT_STD_DEVS
+//        );
 
 //        holonomicDriveController = new DriveController(
 //                new PIDController(14, 0, 0),
@@ -380,11 +376,11 @@ public class RobotContainer {
 
         photonVision = switch (Constants.CURRENT_MODE) {
             case REAL, SIM -> new PhotonVision(
-                    new PhotonVisionIOApriltagsImpl(swerve, visionIndependentOdometry, apriltagCameras),
-                    swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
+                    new PhotonVisionApriltagsSim(swerve, visionIndependentOdometry, apriltagCameras),
+                    swerve, apriltagCameras
             );
             case REPLAY -> new PhotonVision(
-                    new PhotonVisionIO() {}, swerve, visionIndependentOdometry, poseEstimator, apriltagCameras
+                    new PhotonVisionIO() {}, swerve, apriltagCameras
             );
         };
 
@@ -473,12 +469,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         final AutoOption selectedAutoOption = autoChooser.getSelected();
         return selectedAutoOption != null
-                ? Commands.parallel(
-                        trajectoryManager.getTrajectoryFollowerSequence(selectedAutoOption),
-                        Commands.sequence(Commands.waitSeconds(15), Commands.runOnce(() -> {
-                            throw new RuntimeException("YOU SUCK!!!");
-                        }))
-                )
+                ? trajectoryManager.getTrajectoryFollowerSequence(selectedAutoOption)
                 : Commands.waitUntil(() -> !RobotState.isAutonomous());
     }
 }

@@ -1,6 +1,6 @@
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.*;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -22,6 +22,9 @@ import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
 import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
 import frc.robot.wrappers.control.Slot0Configs;
 
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     private final TalonFX driveMotor;
     private final TalonFX turnMotor;
@@ -39,6 +42,148 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     private final PositionVoltage positionVoltage;
 
     private final DeltaTime deltaTime;
+    private static class StatusSignalQueue extends Thread {
+        private static final int DEFAULT_CAPACITY = 8;
+        private record StatusSignalMeasurement<T>(
+                T value,
+                StatusCode statusCode,
+                Timestamp bestTimestamp,
+                AllTimestamps allTimestamps
+        ) {
+            private static final Comparator<StatusSignalMeasurement<?>> comparator =
+                    Comparator.comparingDouble(signalMeasurement -> signalMeasurement.bestTimestamp.getTime());
+
+            public StatusSignalMeasurement(final StatusSignal<T> signal) {
+                this(signal.getValue(), signal.getStatus(), signal.getTimestamp(), signal.getAllTimestamps());
+            }
+
+            public static StatusSignalMeasurement<Double> latencyCompensatedMeasurement(
+                    final StatusSignal<Double> signal,
+                    final StatusSignal<Double> deltaSignal
+            ) {
+                return new StatusSignalMeasurement<>(
+                        BaseStatusSignal.getLatencyCompensatedValue(signal, deltaSignal),
+                        signal.getStatus(),
+                        signal.getTimestamp(),
+                        signal.getAllTimestamps()
+                );
+            }
+        }
+
+        public record SignalMeasurementArrayQueue<T>(T[] values, double[] timestamps) {}
+
+        private final ReentrantLock signalQueueLock;
+        private final List<StatusSignal<?>> statusSignals;
+        private final TalonFX driveMotor;
+        private final CANcoder turnEncoder;
+
+        private final List<StatusCode> statusCodeBadQueue;
+        private final List<StatusSignalMeasurement<Double>> drivePositionSignalQueue;
+        private final List<StatusSignalMeasurement<Double>> driveVelocitySignalQueue;
+        private final List<StatusSignalMeasurement<Double>> turnPositionSignalQueue;
+        private final List<StatusSignalMeasurement<Double>> turnVelocitySignalQueue;
+
+        public StatusSignalQueue(final TalonFX driveMotor, final CANcoder turnEncoder) {
+            super(String.format("StatusSignalQueue@%s.%s", driveMotor.getDeviceID(), turnEncoder.getDeviceID()));
+
+            this.signalQueueLock = new ReentrantLock();
+            this.statusSignals = List.of(
+                    driveMotor.getPosition(), driveMotor.getVelocity(),
+                    turnEncoder.getAbsolutePosition(), turnEncoder.getVelocity()
+            );
+
+            this.driveMotor = driveMotor;
+            this.turnEncoder = turnEncoder;
+
+            this.statusCodeBadQueue = new ArrayList<>(DEFAULT_CAPACITY);
+            this.drivePositionSignalQueue = new ArrayList<>(DEFAULT_CAPACITY);
+            this.driveVelocitySignalQueue = new ArrayList<>(DEFAULT_CAPACITY);
+            this.turnPositionSignalQueue = new ArrayList<>(DEFAULT_CAPACITY);
+            this.turnVelocitySignalQueue = new ArrayList<>(DEFAULT_CAPACITY);
+        }
+
+        @SuppressWarnings("InfiniteLoopStatement")
+        @Override
+        public void run() {
+            final StatusSignal<?>[] statusSignalsArray = statusSignals.toArray(StatusSignal[]::new);
+            while (true) {
+                final StatusCode statusCode = BaseStatusSignal.waitForAll(0.1, statusSignalsArray);
+                if (!statusCode.isOK()) {
+                    signalQueueLock.lock();
+                    try {
+                        statusCodeBadQueue.add(statusCode);
+                    } finally {
+                        signalQueueLock.unlock();
+                    }
+
+                    continue;
+                }
+
+                signalQueueLock.lock();
+                try {
+                    final StatusSignal<Double> driveVelocitySignal = driveMotor.getVelocity();
+                    drivePositionSignalQueue.add(StatusSignalMeasurement.latencyCompensatedMeasurement(
+                            driveMotor.getPosition(),
+                            driveVelocitySignal
+                    ));
+                    driveVelocitySignalQueue.add(new StatusSignalMeasurement<>(driveVelocitySignal));
+
+                    final StatusSignal<Double> turnVelocitySignal = turnEncoder.getVelocity();
+                    turnPositionSignalQueue.add(StatusSignalMeasurement.latencyCompensatedMeasurement(
+                            turnEncoder.getAbsolutePosition(),
+                            turnVelocitySignal
+                    ));
+                    turnVelocitySignalQueue.add(new StatusSignalMeasurement<>(turnVelocitySignal));
+                } finally {
+                    signalQueueLock.unlock();
+                }
+            }
+        }
+
+        private SignalMeasurementArrayQueue<Double> getDoubleMeasurementArrayQueue(
+                final List<StatusSignalMeasurement<Double>> measurements
+        ) {
+            if (signalQueueLock.tryLock()) {
+                final int signalCount = measurements.size();
+                final Double[] values = new Double[signalCount];
+                final double[] timestamps = new double[signalCount];
+
+                try {
+                    int i = 0;
+                    for (final StatusSignalMeasurement<Double> measurement : measurements) {
+                        values[i] = measurement.value;
+                        timestamps[i] = measurement.bestTimestamp.getTime();
+                    }
+                } finally {
+                    signalQueueLock.unlock();
+                }
+
+                return new SignalMeasurementArrayQueue<>(values, timestamps);
+            } else {
+                return new SignalMeasurementArrayQueue<>(new Double[0], new double[0]);
+            }
+        }
+
+        public StatusCode[] getBadStatusCodeQueue() {
+            return statusCodeBadQueue.toArray(StatusCode[]::new);
+        }
+
+        public SignalMeasurementArrayQueue<Double> getDrivePositionSignalQueue() {
+            return getDoubleMeasurementArrayQueue(drivePositionSignalQueue);
+        }
+
+        public SignalMeasurementArrayQueue<Double> getDriveVelocitySignalQueue() {
+            return getDoubleMeasurementArrayQueue(driveVelocitySignalQueue);
+        }
+
+        public SignalMeasurementArrayQueue<Double> getTurnPositionSignalQueue() {
+            return getDoubleMeasurementArrayQueue(turnPositionSignalQueue);
+        }
+
+        public SignalMeasurementArrayQueue<Double> getTurnVelocitySignalQueue() {
+            return getDoubleMeasurementArrayQueue(turnVelocitySignalQueue);
+        }
+    }
 
     public SwerveModuleIOFalconSim(
             final TalonFX driveMotor,

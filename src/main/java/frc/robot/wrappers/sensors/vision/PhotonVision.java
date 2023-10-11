@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class PhotonVision extends VirtualSubsystem {
     protected static final String photonLogKey = "PhotonVision";
-    protected static final String odometryLogKey = "Odometry";
+//    protected static final String odometryLogKey = "Odometry";
 
     public static final double TRANSLATION_VELOCITY_TOLERANCE = 0.1;
     public static final double ANGULAR_VELOCITY_TOLERANCE = 0.1;
@@ -62,50 +62,37 @@ public class PhotonVision extends VirtualSubsystem {
         }
     }
 
-    private final PhotonVisionIO photonVisionIO;
+    private final List<PhotonVisionIO> photonVisionIOs;
     private final PhotonVisionIOInputsAutoLogged inputs;
 
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final SwerveDriveOdometry visionIndependentOdometry;
+//    private final SwerveDriveOdometry visionIndependentOdometry;
 
-    private final Map<PhotonRunnable, Notifier> photonRunnableNotifierMap;
+    private final List<PhotonRunnable> photonRunnableList;
     private final Map<PhotonRunnable, EstimatedRobotPose> lastEstimatedPosesByCamera;
 
     private AprilTagFieldLayout.OriginPosition originPosition =
             AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
 
     public PhotonVision(
-            final PhotonVisionIO photonVisionIO,
+            final List<PhotonVisionIO> photonVisionIOs,
             final Swerve swerve,
             final SwerveDriveOdometry visionIndependentOdometry,
             final SwerveDrivePoseEstimator poseEstimator,
             final List<TitanCamera> apriltagCameras
     ) {
-        this.photonVisionIO = photonVisionIO;
+        this.photonVisionIOs = photonVisionIOs;
         this.inputs = new PhotonVisionIOInputsAutoLogged();
 
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
-        this.visionIndependentOdometry = visionIndependentOdometry;
+//        this.visionIndependentOdometry = visionIndependentOdometry;
 
-        this.photonRunnableNotifierMap = apriltagCameras
+        this.photonRunnableList = apriltagCameras
                 .stream()
                 .map(titanCamera -> new PhotonRunnable(titanCamera, PhotonVision.apriltagFieldAlwaysBlueLayout))
-                .collect(Collectors.toUnmodifiableMap(
-                        photonRunnable -> photonRunnable,
-                        photonRunnable -> {
-                            final Notifier notifier = new Notifier(photonRunnable);
-                            notifier.setName(photonRunnable.getPhotonCamera().getName());
-                            notifier.startPeriodic(Constants.LOOP_PERIOD_SECONDS);
-
-                            // add notifiers to close hook
-                            ToClose.add(notifier);
-
-                            return notifier;
-                        }
-                ));
-
+                .toList();
         this.lastEstimatedPosesByCamera = new HashMap<>(apriltagCameras.size());
 
         refreshAlliance();
@@ -232,7 +219,7 @@ public class PhotonVision extends VirtualSubsystem {
     }
 
     private void update() {
-        for (final PhotonRunnable photonRunnable : photonRunnableNotifierMap.keySet()) {
+        for (final PhotonRunnable photonRunnable : photonRunnableList) {
             final EstimatedRobotPose lastStableEstimatedRobotPose = photonRunnable.getStableLastEstimatedPose();
             final EstimatedRobotPose estimatedRobotPose = photonRunnable.getLatestEstimatedPose();
 
@@ -323,29 +310,29 @@ public class PhotonVision extends VirtualSubsystem {
         update();
         logVisionData();
 
-        final Rotation2d swerveYaw = swerve.getYaw();
-        final SwerveModulePosition[] swerveModulePositions = swerve.getModulePositions();
+//        final Rotation2d swerveYaw = swerve.getYaw();
+//        final SwerveModulePosition[] swerveModulePositions = swerve.getModulePositions();
 
         // Update PoseEstimator and Odometry
-        final double odometryUpdateStart = Logger.getInstance().getRealTimestamp();
-        visionIndependentOdometry.update(swerveYaw, swerveModulePositions);
-        poseEstimator.update(swerveYaw, swerveModulePositions);
-        final double odometryUpdatePeriodMs = LogUtils.microsecondsToMilliseconds(
-                Logger.getInstance().getRealTimestamp() - odometryUpdateStart
-        );
-
-        final Pose2d estimatedPosition = poseEstimator.getEstimatedPosition();
-        Logger.getInstance().recordOutput(
-                odometryLogKey + "/OdometryUpdatePeriodMs", odometryUpdatePeriodMs
-        );
-        Logger.getInstance().recordOutput(
-                odometryLogKey + "/VisionIndependentRobot2d", visionIndependentOdometry.getPoseMeters()
-        );
-        Logger.getInstance().recordOutput(odometryLogKey + "/Robot2d", estimatedPosition);
-        Logger.getInstance().recordOutput(odometryLogKey + "/Robot3d", GyroUtils.robotPose2dToPose3dWithGyro(
-                estimatedPosition,
-                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerveYaw)
-        ));
+//        final double odometryUpdateStart = Logger.getInstance().getRealTimestamp();
+//        visionIndependentOdometry.update(swerveYaw, swerveModulePositions);
+//        poseEstimator.update(swerveYaw, swerveModulePositions);
+//        final double odometryUpdatePeriodMs = LogUtils.microsecondsToMilliseconds(
+//                Logger.getInstance().getRealTimestamp() - odometryUpdateStart
+//        );
+//
+//        final Pose2d estimatedPosition = poseEstimator.getEstimatedPosition();
+//        Logger.getInstance().recordOutput(
+//                odometryLogKey + "/OdometryUpdatePeriodMs", odometryUpdatePeriodMs
+//        );
+//        Logger.getInstance().recordOutput(
+//                odometryLogKey + "/VisionIndependentRobot2d", visionIndependentOdometry.getPoseMeters()
+//        );
+//        Logger.getInstance().recordOutput(odometryLogKey + "/Robot2d", estimatedPosition);
+//        Logger.getInstance().recordOutput(odometryLogKey + "/Robot3d", GyroUtils.robotPose2dToPose3dWithGyro(
+//                estimatedPosition,
+//                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerveYaw)
+//        ));
     }
 
     public void refreshAlliance() {
@@ -363,19 +350,20 @@ public class PhotonVision extends VirtualSubsystem {
     }
 
     public Pose2d getEstimatedPosition() {
-        return poseEstimator.getEstimatedPosition();
+//        return poseEstimator.getEstimatedPosition();
+        return new Pose2d();
     }
 
     public void resetPosition(final Pose2d robotPose, final Rotation2d robotYaw) {
-        visionIndependentOdometry.resetPosition(
-                robotYaw, swerve.getModulePositions(), robotPose
-        );
-
-        poseEstimator.resetPosition(robotYaw, swerve.getModulePositions(), robotPose);
-        photonVisionIO.resetRobotPose(GyroUtils.robotPose2dToPose3dWithGyro(
-                new Pose2d(robotPose.getTranslation(), robotYaw),
-                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
-        ));
+//        visionIndependentOdometry.resetPosition(
+//                robotYaw, swerve.getModulePositions(), robotPose
+//        );
+//
+//        poseEstimator.resetPosition(robotYaw, swerve.getModulePositions(), robotPose);
+//        photonVisionIO.resetRobotPose(GyroUtils.robotPose2dToPose3dWithGyro(
+//                new Pose2d(robotPose.getTranslation(), robotYaw),
+//                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
+//        ));
     }
 
     public void resetPosition(final Pose2d robotPose) {
