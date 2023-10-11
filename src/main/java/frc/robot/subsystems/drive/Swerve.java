@@ -48,6 +48,11 @@ public class Swerve extends SubsystemBase {
         this.gyro = gyro;
         this.gyroInputs = new GyroIOInputsAutoLogged();
 
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.backLeft = backLeft;
+        this.backRight = backRight;
+
         this.kinematics = kinematics;
         this.poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,
@@ -57,11 +62,6 @@ public class Swerve extends SubsystemBase {
                 Constants.Vision.STATE_STD_DEVS,
                 Constants.Vision.VISION_MEASUREMENT_STD_DEVS
         );
-
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.backLeft = backLeft;
-        this.backRight = backRight;
 
         this.swerveModules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
     }
@@ -166,6 +166,10 @@ public class Swerve extends SubsystemBase {
                 estimatedPosition,
                 GyroUtils.rpyToRotation3d(getRoll(), getPitch(), getYaw())
         ));
+    }
+
+    public SwerveDrivePoseEstimator getPoseEstimator() {
+        return poseEstimator;
     }
 
     public Gyro getGyro() {

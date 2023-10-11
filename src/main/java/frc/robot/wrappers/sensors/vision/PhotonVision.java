@@ -7,18 +7,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.utils.PoseUtils;
-import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
-import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.subsystems.VirtualSubsystem;
-import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -28,8 +22,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class PhotonVision extends VirtualSubsystem {
-    protected static final String photonLogKey = "PhotonVision";
+public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
+    public static final String photonLogKey = "PhotonVision";
 //    protected static final String odometryLogKey = "Odometry";
 
     public static final double TRANSLATION_VELOCITY_TOLERANCE = 0.1;
@@ -62,38 +56,32 @@ public class PhotonVision extends VirtualSubsystem {
         }
     }
 
-    private final List<PhotonVisionIO> photonVisionIOs;
-    private final PhotonVisionIOInputsAutoLogged inputs;
+    private final PhotonVisionRunner runner;
+    private final Map<PhotonVisionIO, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
 
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
-//    private final SwerveDriveOdometry visionIndependentOdometry;
-
-    private final List<PhotonRunnable> photonRunnableList;
-    private final Map<PhotonRunnable, EstimatedRobotPose> lastEstimatedPosesByCamera;
+    private final Map<PhotonVisionIO, EstimatedRobotPose> lastEstimatedPosesByCamera;
 
     private AprilTagFieldLayout.OriginPosition originPosition =
             AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
 
     public PhotonVision(
-            final List<PhotonVisionIO> photonVisionIOs,
+            final PhotonVisionRunner runner,
             final Swerve swerve,
-            final SwerveDriveOdometry visionIndependentOdometry,
             final SwerveDrivePoseEstimator poseEstimator,
-            final List<TitanCamera> apriltagCameras
+            final List<T> photonVisionIOs
     ) {
-        this.photonVisionIOs = photonVisionIOs;
-        this.inputs = new PhotonVisionIOInputsAutoLogged();
+        this.runner = runner;
+        this.photonVisionIOInputsMap = photonVisionIOs.stream()
+                .collect(Collectors.toMap(
+                        photonVisionIO -> photonVisionIO,
+                        photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
+                ));
 
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
-//        this.visionIndependentOdometry = visionIndependentOdometry;
-
-        this.photonRunnableList = apriltagCameras
-                .stream()
-                .map(titanCamera -> new PhotonRunnable(titanCamera, PhotonVision.apriltagFieldAlwaysBlueLayout))
-                .toList();
-        this.lastEstimatedPosesByCamera = new HashMap<>(apriltagCameras.size());
+        this.lastEstimatedPosesByCamera = new HashMap<>();
 
         refreshAlliance();
 
@@ -219,16 +207,22 @@ public class PhotonVision extends VirtualSubsystem {
     }
 
     private void update() {
-        for (final PhotonRunnable photonRunnable : photonRunnableList) {
-            final EstimatedRobotPose lastStableEstimatedRobotPose = photonRunnable.getStableLastEstimatedPose();
-            final EstimatedRobotPose estimatedRobotPose = photonRunnable.getLatestEstimatedPose();
+        for (
+                final Map.Entry<PhotonVisionIO, PhotonVisionIO.PhotonVisionIOInputs>
+                        photonVisionIOInputsEntry : photonVisionIOInputsMap.entrySet()
+        ) {
+            final PhotonVisionIO photonVisionIO = photonVisionIOInputsEntry.getKey();
+            final PhotonVisionIO.PhotonVisionIOInputs photonVisionIOInputs = photonVisionIOInputsEntry.getValue();
+
+            final EstimatedRobotPose lastStableEstimatedRobotPose = photonVisionIOInputs.stableEstimatedRobotPose;
+            final EstimatedRobotPose estimatedRobotPose = photonVisionIOInputs.estimatedRobotPose;
 
             if (estimatedRobotPose == null) {
                 // skip the trouble of calling/indexing things if the estimatedRobotPose is null
                 continue;
             }
 
-            final EstimatedRobotPose lastSavedEstimatedPose = lastEstimatedPosesByCamera.get(photonRunnable);
+            final EstimatedRobotPose lastSavedEstimatedPose = lastEstimatedPosesByCamera.get(photonVisionIO);
             final PhotonVision.EstimationRejectionReason rejectionReason =
                     shouldRejectEstimation(lastSavedEstimatedPose, estimatedRobotPose);
 
@@ -240,7 +234,7 @@ public class PhotonVision extends VirtualSubsystem {
                 continue;
             }
 
-            lastEstimatedPosesByCamera.put(photonRunnable, lastStableEstimatedRobotPose);
+            lastEstimatedPosesByCamera.put(photonVisionIO, lastStableEstimatedRobotPose);
 
             // TODO: get better calibrations on cameras or get better cameras
             poseEstimator.addVisionMeasurement(
@@ -301,10 +295,7 @@ public class PhotonVision extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        photonVisionIO.periodic();
-
-        photonVisionIO.updateInputs(inputs);
-        Logger.getInstance().processInputs(photonLogKey, inputs);
+        runner.periodic();
 
         // Update and log PhotonVision results
         update();
@@ -350,20 +341,15 @@ public class PhotonVision extends VirtualSubsystem {
     }
 
     public Pose2d getEstimatedPosition() {
-//        return poseEstimator.getEstimatedPosition();
-        return new Pose2d();
+        return poseEstimator.getEstimatedPosition();
     }
 
     public void resetPosition(final Pose2d robotPose, final Rotation2d robotYaw) {
-//        visionIndependentOdometry.resetPosition(
-//                robotYaw, swerve.getModulePositions(), robotPose
-//        );
-//
-//        poseEstimator.resetPosition(robotYaw, swerve.getModulePositions(), robotPose);
-//        photonVisionIO.resetRobotPose(GyroUtils.robotPose2dToPose3dWithGyro(
-//                new Pose2d(robotPose.getTranslation(), robotYaw),
-//                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
-//        ));
+        poseEstimator.resetPosition(robotYaw, swerve.getModulePositions(), robotPose);
+        runner.resetRobotPose(GyroUtils.robotPose2dToPose3dWithGyro(
+                new Pose2d(robotPose.getTranslation(), robotYaw),
+                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerve.getYaw())
+        ));
     }
 
     public void resetPosition(final Pose2d robotPose) {

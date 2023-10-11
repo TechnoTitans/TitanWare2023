@@ -143,7 +143,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        final PhotonVision photonVision = robotContainer.photonVision;
+        final PhotonVision<?> photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance();
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
@@ -160,7 +160,7 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         ButtonBindings.bindAll(robotContainer);
 
-        final PhotonVision photonVision = robotContainer.photonVision;
+        final PhotonVision<?> photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance();
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);

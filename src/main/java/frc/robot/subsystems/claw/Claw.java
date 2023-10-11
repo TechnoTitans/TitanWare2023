@@ -98,13 +98,13 @@ public class Claw extends SubsystemBase {
     public void periodic() {
         final double clawIOPeriodicStart = Logger.getInstance().getRealTimestamp();
         clawIO.periodic();
+        clawIO.updateInputs(inputs);
 
         Logger.getInstance().recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
                 LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - clawIOPeriodicStart)
         );
 
-        clawIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
 
         final boolean atDesiredState = isAtDesiredState();

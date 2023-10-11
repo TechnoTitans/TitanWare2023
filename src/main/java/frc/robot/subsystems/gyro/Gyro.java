@@ -3,6 +3,7 @@ package frc.robot.subsystems.gyro;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.constants.Constants;
+import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.Logger;
 
 public class Gyro {
@@ -22,8 +23,14 @@ public class Gyro {
     }
 
     public void periodic() {
+        final double gyroPeriodicUpdateStart = Logger.getInstance().getRealTimestamp();
         gyroIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
+
+        Logger.getInstance().recordOutput(
+                logKey + "/PeriodicIOPeriodMs",
+                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - gyroPeriodicUpdateStart)
+        );
     }
 
     /**

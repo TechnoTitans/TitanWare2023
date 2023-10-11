@@ -18,19 +18,21 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class PhotonVisionApriltagsSim {
+public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
     public static class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
         private final PhotonCamera photonCamera;
         private final String logKey;
 
-
         private final PhotonCameraSim photonCameraSim;
         private final PhotonPoseEstimator poseEstimator;
 
+        private PhotonPipelineResult latestPhotonPipelineResult;
         private EstimatedRobotPose estimatedRobotPose;
         /**
          * A stable {@link EstimatedRobotPose}, this does NOT get set to null after we get
@@ -62,20 +64,24 @@ public class PhotonVisionApriltagsSim {
         }
 
         private void updatePoseEstimator(final PhotonPipelineResult photonPipelineResult) {
-            Logger.getInstance().recordOutput(
-                    logKey + "/PipelineResultTargets",
-                    photonPipelineResult.targets.stream().mapToDouble(PhotonTrackedTarget::getFiducialId).toArray()
-            );
-
-            Logger.getInstance().recordOutput(logKey + "/PrimaryStrategy", poseEstimator.getPrimaryStrategy().toString());
-
             final Optional<EstimatedRobotPose> optionalEstimatedRobotPose = poseEstimator.update(photonPipelineResult);
-
-            Logger.getInstance().recordOutput(logKey + "/OptionalIsPresent", optionalEstimatedRobotPose.isPresent());
             optionalEstimatedRobotPose.ifPresent(estimatedRobotPose -> {
                 this.estimatedRobotPose = estimatedRobotPose;
                 this.stableEstimatedRobotPose = estimatedRobotPose;
             });
+
+            this.latestPhotonPipelineResult = photonPipelineResult;
+        }
+
+        @Override
+        public void updateInputs(final PhotonVisionIOInputs inputs) {
+            inputs.pipelineResultTargets = latestPhotonPipelineResult.targets.stream()
+                    .mapToDouble(PhotonTrackedTarget::getFiducialId)
+                    .toArray();
+            inputs.primaryStrategy = poseEstimator.getPrimaryStrategy().toString();
+
+            inputs.estimatedRobotPose = getLatestEstimatedPose();
+            inputs.stableEstimatedRobotPose = getStableLastEstimatedPose();
         }
 
         @Override
@@ -129,7 +135,7 @@ public class PhotonVisionApriltagsSim {
 
     private final Swerve swerve;
     private final SwerveDriveOdometry visionIndependentOdometry;
-    private final List<PhotonVisionIOApriltagsSim> photonVisionIOApriltagsSims;
+    private final Map<PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
 
     private final VisionSystemSim visionSystemSim;
 
@@ -137,20 +143,38 @@ public class PhotonVisionApriltagsSim {
             final Swerve swerve,
             final SwerveDriveOdometry visionIndependentOdometry,
             final AprilTagFieldLayout aprilTagFieldLayout,
-            final List<PhotonVisionIOApriltagsSim> photonVisionIOApriltagsSims
+            final VisionSystemSim visionSystemSim,
+            final Map<PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap
     ) {
         this.swerve = swerve;
         this.visionIndependentOdometry = visionIndependentOdometry;
-        this.photonVisionIOApriltagsSims = photonVisionIOApriltagsSims;
+        this.photonVisionIOInputsMap = photonVisionIOInputsMap;
 
-        this.visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
+        this.visionSystemSim = visionSystemSim;
         this.visionSystemSim.addAprilTags(aprilTagFieldLayout);
     }
 
+    @Override
     public void periodic() {
         if (ToClose.hasClosed()) {
             // do not try to update if we've already closed or if we cannot continue running
             return;
+        }
+
+        for (
+                final Map.Entry<PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs>
+                        photonVisionIOInputsEntry : photonVisionIOInputsMap.entrySet()
+        ) {
+            final PhotonVisionIOApriltagsSim ioApriltagsSim = photonVisionIOInputsEntry.getKey();
+            final PhotonVisionIO.PhotonVisionIOInputs ioInputs = photonVisionIOInputsEntry.getValue();
+
+            ioApriltagsSim.periodic();
+            ioApriltagsSim.updateInputs(ioInputs);
+
+            Logger.getInstance().processInputs(
+                    String.format("%s/%s", PhotonVision.photonLogKey, ioApriltagsSim.logKey),
+                    ioInputs
+            );
         }
 
         final Pose2d visionIndependentPose = visionIndependentOdometry.getPoseMeters();
@@ -166,7 +190,11 @@ public class PhotonVisionApriltagsSim {
      * Reset the simulated robot {@link Pose3d}.
      * @param robotPose the new robot {@link Pose3d}
      */
+    @Override
     public void resetRobotPose(final Pose3d robotPose) {
         visionSystemSim.resetRobotPose(robotPose);
+        visionIndependentOdometry.resetPosition(
+                robotPose.toPose2d().getRotation(), swerve.getModulePositions(), robotPose.toPose2d()
+        );
     }
 }

@@ -40,8 +40,12 @@ import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
 import frc.robot.wrappers.sensors.vision.PhotonVisionApriltagsSim;
+import frc.robot.wrappers.sensors.vision.PhotonVisionRunner;
+import org.photonvision.simulation.VisionSystemSim;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RobotContainer {
     //Elevator
@@ -78,7 +82,7 @@ public class RobotContainer {
     //Vision
     public final TitanCamera photonDriveCamera;
     public final TitanCamera photonFR_Apriltag_R, photonFR_Apriltag_F, photonFL_Apriltag_L, photonBR_Apriltag_B;
-    public final PhotonVision photonVision;
+    public final PhotonVision<?> photonVision;
 
     //SubSystems
     public final Swerve swerve;
@@ -308,17 +312,10 @@ public class RobotContainer {
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
 
+        final Pose2d initialOdometryPose = new Pose2d();
         visionIndependentOdometry = new SwerveDriveOdometry(
-                kinematics, swerve.getYaw(), swerve.getModulePositions(), new Pose2d()
+                kinematics, swerve.getYaw(), swerve.getModulePositions(), initialOdometryPose
         );
-//        poseEstimator = new SwerveDrivePoseEstimator(
-//                kinematics,
-//                swerve.getYaw(),
-//                swerve.getModulePositions(),
-//                initialOdometryPose,
-//                Constants.Vision.STATE_STD_DEVS,
-//                Constants.Vision.VISION_MEASUREMENT_STD_DEVS
-//        );
 
 //        holonomicDriveController = new DriveController(
 //                new PIDController(14, 0, 0),
@@ -368,21 +365,48 @@ public class RobotContainer {
         photonFL_Apriltag_L = TitanCamera.PHOTON_FL_Apriltag_L;
         photonBR_Apriltag_B = TitanCamera.PHOTON_BR_Apriltag_B;
 
-        final List<TitanCamera> apriltagCameras = List.of(
-                photonFR_Apriltag_F,
-                photonFR_Apriltag_R,
-                photonFL_Apriltag_L,
-                photonBR_Apriltag_B
-        );
-
         photonVision = switch (Constants.CURRENT_MODE) {
-            case REAL, SIM -> new PhotonVision(
-                    new PhotonVisionApriltagsSim(swerve, visionIndependentOdometry, apriltagCameras),
-                    swerve, apriltagCameras
+            case REAL, REPLAY -> new PhotonVision<>(
+                    new PhotonVisionRunner() {},
+                    swerve,
+                    swerve.getPoseEstimator(),
+                    List.of()
             );
-            case REPLAY -> new PhotonVision(
-                    new PhotonVisionIO() {}, swerve, apriltagCameras
-            );
+            case SIM -> {
+                final VisionSystemSim visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
+                final List<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim> ioApriltagsSims = List.of(
+                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                        ),
+                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                        ),
+                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                        ),
+                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                        )
+                );
+                final Map<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs>
+                        photonVisionIOInputsMap = ioApriltagsSims.stream().collect(Collectors.toMap(
+                                photonVisionIO -> photonVisionIO,
+                                photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
+                        ));
+
+                yield new PhotonVision<>(
+                        new PhotonVisionApriltagsSim(
+                                swerve,
+                                visionIndependentOdometry,
+                                PhotonVision.apriltagFieldLayout,
+                                visionSystemSim,
+                                photonVisionIOInputsMap
+                        ),
+                        swerve,
+                        swerve.getPoseEstimator(),
+                        ioApriltagsSims
+                );
+            }
         };
 
         //LEDs
