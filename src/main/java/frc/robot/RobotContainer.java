@@ -37,10 +37,7 @@ import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import frc.robot.wrappers.sensors.vision.PhotonVision;
-import frc.robot.wrappers.sensors.vision.PhotonVisionIO;
-import frc.robot.wrappers.sensors.vision.PhotonVisionApriltagsSim;
-import frc.robot.wrappers.sensors.vision.PhotonVisionRunner;
+import frc.robot.wrappers.sensors.vision.*;
 import org.photonvision.simulation.VisionSystemSim;
 
 import java.util.List;
@@ -86,7 +83,6 @@ public class RobotContainer {
 
     //SubSystems
     public final Swerve swerve;
-    public final ElevatorSimSolver elevatorSimSolver;
     public final Elevator elevator;
     public final Claw claw;
 
@@ -238,14 +234,6 @@ public class RobotContainer {
             case REPLAY -> new Gyro(new GyroIO() {}, pigeon2);
         };
 
-        elevatorSimSolver = new ElevatorSimSolver(
-                elevatorVerticalMotorMain,
-                elevatorVerticalMotorFollower,
-                elevatorVerticalEncoder,
-                elevatorHorizontalEncoder,
-                elevatorHorizontalNeo
-        );
-
         //Elevator
         elevator = switch (Constants.CURRENT_MODE) {
             case REAL -> new Elevator(
@@ -262,24 +250,43 @@ public class RobotContainer {
                             elevatorHorizontalLimitSwitch
                     )
             );
-            case SIM -> new Elevator(
-                    new ElevatorIOSim(
-                            elevatorVerticalMotorMain,
-                            RobotMap.mainVerticalFalconR,
-                            elevatorVerticalMotorFollower,
-                            RobotMap.followerVerticalFalconR,
-                            elevatorVerticalEncoder,
-                            RobotMap.verticalElevatorEncoderR,
-                            elevatorHorizontalEncoder,
-                            RobotMap.horizontalElevatorEncoderR,
-                            elevatorHorizontalNeo,
-                            elevatorVerticalLimitSwitch,
-                            elevatorHorizontalLimitSwitch,
-                            elevatorSimSolver
-                    ),
-                    elevatorSimSolver
+            case SIM -> {
+                 final ElevatorSimSolver simSolver = new ElevatorSimSolver(
+                        elevatorVerticalMotorMain,
+                        elevatorVerticalMotorFollower,
+                        elevatorVerticalEncoder,
+                        elevatorHorizontalEncoder,
+                        elevatorHorizontalNeo
+                 );
+
+                 yield new Elevator(
+                         new ElevatorIOSim(
+                                 elevatorVerticalMotorMain,
+                                 RobotMap.mainVerticalFalconR,
+                                 elevatorVerticalMotorFollower,
+                                 RobotMap.followerVerticalFalconR,
+                                 elevatorVerticalEncoder,
+                                 RobotMap.verticalElevatorEncoderR,
+                                 elevatorHorizontalEncoder,
+                                 RobotMap.horizontalElevatorEncoderR,
+                                 elevatorHorizontalNeo,
+                                 elevatorVerticalLimitSwitch,
+                                 elevatorHorizontalLimitSwitch,
+                                 simSolver
+                         ),
+                         simSolver
+                 );
+            }
+            case REPLAY -> new Elevator(
+                    new ElevatorIO() {},
+                    new ElevatorSimSolver(
+                        elevatorVerticalMotorMain,
+                        elevatorVerticalMotorFollower,
+                        elevatorVerticalEncoder,
+                        elevatorHorizontalEncoder,
+                        elevatorHorizontalNeo
+                    )
             );
-            case REPLAY -> new Elevator(new ElevatorIO() {}, elevatorSimSolver);
         };
 
         claw = switch (Constants.Claw.CONTROLLER) {
@@ -366,12 +373,35 @@ public class RobotContainer {
         photonBR_Apriltag_B = TitanCamera.PHOTON_BR_Apriltag_B;
 
         photonVision = switch (Constants.CURRENT_MODE) {
-            case REAL, REPLAY -> new PhotonVision<>(
-                    new PhotonVisionRunner() {},
-                    swerve,
-                    swerve.getPoseEstimator(),
-                    List.of()
-            );
+            case REAL -> {
+                final List<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal> ioApriltagsReals = List.of(
+                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout
+                        ),
+                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout
+                        ),
+                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout
+                        ),
+                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout
+                        )
+                );
+
+                final Map<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
+                        photonVisionIOInputsMap = ioApriltagsReals.stream().collect(Collectors.toMap(
+                        photonVisionIO -> photonVisionIO,
+                        photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
+                ));
+
+                yield new PhotonVision<>(
+                        new PhotonVisionApriltagsReal(photonVisionIOInputsMap),
+                        swerve,
+                        swerve.getPoseEstimator(),
+                        ioApriltagsReals
+                );
+            }
             case SIM -> {
                 final VisionSystemSim visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
                 final List<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim> ioApriltagsSims = List.of(
@@ -407,6 +437,12 @@ public class RobotContainer {
                         ioApriltagsSims
                 );
             }
+            case REPLAY -> new PhotonVision<>(
+                    new PhotonVisionRunner() {},
+                    swerve,
+                    swerve.getPoseEstimator(),
+                    List.of()
+            );
         };
 
         //LEDs

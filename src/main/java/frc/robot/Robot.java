@@ -125,6 +125,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Brake);
+        robotContainer.elevator.setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
+        robotContainer.claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
+
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.swerve);
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.elevator);
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.claw);

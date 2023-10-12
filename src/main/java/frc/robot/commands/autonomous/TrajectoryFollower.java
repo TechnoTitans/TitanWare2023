@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 public class TrajectoryFollower extends CommandBase {
     //TODO: this max value need to be tuned/verified (will depend on how well our auto pid is)
-    public static final double MAX_DISTANCE_DIFF_METERS = 0.1;
+    public static final double MAX_DISTANCE_DIFF_METERS = 0.2;
     public static boolean HAS_AUTO_RAN = false;
     private final String logKey = "Auto";
 

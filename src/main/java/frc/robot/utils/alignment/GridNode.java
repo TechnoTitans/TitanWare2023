@@ -137,7 +137,7 @@ public enum GridNode {
                     .waitUntilStates(toLevelElevatorState, SuperstructureStates.ClawState.CLAW_DROP)
                     .withClawState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
                     .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
-                    .wait(0.27)
+                    .wait(0.5)
                     .withElevatorClawStates(
                             SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
                             SuperstructureStates.ClawState.CLAW_STANDBY

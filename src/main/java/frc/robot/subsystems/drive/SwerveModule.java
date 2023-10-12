@@ -39,19 +39,19 @@ public class SwerveModule {
         final Logger logger = Logger.getInstance();
         final double modulePeriodicUpdateStart = logger.getRealTimestamp();
 
-//        logger.processInputs(logKey, inputs);
+        logger.processInputs(logKey, inputs);
 
-//        logger.recordOutput(logKey + "/CurrentState", getState());
-//        logger.recordOutput(logKey + "/LastDesiredState", lastDesiredState);
-//        logger.recordOutput(
-//                logKey + "/DriveDesiredVelocityRotsPerSec",
-//                computeDesiredDriverVelocity(lastDesiredState)
-//        );
-//
-//        logger.recordOutput(
-//                logKey + "/TurnDesiredAbsolutePositionRots",
-//                computeDesiredTurnerRotations(lastDesiredState)
-//        );
+        logger.recordOutput(logKey + "/CurrentState", getState());
+        logger.recordOutput(logKey + "/LastDesiredState", lastDesiredState);
+        logger.recordOutput(
+                logKey + "/DriveDesiredVelocityRotsPerSec",
+                computeDesiredDriverVelocity(lastDesiredState)
+        );
+
+        logger.recordOutput(
+                logKey + "/TurnDesiredAbsolutePositionRots",
+                computeDesiredTurnerRotations(lastDesiredState)
+        );
 
         logger.recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
