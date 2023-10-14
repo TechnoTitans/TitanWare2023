@@ -82,9 +82,10 @@ public class Robot extends LoggedRobot {
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
+                // TODO: this should be correct now, but we might need a more robust/permanent solution
                 // figure out which port is occupied, use sda1 if sda is used
-                // sda1 on Odin2023 is the CANivore, sda is open port
-                logger.addDataReceiver(new WPILOGWriter("/media/sda"));
+                // sda on Odin2023 is the CANivore, sda1 is open port
+                logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
                 logger.addDataReceiver(new NT4Publisher());
             }
             case SIM -> {
