@@ -52,7 +52,7 @@ public class ClawIOStateSpaceReal implements ClawIO {
     private TrapezoidProfile.State lastProfiledState = new TrapezoidProfile.State();
     // TODO: tune these trapezoidal constraints
     private final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
-            Units.degreesToRadians(180),
+            Units.degreesToRadians(260),
             Units.degreesToRadians(360)
     );
 
@@ -108,9 +108,9 @@ public class ClawIOStateSpaceReal implements ClawIO {
                 Nat.N1(),
                 tiltPlant,
                 // How accurate we think our model is, in radians and radians/sec
-                VecBuilder.fill(0.015, 0.17),
+                VecBuilder.fill(0.015, 0.1),
                 // How accurate we think our encoder position data is.
-                VecBuilder.fill(0.01),
+                VecBuilder.fill(0.005),
                 Constants.LOOP_PERIOD_SECONDS
         );
 
@@ -121,7 +121,7 @@ public class ClawIOStateSpaceReal implements ClawIO {
                 // Decrease this to more heavily penalize state excursion, or make the controller behave more
                 // aggressively. In this example we weight position much more highly than velocity, but
                 // this can be tuned to balance the two.
-                VecBuilder.fill(Units.degreesToRadians(0.1), Units.degreesToRadians(0.1)),
+                VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(0.01)),
                 // relms.
                 // Control effort (voltage) tolerance.
                 // Decrease this to more heavily penalize control effort, or make the controller less aggressive.
@@ -185,7 +185,7 @@ public class ClawIOStateSpaceReal implements ClawIO {
 
                 tiltSystemLoop.setNextR(lastProfiledState.position, lastProfiledState.velocity);
                 tiltSystemLoop.correct(
-                        VecBuilder.fill(getTiltAbsolutePositionRots())
+                        VecBuilder.fill(Units.rotationsToRadians(getTiltAbsolutePositionRots()))
                 );
                 tiltSystemLoop.predict(dtSeconds);
 

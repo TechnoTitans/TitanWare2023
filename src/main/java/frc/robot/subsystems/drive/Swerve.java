@@ -256,12 +256,16 @@ public class Swerve extends SubsystemBase {
         };
     }
 
-    public void drive(final SwerveModuleState[] states) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.Swerve.MODULE_MAX_SPEED);
+    public void drive(final SwerveModuleState[] states, final double moduleMaxSpeed) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, moduleMaxSpeed);
         frontLeft.setDesiredState(states[0]);
         frontRight.setDesiredState(states[1]);
         backLeft.setDesiredState(states[2]);
         backRight.setDesiredState(states[3]);
+    }
+
+    public void drive(final SwerveModuleState[] states) {
+        drive(states, Constants.Swerve.MODULE_MAX_SPEED);
     }
 
     public void drive(
@@ -277,7 +281,7 @@ public class Swerve extends SubsystemBase {
         drive(speeds);
     }
 
-    public void drive(final ChassisSpeeds speeds) {
+    public void drive(final ChassisSpeeds speeds, final double moduleMaxSpeed) {
         final ChassisSpeeds correctedSpeeds;
         if (Constants.Swerve.USE_SWERVE_SKEW_FIX) {
             // TODO: replace with ChassisSpeeds.discretize() once we get wpilib updated
@@ -298,7 +302,11 @@ public class Swerve extends SubsystemBase {
             correctedSpeeds = speeds;
         }
 
-        drive(kinematics.toSwerveModuleStates(correctedSpeeds));
+        drive(kinematics.toSwerveModuleStates(correctedSpeeds), moduleMaxSpeed);
+    }
+
+    public void drive(final ChassisSpeeds speeds) {
+        drive(speeds, Constants.Swerve.MODULE_MAX_SPEED);
     }
 
     public void stop() {

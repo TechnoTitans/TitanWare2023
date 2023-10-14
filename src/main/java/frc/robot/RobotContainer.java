@@ -40,6 +40,7 @@ import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.*;
 import org.photonvision.simulation.VisionSystemSim;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -286,7 +287,7 @@ public class RobotContainer {
         };
 
         claw = switch (Constants.Claw.CONTROLLER) {
-            case PID -> Claw.Builder.clawStateSpaceController(
+            case PID -> Claw.Builder.clawPIDController(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,
@@ -298,7 +299,7 @@ public class RobotContainer {
                     elevator::getElevatorSimState,
                     Constants.CURRENT_MODE
             );
-            case STATE_SPACE -> Claw.Builder.clawPIDController(
+            case STATE_SPACE -> Claw.Builder.clawStateSpaceController(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,
@@ -369,16 +370,10 @@ public class RobotContainer {
                         photonVisionIOInputsMap =
                         PhotonVision.makePhotonVisionIOInputsMap(
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout
+                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout
                                 ),
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout
-                                ),
-                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout
-                                ),
-                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
                                 )
                         );
 
@@ -468,49 +463,58 @@ public class RobotContainer {
                 Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER,
                 new AutoOption("DropAndMobility")
         );
-        //Add paths that are specifically for one competition type here
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "CubeAndChargeBack",
-                        2,
-                        1,
-                        Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(new AutoOption("DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION));
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2.5PieceNoBalTurns",
-                        Units.feetToMeters(13),
-                        2 * Units.feetToMeters(13),
-                        Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
-        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+//        //Add paths that are specifically for one competition type here
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "CubeAndChargeBack",
+//                        2,
+//                        1,
+//                        Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(new AutoOption("DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION));
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2.5PieceNoBalTurns",
+//                        Units.feetToMeters(13),
+//                        2 * Units.feetToMeters(13),
+//                        Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
+//        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+
+
+        final LinkedHashMap<String, TitanTrajectory.Constraints> wesuck = new LinkedHashMap<>();
+        wesuck.put("NewMethod5", TitanTrajectory.Constraints.getDefault());
+        wesuck.put("NewMethod4", new TitanTrajectory.Constraints(1, 1));
+        wesuck.put("NewMethod2", TitanTrajectory.Constraints.getDefault());
 
         autoChooser.addAutoOption(new AutoOption(
                 "NewMethod3Piece",
-                List.of("NewMethod1", "NewMethod2", "NewMethod3"),
+                wesuck,
+//                        "NewMethod2", TitanTrajectory.Constraints.getDefault(),
+//                        "NewMethod3", TitanTrajectory.Constraints.getDefault()
+//                ),
                 Constants.CompetitionType.COMPETITION
         ));
 
         //Add the remaining paths automatically
-        autoChooser.addOptionsIfNotPresent(
-                AutoOption::getDescriptiveName,
-                AutoOption::new,
-                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
-        );
+//        autoChooser.addOptionsIfNotPresent(
+//                AutoOption::getDescriptiveName,
+//                AutoOption::new,
+//                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
+//        );
     }
 
     public Command getAutonomousCommand() {

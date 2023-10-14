@@ -200,10 +200,7 @@ public class ElevatorIOSim implements ElevatorIO {
                 //  - also true for the direct sets found in resetElevator
                 setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
             }
-
-            Logger.getInstance().recordOutput("ElevatorsResetSuccess", elevatorsHaveReset);
         }
-
 
         switch (verticalElevatorMode) {
             case POSITION -> verticalElevatorMotor.setControl(
@@ -268,6 +265,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.verticalLimitSwitch = verticalElevatorLimitSwitchSim.getValue();
         inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitchSim.getValue();
+
+        inputs.elevatorsHaveReset = elevatorsHaveReset;
     }
 
     @SuppressWarnings("DuplicatedCode")

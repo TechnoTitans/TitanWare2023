@@ -11,7 +11,7 @@ import edu.wpi.first.math.util.Units;
 
 public interface Constants {
     RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -102,8 +102,8 @@ public interface Constants {
         double ROBOT_MAX_ANGULAR_SPEED = 2 * Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
-        double TRAJECTORY_MAX_SPEED = 1;
-        double TRAJECTORY_MAX_ACCELERATION = 1;
+        double TRAJECTORY_MAX_SPEED = 4;
+        double TRAJECTORY_MAX_ACCELERATION = 3;
         double TRAJECTORY_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJECTORY_MAX_ANGULAR_ACCELERATION = 1.5 * ROBOT_MAX_ANGULAR_SPEED;
         double ROTATE_P = 1;
@@ -121,7 +121,7 @@ public interface Constants {
     }
 
     interface Claw {
-        ClosedLoopControllerType CONTROLLER = ClosedLoopControllerType.STATE_SPACE;
+        ClosedLoopControllerType CONTROLLER = ClosedLoopControllerType.PID;
     }
 
     interface Vision {

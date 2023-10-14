@@ -132,12 +132,12 @@ public enum GridNode {
             case HIGH, MID -> new ElevatorClawCommand.Builder(elevator, claw)
                     .withElevatorState(toLevelElevatorState)
 //                    .waitUntilState(toLevelElevatorState)
-                    .wait(0.125)
+                    .wait(0.25)
                     .withClawState(SuperstructureStates.ClawState.CLAW_DROP)
                     .waitUntilStates(toLevelElevatorState, SuperstructureStates.ClawState.CLAW_DROP)
                     .withClawState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
                     .waitUntilState(SuperstructureStates.ClawState.CLAW_OUTTAKE)
-                    .wait(0.5)
+                    .wait(0.6)
                     .withElevatorClawStates(
                             SuperstructureStates.ElevatorState.ELEVATOR_STANDBY,
                             SuperstructureStates.ClawState.CLAW_STANDBY

@@ -20,6 +20,8 @@ public interface ElevatorIO {
 
         public boolean verticalLimitSwitch = false;
         public boolean horizontalLimitSwitch = false;
+
+        public boolean elevatorsHaveReset = false;
     }
 
     /**

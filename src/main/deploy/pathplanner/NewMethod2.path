@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.8214255476130004,
-        "y": 3.8235240756195794
+        "x": 1.853397745257031,
+        "y": 3.8828740157480324
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1799841617066895,
-        "y": 4.695095792527218
+        "x": 2.211956359350719,
+        "y": 4.754445732655672
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -74,16 +74,16 @@
     },
     {
       "anchorPoint": {
-        "x": 7.421078413585399,
-        "y": 3.7989102168680526
+        "x": 7.538002383697076,
+        "y": 3.63236601473203
       },
       "prevControl": {
-        "x": 7.581068495470324,
-        "y": 4.020434945631796
+        "x": 7.697992465582001,
+        "y": 3.853890743495773
       },
       "nextControl": {
-        "x": 7.099076365905086,
-        "y": 3.35306122777223
+        "x": 7.216000336016763,
+        "y": 3.186517025636207
       },
       "holonomicAngle": -119.38,
       "isReversal": false,
@@ -131,31 +131,6 @@
         "x": 5.204790082811786,
         "y": 4.629373147426232
       },
-      "nextControl": {
-        "x": 3.827455035862453,
-        "y": 4.77115763755337
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 1.8214255476130004,
-        "y": 4.438870544407756
-      },
-      "prevControl": {
-        "x": 2.6090690276618655,
-        "y": 4.611167555668445
-      },
       "nextControl": null,
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -181,19 +156,13 @@
       ]
     },
     {
-      "position": 6.0,
-      "names": [
-        "shoot:high;"
-      ]
-    },
-    {
-      "position": 2.9454545454545453,
+      "position": 3.199999999999994,
       "names": [
         "pickup;"
       ]
     },
     {
-      "position": 4.581818181818184,
+      "position": 5.0,
       "names": [
         "claw:CLAW_ANGLE_SHOOT;"
       ]

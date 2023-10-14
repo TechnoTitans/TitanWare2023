@@ -74,20 +74,20 @@
     },
     {
       "anchorPoint": {
-        "x": 7.3621859546322,
-        "y": 4.990401925613992
+        "x": 7.4994626912330755,
+        "y": 4.990890174088041
       },
       "prevControl": {
-        "x": 7.719086906529342,
-        "y": 5.273461301256553
+        "x": 7.8563636431302175,
+        "y": 5.273949549730602
       },
       "nextControl": {
-        "x": 6.845347004414452,
-        "y": 4.580495171993019
+        "x": 6.982623741015328,
+        "y": 4.580983420467068
       },
       "holonomicAngle": -119.37562572808211,
       "isReversal": false,
-      "velOverride": 6.0,
+      "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -103,16 +103,16 @@
         "y": 4.672702202547263
       },
       "prevControl": {
-        "x": 5.247533900363753,
-        "y": 4.80832075573957
+        "x": 5.226401245185183,
+        "y": 4.993534516842628
       },
       "nextControl": {
-        "x": 2.5795694238638673,
-        "y": 4.628380723144258
+        "x": 2.6164494841141623,
+        "y": 4.572684249173153
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.0,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -124,12 +124,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.82,
-        "y": 3.8235240756195807
+        "x": 1.9208422070690316,
+        "y": 3.757620015240031
       },
       "prevControl": {
-        "x": 2.2152472876374327,
-        "y": 4.475791332535047
+        "x": 2.1692547038932073,
+        "y": 4.47144004851488
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -146,15 +146,9 @@
     }
   ],
   "maxVelocity": null,
-  "maxAcceleration": 4.0,
+  "maxAcceleration": 3.0,
   "isReversed": null,
   "markers": [
-    {
-      "position": 0.0,
-      "names": [
-        "score:high;"
-      ]
-    },
     {
       "position": 1.409090909090909,
       "names": [
@@ -162,21 +156,27 @@
       ]
     },
     {
-      "position": 5.0,
-      "names": [
-        "score:high;"
-      ]
-    },
-    {
-      "position": 2.5909090909090904,
+      "position": 3.05,
       "names": [
         "pickup;"
       ]
     },
     {
-      "position": 3.7727272727272716,
+      "position": 0.0,
+      "names": [
+        "score:high;"
+      ]
+    },
+    {
+      "position": 4.58181818181803,
       "names": [
         "elevator:ELEVATOR_EXTENDED_HIGH;claw:CLAW_DROP;"
+      ]
+    },
+    {
+      "position": 5.0,
+      "names": [
+        "wait:1;score:high;"
       ]
     }
   ]

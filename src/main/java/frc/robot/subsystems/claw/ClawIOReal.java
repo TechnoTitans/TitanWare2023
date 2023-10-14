@@ -13,6 +13,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -31,6 +32,7 @@ public class ClawIOReal implements ClawIO {
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
 
+    private final ArmFeedforward armFeedforward;
     private final ProfiledPIDController tiltPID;
 
     // Cached StatusSignals
@@ -69,9 +71,10 @@ public class ClawIOReal implements ClawIO {
         this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
 
         //TODO: tune pid in real
+        this.armFeedforward = new ArmFeedforward(0, 0.05, 0, 0);
         this.tiltPID = new ProfiledPIDController(
                 3, 0, 0,
-                new TrapezoidProfile.Constraints(3, 3)
+                new TrapezoidProfile.Constraints(8, 12)
         );
 
         this._tiltPosition = clawTiltEncoder.getAbsolutePosition();
@@ -102,6 +105,9 @@ public class ClawIOReal implements ClawIO {
                     tiltPID.calculate(
                             _tiltPosition.refresh().getValue(),
                             desiredTiltControlInput
+                    ) + armFeedforward.calculate(
+                            Units.rotationsToRadians(desiredTiltControlInput - 0.315),
+                            0
                     ),
                     CANSparkMax.ControlType.kDutyCycle
             );

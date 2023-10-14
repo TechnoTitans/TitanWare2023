@@ -184,6 +184,15 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             this.maxAngularAcceleration = maxAngularAcceleration;
         }
 
+        public Constraints(
+                final double maxLinearVelocity,
+                final double maxLinearAcceleration
+        ) {
+            super(maxLinearVelocity, maxLinearAcceleration);
+            this.maxAngularVelocity = Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED;
+            this.maxAngularAcceleration = Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION;
+        }
+
         public static Constraints getDefault() {
             return new Constraints(
                     Constants.Swerve.TRAJECTORY_MAX_SPEED,

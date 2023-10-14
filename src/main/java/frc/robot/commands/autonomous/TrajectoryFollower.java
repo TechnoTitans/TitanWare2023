@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 public class TrajectoryFollower extends CommandBase {
     //TODO: this max value need to be tuned/verified (will depend on how well our auto pid is)
-    public static final double MAX_DISTANCE_DIFF_METERS = 0.2;
+    public static final double MAX_DISTANCE_DIFF_METERS = 0.3;
     public static boolean HAS_AUTO_RAN = false;
     private final String logKey = "Auto";
 
@@ -134,7 +134,7 @@ public class TrajectoryFollower extends CommandBase {
                 ).toArray(Pose2d[]::new)
         );
 
-        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.5);
+        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.25);
 
         reset();
     }
@@ -175,7 +175,7 @@ public class TrajectoryFollower extends CommandBase {
                 state.holonomicRotation
         ));
 
-        swerve.drive(targetChassisSpeeds);
+        swerve.drive(targetChassisSpeeds, followerContext.getModuleMaxSpeed());
     }
 
     private void wheelX(final boolean wheelX) {
@@ -215,7 +215,8 @@ public class TrajectoryFollower extends CommandBase {
         final Pose2d currentPose = photonVision.getEstimatedPosition();
 
         if (hasMarkers) {
-            commander(currentPose, currentTime);
+            //TODO UNCOMMENT WHEN READY
+//             commander(currentPose, currentTime);
         }
 
         final boolean isWheelX = followerContext.isWheelX();
@@ -294,6 +295,8 @@ public class TrajectoryFollower extends CommandBase {
         private boolean paused;
         private boolean wheelX;
 
+        private double moduleMaxSpeed = Constants.Swerve.MODULE_MAX_SPEED;
+
         public FollowerContext(final Elevator elevator, final Claw claw) {
             this.elevator = elevator;
             this.claw = claw;
@@ -321,6 +324,14 @@ public class TrajectoryFollower extends CommandBase {
 
         public void setWheelX(boolean wheelX) {
             this.wheelX = wheelX;
+        }
+
+        public double getModuleMaxSpeed() {
+            return moduleMaxSpeed;
+        }
+
+        public void setModuleMaxSpeed(double moduleMaxSpeed) {
+            this.moduleMaxSpeed = moduleMaxSpeed;
         }
     }
 }

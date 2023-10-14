@@ -51,7 +51,7 @@ public enum MarkerCommand {
                                     followerContext.getClaw(),
                                     GridNode.Level.valueOf(args.get(0))
                             ),
-                            Commands.waitSeconds(0.3),
+                            Commands.waitSeconds(0.6),
                             Commands.runOnce(() -> followerContext.setPaused(false))
                     )
             ))
@@ -111,6 +111,15 @@ public enum MarkerCommand {
             "wait",
             List.of(ArgumentChecker.doubleChecker()),
             ((followerContext, args) -> Commands.waitSeconds(Double.parseDouble(args.get(0))))
+    ),
+    // TODO: this messes with the PathPlanner computed time, causing it not to work properly
+    //  either fix it or remove this
+    HOLD_VELOCITY(
+            "holdvel",
+            List.of(ArgumentChecker.doubleChecker()),
+            ((followerContext, args) -> Commands.runOnce(
+                    () -> followerContext.setModuleMaxSpeed(Double.parseDouble(args.get(0)))
+            ))
     ),
     WHEEL_X(
             "wheelx",

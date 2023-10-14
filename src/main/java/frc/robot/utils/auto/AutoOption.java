@@ -2,16 +2,13 @@ package frc.robot.utils.auto;
 
 import frc.robot.constants.Constants;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record AutoOption(
         String name,
-        List<String> pathNames,
-        double maxVelocity,
-        double maxAcceleration,
+        Map<String, TitanTrajectory.Constraints> pathNameConstraintsMap,
         HashSet<Constants.CompetitionType> competitionTypes
 ) {
     public static final List<Constants.CompetitionType> defaultCompetitionTypes =
@@ -19,35 +16,33 @@ public record AutoOption(
 
     public AutoOption(
             final String name,
-            final List<String> pathNames,
-            final double maxVelocity,
-            final double maxAcceleration
+            final Map<String, TitanTrajectory.Constraints> pathNameConstraintsMap
     ) {
         this(
                 name,
-                pathNames,
-                maxVelocity,
-                maxAcceleration,
+                pathNameConstraintsMap,
                 new HashSet<>(defaultCompetitionTypes)
         );
     }
 
     public AutoOption(final String name, final List<String> pathNames) {
-        this(name, pathNames, Constants.Swerve.TRAJECTORY_MAX_SPEED, Constants.Swerve.TRAJECTORY_MAX_ACCELERATION);
+        this(
+                name,
+                pathNames.stream().collect(Collectors.toUnmodifiableMap(
+                    pathName -> pathName,
+                    pathName -> TitanTrajectory.Constraints.getDefault()
+                ))
+        );
     }
 
     public AutoOption(
             final String name,
-            final List<String> pathNames,
-            final double maxVelocity,
-            final double maxAcceleration,
+            final Map<String, TitanTrajectory.Constraints> pathNameConstraintsMap,
             final Constants.CompetitionType... competitionTypes
     ) {
         this(
                 name,
-                pathNames,
-                maxVelocity,
-                maxAcceleration,
+                pathNameConstraintsMap,
                 new HashSet<>(Stream.concat(defaultCompetitionTypes.stream(), Arrays.stream(competitionTypes)).toList())
         );
     }
@@ -59,9 +54,10 @@ public record AutoOption(
     ) {
         this(
                 name,
-                pathNames,
-                Constants.Swerve.TRAJECTORY_MAX_SPEED,
-                Constants.Swerve.TRAJECTORY_MAX_ACCELERATION,
+                pathNames.stream().collect(Collectors.toUnmodifiableMap(
+                        pathName -> pathName,
+                        pathName -> TitanTrajectory.Constraints.getDefault()
+                )),
                 competitionTypes
         );
     }
@@ -75,7 +71,11 @@ public record AutoOption(
                       final double maxAcceleration,
                       final Constants.CompetitionType... competitionTypes
     ) {
-        this(pathName, List.of(pathName), maxVelocity, maxAcceleration, competitionTypes);
+        this(
+                pathName,
+                Map.of(pathName, new TitanTrajectory.Constraints(maxVelocity, maxAcceleration)),
+                competitionTypes
+        );
     }
 
     public AutoOption(final String pathName, final Constants.CompetitionType... competitionTypes) {
@@ -83,7 +83,7 @@ public record AutoOption(
     }
 
     public String getDescriptiveName() {
-        return pathNames.isEmpty() ? String.format("%s_EmptyPath@%s", name, this) : name;
+        return pathNameConstraintsMap.isEmpty() ? String.format("%s_EmptyPath@%s", name, this) : name;
     }
 
     public boolean equals(final Object other) {
@@ -91,14 +91,14 @@ public record AutoOption(
             return true;
         } else if (other instanceof AutoOption) {
             // since path names should be unique, just compare their names here
-            return this.pathNames.equals(((AutoOption) other).pathNames);
+            return this.pathNameConstraintsMap.keySet().equals(((AutoOption) other).pathNameConstraintsMap.keySet());
         }
 
         return false;
     }
 
     public int hashCode() {
-        return this.pathNames.hashCode();
+        return this.pathNameConstraintsMap.hashCode();
     }
 
     public boolean hasCompetitionType(final Constants.CompetitionType competitionType) {

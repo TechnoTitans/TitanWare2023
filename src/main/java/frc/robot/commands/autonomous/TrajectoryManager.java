@@ -14,6 +14,7 @@ import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrajectoryManager {
     private final Swerve swerve;
@@ -54,20 +55,26 @@ public class TrajectoryManager {
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(
-            final List<String> paths,
-            final double maxVel,
-            final double maxAccel,
+            final Map<String, TitanTrajectory.Constraints> pathNameConstraintsMap,
             final boolean reverseTrajectory
     ) {
         final TrajectoryFollower.FollowerContext followerContext =
                 new TrajectoryFollower.FollowerContext(elevator, claw);
 
-        return paths.stream()
+        return pathNameConstraintsMap.entrySet().stream()
                 .map(
-                        (path) -> TitanTrajectory.fromPathPlannerTrajectory(
-                                PathPlanner.loadPath(path, maxVel, maxAccel, reverseTrajectory),
-                                followerContext
-                        )
+                        (pathEntry) -> {
+                            final TitanTrajectory.Constraints constraints = pathEntry.getValue();
+                            return TitanTrajectory.fromPathPlannerTrajectory(
+                                    PathPlanner.loadPath(
+                                            pathEntry.getKey(),
+                                            constraints.maxVelocity,
+                                            constraints.maxAcceleration,
+                                            reverseTrajectory
+                                    ),
+                                    followerContext
+                            );
+                        }
                 )
                 .toList();
     }
@@ -79,7 +86,7 @@ public class TrajectoryManager {
         }
 
         return getTrajectoriesFromPath(
-                autoOption.pathNames(), autoOption.maxVelocity(), autoOption.maxAcceleration(), false
+                autoOption.pathNameConstraintsMap(), false
         );
     }
 
