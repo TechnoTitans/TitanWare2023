@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import frc.robot.subsystems.claw.ClawIO;
 import frc.robot.utils.SuperstructureStates;
 import org.littletonrobotics.junction.AutoLog;
 
