@@ -4,10 +4,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
-import frc.robot.utils.safety.SubsystemEStop;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.List;
 
 public class Elevator extends SubsystemBase {
     protected static final String logKey = "Elevator";
@@ -17,8 +15,6 @@ public class Elevator extends SubsystemBase {
 
     private final boolean hasSimSolver;
     private final ElevatorSimSolver elevatorSimSolver;
-
-    private final SubsystemEStop eStop;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private SuperstructureStates.ElevatorState currentState = desiredState;
@@ -31,48 +27,8 @@ public class Elevator extends SubsystemBase {
         this.hasSimSolver = elevatorSimSolver != null;
         this.elevatorSimSolver = elevatorSimSolver;
 
-        // TODO: test that this stuff works
-        //  do we even really need this? reconsider its benefits
-        this.eStop = new SubsystemEStop(
-                List.of(
-//                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
-//                                // TODO: get real lower and upper limits
-//                                () -> inputs.verticalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
-//                        ),
-//                        SubsystemEStop.StopConditionProvider.instantDoubleLimit(
-//                                // TODO: get real lower and upper limits
-//                                () -> inputs.horizontalElevatorEncoderPosition, -Double.MAX_VALUE, Double.MAX_VALUE
-//                        ),
-//                        new SubsystemEStop.StopConditionProvider<>(
-//                                stop -> stop,
-//                                new MeasurementObserver(
-//                                        () -> getVEControlMeasurement(desiredState.getVerticalElevatorMode()),
-//                                        () -> getVEControlVelocity(desiredState.getVerticalElevatorMode()),
-//                                        () -> desiredState.getVEControlInput()
-//                                )::isAwayFromSetpoint,
-//                                new SubsystemEStop.StopBehavior(
-//                                        SubsystemEStop.StopBehavior.Kind.AFTER_DURATION, 5
-//                                )
-//                        )
-//                        new SubsystemEStop.StopConditionProvider<>(
-//                                stop -> stop,
-//                                new MeasurementObserver(
-//                                        () -> getHEControlMeasurement(desiredState.getHorizontalElevatorMode()),
-//                                        () -> getHEControlVelocity(desiredState.getHorizontalElevatorMode()),
-//                                        () -> desiredState.getHEControlInput()
-//                                )::isAwayFromSetpoint,
-//                                new SubsystemEStop.StopBehavior(
-//                                        SubsystemEStop.StopBehavior.Kind.AFTER_DURATION, 5
-//                                )
-//                        )
-                ),
-                stopBehavior -> {
-                    // TODO: stop throwing here, maybe do some reporting? or maybe throw in non-comp?
-                    throw new RuntimeException(stopBehavior.toString());
-                },
-                // TODO: add manual override?
-                () -> false
-        );
+        this.elevatorIO.config();
+        this.elevatorIO.initialize();
 
         setDesiredState(desiredState);
     }
@@ -81,7 +37,6 @@ public class Elevator extends SubsystemBase {
         this(elevatorIO, null);
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
         final double elevatorIOPeriodicStart = Logger.getInstance().getRealTimestamp();
@@ -102,8 +57,6 @@ public class Elevator extends SubsystemBase {
         Logger.getInstance().recordOutput(logKey + "/VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
         Logger.getInstance().recordOutput(logKey + "/VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
         Logger.getInstance().recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
-
-        eStop.periodic();
 
         final boolean atDesiredState = isAtDesiredState();
 

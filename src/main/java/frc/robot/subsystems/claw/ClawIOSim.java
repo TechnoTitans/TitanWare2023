@@ -7,6 +7,7 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -41,6 +42,10 @@ public class ClawIOSim implements ClawIO {
     private final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier;
 
     private final ProfiledPIDController tiltPID;
+
+    // Cached StatusSignals
+    private final StatusSignal<Double> _tiltPosition;
+    private final StatusSignal<Double> _tiltVelocity;
 
     private SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode;
     private SuperstructureStates.ClawTiltControlMode clawTiltControlMode;
@@ -86,18 +91,22 @@ public class ClawIOSim implements ClawIO {
 
         this.elevatorSimStateSupplier = elevatorSimStateSupplier;
 
-        config();
-
         //TODO: transfer tuned pid from real, then tune in sim
         this.tiltPID = new ProfiledPIDController(
                 3, 0, 0,
                 new TrapezoidProfile.Constraints(3, 5)
         );
 
+        this._tiltPosition = clawTiltEncoder.getAbsolutePosition();
+        this._tiltVelocity = clawTiltEncoder.getVelocity();
+    }
+
+    @Override
+    public void initialize() {
         PIDUtils.resetProfiledPIDControllerWithStatusSignal(
                 tiltPID,
-                clawTiltEncoder.getAbsolutePosition().waitForUpdate(0.25),
-                clawTiltEncoder.getVelocity().waitForUpdate(0.25)
+                _tiltPosition.waitForUpdate(0.25),
+                _tiltVelocity.waitForUpdate(0.25)
         );
     }
 
@@ -124,7 +133,8 @@ public class ClawIOSim implements ClawIO {
                             CANSparkMax.ControlType.kDutyCycle,
                             CANSparkMax.ControlType.kVoltage,
                             tiltPID.calculate(
-                                    clawTiltEncoder.getAbsolutePosition().refresh().getValue(), desiredTiltControlInput
+                                    _tiltPosition.refresh().getValue(),
+                                    desiredTiltControlInput
                             )
                     ),
                     CANSparkMax.ControlType.kVoltage
@@ -147,8 +157,8 @@ public class ClawIOSim implements ClawIO {
         final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
         clawSimState.log(Claw.logKey + "SimState");
 
-        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
-        inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.tiltEncoderPositionRots = _tiltPosition.refresh().getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.refresh().getValue();
         inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         // TODO: this doesn't work... probably cause adding static friction makes a plant non-linear
         inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
@@ -163,6 +173,7 @@ public class ClawIOSim implements ClawIO {
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
         // Bag Motors
@@ -222,10 +233,10 @@ public class ClawIOSim implements ClawIO {
 
     @Override
     public void setDesiredState(final SuperstructureStates.ClawState state) {
-        desiredIntakeWheelsPercentOutput = state.getIntakeWheelsPercentOutput();
-        clawTiltControlMode = state.getClawTiltControlMode();
-        desiredTiltControlInput = state.getTiltControlInput();
-        openCloseControlMode = state.getClawOpenCloseControlMode();
-        desiredOpenCloseControlInput = state.getOpenCloseControlInput();
+        this.desiredIntakeWheelsPercentOutput = state.getIntakeWheelsPercentOutput();
+        this.clawTiltControlMode = state.getClawTiltControlMode();
+        this.desiredTiltControlInput = state.getTiltControlInput();
+        this.openCloseControlMode = state.getClawOpenCloseControlMode();
+        this.desiredOpenCloseControlInput = state.getOpenCloseControlInput();
     }
 }

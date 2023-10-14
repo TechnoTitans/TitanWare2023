@@ -13,7 +13,6 @@ import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class SwerveTest {
     private static final double EPSILON = 1E-7;
 
@@ -66,6 +64,8 @@ class SwerveTest {
     @BeforeEach
     void setUp() {
         if (swerve == null) {
+            when(gyro.getYawRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
+
             swerve = new Swerve(gyro, swerveDriveKinematics, frontLeft, frontRight, backLeft, backRight);
         }
     }
@@ -73,6 +73,8 @@ class SwerveTest {
     @Test
     void periodic() {
         when(gyro.getYawRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
+        when(gyro.getPitchRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
+        when(gyro.getRollRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
 
         swerve.periodic();
 
@@ -202,29 +204,35 @@ class SwerveTest {
     }
 
     private static boolean optimizedStateEquals(
-            final SwerveModuleState state,
+            final SwerveModuleState measured,
+            final SwerveModuleState desired,
             final SwerveModuleState optimized
     ) {
-        if (state.equals(optimized)) {
+        if (desired.equals(optimized)) {
             return true;
         }
 
-        return new SwerveModuleState(-state.speedMetersPerSecond, state.angle.plus(Rotation2d.fromDegrees(180)))
-                .equals(optimized);
+        final SwerveModuleState desiredOptimized = SwerveModuleState.optimize(desired, measured.angle);
+        if (Constants.Swerve.USE_SWERVE_COSINE_SCALING) {
+            SwerveModule.scaleWithErrorCosine(desiredOptimized, measured.angle);
+        }
+
+        return desiredOptimized.equals(optimized);
     }
 
     private static boolean optimizedStatesEquals(
-            final SwerveModuleState[] states,
+            final SwerveModuleState[] measured,
+            final SwerveModuleState[] desired,
             final SwerveModuleState[] optimized
     ) {
-        if (states.length != optimized.length) {
+        if (desired.length != optimized.length) {
             return false;
-        } else if (Arrays.equals(states, optimized)) {
+        } else if (Arrays.equals(desired, optimized)) {
             return true;
         }
 
-        for (int i = 0; i < states.length; i++) {
-            if (!optimizedStateEquals(states[i], optimized[i])) {
+        for (int i = 0; i < desired.length; i++) {
+            if (!optimizedStateEquals(measured[i], desired[i], optimized[i])) {
                 return false;
             }
         }
@@ -248,12 +256,16 @@ class SwerveTest {
         final SwerveModuleState[] swerveModuleStates = swerve.getModuleLastDesiredStates();
 
         assertEquals(4, swerveModuleStates.length);
-        assertTrue(optimizedStatesEquals(new SwerveModuleState[] {
-                frontLeftState,
-                frontRightState,
-                backLeftState,
-                backRightState
-        }, swerveModuleStates));
+        assertTrue(optimizedStatesEquals(
+                swerve.getModuleStates(),
+                new SwerveModuleState[] {
+                    frontLeftState,
+                    frontRightState,
+                    backLeftState,
+                    backRightState
+                },
+                swerveModuleStates
+        ));
     }
 
     @Test
@@ -277,17 +289,20 @@ class SwerveTest {
             final SwerveModuleState backLeftState,
             final SwerveModuleState backRightState
     ) {
-        swerve.drive(new SwerveModuleState[] {
+        final SwerveModuleState[] desiredStates = new SwerveModuleState[] {
                 frontLeftState,
                 frontRightState,
                 backLeftState,
                 backRightState
-        });
+        };
 
-        assertTrue(optimizedStateEquals(frontLeftState, frontLeft.getLastDesiredState()));
-        assertTrue(optimizedStateEquals(frontRightState, frontRight.getLastDesiredState()));
-        assertTrue(optimizedStateEquals(backLeftState, backLeft.getLastDesiredState()));
-        assertTrue(optimizedStateEquals(backRightState, backRight.getLastDesiredState()));
+        swerve.drive(desiredStates);
+
+        assertTrue(optimizedStatesEquals(
+                swerve.getModuleStates(),
+                desiredStates,
+                swerve.getModuleLastDesiredStates()
+        ));
     }
 
     @Test
@@ -358,17 +373,15 @@ class SwerveTest {
     ) {
         swerve.rawSet(s1, s2, s3, s4, a1, a2, a3, a4);
 
-        assertTrue(optimizedStateEquals(
-                new SwerveModuleState(s1, Rotation2d.fromDegrees(a1)), frontLeft.getLastDesiredState()
-        ));
-        assertTrue(optimizedStateEquals(
-                new SwerveModuleState(s2, Rotation2d.fromDegrees(a2)), frontRight.getLastDesiredState()
-        ));
-        assertTrue(optimizedStateEquals(
-                new SwerveModuleState(s3, Rotation2d.fromDegrees(a3)), backLeft.getLastDesiredState()
-        ));
-        assertTrue(optimizedStateEquals(
-                new SwerveModuleState(s4, Rotation2d.fromDegrees(a4)), backRight.getLastDesiredState()
+        assertTrue(optimizedStatesEquals(
+                swerve.getModuleStates(),
+                new SwerveModuleState[] {
+                        new SwerveModuleState(s1, Rotation2d.fromDegrees(a1)),
+                        new SwerveModuleState(s2, Rotation2d.fromDegrees(a2)),
+                        new SwerveModuleState(s3, Rotation2d.fromDegrees(a3)),
+                        new SwerveModuleState(s4, Rotation2d.fromDegrees(a4))
+                },
+                swerve.getModuleLastDesiredStates()
         ));
     }
 

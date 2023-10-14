@@ -25,7 +25,6 @@ import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.teleop.ControllerUtils;
 import frc.robot.utils.teleop.ElevatorClawCommand;
-import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.EnumSet;
@@ -61,7 +60,6 @@ public class TrajectoryAutoAlignment extends CommandBase {
     private final Elevator elevator;
     private final Claw claw;
     private final CommandXboxController driverController;
-    private final PhotonVision photonVision;
     private final TrajectoryManager trajectoryManager;
 
     private AlignmentZone.TrajectoryAlignmentSide desiredTrajectoryAlignmentSide;
@@ -72,14 +70,12 @@ public class TrajectoryAutoAlignment extends CommandBase {
             final Elevator elevator,
             final Claw claw,
             final CommandXboxController driverController,
-            final PhotonVision photonVision,
             final TrajectoryManager trajectoryManager
     ) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.claw = claw;
         this.driverController = driverController;
-        this.photonVision = photonVision;
         this.trajectoryManager = trajectoryManager;
     }
 
@@ -97,7 +93,7 @@ public class TrajectoryAutoAlignment extends CommandBase {
             return;
         }
 
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final Pose2d currentPose = swerve.getEstimatedPosition();
         final AlignmentZone trajectoryAlignmentZone =
                 AlignmentZone.getAlignmentZoneFromCurrentPose(currentPose);
 
@@ -219,7 +215,7 @@ public class TrajectoryAutoAlignment extends CommandBase {
 
         switch (directAlignmentZone.getAlignmentZoneType()) {
             case GRID -> {
-                final LineUpToGrid lineUpToGrid = new LineUpToGrid(swerve, photonVision, targetPose);
+                final LineUpToGrid lineUpToGrid = new LineUpToGrid(swerve, targetPose);
                 if (afterElevatorClawCommand != null) {
                     commandGroup.addCommands(
                             lineUpToGrid,
@@ -237,9 +233,9 @@ public class TrajectoryAutoAlignment extends CommandBase {
                         offsetBackwardsTransform.getTranslation(), offsetBackwardsTransform.getRotation()
                 );
 
-                final DriveToPose driveUpToSubstation = new DriveToPose(swerve, photonVision, offsetBackwardsPose);
-                final DriveToPose driveForwardToIntakeSubstation = new DriveToPose(swerve, photonVision, targetPose);
-                final DriveToPose driveBackFromSubstation = new DriveToPose(swerve, photonVision, offsetBackwardsPose);
+                final DriveToPose driveUpToSubstation = new DriveToPose(swerve, offsetBackwardsPose);
+                final DriveToPose driveForwardToIntakeSubstation = new DriveToPose(swerve, targetPose);
+                final DriveToPose driveBackFromSubstation = new DriveToPose(swerve, offsetBackwardsPose);
 
                 if (beforeElevatorClawCommand != null && afterElevatorClawCommand != null) {
                     commandGroup.addCommands(

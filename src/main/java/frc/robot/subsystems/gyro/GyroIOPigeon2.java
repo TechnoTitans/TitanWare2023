@@ -9,22 +9,38 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 public class GyroIOPigeon2 implements GyroIO {
     private final Pigeon2 pigeon;
 
+    // Cached StatusSignals
+    private final StatusSignal<Boolean> _faultHardware;
+    private final StatusSignal<Double> _yaw;
+    private final StatusSignal<Double> _pitch;
+    private final StatusSignal<Double> _roll;
+    private final StatusSignal<Double> _yawVelocity;
+    private final StatusSignal<Double> _pitchVelocity;
+    private final StatusSignal<Double> _rollVelocity;
+
     public GyroIOPigeon2(final Pigeon2 pigeon) {
         this.pigeon = pigeon;
-        config();
+
+        this._faultHardware = pigeon.getFault_Hardware();
+        this._yaw = pigeon.getYaw();
+        this._pitch = pigeon.getPitch();
+        this._roll = pigeon.getRoll();
+        this._yawVelocity = pigeon.getAngularVelocityZ();
+        this._pitchVelocity = pigeon.getAngularVelocityX();
+        this._rollVelocity = pigeon.getAngularVelocityY();
     }
 
     @Override
     public void updateInputs(final GyroIOInputs inputs) {
-        inputs.hasHardwareFault = pigeon.getFault_Hardware().refresh().getValue();
+        inputs.hasHardwareFault = _faultHardware.refresh().getValue();
 
-        inputs.rollPositionDeg = getRoll();
-        inputs.pitchPositionDeg = getPitch();
         inputs.yawPositionDeg = getYaw();
+        inputs.pitchPositionDeg = getPitch();
+        inputs.rollPositionDeg = getRoll();
 
-        inputs.rollVelocityDegPerSec = getRollVelocitySignal().refresh().getValue();
-        inputs.pitchVelocityDegPerSec = getPitchVelocitySignal().refresh().getValue();
-        inputs.yawVelocityDegPerSec = getYawVelocitySignal().refresh().getValue();
+        inputs.yawVelocityDegPerSec = _yawVelocity.refresh().getValue();
+        inputs.pitchVelocityDegPerSec = _pitchVelocity.refresh().getValue();
+        inputs.rollVelocityDegPerSec = _rollVelocity.refresh().getValue();
     }
 
     @Override
@@ -37,36 +53,15 @@ public class GyroIOPigeon2 implements GyroIO {
     }
 
     public double getYaw() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                pigeon.getYaw(),
-                getYawVelocitySignal()
-        );
-    }
-
-    public StatusSignal<Double> getYawVelocitySignal() {
-        return pigeon.getAngularVelocityZ();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_yaw, _yawVelocity);
     }
 
     public double getPitch() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                pigeon.getPitch(),
-                getPitchVelocitySignal()
-        );
-    }
-
-    public StatusSignal<Double> getPitchVelocitySignal() {
-        return pigeon.getAngularVelocityX();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_pitch, _pitchVelocity);
     }
 
     public double getRoll() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                pigeon.getRoll(),
-                getRollVelocitySignal()
-        );
-    }
-
-    public StatusSignal<Double> getRollVelocitySignal() {
-        return pigeon.getAngularVelocityY();
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_roll, _rollVelocity);
     }
 
     @Override

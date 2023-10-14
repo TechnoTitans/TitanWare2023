@@ -1,11 +1,11 @@
 package frc.robot.subsystems.elevator;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -36,12 +36,20 @@ public class ElevatorIOReal implements ElevatorIO {
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private final ProfiledPIDController horizontalElevatorPID;
 
-    private final MotionMagicConfigs verticalExtensionMotionMagicConfig;
-    private final MotionMagicConfigs verticalRetractionMotionMagicConfig;
-
     private final PositionVoltage positionVoltage;
-    private final DynamicMotionMagicVoltage dynamicMotionMagicVoltage;
+    private final MotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
+
+    // Cached StatusSignals
+    private final StatusSignal<Double> _verticalPosition;
+    private final StatusSignal<Double> _verticalVelocity;
+    private final StatusSignal<Double> _verticalDutyCycle;
+    private final StatusSignal<Double> _verticalMotorTorqueCurrent;
+    private final StatusSignal<Double> _verticalMotorFollowerTorqueCurrent;
+    private final StatusSignal<Double> _verticalMotorDeviceTemp;
+    private final StatusSignal<Double> _verticalMotorFollowerDeviceTemp;
+    private final StatusSignal<Double> _horizontalPosition;
+    private final StatusSignal<Double> _horizontalVelocity;
 
     private SuperstructureStates.VerticalElevatorMode verticalElevatorMode =
             desiredState.getVerticalElevatorMode();
@@ -88,36 +96,33 @@ public class ElevatorIOReal implements ElevatorIO {
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
         this.horizontalElevatorRearLimitSwitch = horizontalElevatorRearLimitSwitch;
 
-        config();
-
         this.horizontalElevatorPID = new ProfiledPIDController(
                 0.5, 0, 0,
                 new TrapezoidProfile.Constraints(10, 13)
         );
 
-        PIDUtils.resetProfiledPIDControllerWithStatusSignal(
-                horizontalElevatorPID, horizontalElevatorEncoder.getPosition(), horizontalElevatorEncoder.getVelocity()
-        );
-
-        // TODO: tune motion magic configs for extension and retraction
-        this.verticalExtensionMotionMagicConfig = new MotionMagicConfigs();
-        verticalExtensionMotionMagicConfig.MotionMagicCruiseVelocity = 180;
-        verticalExtensionMotionMagicConfig.MotionMagicAcceleration = 360;
-        verticalExtensionMotionMagicConfig.MotionMagicJerk = 400;
-
-        this.verticalRetractionMotionMagicConfig = new MotionMagicConfigs();
-        verticalRetractionMotionMagicConfig.MotionMagicCruiseVelocity = 8;
-        verticalRetractionMotionMagicConfig.MotionMagicAcceleration = 30;
-        verticalRetractionMotionMagicConfig.MotionMagicJerk = 80;
-
         this.positionVoltage = new PositionVoltage(0);
-        this.dynamicMotionMagicVoltage = new DynamicMotionMagicVoltage(
-                0,
-                verticalExtensionMotionMagicConfig.MotionMagicCruiseVelocity,
-                verticalExtensionMotionMagicConfig.MotionMagicAcceleration,
-                verticalExtensionMotionMagicConfig.MotionMagicJerk
-        );
+        this.motionMagicVoltage = new MotionMagicVoltage(0);
         this.dutyCycleOut = new DutyCycleOut(0);
+
+        this._verticalPosition = verticalElevatorMotor.getPosition();
+        this._verticalVelocity = verticalElevatorMotor.getVelocity();
+        this._verticalDutyCycle = verticalElevatorMotor.getDutyCycle();
+        this._verticalMotorTorqueCurrent = verticalElevatorMotor.getTorqueCurrent();
+        this._verticalMotorFollowerTorqueCurrent = verticalElevatorMotorFollower.getTorqueCurrent();
+        this._verticalMotorDeviceTemp = verticalElevatorMotor.getDeviceTemp();
+        this._verticalMotorFollowerDeviceTemp = verticalElevatorMotorFollower.getDeviceTemp();
+        this._horizontalPosition = horizontalElevatorEncoder.getPosition();
+        this._horizontalVelocity = horizontalElevatorEncoder.getVelocity();
+    }
+
+    @Override
+    public void initialize() {
+        PIDUtils.resetProfiledPIDControllerWithStatusSignal(
+                horizontalElevatorPID,
+                _horizontalPosition.waitForUpdate(0.25),
+                _horizontalVelocity.waitForUpdate(0.25)
+        );
     }
 
     private boolean resetElevator() {
@@ -136,45 +141,20 @@ public class ElevatorIOReal implements ElevatorIO {
 
             PIDUtils.resetProfiledPIDControllerWithStatusSignal(
                     horizontalElevatorPID,
-                    horizontalElevatorEncoder.getPosition().waitForUpdate(0.25),
-                    horizontalElevatorEncoder.getVelocity().waitForUpdate(0.25)
+                    _horizontalPosition.waitForUpdate(0.25),
+                    _horizontalVelocity.waitForUpdate(0.25)
             );
         }
 
         return verticalElevatorReset && horizontalElevatorReset;
     }
 
-    private double getVEControl() {
-        return switch (verticalElevatorMode) {
-            case POSITION, MOTION_MAGIC -> getVEPosition();
-            case DUTY_CYCLE -> verticalElevatorMotor.getDutyCycle().refresh().getValue();
-        };
-    }
-
     private double getVEPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                verticalElevatorEncoder.getPosition(),
-                verticalElevatorEncoder.getVelocity()
-        );
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_verticalPosition, _verticalVelocity);
     }
 
     private double getHEPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                horizontalElevatorEncoder.getPosition(),
-                horizontalElevatorEncoder.getVelocity()
-        );
-    }
-
-    private MotionMagicConfigs getVerticalMotionMagicConfig() {
-        final SuperstructureStates.VerticalTransitionMode verticalTransitionMode =
-                SuperstructureStates.getVerticalTransitionMode(verticalElevatorMode, getVEControl(), VEControlInput);
-
-        Logger.getInstance().recordOutput("VerticalTransitionMode", verticalTransitionMode.toString());
-
-        return switch (verticalTransitionMode) {
-            case EXTENDING_Z_PLUS -> verticalExtensionMotionMagicConfig;
-            case RETRACTING_Z_MINUS -> verticalRetractionMotionMagicConfig;
-        };
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_horizontalPosition, _horizontalVelocity);
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -193,7 +173,9 @@ public class ElevatorIOReal implements ElevatorIO {
             case POSITION -> verticalElevatorMotor.setControl(
                     positionVoltage.withPosition(VEControlInput)
             );
-            case MOTION_MAGIC -> verticalElevatorMotor.setControl(dynamicMotionMagicVoltage);
+            case MOTION_MAGIC -> verticalElevatorMotor.setControl(
+                    motionMagicVoltage.withPosition(VEControlInput)
+            );
             case DUTY_CYCLE -> verticalElevatorMotor.setControl(
                     dutyCycleOut.withOutput(VEControlInput)
             );
@@ -202,7 +184,7 @@ public class ElevatorIOReal implements ElevatorIO {
         switch (horizontalElevatorMode) {
             case POSITION -> horizontalElevatorMotor.getPIDController().setReference(
                     horizontalElevatorPID.calculate(
-                            horizontalElevatorEncoder.getPosition().refresh().getValue(),
+                            _horizontalPosition.refresh().getValue(),
                             HEControlInput
                     ),
                     CANSparkMax.ControlType.kDutyCycle
@@ -218,19 +200,19 @@ public class ElevatorIOReal implements ElevatorIO {
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
         inputs.verticalEncoderPositionRots = getVEPosition();
-        inputs.verticalEncoderVelocityRotsPerSec = verticalElevatorEncoder.getVelocity().refresh().getValue();
-        inputs.verticalMotorDutyCycle = verticalElevatorMotor.getDutyCycle().refresh().getValue();
+        inputs.verticalEncoderVelocityRotsPerSec = _verticalVelocity.refresh().getValue();
+        inputs.verticalMotorDutyCycle = _verticalDutyCycle.refresh().getValue();
         inputs.verticalMotorCurrentsAmps = new double[] {
-                verticalElevatorMotor.getTorqueCurrent().refresh().getValue(),
-                verticalElevatorMotorFollower.getTorqueCurrent().refresh().getValue()
+                _verticalMotorTorqueCurrent.refresh().getValue(),
+                _verticalMotorFollowerTorqueCurrent.refresh().getValue()
         };
         inputs.verticalMotorTempsCelsius = new double[] {
-                verticalElevatorMotor.getDeviceTemp().refresh().getValue(),
-                verticalElevatorMotorFollower.getDeviceTemp().refresh().getValue()
+                _verticalMotorDeviceTemp.refresh().getValue(),
+                _verticalMotorFollowerDeviceTemp.refresh().getValue()
         };
 
         inputs.horizontalEncoderPositionRots = getHEPosition();
-        inputs.horizontalEncoderVelocityRotsPerSec = horizontalElevatorEncoder.getVelocity().refresh().getValue();
+        inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.refresh().getValue();
         inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
         inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getMotorTemperature();
 
@@ -257,9 +239,10 @@ public class ElevatorIOReal implements ElevatorIO {
         verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorR;
         verticalElevatorMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         verticalElevatorMotorConfig.CurrentLimits.StatorCurrentLimit = 60;
-//        verticalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
-//        verticalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 40;
-//        verticalElevatorMotorConfig.MotionMagic.MotionMagicJerk = 100;
+        // TODO: tune motion magic config
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 40;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicJerk = 100;
 
         verticalElevatorMotor.getConfigurator().apply(verticalElevatorMotorConfig);
 
@@ -292,12 +275,5 @@ public class ElevatorIOReal implements ElevatorIO {
         this.VEControlInput = desiredState.getVEControlInput();
         this.horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
         this.HEControlInput = desiredState.getHEControlInput();
-
-        final MotionMagicConfigs motionMagicConfig = getVerticalMotionMagicConfig();
-        dynamicMotionMagicVoltage
-                .withPosition(VEControlInput)
-                .withVelocity(motionMagicConfig.MotionMagicCruiseVelocity)
-                .withAcceleration(motionMagicConfig.MotionMagicAcceleration)
-                .withJerk(motionMagicConfig.MotionMagicJerk);
     }
 }

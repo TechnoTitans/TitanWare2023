@@ -19,7 +19,7 @@ public class TrajectoryManager {
     private final Swerve swerve;
     private final DriveController controller;
     private final DriveToPoseController holdPositionController;
-    private final PhotonVision photonVision;
+    private final PhotonVision<?> photonVision;
 
     private final Claw claw;
     private final Elevator elevator;
@@ -30,7 +30,7 @@ public class TrajectoryManager {
             final Swerve swerve,
             final DriveController controller,
             final DriveToPoseController holdPositionController,
-            final PhotonVision photonVision,
+            final PhotonVision<?> photonVision,
             final Claw claw,
             final Elevator elevator
     ) {

@@ -30,6 +30,17 @@ public class SwerveModule {
         this.inputs = new SwerveModuleIOInputsAutoLogged();
     }
 
+    /**
+     * Scales a {@link SwerveModuleState} by the cosine of the error between the {@link SwerveModuleState#angle} and
+     * the measured angle (wheel rotation) by mutating its {@link SwerveModuleState#speedMetersPerSecond}.
+     * <p> This should be called <b>AFTER</b> {@link SwerveModuleState#optimize(SwerveModuleState, Rotation2d)}</p>
+     * @param state the {@link SwerveModuleState} to scale (this is mutated!)
+     * @param wheelRotation the measured wheel {@link Rotation2d}
+     */
+    public static void scaleWithErrorCosine(final SwerveModuleState state, final Rotation2d wheelRotation) {
+        state.speedMetersPerSecond *= state.angle.minus(wheelRotation).getCos();
+    }
+
     public String getName() { return name; }
 
     public void periodic() {
@@ -145,7 +156,12 @@ public class SwerveModule {
      */
     public void setDesiredState(final SwerveModuleState state) {
         final Rotation2d currentWheelRotation = getAngle();
+
         final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
+        if (Constants.Swerve.USE_SWERVE_COSINE_SCALING) {
+            SwerveModule.scaleWithErrorCosine(wantedState, currentWheelRotation);
+        }
+
         final double desiredDriverVelocity = computeDesiredDriverVelocity(wantedState);
         final double desiredTurnerRotations = computeDesiredTurnerRotations(wantedState);
 

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -31,6 +32,18 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
     private final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
     private final PositionVoltage positionVoltage;
 
+    // Cached StatusSignals
+    private final StatusSignal<Double> _drivePosition;
+    private final StatusSignal<Double> _driveVelocity;
+    private final StatusSignal<Double> _driveTorqueCurrent;
+    private final StatusSignal<Double> _driveStatorCurrent;
+    private final StatusSignal<Double> _driveDeviceTemp;
+    private final StatusSignal<Double> _turnPosition;
+    private final StatusSignal<Double> _turnVelocity;
+    private final StatusSignal<Double> _turnTorqueCurrent;
+    private final StatusSignal<Double> _turnStatorCurrent;
+    private final StatusSignal<Double> _turnDeviceTemp;
+
     public SwerveModuleIOFalcon(
             final TalonFX driveMotor,
             final TalonFX turnMotor,
@@ -50,6 +63,17 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
 
         this.velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0);
         this.positionVoltage = new PositionVoltage(0);
+
+        this._drivePosition = driveMotor.getPosition();
+        this._driveVelocity = driveMotor.getVelocity();
+        this._driveTorqueCurrent = driveMotor.getTorqueCurrent();
+        this._driveStatorCurrent = driveMotor.getStatorCurrent();
+        this._driveDeviceTemp = driveMotor.getDeviceTemp();
+        this._turnPosition = turnMotor.getPosition();
+        this._turnVelocity = turnMotor.getVelocity();
+        this._turnTorqueCurrent = turnMotor.getTorqueCurrent();
+        this._turnStatorCurrent = turnMotor.getStatorCurrent();
+        this._turnDeviceTemp = turnMotor.getDeviceTemp();
     }
 
     @Override
@@ -80,36 +104,36 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         turnMotor.getConfigurator().apply(turnTalonFXConfiguration);
     }
 
-    @Override
     @SuppressWarnings("DuplicatedCode")
+    @Override
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
-//        inputs.driveTorqueCurrentAmps = driveMotor.getTorqueCurrent().refresh().getValue();
-//        inputs.driveStatorCurrentAmps = driveMotor.getStatorCurrent().refresh().getValue();
-//        inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
-//
-        inputs.turnAbsolutePositionRots = getAngle().getRotations();
-        inputs.turnVelocityRotsPerSec = turnEncoder.getVelocity().refresh().getValue();
-//        inputs.turnTorqueCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
-//        inputs.turnStatorCurrentAmps = turnMotor.getStatorCurrent().refresh().getValue();
-//        inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();
+        inputs.driveTorqueCurrentAmps = _driveTorqueCurrent.refresh().getValue();
+        inputs.driveStatorCurrentAmps = _driveStatorCurrent.refresh().getValue();
+        inputs.driveTempCelsius = _driveDeviceTemp.refresh().getValue();
+
+        inputs.turnAbsolutePositionRots = getRawAngle();
+        inputs.turnVelocityRotsPerSec = _turnVelocity.refresh().getValue();
+        inputs.turnTorqueCurrentAmps = _turnTorqueCurrent.refresh().getValue();
+        inputs.turnStatorCurrentAmps = _turnStatorCurrent.refresh().getValue();
+        inputs.turnTempCelsius = _turnDeviceTemp.refresh().getValue();
     }
 
-    public Rotation2d getAngle() {
-        return Rotation2d.fromRotations(
-                Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                        turnEncoder.getAbsolutePosition(), turnEncoder.getVelocity()
-                )
-        );
+    /**
+     * Get the measured mechanism (wheel) angle of the {@link SwerveModuleIOFalconSim}, in raw units (rotations)
+     * @return the measured wheel (turner) angle, in rotations
+     */
+    private double getRawAngle() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_turnPosition, _turnVelocity);
     }
 
     public double getDrivePosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(driveMotor.getPosition(), driveMotor.getVelocity());
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_drivePosition, _driveVelocity);
     }
 
     public double getDriveVelocity() {
-        return driveMotor.getVelocity().refresh().getValue();
+        return _driveVelocity.refresh().getValue();
     }
 
     @Override
@@ -126,7 +150,7 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
                     String.format(
                             "Failed to set NeutralMode on TalonFX %s (%s)",
                             driveMotor.getDeviceID(),
-                            driveMotor.getNetwork()
+                            driveMotor.getCANBus()
                     ), false
             );
             return;

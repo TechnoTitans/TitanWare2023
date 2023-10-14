@@ -5,6 +5,7 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 
 import java.util.function.DoubleSupplier;
 
+@SuppressWarnings("unused")
 public class MeasurementObserver {
     private final DoubleSupplier measurementSupplier;
     private final DoubleSupplier measurementVelocitySupplier;

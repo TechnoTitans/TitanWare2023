@@ -27,6 +27,7 @@ import java.util.Arrays;
 public class Swerve extends SubsystemBase {
     protected static final String logKey = "Swerve";
     protected static final String odometryLogKey = "Odometry";
+    private static final boolean _currentDrawEnabled = CurrentDrawSim.isEnabled();
 
     private Gyro gyro;
     private final GyroIOInputsAutoLogged gyroInputs;
@@ -111,13 +112,15 @@ public class Swerve extends SubsystemBase {
         );
 
         //report current draws in sim
-        CurrentDrawSim.reportIfEnabled(
-                Arrays.stream(swerveModules)
-                        .map(SwerveModule::getCurrentDrawAmps)
-                        .mapToDouble(Double::doubleValue)
-                        .sum(),
-                Constants.PDH.DRIVETRAIN_CHANNELS
-        );
+        if (_currentDrawEnabled) {
+            CurrentDrawSim.getInstance().report(
+                    Arrays.stream(swerveModules)
+                            .map(SwerveModule::getCurrentDrawAmps)
+                            .mapToDouble(Double::doubleValue)
+                            .sum(),
+                    Constants.PDH.DRIVETRAIN_CHANNELS
+            );
+        }
 
         //log current swerve chassis speeds
         final ChassisSpeeds robotRelativeSpeeds = getRobotRelativeSpeeds();
@@ -152,12 +155,11 @@ public class Swerve extends SubsystemBase {
 
         // Update PoseEstimator and Odometry
         final double odometryUpdateStart = Logger.getInstance().getRealTimestamp();
-        poseEstimator.update(getYaw(), getModulePositions());
+        final Pose2d estimatedPosition = poseEstimator.update(getYaw(), getModulePositions());
         final double odometryUpdatePeriodMs = LogUtils.microsecondsToMilliseconds(
                 Logger.getInstance().getRealTimestamp() - odometryUpdateStart
         );
 
-        final Pose2d estimatedPosition = poseEstimator.getEstimatedPosition();
         Logger.getInstance().recordOutput(
                 odometryLogKey + "/OdometryUpdatePeriodMs", odometryUpdatePeriodMs
         );
@@ -170,6 +172,14 @@ public class Swerve extends SubsystemBase {
 
     public SwerveDrivePoseEstimator getPoseEstimator() {
         return poseEstimator;
+    }
+
+    /**
+     * Get the estimated {@link Pose2d} of the robot from the {@link SwerveDrivePoseEstimator}.
+     * @return the estimated position of the robot, as a {@link Pose2d}
+     */
+    public Pose2d getEstimatedPosition() {
+        return poseEstimator.getEstimatedPosition();
     }
 
     public Gyro getGyro() {
@@ -195,7 +205,7 @@ public class Swerve extends SubsystemBase {
         gyro.setAngle(angle);
     }
 
-    public void zeroRotation(final PhotonVision photonVision) {
+    public void zeroRotation(final PhotonVision<?> photonVision) {
         gyro.zeroRotation();
         photonVision.resetPosition(
                 photonVision.getEstimatedPosition(),

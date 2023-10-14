@@ -42,8 +42,8 @@ class PIDUtilsTest {
         when(positionSignal.refresh()).thenReturn(positionSignal);
         when(velocitySignal.refresh()).thenReturn(velocitySignal);
 
-        when(positionSignal.getStatus()).thenReturn(StatusCode.OK);
-        when(velocitySignal.getStatus()).thenReturn(StatusCode.OK);
+        when(positionSignal.getError()).thenReturn(StatusCode.OK);
+        when(velocitySignal.getError()).thenReturn(StatusCode.OK);
 
         when(positionSignal.getValue()).thenReturn(position);
         when(velocitySignal.getValue()).thenReturn(velocity);

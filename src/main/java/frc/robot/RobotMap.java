@@ -78,5 +78,5 @@ public interface RobotMap {
 
     //Controllers
     int MainController = 0;
-    int CoController = 1;
+    int CoController = 0;
 }

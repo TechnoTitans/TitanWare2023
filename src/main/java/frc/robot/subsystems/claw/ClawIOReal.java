@@ -7,6 +7,7 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -31,6 +32,10 @@ public class ClawIOReal implements ClawIO {
     private final TitanSparkMAX clawTiltNeo;
 
     private final ProfiledPIDController tiltPID;
+
+    // Cached StatusSignals
+    private final StatusSignal<Double> _tiltPosition;
+    private final StatusSignal<Double> _tiltVelocity;
 
     private SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode;
     private SuperstructureStates.ClawTiltControlMode clawTiltControlMode;
@@ -63,18 +68,22 @@ public class ClawIOReal implements ClawIO {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
 
-        config();
-
         //TODO: tune pid in real
         this.tiltPID = new ProfiledPIDController(
                 3, 0, 0,
                 new TrapezoidProfile.Constraints(3, 3)
         );
 
+        this._tiltPosition = clawTiltEncoder.getAbsolutePosition();
+        this._tiltVelocity = clawTiltEncoder.getVelocity();
+    }
+
+    @Override
+    public void initialize() {
         PIDUtils.resetProfiledPIDControllerWithStatusSignal(
                 tiltPID,
-                clawTiltEncoder.getAbsolutePosition().waitForUpdate(0.25),
-                clawTiltEncoder.getVelocity().waitForUpdate(0.25)
+                _tiltPosition.waitForUpdate(0.25),
+                _tiltVelocity.waitForUpdate(0.25)
         );
     }
 
@@ -91,7 +100,7 @@ public class ClawIOReal implements ClawIO {
         switch (clawTiltControlMode) {
             case POSITION -> clawTiltNeo.getPIDController().setReference(
                     tiltPID.calculate(
-                            clawTiltEncoder.getAbsolutePosition().refresh().getValue(),
+                            _tiltPosition.refresh().getValue(),
                             desiredTiltControlInput
                     ),
                     CANSparkMax.ControlType.kDutyCycle
@@ -106,8 +115,8 @@ public class ClawIOReal implements ClawIO {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
-        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
-        inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.tiltEncoderPositionRots = _tiltPosition.refresh().getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.refresh().getValue();
         inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
         inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
@@ -119,9 +128,9 @@ public class ClawIOReal implements ClawIO {
         inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();
 
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
-
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
         // Bag Motors
@@ -171,10 +180,10 @@ public class ClawIOReal implements ClawIO {
 
     @Override
     public void setDesiredState(final SuperstructureStates.ClawState desiredState) {
-        desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
-        clawTiltControlMode = desiredState.getClawTiltControlMode();
-        desiredTiltControlInput = desiredState.getTiltControlInput();
-        openCloseControlMode = desiredState.getClawOpenCloseControlMode();
-        desiredOpenCloseControlInput = desiredState.getOpenCloseControlInput();
+        this.desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
+        this.clawTiltControlMode = desiredState.getClawTiltControlMode();
+        this.desiredTiltControlInput = desiredState.getTiltControlInput();
+        this.openCloseControlMode = desiredState.getClawOpenCloseControlMode();
+        this.desiredOpenCloseControlInput = desiredState.getOpenCloseControlInput();
     }
 }

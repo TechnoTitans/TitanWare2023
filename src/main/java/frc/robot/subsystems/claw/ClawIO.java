@@ -33,5 +33,11 @@ public interface ClawIO {
 
     default void config() {}
 
+    /**
+     * Called <b>after</b> {@link ClawIO#config()}, intended for any initialization that needs to happen post-config
+     * and cannot happen pre-config (i.e. in the constructor)
+     */
+    default void initialize() {}
+
     default void setDesiredState(final SuperstructureStates.ClawState desiredState) {}
 }

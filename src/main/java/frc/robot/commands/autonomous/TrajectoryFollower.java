@@ -43,7 +43,7 @@ public class TrajectoryFollower extends CommandBase {
     private final CandleController candleController;
     private final DriveController holonomicDriveController;
     private final DriveToPoseController holdPositionController;
-    private final PhotonVision photonVision;
+    private final PhotonVision<?> photonVision;
     private final NavigableMap<Double, PathPlannerTrajectory.EventMarker> eventMarkerNavigableMap;
 
     private final FollowerContext followerContext;
@@ -61,7 +61,7 @@ public class TrajectoryFollower extends CommandBase {
             final Swerve swerve,
             final DriveController holonomicDriveController,
             final DriveToPoseController holdPositionController,
-            final PhotonVision photonVision,
+            final PhotonVision<?> photonVision,
             final TitanTrajectory trajectory,
             final boolean transformForAlliance,
             final FollowerContext followerContext

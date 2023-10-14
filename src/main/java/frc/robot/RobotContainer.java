@@ -24,7 +24,7 @@ import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.claw.*;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.elevator.*;
@@ -42,7 +42,6 @@ import org.photonvision.simulation.VisionSystemSim;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RobotContainer {
     //Elevator
@@ -57,9 +56,6 @@ public class RobotContainer {
     public final CANcoder clawTiltEncoder;
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
-
-    //Odometry
-    public final SwerveDriveOdometry visionIndependentOdometry;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -319,11 +315,6 @@ public class RobotContainer {
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
 
-        final Pose2d initialOdometryPose = new Pose2d();
-        visionIndependentOdometry = new SwerveDriveOdometry(
-                kinematics, swerve.getYaw(), swerve.getModulePositions(), initialOdometryPose
-        );
-
 //        holonomicDriveController = new DriveController(
 //                new PIDController(14, 0, 0),
 //                new PIDController(22, 0, 0),
@@ -374,74 +365,69 @@ public class RobotContainer {
 
         photonVision = switch (Constants.CURRENT_MODE) {
             case REAL -> {
-                final List<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal> ioApriltagsReals = List.of(
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        ),
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        ),
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        ),
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        )
-                );
-
                 final Map<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
-                        photonVisionIOInputsMap = ioApriltagsReals.stream().collect(Collectors.toMap(
-                        photonVisionIO -> photonVisionIO,
-                        photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
-                ));
+                        photonVisionIOInputsMap =
+                        PhotonVision.makePhotonVisionIOInputsMap(
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout
+                                ),
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout
+                                ),
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout
+                                ),
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout
+                                )
+                        );
 
                 yield new PhotonVision<>(
                         new PhotonVisionApriltagsReal(photonVisionIOInputsMap),
                         swerve,
                         swerve.getPoseEstimator(),
-                        ioApriltagsReals
+                        photonVisionIOInputsMap
                 );
             }
             case SIM -> {
                 final VisionSystemSim visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
-                final List<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim> ioApriltagsSims = List.of(
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        ),
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        ),
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        ),
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        )
-                );
                 final Map<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs>
-                        photonVisionIOInputsMap = ioApriltagsSims.stream().collect(Collectors.toMap(
-                                photonVisionIO -> photonVisionIO,
-                                photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
-                        ));
+                        photonVisionIOInputsMap =
+                        PhotonVision.makePhotonVisionIOInputsMap(
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                ),
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                ),
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                ),
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                )
+                        );
 
                 yield new PhotonVision<>(
                         new PhotonVisionApriltagsSim(
                                 swerve,
-                                visionIndependentOdometry,
+                                new SwerveDriveOdometry(
+                                        kinematics, swerve.getYaw(), swerve.getModulePositions(), new Pose2d()
+                                ),
                                 PhotonVision.apriltagFieldLayout,
                                 visionSystemSim,
                                 photonVisionIOInputsMap
                         ),
                         swerve,
                         swerve.getPoseEstimator(),
-                        ioApriltagsSims
+                        photonVisionIOInputsMap
                 );
             }
             case REPLAY -> new PhotonVision<>(
                     new PhotonVisionRunner() {},
                     swerve,
                     swerve.getPoseEstimator(),
-                    List.of()
+                    Map.of()
             );
         };
 

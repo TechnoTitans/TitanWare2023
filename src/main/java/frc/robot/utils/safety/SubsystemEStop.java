@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 public class SubsystemEStop {
     public static class StopBehavior {
         public static final StopBehavior DS_E_STOP = new StopBehavior(Kind.INSTANT);

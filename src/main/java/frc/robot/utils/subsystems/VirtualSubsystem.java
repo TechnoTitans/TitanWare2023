@@ -38,7 +38,7 @@ public class VirtualSubsystem {
     /**
      * Runs all virtual subsystems that are bound to the loop cycle
      * (has a loop period of {@link Constants#LOOP_PERIOD_SECONDS}).
-     * <p>Should be called in {@link Robot#robotPeriodic()}</p>
+     * <p>Should be called in {@link frc.robot.Robot#robotPeriodic()}</p>
      */
     public static void run() {
         for (final VirtualSubsystem subsystem : loopPeriodSubsystems) {

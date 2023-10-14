@@ -11,7 +11,7 @@ import edu.wpi.first.math.util.Units;
 
 public interface Constants {
     RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -108,7 +108,10 @@ public interface Constants {
         double TRAJECTORY_MAX_ANGULAR_ACCELERATION = 1.5 * ROBOT_MAX_ANGULAR_SPEED;
         double ROTATE_P = 1;
 
+        // see https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/40
         boolean USE_SWERVE_SKEW_FIX = true;
+        // see https://github.com/wpilibsuite/allwpilib/issues/5749
+        boolean USE_SWERVE_COSINE_SCALING = true;
 
         //in meters, swerve modules relative to the center of robot
         Translation2d FL_OFFSET = new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2); //front left

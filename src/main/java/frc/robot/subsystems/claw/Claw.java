@@ -91,6 +91,9 @@ public class Claw extends SubsystemBase {
         this.clawIO = clawIO;
         this.inputs = new ClawIOInputsAutoLogged();
 
+        this.clawIO.config();
+        this.clawIO.initialize();
+
         setDesiredState(desiredState);
     }
 
