@@ -52,9 +52,9 @@ public class Profiler {
     public enum SwerveSpeed {
         //Takes feet and radians as scalar values
         // TODO: adjust speeds
-        FAST(Units.feetToMeters(13.5), Math.PI),
-        NORMAL(Units.feetToMeters(6), 0.5 * Math.PI),
-        SLOW(Units.feetToMeters(2), 0.25 * Math.PI);
+        FAST(Units.feetToMeters(13.5), 0.75 * Math.PI),
+        NORMAL(Units.feetToMeters(6), 0.25 * Math.PI),
+        SLOW(Units.feetToMeters(2), 0.1 * Math.PI);
 
         final double throttleWeight;
         final double rotateWeight;

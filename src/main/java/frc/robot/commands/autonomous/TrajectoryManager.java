@@ -55,19 +55,19 @@ public class TrajectoryManager {
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(
-            final Map<String, TitanTrajectory.Constraints> pathNameConstraintsMap,
+            final List<AutoOption.PathNameWithConstraints> pathNameWithConstraintsList,
             final boolean reverseTrajectory
     ) {
         final TrajectoryFollower.FollowerContext followerContext =
                 new TrajectoryFollower.FollowerContext(elevator, claw);
 
-        return pathNameConstraintsMap.entrySet().stream()
+        return pathNameWithConstraintsList.stream()
                 .map(
-                        (pathEntry) -> {
-                            final TitanTrajectory.Constraints constraints = pathEntry.getValue();
+                        (pathNameWithConstraints) -> {
+                            final TitanTrajectory.Constraints constraints = pathNameWithConstraints.constraints();
                             return TitanTrajectory.fromPathPlannerTrajectory(
                                     PathPlanner.loadPath(
-                                            pathEntry.getKey(),
+                                            pathNameWithConstraints.name(),
                                             constraints.maxVelocity,
                                             constraints.maxAcceleration,
                                             reverseTrajectory
@@ -86,7 +86,7 @@ public class TrajectoryManager {
         }
 
         return getTrajectoriesFromPath(
-                autoOption.pathNameConstraintsMap(), false
+                autoOption.pathNameWithConstraintsList(), false
         );
     }
 

@@ -390,16 +390,16 @@ public class RobotContainer {
                         photonVisionIOInputsMap =
                         PhotonVision.makePhotonVisionIOInputsMap(
                                 new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout, visionSystemSim
                                 ),
                                 new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout, visionSystemSim
                                 ),
                                 new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldLayout, visionSystemSim
                                 ),
                                 new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
+                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldLayout, visionSystemSim
                                 )
                         );
 
@@ -460,61 +460,73 @@ public class RobotContainer {
         autoChooser = new CustomAutoChooser<>(
                 Constants.NetworkTables.AUTO_TABLE,
                 Constants.NetworkTables.AUTO_PUBLISHER,
-                Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER,
-                new AutoOption("DropAndMobility")
+                Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER
         );
-//        //Add paths that are specifically for one competition type here
-//        autoChooser.addAutoOption(
-//                new AutoOption(
-//                        "CubeAndChargeBack",
-//                        2,
-//                        1,
-//                        Constants.CompetitionType.COMPETITION
-//                )
-//        );
-//        autoChooser.addAutoOption(new AutoOption("DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION));
-//        autoChooser.addAutoOption(
-//                new AutoOption(
-//                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
-//                )
-//        );
-//        autoChooser.addAutoOption(
-//                new AutoOption(
-//                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
-//                )
-//        );
-//        autoChooser.addAutoOption(
-//                new AutoOption(
-//                        "2.5PieceNoBalTurns",
-//                        Units.feetToMeters(13),
-//                        2 * Units.feetToMeters(13),
-//                        Constants.CompetitionType.COMPETITION
-//                )
-//        );
-//        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
-//        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
 
+        //Add paths that are specifically for one competition type here
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "CubeAndChargeBack",
+                        2,
+                        1,
+                        Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "2.5PieceNoBalTurns",
+                        Units.feetToMeters(13),
+                        2 * Units.feetToMeters(13),
+                        Constants.CompetitionType.COMPETITION
+                )
+        );
+        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
+        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
 
-        final LinkedHashMap<String, TitanTrajectory.Constraints> wesuck = new LinkedHashMap<>();
-        wesuck.put("NewMethod5", TitanTrajectory.Constraints.getDefault());
-        wesuck.put("NewMethod4", new TitanTrajectory.Constraints(1, 1));
-        wesuck.put("NewMethod2", TitanTrajectory.Constraints.getDefault());
+//        autoChooser.addAutoOption(new AutoOption(
+//                "NewMethod3Piece",
+//                List.of(
+//                        new AutoOption.PathNameWithConstraints("NewMethod5"),
+//                        new AutoOption.PathNameWithConstraints(
+//                                "NewMethod4", new TitanTrajectory.Constraints(1, 1)
+//                        ),
+//                        new AutoOption.PathNameWithConstraints("NewMethod2")
+////                        new AutoOption.PathNameWithConstraints("NewMethod3")
+//                ),
+//                Constants.CompetitionType.COMPETITION
+//        ));
 
         autoChooser.addAutoOption(new AutoOption(
                 "NewMethod3Piece",
-                wesuck,
-//                        "NewMethod2", TitanTrajectory.Constraints.getDefault(),
-//                        "NewMethod3", TitanTrajectory.Constraints.getDefault()
-//                ),
+                List.of(
+                        new AutoOption.PathNameWithConstraints("NewMethod1"),
+                        new AutoOption.PathNameWithConstraints("NewMethod2"),
+                        new AutoOption.PathNameWithConstraints("NewMethod3")
+                ),
                 Constants.CompetitionType.COMPETITION
         ));
 
         //Add the remaining paths automatically
-//        autoChooser.addOptionsIfNotPresent(
-//                AutoOption::getDescriptiveName,
-//                AutoOption::new,
-//                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
-//        );
+        autoChooser.addOptionsIfNotPresent(
+                AutoOption::getDescriptiveName,
+                AutoOption::new,
+                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
+        );
     }
 
     public Command getAutonomousCommand() {
