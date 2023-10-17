@@ -42,7 +42,7 @@ public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
 
             this.poseEstimator = new PhotonPoseEstimator(
                     blueSideApriltagFieldLayout,
-                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP,
+                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     photonCamera,
                     titanCamera.getRobotRelativeToCameraTransform()
             );

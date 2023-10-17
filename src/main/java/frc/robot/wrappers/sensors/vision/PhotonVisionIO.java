@@ -9,7 +9,7 @@ import org.photonvision.PhotonPoseEstimator;
 public interface PhotonVisionIO {
     class PhotonVisionIOInputs implements LoggableInputs {
         public double[] pipelineResultTargets = new double[] {};
-        public String primaryStrategy = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP.toString();
+        public String primaryStrategy = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR.toString();
         public EstimatedRobotPose estimatedRobotPose;
         public EstimatedRobotPose stableEstimatedRobotPose;
 
@@ -30,7 +30,7 @@ public interface PhotonVisionIO {
         public void fromLog(LogTable table) {
             this.pipelineResultTargets = table.getDoubleArray("PipelineResultTargets", new double[] {});
             this.primaryStrategy = table.getString(
-                    "PrimaryStrategy", PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP.toString()
+                    "PrimaryStrategy", PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR.toString()
             );
 
             this.estimatedRobotPose =

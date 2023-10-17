@@ -53,7 +53,7 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
             this.photonCameraSim = new PhotonCameraSim(titanCamera.getPhotonCamera(), titanCamera.toSimCameraProperties());
             this.poseEstimator = new PhotonPoseEstimator(
                     blueSideApriltagFieldLayout,
-                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP,
+                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     photonCamera,
                     titanCamera.getRobotRelativeToCameraTransform()
             );

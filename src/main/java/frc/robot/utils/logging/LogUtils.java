@@ -8,6 +8,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -79,7 +80,13 @@ public class LogUtils {
             trackedTargets.add(trackedTarget);
         }
 
-        return new EstimatedRobotPose(estimatedPose, timestampSeconds, trackedTargets);
+        // TODO: this should probably actually get the actual PoseStrategy
+        return new EstimatedRobotPose(
+                estimatedPose,
+                timestampSeconds,
+                trackedTargets,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
+        );
     }
 
     public static void serializePhotonVisionPacket(final LogTable logTable, final String prefix, final Packet packet) {
