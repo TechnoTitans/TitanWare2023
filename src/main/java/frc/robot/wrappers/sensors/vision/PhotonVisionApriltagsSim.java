@@ -18,11 +18,9 @@ import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
     public static class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
@@ -75,9 +73,13 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
 
         @Override
         public void updateInputs(final PhotonVisionIOInputs inputs) {
-            inputs.pipelineResultTargets = latestPhotonPipelineResult.targets.stream()
-                    .mapToDouble(PhotonTrackedTarget::getFiducialId)
-                    .toArray();
+            if (latestPhotonPipelineResult == null) {
+                inputs.pipelineResultTargets = new double[] {};
+            } else {
+                inputs.pipelineResultTargets = latestPhotonPipelineResult.targets.stream()
+                        .mapToDouble(PhotonTrackedTarget::getFiducialId)
+                        .toArray();
+            }
             inputs.primaryStrategy = poseEstimator.getPrimaryStrategy().toString();
 
             inputs.estimatedRobotPose = getLatestEstimatedPose();
@@ -177,7 +179,9 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
             );
         }
 
-        final Pose2d visionIndependentPose = visionIndependentOdometry.getPoseMeters();
+        final Pose2d visionIndependentPose =
+                visionIndependentOdometry.update(swerve.getYaw(), swerve.getModulePositions());
+
         visionSystemSim.update(
                 GyroUtils.robotPose2dToPose3dWithGyro(
                         visionIndependentPose,

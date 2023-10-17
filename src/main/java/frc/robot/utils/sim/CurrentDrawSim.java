@@ -80,12 +80,6 @@ public class CurrentDrawSim extends VirtualSubsystem {
         }
     }
 
-    public static void reportIfEnabled(final double currentDrawAmps, final int... channels) {
-        if (isEnabled()) {
-            CurrentDrawSim.getInstance().report(currentDrawAmps, channels);
-        }
-    }
-
     public void report(final double currentDrawAmps) {
         if (isDataOld) {
             this.isDataOld = false;

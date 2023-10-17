@@ -564,8 +564,13 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
                 final SuperstructureStates.ElevatorState elevatorState,
                 final SuperstructureStates.ClawState clawState
         ) {
-            withElevatorState(elevatorState);
-            withClawState(clawState);
+            commands.add(Commands.runOnce(() -> {
+                elevator.setDesiredState(elevatorState);
+                claw.setDesiredState(clawState);
+            }));
+
+//            withElevatorState(elevatorState);
+//            withClawState(clawState);
             return this;
         }
 

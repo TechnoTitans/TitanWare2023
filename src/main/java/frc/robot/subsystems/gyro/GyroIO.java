@@ -48,6 +48,11 @@ public interface GyroIO {
     default void updateInputs(final GyroIOInputs inputs) {}
 
     /**
+     * Periodic call to update the {@link GyroIO}.
+     */
+    default void periodic() {}
+
+    /**
      * Call to configure the Pigeon, should only be called once on init
      */
     default void config() {}

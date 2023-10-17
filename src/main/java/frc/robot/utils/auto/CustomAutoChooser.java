@@ -49,15 +49,27 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
         this.ntTableName = ntTableName;
         this.ignoredSet = new HashSet<>();
         this.defaultAuto = defaultAuto;
-        this.selectedAuto = defaultAuto.getDescriptiveName();
+        this.selectedAuto = defaultAuto != null
+                ? defaultAuto.getDescriptiveName()
+                : String.format("DoNothingAuto-%s", this);
 
         final NetworkTable ntTable = NetworkTableInstance.getDefault().getTable(ntTableName);
         this.autoPublisher = ntTable.getStringArrayTopic(ntPubName).publish();
         this.selectedAutoSubscriber = ntTable.getStringTopic(ntSubName).subscribe(selectedAuto);
-        this.autoMap = new LinkedHashMap<>(Map.of(selectedAuto, defaultAuto));
+
+        final Map<String, V> initialAutoMap = defaultAuto != null ? Map.of(selectedAuto, defaultAuto) : Map.of();
+        this.autoMap = new LinkedHashMap<>(initialAutoMap);
 
         Logger.getInstance().registerDashboardInput(this);
         ToClose.add(this);
+    }
+
+    public CustomAutoChooser(
+            final String ntTableName,
+            final String ntPubName,
+            final String ntSubName
+    ) {
+        this(ntTableName, ntPubName, ntSubName, null);
     }
 
     private boolean shouldIgnoreOption(final V object) {

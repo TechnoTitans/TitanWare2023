@@ -45,6 +45,6 @@ public class CandleController {
                 Commands.waitSeconds(strobeTime),
                 Commands.runOnce(() -> setState(SuperstructureStates.CANdleState.OFF)),
                 Commands.waitSeconds(strobeTime)
-        );
+        ).schedule();
     }
 }

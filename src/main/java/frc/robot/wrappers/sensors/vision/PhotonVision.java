@@ -56,12 +56,22 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         }
     }
 
+    @SafeVarargs
+    public static <T extends PhotonVisionIO> Map<T, PhotonVisionIO.PhotonVisionIOInputs> makePhotonVisionIOInputsMap(
+            final T... photonVisionIOs
+    ) {
+        return Arrays.stream(photonVisionIOs).collect(Collectors.toMap(
+                photonVisionIO -> photonVisionIO,
+                photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
+        ));
+    }
+
     private final PhotonVisionRunner runner;
-    private final Map<PhotonVisionIO, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
+    private final Map<T, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
 
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final Map<PhotonVisionIO, EstimatedRobotPose> lastEstimatedPosesByCamera;
+    private final Map<T, EstimatedRobotPose> lastEstimatedPosesByCamera;
 
     private AprilTagFieldLayout.OriginPosition originPosition =
             AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
@@ -70,17 +80,13 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             final PhotonVisionRunner runner,
             final Swerve swerve,
             final SwerveDrivePoseEstimator poseEstimator,
-            final List<T> photonVisionIOs
+            final Map<T, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap
     ) {
         this.runner = runner;
-        this.photonVisionIOInputsMap = photonVisionIOs.stream()
-                .collect(Collectors.toMap(
-                        photonVisionIO -> photonVisionIO,
-                        photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
-                ));
-
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
+        this.photonVisionIOInputsMap = photonVisionIOInputsMap;
+
         this.lastEstimatedPosesByCamera = new HashMap<>();
 
         refreshAlliance();
@@ -208,10 +214,10 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
 
     private void update() {
         for (
-                final Map.Entry<PhotonVisionIO, PhotonVisionIO.PhotonVisionIOInputs>
+                final Map.Entry<T, PhotonVisionIO.PhotonVisionIOInputs>
                         photonVisionIOInputsEntry : photonVisionIOInputsMap.entrySet()
         ) {
-            final PhotonVisionIO photonVisionIO = photonVisionIOInputsEntry.getKey();
+            final T photonVisionIO = photonVisionIOInputsEntry.getKey();
             final PhotonVisionIO.PhotonVisionIOInputs photonVisionIOInputs = photonVisionIOInputsEntry.getValue();
 
             final EstimatedRobotPose lastStableEstimatedRobotPose = photonVisionIOInputs.stableEstimatedRobotPose;

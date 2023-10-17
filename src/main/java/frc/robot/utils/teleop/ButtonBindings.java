@@ -28,12 +28,12 @@ public class ButtonBindings {
 
         if (Constants.Teleop.USE_LEGACY_AUTO_ALIGNMENT) {
             driverController.leftBumper().whileTrue(
-                    new AutoAlignment(swerve, robotContainer.photonVision, driverController.getHID())
+                    new AutoAlignment(swerve, driverController.getHID())
                             .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.LEFT)
             );
 
             driverController.rightBumper().whileTrue(
-                    new AutoAlignment(swerve, robotContainer.photonVision, driverController.getHID())
+                    new AutoAlignment(swerve, driverController.getHID())
                             .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
             );
         } else {
@@ -43,7 +43,6 @@ public class ButtonBindings {
                             robotContainer.elevator,
                             robotContainer.claw,
                             robotContainer.driverController,
-                            robotContainer.photonVision,
                             robotContainer.trajectoryManager
                     ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.LEFT)
             );
@@ -54,7 +53,6 @@ public class ButtonBindings {
                             robotContainer.elevator,
                             robotContainer.claw,
                             robotContainer.driverController,
-                            robotContainer.photonVision,
                             robotContainer.trajectoryManager
                     ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.RIGHT)
             );

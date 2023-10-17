@@ -24,7 +24,7 @@ import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.commands.teleop.SwerveDriveTeleop;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
-import frc.robot.subsystems.claw.*;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.elevator.*;
@@ -40,9 +40,9 @@ import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.*;
 import org.photonvision.simulation.VisionSystemSim;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RobotContainer {
     //Elevator
@@ -57,9 +57,6 @@ public class RobotContainer {
     public final CANcoder clawTiltEncoder;
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
-
-    //Odometry
-    public final SwerveDriveOdometry visionIndependentOdometry;
 
     //Swerve
     public final SwerveModule frontLeft, frontRight, backLeft, backRight;
@@ -290,7 +287,7 @@ public class RobotContainer {
         };
 
         claw = switch (Constants.Claw.CONTROLLER) {
-            case PID -> Claw.Builder.clawStateSpaceController(
+            case PID -> Claw.Builder.clawPIDController(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,
@@ -302,7 +299,7 @@ public class RobotContainer {
                     elevator::getElevatorSimState,
                     Constants.CURRENT_MODE
             );
-            case STATE_SPACE -> Claw.Builder.clawPIDController(
+            case STATE_SPACE -> Claw.Builder.clawStateSpaceController(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,
@@ -318,11 +315,6 @@ public class RobotContainer {
 
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);
-
-        final Pose2d initialOdometryPose = new Pose2d();
-        visionIndependentOdometry = new SwerveDriveOdometry(
-                kinematics, swerve.getYaw(), swerve.getModulePositions(), initialOdometryPose
-        );
 
 //        holonomicDriveController = new DriveController(
 //                new PIDController(14, 0, 0),
@@ -374,74 +366,63 @@ public class RobotContainer {
 
         photonVision = switch (Constants.CURRENT_MODE) {
             case REAL -> {
-                final List<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal> ioApriltagsReals = List.of(
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        ),
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        ),
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        ),
-                        new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout
-                        )
-                );
-
                 final Map<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
-                        photonVisionIOInputsMap = ioApriltagsReals.stream().collect(Collectors.toMap(
-                        photonVisionIO -> photonVisionIO,
-                        photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
-                ));
+                        photonVisionIOInputsMap =
+                        PhotonVision.makePhotonVisionIOInputsMap(
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout
+                                ),
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
+                                )
+                        );
 
                 yield new PhotonVision<>(
                         new PhotonVisionApriltagsReal(photonVisionIOInputsMap),
                         swerve,
                         swerve.getPoseEstimator(),
-                        ioApriltagsReals
+                        photonVisionIOInputsMap
                 );
             }
             case SIM -> {
                 final VisionSystemSim visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
-                final List<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim> ioApriltagsSims = List.of(
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonFR_Apriltag_F, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        ),
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonFR_Apriltag_R, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        ),
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonFL_Apriltag_L, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        ),
-                        new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
-                                photonBR_Apriltag_B, PhotonVision.apriltagFieldAlwaysBlueLayout, visionSystemSim
-                        )
-                );
                 final Map<PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs>
-                        photonVisionIOInputsMap = ioApriltagsSims.stream().collect(Collectors.toMap(
-                                photonVisionIO -> photonVisionIO,
-                                photonVisionIO -> new PhotonVisionIO.PhotonVisionIOInputs()
-                        ));
+                        photonVisionIOInputsMap =
+                        PhotonVision.makePhotonVisionIOInputsMap(
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout, visionSystemSim
+                                ),
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout, visionSystemSim
+                                ),
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldLayout, visionSystemSim
+                                ),
+                                new PhotonVisionApriltagsSim.PhotonVisionIOApriltagsSim(
+                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldLayout, visionSystemSim
+                                )
+                        );
 
                 yield new PhotonVision<>(
                         new PhotonVisionApriltagsSim(
                                 swerve,
-                                visionIndependentOdometry,
+                                new SwerveDriveOdometry(
+                                        kinematics, swerve.getYaw(), swerve.getModulePositions(), new Pose2d()
+                                ),
                                 PhotonVision.apriltagFieldLayout,
                                 visionSystemSim,
                                 photonVisionIOInputsMap
                         ),
                         swerve,
                         swerve.getPoseEstimator(),
-                        ioApriltagsSims
+                        photonVisionIOInputsMap
                 );
             }
             case REPLAY -> new PhotonVision<>(
                     new PhotonVisionRunner() {},
                     swerve,
                     swerve.getPoseEstimator(),
-                    List.of()
+                    Map.of()
             );
         };
 
@@ -479,9 +460,9 @@ public class RobotContainer {
         autoChooser = new CustomAutoChooser<>(
                 Constants.NetworkTables.AUTO_TABLE,
                 Constants.NetworkTables.AUTO_PUBLISHER,
-                Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER,
-                new AutoOption("DropAndMobility")
+                Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER
         );
+
         //Add paths that are specifically for one competition type here
         autoChooser.addAutoOption(
                 new AutoOption(
@@ -491,7 +472,11 @@ public class RobotContainer {
                         Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addAutoOption(new AutoOption("DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION));
+        autoChooser.addAutoOption(
+                new AutoOption(
+                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
+                )
+        );
         autoChooser.addAutoOption(
                 new AutoOption(
                         "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
@@ -513,9 +498,26 @@ public class RobotContainer {
         autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
         autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
 
+//        autoChooser.addAutoOption(new AutoOption(
+//                "NewMethod3Piece",
+//                List.of(
+//                        new AutoOption.PathNameWithConstraints("NewMethod5"),
+//                        new AutoOption.PathNameWithConstraints(
+//                                "NewMethod4", new TitanTrajectory.Constraints(1, 1)
+//                        ),
+//                        new AutoOption.PathNameWithConstraints("NewMethod2")
+////                        new AutoOption.PathNameWithConstraints("NewMethod3")
+//                ),
+//                Constants.CompetitionType.COMPETITION
+//        ));
+
         autoChooser.addAutoOption(new AutoOption(
                 "NewMethod3Piece",
-                List.of("NewMethod1", "NewMethod2", "NewMethod3"),
+                List.of(
+                        new AutoOption.PathNameWithConstraints("NewMethod1"),
+                        new AutoOption.PathNameWithConstraints("NewMethod2"),
+                        new AutoOption.PathNameWithConstraints("NewMethod3")
+                ),
                 Constants.CompetitionType.COMPETITION
         ));
 

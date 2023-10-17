@@ -8,14 +8,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.gyro.Gyro;
-import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 public class LineUpToGrid extends CommandBase {
     public static final double PAST_CHARGE_STATION_X = 2.3;
     public static final double ALLOW_GRID_LATERAL_MOVEMENT_X = 2.3;
 
     private final Swerve swerve;
-    private final PhotonVision photonVision;
     private final Pose2d targetPose;
 
     private final ProfiledPIDController xController, yController;
@@ -26,11 +24,9 @@ public class LineUpToGrid extends CommandBase {
 
     public LineUpToGrid(
             final Swerve swerve,
-            final PhotonVision photonVision,
             final Pose2d targetPose
     ) {
         this.swerve = swerve;
-        this.photonVision = photonVision;
         this.targetPose = targetPose;
 
         this.xController = new ProfiledPIDController(
@@ -64,7 +60,7 @@ public class LineUpToGrid extends CommandBase {
 
     @Override
     public void initialize() {
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final Pose2d currentPose = swerve.getEstimatedPosition();
         final ChassisSpeeds swerveChassisSpeeds = swerve.getFieldRelativeSpeeds();
 
         this.xController.reset(
@@ -83,7 +79,7 @@ public class LineUpToGrid extends CommandBase {
 
     @Override
     public void execute() {
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final Pose2d currentPose = swerve.getEstimatedPosition();
         final ChassisSpeeds fieldRelativeSpeeds = swerve.getFieldRelativeSpeeds();
 
         final double xCurrent = currentPose.getX();

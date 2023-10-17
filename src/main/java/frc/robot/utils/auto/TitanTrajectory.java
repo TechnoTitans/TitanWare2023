@@ -12,9 +12,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.constants.FieldConstants;
 import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -182,6 +182,15 @@ public class TitanTrajectory extends PathPlannerTrajectory {
             super(maxLinearVelocity, maxLinearAcceleration);
             this.maxAngularVelocity = maxAngularVelocity;
             this.maxAngularAcceleration = maxAngularAcceleration;
+        }
+
+        public Constraints(
+                final double maxLinearVelocity,
+                final double maxLinearAcceleration
+        ) {
+            super(maxLinearVelocity, maxLinearAcceleration);
+            this.maxAngularVelocity = Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED;
+            this.maxAngularAcceleration = Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION;
         }
 
         public static Constraints getDefault() {

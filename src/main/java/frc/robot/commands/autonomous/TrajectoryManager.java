@@ -14,12 +14,13 @@ import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrajectoryManager {
     private final Swerve swerve;
     private final DriveController controller;
     private final DriveToPoseController holdPositionController;
-    private final PhotonVision photonVision;
+    private final PhotonVision<?> photonVision;
 
     private final Claw claw;
     private final Elevator elevator;
@@ -30,7 +31,7 @@ public class TrajectoryManager {
             final Swerve swerve,
             final DriveController controller,
             final DriveToPoseController holdPositionController,
-            final PhotonVision photonVision,
+            final PhotonVision<?> photonVision,
             final Claw claw,
             final Elevator elevator
     ) {
@@ -54,20 +55,26 @@ public class TrajectoryManager {
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(
-            final List<String> paths,
-            final double maxVel,
-            final double maxAccel,
+            final List<AutoOption.PathNameWithConstraints> pathNameWithConstraintsList,
             final boolean reverseTrajectory
     ) {
         final TrajectoryFollower.FollowerContext followerContext =
                 new TrajectoryFollower.FollowerContext(elevator, claw);
 
-        return paths.stream()
+        return pathNameWithConstraintsList.stream()
                 .map(
-                        (path) -> TitanTrajectory.fromPathPlannerTrajectory(
-                                PathPlanner.loadPath(path, maxVel, maxAccel, reverseTrajectory),
-                                followerContext
-                        )
+                        (pathNameWithConstraints) -> {
+                            final TitanTrajectory.Constraints constraints = pathNameWithConstraints.constraints();
+                            return TitanTrajectory.fromPathPlannerTrajectory(
+                                    PathPlanner.loadPath(
+                                            pathNameWithConstraints.name(),
+                                            constraints.maxVelocity,
+                                            constraints.maxAcceleration,
+                                            reverseTrajectory
+                                    ),
+                                    followerContext
+                            );
+                        }
                 )
                 .toList();
     }
@@ -79,7 +86,7 @@ public class TrajectoryManager {
         }
 
         return getTrajectoriesFromPath(
-                autoOption.pathNames(), autoOption.maxVelocity(), autoOption.maxAcceleration(), false
+                autoOption.pathNameWithConstraintsList(), false
         );
     }
 

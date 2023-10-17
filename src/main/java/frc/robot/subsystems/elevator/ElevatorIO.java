@@ -20,6 +20,8 @@ public interface ElevatorIO {
 
         public boolean verticalLimitSwitch = false;
         public boolean horizontalLimitSwitch = false;
+
+        public boolean elevatorsHaveReset = false;
     }
 
     /**
@@ -40,6 +42,12 @@ public interface ElevatorIO {
      * Config call, should only be called once
      */
     default void config() {}
+
+    /**
+     * Called <b>after</b> {@link ElevatorIO#config()}, intended for any initialization that needs to happen post-config
+     * and cannot happen pre-config (i.e. in the constructor)
+     */
+    default void initialize() {}
 
     /**
      * Sets the desired state of the elevator to a supplied {@link SuperstructureStates.ElevatorState}

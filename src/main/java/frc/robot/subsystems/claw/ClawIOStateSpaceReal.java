@@ -7,6 +7,7 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
@@ -44,9 +45,14 @@ public class ClawIOStateSpaceReal implements ClawIO {
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
 
+    // Cached StatusSignals
+    private final StatusSignal<Double> _tiltPosition;
+    private final StatusSignal<Double> _tiltVelocity;
+
     private TrapezoidProfile.State lastProfiledState = new TrapezoidProfile.State();
+    // TODO: tune these trapezoidal constraints
     private final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(
-            Units.degreesToRadians(180),
+            Units.degreesToRadians(260),
             Units.degreesToRadians(360)
     );
 
@@ -86,7 +92,8 @@ public class ClawIOStateSpaceReal implements ClawIO {
         this.clawOpenCloseEncoder = clawOpenCloseEncoder;
         this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
 
-        config();
+        this._tiltPosition = clawTiltEncoder.getAbsolutePosition();
+        this._tiltVelocity = clawTiltEncoder.getVelocity();
 
         this.deltaTime = new DeltaTime();
 
@@ -101,9 +108,9 @@ public class ClawIOStateSpaceReal implements ClawIO {
                 Nat.N1(),
                 tiltPlant,
                 // How accurate we think our model is, in radians and radians/sec
-                VecBuilder.fill(0.015, 0.17),
+                VecBuilder.fill(0.015, 0.1),
                 // How accurate we think our encoder position data is.
-                VecBuilder.fill(0.01),
+                VecBuilder.fill(0.005),
                 Constants.LOOP_PERIOD_SECONDS
         );
 
@@ -114,7 +121,7 @@ public class ClawIOStateSpaceReal implements ClawIO {
                 // Decrease this to more heavily penalize state excursion, or make the controller behave more
                 // aggressively. In this example we weight position much more highly than velocity, but
                 // this can be tuned to balance the two.
-                VecBuilder.fill(Units.degreesToRadians(0.1), Units.degreesToRadians(0.1)),
+                VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(0.01)),
                 // relms.
                 // Control effort (voltage) tolerance.
                 // Decrease this to more heavily penalize control effort, or make the controller less aggressive.
@@ -130,10 +137,17 @@ public class ClawIOStateSpaceReal implements ClawIO {
                 Constants.PDH.BATTERY_NOMINAL_VOLTAGE,
                 Constants.LOOP_PERIOD_SECONDS
         );
+    }
 
+    public double getTiltAbsolutePositionRots() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_tiltPosition, _tiltVelocity);
+    }
+
+    @Override
+    public void initialize() {
         final double tiltEncoderAbsolutePositionRads = Units.rotationsToRadians(getTiltAbsolutePositionRots());
         final double tiltEncoderVelocityRadsPerSec = Units.rotationsToRadians(
-                clawTiltEncoder.getVelocity().refresh().getValue()
+                _tiltVelocity.refresh().getValue()
         );
 
         tiltSystemLoop.reset(VecBuilder.fill(
@@ -144,13 +158,6 @@ public class ClawIOStateSpaceReal implements ClawIO {
         lastProfiledState = new TrapezoidProfile.State(
                 tiltEncoderAbsolutePositionRads,
                 tiltEncoderVelocityRadsPerSec
-        );
-    }
-
-    public double getTiltAbsolutePositionRots() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                clawTiltEncoder.getAbsolutePosition(),
-                clawTiltEncoder.getVelocity()
         );
     }
 
@@ -178,7 +185,7 @@ public class ClawIOStateSpaceReal implements ClawIO {
 
                 tiltSystemLoop.setNextR(lastProfiledState.position, lastProfiledState.velocity);
                 tiltSystemLoop.correct(
-                        VecBuilder.fill(getTiltAbsolutePositionRots())
+                        VecBuilder.fill(Units.rotationsToRadians(getTiltAbsolutePositionRots()))
                 );
                 tiltSystemLoop.predict(dtSeconds);
 
@@ -195,8 +202,8 @@ public class ClawIOStateSpaceReal implements ClawIO {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
-        inputs.tiltEncoderPositionRots = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
-        inputs.tiltEncoderVelocityRotsPerSec = clawTiltEncoder.getVelocity().refresh().getValue();
+        inputs.tiltEncoderPositionRots = _tiltPosition.refresh().getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.refresh().getValue();
         inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
         inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
@@ -260,10 +267,10 @@ public class ClawIOStateSpaceReal implements ClawIO {
 
     @Override
     public void setDesiredState(final SuperstructureStates.ClawState desiredState) {
-        desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
-        clawTiltControlMode = desiredState.getClawTiltControlMode();
-        desiredTiltControlInput = desiredState.getTiltControlInput();
-        openCloseControlMode = desiredState.getClawOpenCloseControlMode();
-        desiredOpenCloseControlInput = desiredState.getOpenCloseControlInput();
+        this.desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
+        this.clawTiltControlMode = desiredState.getClawTiltControlMode();
+        this.desiredTiltControlInput = desiredState.getTiltControlInput();
+        this.openCloseControlMode = desiredState.getClawOpenCloseControlMode();
+        this.desiredOpenCloseControlInput = desiredState.getOpenCloseControlInput();
     }
 }

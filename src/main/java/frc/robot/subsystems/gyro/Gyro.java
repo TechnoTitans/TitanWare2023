@@ -18,12 +18,15 @@ public class Gyro {
         this.gyroIO = gyroIO;
         this.pigeon2 = pigeon2;
         this.inputs = new GyroIOInputsAutoLogged();
-
         this.isReal = Constants.CURRENT_MODE == Constants.RobotMode.REAL;
+
+        this.gyroIO.config();
     }
 
     public void periodic() {
         final double gyroPeriodicUpdateStart = Logger.getInstance().getRealTimestamp();
+
+        gyroIO.periodic();
         gyroIO.updateInputs(inputs);
         Logger.getInstance().processInputs(logKey, inputs);
 

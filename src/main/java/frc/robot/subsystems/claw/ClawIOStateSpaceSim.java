@@ -146,9 +146,10 @@ public class ClawIOStateSpaceSim implements ClawIO {
                 12.0,
                 Constants.LOOP_PERIOD_SECONDS
         );
+    }
 
-        config();
-
+    @Override
+    public void initialize() {
 //        final double tiltEncoderAbsolutePosition = clawTiltEncoder.getAbsolutePosition().refresh().getValue();
 //        final double tiltEncoderVelocity = clawTiltEncoder.getVelocity().refresh().getValue();
 
@@ -226,6 +227,7 @@ public class ClawIOStateSpaceSim implements ClawIO {
         inputs.intakeWheelsPercentOutput = clawMainWheelBag.getMotorOutputPercent();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
         // Bag Motors
@@ -278,10 +280,10 @@ public class ClawIOStateSpaceSim implements ClawIO {
 
     @Override
     public void setDesiredState(final SuperstructureStates.ClawState desiredState) {
-        desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
-        clawTiltControlMode = desiredState.getClawTiltControlMode();
-        desiredTiltControlInput = desiredState.getTiltControlInput();
-        openCloseControlMode = desiredState.getClawOpenCloseControlMode();
-        desiredOpenCloseControlInput = desiredState.getOpenCloseControlInput();
+        this.desiredIntakeWheelsPercentOutput = desiredState.getIntakeWheelsPercentOutput();
+        this.clawTiltControlMode = desiredState.getClawTiltControlMode();
+        this.desiredTiltControlInput = desiredState.getTiltControlInput();
+        this.openCloseControlMode = desiredState.getClawOpenCloseControlMode();
+        this.desiredOpenCloseControlInput = desiredState.getOpenCloseControlInput();
     }
 }

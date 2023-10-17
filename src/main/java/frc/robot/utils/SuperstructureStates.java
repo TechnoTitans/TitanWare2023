@@ -15,6 +15,11 @@ public class SuperstructureStates {
         RETRACTING_Z_MINUS
     }
 
+    public enum HorizontalTransitionMode {
+        EXTENDING_X_PLUS,
+        RETRACTING_X_MINUS
+    }
+
     public static SuperstructureStates.VerticalTransitionMode getVerticalTransitionMode(
             final SuperstructureStates.VerticalElevatorMode verticalElevatorMode,
             final double currentVerticalControl,
@@ -27,6 +32,21 @@ public class SuperstructureStates {
             case DUTY_CYCLE -> nextVerticalControlInput >= 0
                     ? VerticalTransitionMode.EXTENDING_Z_PLUS
                     : VerticalTransitionMode.RETRACTING_Z_MINUS;
+        };
+    }
+
+    public static HorizontalTransitionMode getHorizontalTransitionMode(
+            final HorizontalElevatorMode horizontalElevatorMode,
+            final double currentHorizontalControl,
+            final double nextHorizontalControlInput
+    ) {
+        return switch (horizontalElevatorMode) {
+            case POSITION -> nextHorizontalControlInput >= currentHorizontalControl
+                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
+                    : HorizontalTransitionMode.RETRACTING_X_MINUS;
+            case DUTY_CYCLE -> nextHorizontalControlInput >= 0
+                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
+                    : HorizontalTransitionMode.RETRACTING_X_MINUS;
         };
     }
 
@@ -193,7 +213,7 @@ public class SuperstructureStates {
         CLAW_OUTTAKE(
                 -0.1,
                 ClawTiltControlMode.POSITION,
-                0.295,
+                0.26,
                 ClawOpenCloseControlMode.DUTY_CYCLE,
                 0.2,
                 ElevatorClawStateType.SCORING
@@ -220,7 +240,7 @@ public class SuperstructureStates {
         CLAW_INTAKING_CONE(
                 0.5,
                 ClawTiltControlMode.POSITION,
-                0.3,
+                0.23,
                 ClawOpenCloseControlMode.POSITION,
                 0.024,
                 ElevatorClawStateType.INTAKING

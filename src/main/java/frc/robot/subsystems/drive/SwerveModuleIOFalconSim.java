@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.constants.Constants;
@@ -22,7 +21,8 @@ import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
 import frc.robot.utils.sim.motors.CTREPhoenix6TalonFXSim;
 import frc.robot.wrappers.control.Slot0Configs;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SwerveModuleIOFalconSim implements SwerveModuleIO {
@@ -42,6 +42,20 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     private final PositionVoltage positionVoltage;
 
     private final DeltaTime deltaTime;
+
+    // Cached StatusSignals
+    private final StatusSignal<Double> _drivePosition;
+    private final StatusSignal<Double> _driveVelocity;
+    private final StatusSignal<Double> _driveTorqueCurrent;
+    private final StatusSignal<Double> _driveStatorCurrent;
+    private final StatusSignal<Double> _driveDeviceTemp;
+    private final StatusSignal<Double> _turnPosition;
+    private final StatusSignal<Double> _turnVelocity;
+    private final StatusSignal<Double> _turnTorqueCurrent;
+    private final StatusSignal<Double> _turnStatorCurrent;
+    private final StatusSignal<Double> _turnDeviceTemp;
+
+    @SuppressWarnings("unused")
     private static class StatusSignalQueue extends Thread {
         private static final int DEFAULT_CAPACITY = 8;
         private record StatusSignalMeasurement<T>(
@@ -50,11 +64,8 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                 Timestamp bestTimestamp,
                 AllTimestamps allTimestamps
         ) {
-            private static final Comparator<StatusSignalMeasurement<?>> comparator =
-                    Comparator.comparingDouble(signalMeasurement -> signalMeasurement.bestTimestamp.getTime());
-
             public StatusSignalMeasurement(final StatusSignal<T> signal) {
-                this(signal.getValue(), signal.getStatus(), signal.getTimestamp(), signal.getAllTimestamps());
+                this(signal.getValue(), signal.getError(), signal.getTimestamp(), signal.getAllTimestamps());
             }
 
             public static StatusSignalMeasurement<Double> latencyCompensatedMeasurement(
@@ -63,7 +74,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
             ) {
                 return new StatusSignalMeasurement<>(
                         BaseStatusSignal.getLatencyCompensatedValue(signal, deltaSignal),
-                        signal.getStatus(),
+                        signal.getError(),
                         signal.getTimestamp(),
                         signal.getAllTimestamps()
                 );
@@ -74,8 +85,10 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
 
         private final ReentrantLock signalQueueLock;
         private final List<StatusSignal<?>> statusSignals;
-        private final TalonFX driveMotor;
-        private final CANcoder turnEncoder;
+        private final StatusSignal<Double> drivePosition;
+        private final StatusSignal<Double> driveVelocity;
+        private final StatusSignal<Double> turnPosition;
+        private final StatusSignal<Double> turnVelocity;
 
         private final List<StatusCode> statusCodeBadQueue;
         private final List<StatusSignalMeasurement<Double>> drivePositionSignalQueue;
@@ -83,17 +96,21 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         private final List<StatusSignalMeasurement<Double>> turnPositionSignalQueue;
         private final List<StatusSignalMeasurement<Double>> turnVelocitySignalQueue;
 
-        public StatusSignalQueue(final TalonFX driveMotor, final CANcoder turnEncoder) {
-            super(String.format("StatusSignalQueue@%s.%s", driveMotor.getDeviceID(), turnEncoder.getDeviceID()));
+        public StatusSignalQueue(
+                final StatusSignal<Double> drivePosition,
+                final StatusSignal<Double> driveVelocity,
+                final StatusSignal<Double> turnPosition,
+                final StatusSignal<Double> turnVelocity
+        ) {
+            super();
 
             this.signalQueueLock = new ReentrantLock();
-            this.statusSignals = List.of(
-                    driveMotor.getPosition(), driveMotor.getVelocity(),
-                    turnEncoder.getAbsolutePosition(), turnEncoder.getVelocity()
-            );
+            this.statusSignals = List.of(drivePosition, driveVelocity, turnPosition, turnVelocity);
 
-            this.driveMotor = driveMotor;
-            this.turnEncoder = turnEncoder;
+            this.drivePosition = drivePosition;
+            this.driveVelocity = driveVelocity;
+            this.turnPosition = turnPosition;
+            this.turnVelocity = turnVelocity;
 
             this.statusCodeBadQueue = new ArrayList<>(DEFAULT_CAPACITY);
             this.drivePositionSignalQueue = new ArrayList<>(DEFAULT_CAPACITY);
@@ -121,19 +138,17 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
 
                 signalQueueLock.lock();
                 try {
-                    final StatusSignal<Double> driveVelocitySignal = driveMotor.getVelocity();
                     drivePositionSignalQueue.add(StatusSignalMeasurement.latencyCompensatedMeasurement(
-                            driveMotor.getPosition(),
-                            driveVelocitySignal
+                            drivePosition,
+                            driveVelocity
                     ));
-                    driveVelocitySignalQueue.add(new StatusSignalMeasurement<>(driveVelocitySignal));
+                    driveVelocitySignalQueue.add(new StatusSignalMeasurement<>(driveVelocity));
 
-                    final StatusSignal<Double> turnVelocitySignal = turnEncoder.getVelocity();
                     turnPositionSignalQueue.add(StatusSignalMeasurement.latencyCompensatedMeasurement(
-                            turnEncoder.getAbsolutePosition(),
-                            turnVelocitySignal
+                            turnPosition,
+                            turnVelocity
                     ));
-                    turnVelocitySignalQueue.add(new StatusSignalMeasurement<>(turnVelocitySignal));
+                    turnVelocitySignalQueue.add(new StatusSignalMeasurement<>(turnVelocity));
                 } finally {
                     signalQueueLock.unlock();
                 }
@@ -225,6 +240,17 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         this.positionVoltage = new PositionVoltage(0);
 
         this.deltaTime = new DeltaTime();
+
+        this._drivePosition = driveMotor.getPosition();
+        this._driveVelocity = driveMotor.getVelocity();
+        this._driveTorqueCurrent = driveMotor.getTorqueCurrent();
+        this._driveStatorCurrent = driveMotor.getStatorCurrent();
+        this._driveDeviceTemp = driveMotor.getDeviceTemp();
+        this._turnPosition = turnMotor.getPosition();
+        this._turnVelocity = turnMotor.getVelocity();
+        this._turnTorqueCurrent = turnMotor.getTorqueCurrent();
+        this._turnStatorCurrent = turnMotor.getStatorCurrent();
+        this._turnDeviceTemp = turnMotor.getDeviceTemp();
     }
 
     @Override
@@ -237,18 +263,19 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         // TODO: I think we need to look at VoltageConfigs and/or CurrentLimitConfigs for limiting the
         //  current we can apply in sim, this is cause we use VelocityVoltage in sim instead of VelocityTorqueCurrentFOC
         //  which means that TorqueCurrent.PeakForwardTorqueCurrent and related won't affect it
-        driveTalonFXConfiguration.Slot0 = new Slot0Configs(0, 0, 0, 0.913);
+        driveTalonFXConfiguration.Slot0 = new Slot0Configs(0, 0, 0, 0.973);
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
+        driveTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driveTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
-        turnTalonFXConfiguration.Slot0 = new Slot0Configs(35, 0, 0, 0);
-//        turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
-//        turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
+        turnTalonFXConfiguration.Slot0 = new Slot0Configs(40, 0, 0, 0);
+        turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
+        turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
@@ -270,36 +297,36 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         turnSim.update(dtSeconds);
     }
 
-    @Override
     @SuppressWarnings("DuplicatedCode")
+    @Override
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
         inputs.drivePositionRots = getDrivePosition();
         inputs.driveVelocityRotsPerSec = getDriveVelocity();
-        inputs.driveTorqueCurrentAmps = driveMotor.getTorqueCurrent().refresh().getValue();
-        inputs.driveStatorCurrentAmps = driveMotor.getStatorCurrent().refresh().getValue();
-        inputs.driveTempCelsius = driveMotor.getDeviceTemp().refresh().getValue();
+        inputs.driveTorqueCurrentAmps = _driveTorqueCurrent.refresh().getValue();
+        inputs.driveStatorCurrentAmps = _driveStatorCurrent.refresh().getValue();
+        inputs.driveTempCelsius = _driveDeviceTemp.refresh().getValue();
 
-        inputs.turnAbsolutePositionRots = getAngle().getRotations();
-        inputs.turnVelocityRotsPerSec = turnEncoder.getVelocity().refresh().getValue();
-        inputs.turnTorqueCurrentAmps = turnMotor.getTorqueCurrent().refresh().getValue();
-        inputs.turnStatorCurrentAmps = turnMotor.getStatorCurrent().refresh().getValue();
-        inputs.turnTempCelsius = turnMotor.getDeviceTemp().refresh().getValue();
+        inputs.turnAbsolutePositionRots = getRawAngle();
+        inputs.turnVelocityRotsPerSec = _turnVelocity.refresh().getValue();
+        inputs.turnTorqueCurrentAmps = _turnTorqueCurrent.refresh().getValue();
+        inputs.turnStatorCurrentAmps = _turnStatorCurrent.refresh().getValue();
+        inputs.turnTempCelsius = _turnDeviceTemp.refresh().getValue();
     }
 
-    public Rotation2d getAngle() {
-        return Rotation2d.fromRotations(
-                Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                        turnEncoder.getAbsolutePosition(), turnEncoder.getVelocity()
-                )
-        );
+    /**
+     * Get the measured mechanism (wheel) angle of the {@link SwerveModuleIOFalconSim}, in raw units (rotations)
+     * @return the measured wheel (turner) angle, in rotations
+     */
+    private double getRawAngle() {
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_turnPosition, _turnVelocity);
     }
 
     public double getDrivePosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(driveMotor.getPosition(), driveMotor.getVelocity());
+        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_drivePosition, _driveVelocity);
     }
 
     public double getDriveVelocity() {
-        return driveMotor.getVelocity().refresh().getValue();
+        return _driveVelocity.refresh().getValue();
     }
 
     @Override
@@ -323,7 +350,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                     String.format(
                             "Failed to set NeutralMode on TalonFX %s (%s)",
                             driveMotor.getDeviceID(),
-                            driveMotor.getNetwork()
+                            driveMotor.getCANBus()
                     ), false
             );
             return;

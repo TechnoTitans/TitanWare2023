@@ -3,7 +3,6 @@ package frc.robot.wrappers.sensors.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import frc.robot.constants.Constants;
 import frc.robot.utils.vision.TitanCamera;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;

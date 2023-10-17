@@ -29,7 +29,7 @@ public class Phoenix6Utils {
         final StatusSignal<Double> refreshedSignal = signal.refresh();
         final StatusSignal<Double> refreshedDeltaSignal = deltaSignal.refresh();
 
-        if (refreshedSignal.getStatus().isOK() && refreshedDeltaSignal.getStatus().isOK()) {
+        if (refreshedSignal.getError().isOK() && refreshedDeltaSignal.getError().isOK()) {
             return BaseStatusSignal.getLatencyCompensatedValue(
                     refreshedSignal,
                     refreshedDeltaSignal

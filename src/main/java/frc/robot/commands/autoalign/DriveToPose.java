@@ -9,24 +9,20 @@ import frc.robot.constants.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.utils.control.DriveToPoseController;
-import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 public class DriveToPose extends CommandBase {
     public static final double USE_STOP_MAX_DISTANCE = 1;
 
     private final Swerve swerve;
-    private final PhotonVision photonVision;
     private final Pose2d targetPose;
 
     private final DriveToPoseController controller;
 
     public DriveToPose(
             final Swerve swerve,
-            final PhotonVision photonVision,
             final Pose2d targetPose
     ) {
         this.swerve = swerve;
-        this.photonVision = photonVision;
         this.targetPose = targetPose;
 
         final ProfiledPIDController xController = new ProfiledPIDController(
@@ -62,7 +58,7 @@ public class DriveToPose extends CommandBase {
 
     @Override
     public void initialize() {
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final Pose2d currentPose = swerve.getEstimatedPosition();
         final Gyro gyro = swerve.getGyro();
 
         final double approxDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
@@ -75,7 +71,7 @@ public class DriveToPose extends CommandBase {
 
     @Override
     public void execute() {
-        final Pose2d currentPose = photonVision.getEstimatedPosition();
+        final Pose2d currentPose = swerve.getEstimatedPosition();
         final ChassisSpeeds speeds = controller.calculate(currentPose, targetPose);
 
         swerve.drive(speeds);
