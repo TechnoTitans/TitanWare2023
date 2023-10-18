@@ -72,6 +72,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Map<T, EstimatedRobotPose> lastEstimatedPosesByCamera;
+    private final Map<T, EstimatedRobotPose> lastStableEstimatedPosesByCamera;
 
     private AprilTagFieldLayout.OriginPosition originPosition =
             AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
@@ -88,6 +89,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         this.photonVisionIOInputsMap = photonVisionIOInputsMap;
 
         this.lastEstimatedPosesByCamera = new HashMap<>();
+        this.lastStableEstimatedPosesByCamera = new HashMap<>();
 
         refreshAlliance();
 
@@ -220,27 +222,30 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             final T photonVisionIO = photonVisionIOInputsEntry.getKey();
             final PhotonVisionIO.PhotonVisionIOInputs photonVisionIOInputs = photonVisionIOInputsEntry.getValue();
 
-            final EstimatedRobotPose lastStableEstimatedRobotPose = photonVisionIOInputs.stableEstimatedRobotPose;
+            final EstimatedRobotPose stableEstimatedRobotPose = photonVisionIOInputs.stableEstimatedRobotPose;
             final EstimatedRobotPose estimatedRobotPose = photonVisionIOInputs.estimatedRobotPose;
 
+            // always add the last estimated pose, even if its null, we want to know immediately if a camera
+            // can no longer see a certain tag
+            lastEstimatedPosesByCamera.put(photonVisionIO, estimatedRobotPose);
             if (estimatedRobotPose == null) {
                 // skip the trouble of calling/indexing things if the estimatedRobotPose is null
                 continue;
             }
 
-            final EstimatedRobotPose lastSavedEstimatedPose = lastEstimatedPosesByCamera.get(photonVisionIO);
+            final EstimatedRobotPose lastSavedEstimatedPose = lastStableEstimatedPosesByCamera.get(photonVisionIO);
             final PhotonVision.EstimationRejectionReason rejectionReason =
                     shouldRejectEstimation(lastSavedEstimatedPose, estimatedRobotPose);
 
             Logger.getInstance().recordOutput(
-                    photonLogKey + "RejectionReason", rejectionReason.getId()
+                    photonLogKey + "/RejectionReason", rejectionReason.getId()
             );
 
             if (rejectionReason.wasRejected()) {
                 continue;
             }
 
-            lastEstimatedPosesByCamera.put(photonVisionIO, lastStableEstimatedRobotPose);
+            lastStableEstimatedPosesByCamera.put(photonVisionIO, stableEstimatedRobotPose);
 
             // TODO: get better calibrations on cameras or get better cameras
             poseEstimator.addVisionMeasurement(
@@ -268,7 +273,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             apriltagIds.addAll(ids);
             apriltagPoses.addAll(
                     ids.stream().map(
-                            id -> PhotonVision.apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())
+                            id -> apriltagFieldLayout.getTagPose(id).orElse(new Pose3d())
                     ).toList()
             );
         }

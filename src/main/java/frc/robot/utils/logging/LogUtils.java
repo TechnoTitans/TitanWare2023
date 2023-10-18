@@ -48,7 +48,7 @@ public class LogUtils {
             final PhotonTrackedTarget trackedTarget = estimatedRobotPose.targetsUsed.get(i);
             final Packet packet = trackedTarget.populatePacket(new Packet(packetSize));
 
-            LogUtils.serializePhotonVisionPacket(logTable, "_TargetsUsed_Packet_" + i, packet);
+            LogUtils.serializePhotonVisionPacket(logTable, prefix + "_TargetsUsed_Packet_" + i, packet);
         }
 
         logTable.put(prefix + "_TargetsUsed_Size", targetsUsedSize);
@@ -62,15 +62,15 @@ public class LogUtils {
             return null;
         }
 
-        final Pose3d estimatedPose = LogUtils.deserializePose3d(logTable, "EstimatedRobotPose_EstimatedPose");
-        final double timestampSeconds = logTable.getDouble("EstimatedRobotPose_TimestampSeconds", -1);
+        final Pose3d estimatedPose = LogUtils.deserializePose3d(logTable, prefix + "_EstimatedPose");
+        final double timestampSeconds = logTable.getDouble(prefix + "_TimestampSeconds", -1);
 
         final long targetsUsedSize = logTable.getInteger(prefix + "_TargetsUsed_Size", 0);
         final List<PhotonTrackedTarget> trackedTargets = new ArrayList<>();
 
         for (int i = 0; i < targetsUsedSize; i++) {
             final Packet packet = LogUtils.deserializePhotonVisionPacket(
-                    logTable, "EstimatedRobotPose_TargetsUsed_Packet_" + i
+                    logTable, prefix + "_TargetsUsed_Packet_" + i
             );
 
             final PhotonTrackedTarget trackedTarget = new PhotonTrackedTarget();
