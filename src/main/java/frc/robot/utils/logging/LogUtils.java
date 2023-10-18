@@ -7,7 +7,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import org.littletonrobotics.junction.LogTable;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -79,12 +78,10 @@ public class LogUtils {
             trackedTargets.add(trackedTarget);
         }
 
-        // TODO: this should probably actually get the actual PoseStrategy
         return new EstimatedRobotPose(
                 estimatedPose,
                 timestampSeconds,
-                trackedTargets,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
+                trackedTargets
         );
     }
 

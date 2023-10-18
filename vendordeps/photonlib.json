@@ -2,8 +2,7 @@
   "fileName": "photonlib.json",
   "name": "photonlib",
   "version": "dev-Unknown",
-  "uuid": "515fe07e-bfc6-11fa-b3de-0242ac130004",
-  "frcYear": "2024",
+  "uuid": "515fe07e-bfc6-11fa-b3de-0242ac130004 ",
   "mavenUrls": [
     "https://maven.photonvision.org/repository/internal",
     "https://maven.photonvision.org/repository/snapshots"

@@ -201,4 +201,10 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
                 robotPose.toPose2d().getRotation(), swerve.getModulePositions(), robotPose.toPose2d()
         );
     }
+
+    @Override
+    public void updateApriltagFieldLayout(final AprilTagFieldLayout aprilTagFieldLayout) {
+        visionSystemSim.clearAprilTags();
+        visionSystemSim.addAprilTags(aprilTagFieldLayout);
+    }
 }

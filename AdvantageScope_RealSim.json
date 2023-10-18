@@ -332,6 +332,12 @@
             "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot2d",
             "sourceTypeIndex": 0,
             "sourceType": 5
+          },
+          {
+            "type": "Vision Target",
+            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/ApriltagPose2ds",
+            "sourceTypeIndex": 0,
+            "sourceType": 5
           }
         ]
       ],
@@ -343,7 +349,7 @@
         "size": 0.75,
         "allianceBumpers": "auto",
         "allianceOrigin": "auto",
-        "orientation": "red bottom, blue top"
+        "orientation": "blue left, red right"
       },
       "title": "Odometry"
     }

@@ -342,8 +342,10 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
     }
 
     public void setRobotOriginPosition(final AprilTagFieldLayout.OriginPosition robotOriginPosition) {
-        apriltagFieldLayout.setOrigin(robotOriginPosition);
         this.originPosition = robotOriginPosition;
+
+        apriltagFieldLayout.setOrigin(robotOriginPosition);
+        runner.updateApriltagFieldLayout(apriltagFieldLayout);
     }
 
     public Pose2d getEstimatedPosition() {
