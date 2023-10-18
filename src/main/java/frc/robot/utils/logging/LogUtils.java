@@ -78,7 +78,11 @@ public class LogUtils {
             trackedTargets.add(trackedTarget);
         }
 
-        return new EstimatedRobotPose(estimatedPose, timestampSeconds, trackedTargets);
+        return new EstimatedRobotPose(
+                estimatedPose,
+                timestampSeconds,
+                trackedTargets
+        );
     }
 
     public static void serializePhotonVisionPacket(final LogTable logTable, final String prefix, final Packet packet) {
