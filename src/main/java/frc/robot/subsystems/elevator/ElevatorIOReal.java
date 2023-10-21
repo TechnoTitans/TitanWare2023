@@ -275,8 +275,10 @@ public class ElevatorIOReal implements ElevatorIO {
 
         inputs.horizontalEncoderPositionRots = getHEPosition();
         inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.refresh().getValue();
+        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getOutputCurrent();
         inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
         inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getMotorTemperature();
+
 
         inputs.verticalLimitSwitch = verticalElevatorLimitSwitch.get();
         inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitch.get();

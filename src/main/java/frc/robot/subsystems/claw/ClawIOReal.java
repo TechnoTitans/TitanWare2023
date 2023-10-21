@@ -154,7 +154,7 @@ public class ClawIOReal implements ClawIO {
         clawOpenCloseEncoderConfig.sensorDirection = false;
         clawOpenCloseEncoderConfig.sensorCoefficient = Constants.CTRE.PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS;
         clawOpenCloseEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        clawOpenCloseEncoderConfig.magnetOffsetDegrees = -Units.rotationsToDegrees(0.19);
+        clawOpenCloseEncoderConfig.magnetOffsetDegrees = -Units.rotationsToDegrees(-0.28);
 
         clawOpenCloseEncoder.configFactoryDefault();
         clawOpenCloseEncoder.configAllSettings(clawOpenCloseEncoderConfig);
