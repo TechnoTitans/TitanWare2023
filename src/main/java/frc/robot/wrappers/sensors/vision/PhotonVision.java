@@ -249,7 +249,11 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
 
             // TODO: get better calibrations on cameras or get better cameras
             poseEstimator.addVisionMeasurement(
-                    estimatedRobotPose.estimatedPose.toPose2d(),
+//                    estimatedRobotPose.estimatedPose.toPose2d(),
+                    new Pose2d(
+                            estimatedRobotPose.estimatedPose.getTranslation().toTranslation2d(),
+                            swerve.getYaw()
+                    ),
                     estimatedRobotPose.timestampSeconds
             );
         }
@@ -260,7 +264,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         final List<Pose3d> estimatedPoses = new ArrayList<>();
         final List<Pose3d> apriltagPoses = new ArrayList<>();
 
-        for (final EstimatedRobotPose estimatedRobotPose : lastEstimatedPosesByCamera.values()) {
+        for (final EstimatedRobotPose estimatedRobotPose : lastStableEstimatedPosesByCamera.values()) {
             if (estimatedRobotPose == null) {
                 continue;
             }

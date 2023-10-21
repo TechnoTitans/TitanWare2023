@@ -11,7 +11,7 @@ public enum TitanCamera {
             new Transform3d(),
             true
     ),
-    PHOTON_FR_APRILTAG_F(
+    PHOTON_FR_Apriltag_F(
             RobotMap.PhotonVision_FR_Apriltag_F,
             Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F
 //            CameraProperties.SPINEL_UC10MPC_ND_OV9281,

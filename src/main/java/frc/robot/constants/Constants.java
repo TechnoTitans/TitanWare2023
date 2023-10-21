@@ -150,7 +150,7 @@ public interface Constants {
          * Standard deviations of the supplied pose estimate (before vision, likely to be solely wheel odometry)
          */
         Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1);
-        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(1, 1, 1);
+        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.5, 0.5, 0.5);
         double MULTI_TAG_MAX_AMBIGUITY = 0.3;
         double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
     }

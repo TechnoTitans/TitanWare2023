@@ -355,7 +355,7 @@ public class RobotContainer {
 
         //Vision
         photonDriveCamera = TitanCamera.DRIVER_CAM;
-        photonFR_Apriltag_F = TitanCamera.PHOTON_FR_APRILTAG_F;
+        photonFR_Apriltag_F = TitanCamera.PHOTON_FR_Apriltag_F;
         photonFR_Apriltag_R = TitanCamera.PHOTON_FR_Apriltag_R;
         photonFL_Apriltag_L = TitanCamera.PHOTON_FL_Apriltag_L;
         photonBR_Apriltag_B = TitanCamera.PHOTON_BR_Apriltag_B;
@@ -368,8 +368,14 @@ public class RobotContainer {
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
                                         photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout
                                 ),
+//                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+//                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
+//                                ),
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
+                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldLayout
+                                ),
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldLayout
                                 )
                         );
 
@@ -460,6 +466,8 @@ public class RobotContainer {
         autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
         autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
 
+        autoChooser.addAutoOption(new AutoOption("2Cube1Cone", Constants.CompetitionType.COMPETITION));
+
 //        autoChooser.addAutoOption(new AutoOption(
 //                "NewMethod3Piece",
 //                List.of(
@@ -479,6 +487,18 @@ public class RobotContainer {
                         new AutoOption.PathNameWithConstraints("NewMethod1"),
                         new AutoOption.PathNameWithConstraints("NewMethod2"),
                         new AutoOption.PathNameWithConstraints("NewMethod3")
+                ),
+                Constants.CompetitionType.COMPETITION
+        ));
+
+        autoChooser.addAutoOption(new AutoOption(
+                "OtherMethod3Piece",
+                List.of(
+                        new AutoOption.PathNameWithConstraints("OtherMethod1"),
+                        new AutoOption.PathNameWithConstraints(
+                                "OtherMethod2",
+                                new TitanTrajectory.Constraints(1, 1)
+                        )
                 ),
                 Constants.CompetitionType.COMPETITION
         ));

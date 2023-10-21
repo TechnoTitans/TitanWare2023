@@ -27,7 +27,6 @@ import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final ElevatorSimSolver elevatorSimSolver;
@@ -260,6 +259,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.horizontalEncoderPositionRots = getHEPosition();
         inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.refresh().getValue();
+        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getOutputCurrent();
         inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
         inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getMotorTemperature();
 

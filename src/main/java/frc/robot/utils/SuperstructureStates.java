@@ -240,7 +240,7 @@ public class SuperstructureStates {
         CLAW_INTAKING_CONE(
                 0.5,
                 ClawTiltControlMode.POSITION,
-                0.23,
+                0.29,
                 ClawOpenCloseControlMode.POSITION,
                 0.024,
                 ElevatorClawStateType.INTAKING
@@ -249,7 +249,7 @@ public class SuperstructureStates {
         CLAW_INTAKING_CUBE(
                 0.5,
                 ClawTiltControlMode.POSITION,
-                0.3,
+                0.29,
                 ClawOpenCloseControlMode.POSITION,
                 0.171,
                 ElevatorClawStateType.INTAKING
@@ -309,7 +309,7 @@ public class SuperstructureStates {
         CLAW_ANGLE_CUBE(
                 0.6,
                 ClawTiltControlMode.POSITION,
-                0.4,
+                0.38,
                 ClawOpenCloseControlMode.POSITION,
                 0.171,
                 ElevatorClawStateType.INTAKING
