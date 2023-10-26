@@ -5,8 +5,10 @@ import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import frc.robot.constants.Constants;
 import org.littletonrobotics.junction.LogTable;
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -52,20 +54,21 @@ public class LogUtils {
         }
 
         logTable.put(prefix + "_TargetsUsed_Size", targetsUsedSize);
+        logTable.put(prefix + "_Strategy", estimatedRobotPose.strategy.toString());
     }
 
     public static EstimatedRobotPose deserializePhotonVisionEstimatedRobotPose(
             final LogTable logTable,
             final String prefix
     ) {
-        if (logTable.getBoolean(prefix + "_IsNull", true)) {
+        if (logTable.get(prefix + "_IsNull", true)) {
             return null;
         }
 
         final Pose3d estimatedPose = LogUtils.deserializePose3d(logTable, prefix + "_EstimatedPose");
-        final double timestampSeconds = logTable.getDouble(prefix + "_TimestampSeconds", -1);
+        final double timestampSeconds = logTable.get(prefix + "_TimestampSeconds", -1);
 
-        final long targetsUsedSize = logTable.getInteger(prefix + "_TargetsUsed_Size", 0);
+        final long targetsUsedSize = logTable.get(prefix + "_TargetsUsed_Size", 0);
         final List<PhotonTrackedTarget> trackedTargets = new ArrayList<>();
 
         for (int i = 0; i < targetsUsedSize; i++) {
@@ -78,10 +81,15 @@ public class LogUtils {
             trackedTargets.add(trackedTarget);
         }
 
+        final String strategyString =
+                logTable.get(prefix + "_Strategy", Constants.Vision.MULTI_TAG_POSE_STRATEGY.toString());
+        final PhotonPoseEstimator.PoseStrategy strategy = PhotonPoseEstimator.PoseStrategy.valueOf(strategyString);
+
         return new EstimatedRobotPose(
                 estimatedPose,
                 timestampSeconds,
-                trackedTargets
+                trackedTargets,
+                strategy
         );
     }
 
@@ -90,31 +98,39 @@ public class LogUtils {
     }
 
     public static Packet deserializePhotonVisionPacket(final LogTable logTable, final String prefix) {
-        return new Packet(logTable.getRaw(prefix + "_packetData", new byte[] {}));
+        return new Packet(logTable.get(prefix + "_packetData", new byte[] {}));
     }
 
     public static void serializePose3d(final LogTable logTable, final String prefix, final Pose3d pose3d) {
-        logTable.put(prefix + "_Pose3d_x", pose3d.getX());
-        logTable.put(prefix + "_Pose3d_y", pose3d.getY());
-        logTable.put(prefix + "_Pose3d_z", pose3d.getZ());
-        logTable.put(prefix + "_Pose3d_rw", pose3d.getRotation().getQuaternion().getW());
-        logTable.put(prefix + "_Pose3d_rx", pose3d.getRotation().getQuaternion().getX());
-        logTable.put(prefix + "_Pose3d_ry", pose3d.getRotation().getQuaternion().getY());
-        logTable.put(prefix + "_Pose3d_rz", pose3d.getRotation().getQuaternion().getZ());
+        if (Constants.NetworkTables.USE_STRUCT_AND_PROTOBUF) {
+            logTable.put(prefix + "_Pose3d", pose3d);
+        } else {
+            logTable.put(prefix + "_Pose3d_x", pose3d.getX());
+            logTable.put(prefix + "_Pose3d_y", pose3d.getY());
+            logTable.put(prefix + "_Pose3d_z", pose3d.getZ());
+            logTable.put(prefix + "_Pose3d_rw", pose3d.getRotation().getQuaternion().getW());
+            logTable.put(prefix + "_Pose3d_rx", pose3d.getRotation().getQuaternion().getX());
+            logTable.put(prefix + "_Pose3d_ry", pose3d.getRotation().getQuaternion().getY());
+            logTable.put(prefix + "_Pose3d_rz", pose3d.getRotation().getQuaternion().getZ());
+        }
     }
 
     public static Pose3d deserializePose3d(final LogTable logTable, final String prefix) {
-        return new Pose3d(
-                logTable.getDouble(prefix + "_Pose3d_x", 0),
-                logTable.getDouble(prefix + "_Pose3d_y", 0),
-                logTable.getDouble(prefix + "_Pose3d_z", 0),
-                new Rotation3d(new Quaternion(
-                        logTable.getDouble(prefix + "_Pose3d_rw", 1),
-                        logTable.getDouble(prefix + "_Pose3d_rx", 0),
-                        logTable.getDouble(prefix + "_Pose3d_ry", 0),
-                        logTable.getDouble(prefix + "_Pose3d_rz", 0)
-                ))
-        );
+        if (Constants.NetworkTables.USE_STRUCT_AND_PROTOBUF) {
+            return logTable.get(prefix + "_Pose3d", new Pose3d());
+        } else {
+            return new Pose3d(
+                    logTable.get(prefix + "_Pose3d_x", 0),
+                    logTable.get(prefix + "_Pose3d_y", 0),
+                    logTable.get(prefix + "_Pose3d_z", 0),
+                    new Rotation3d(new Quaternion(
+                            logTable.get(prefix + "_Pose3d_rw", 1),
+                            logTable.get(prefix + "_Pose3d_rx", 0),
+                            logTable.get(prefix + "_Pose3d_ry", 0),
+                            logTable.get(prefix + "_Pose3d_rz", 0)
+                    ))
+            );
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
     RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
@@ -65,6 +66,8 @@ public interface Constants {
         String PROFILE_TABLE = "ProfileSelector";
         String PROFILE_PUBLISHER = "ProfileOptions";
         String PROFILE_SELECTED_SUBSCRIBER = "SelectedProfile";
+
+        boolean USE_STRUCT_AND_PROTOBUF = true;
     }
 
     interface PathPlanner {
@@ -125,6 +128,9 @@ public interface Constants {
     }
 
     interface Vision {
+        PhotonPoseEstimator.PoseStrategy MULTI_TAG_POSE_STRATEGY =
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+
         //L = Left, R = Right, F = Forward, B = Backward (Facing)
         Transform3d ROBOT_TO_FR_APRILTAG_CAM_R = new Transform3d(
                 new Translation3d(Units.inchesToMeters(13.449), Units.inchesToMeters(-13.762), Units.inchesToMeters(7.922)),

@@ -42,7 +42,7 @@ public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
 
             this.poseEstimator = new PhotonPoseEstimator(
                     blueSideApriltagFieldLayout,
-                    PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP,
+                    Constants.Vision.MULTI_TAG_POSE_STRATEGY,
                     photonCamera,
                     titanCamera.getRobotRelativeToCameraTransform()
             );
@@ -150,7 +150,7 @@ public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
             ioApriltagsSim.periodic();
             ioApriltagsSim.updateInputs(ioInputs);
 
-            Logger.getInstance().processInputs(
+            Logger.processInputs(
                     String.format("%s/%s", PhotonVision.photonLogKey, ioApriltagsSim.logKey),
                     ioInputs
             );

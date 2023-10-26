@@ -17,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -38,10 +38,10 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         try {
             layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
             alwaysBlueLayout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
-        } catch (IOException ioException) {
+        } catch (final UncheckedIOException uncheckedIOException) {
             layout = null;
             alwaysBlueLayout = null;
-            DriverStation.reportError("Failed to load AprilTagFieldLayout", ioException.getStackTrace());
+            DriverStation.reportError("Failed to load AprilTagFieldLayout", uncheckedIOException.getStackTrace());
         }
 
         apriltagFieldLayout = layout;
@@ -100,7 +100,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
     public static AprilTagFieldLayout.OriginPosition allianceToOrigin(final DriverStation.Alliance alliance) {
         return switch (alliance) {
             case Red -> AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide;
-            case Blue, Invalid -> AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
+            case Blue -> AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
         };
     }
 
@@ -109,7 +109,8 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             final Consumer<AprilTagFieldLayout.OriginPosition> onAllianceChanged,
             final Consumer<AprilTagFieldLayout.OriginPosition> onRefreshed
     ) {
-        final AprilTagFieldLayout.OriginPosition newOriginPosition = allianceToOrigin(DriverStation.getAlliance());
+        final DriverStation.Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+        final AprilTagFieldLayout.OriginPosition newOriginPosition = allianceToOrigin(alliance);
         if (robotOriginPosition != newOriginPosition) {
             onAllianceChanged.accept(newOriginPosition);
         }
@@ -196,10 +197,10 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         final double thetaVel = twist2dToNewEstimation.dtheta / secondsSinceLastUpdate;
         final double translationVel = Math.hypot(xVel, yVel);
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 photonLogKey + "/TranslationVel", translationVel
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 photonLogKey + "/ThetaVel", thetaVel
         );
 
@@ -237,7 +238,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             final PhotonVision.EstimationRejectionReason rejectionReason =
                     shouldRejectEstimation(lastSavedEstimatedPose, estimatedRobotPose);
 
-            Logger.getInstance().recordOutput(
+            Logger.recordOutput(
                     photonLogKey + "/RejectionReason", rejectionReason.getId()
             );
 
@@ -278,27 +279,27 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             );
         }
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 PhotonVision.photonLogKey + "/EstimatedRobotPose3dsByCamera",
                 estimatedPoses.toArray(Pose3d[]::new)
         );
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 PhotonVision.photonLogKey + "/EstimatedRobotPose2dsByCamera",
                 estimatedPoses.stream().map(Pose3d::toPose2d).toArray(Pose2d[]::new)
         );
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 PhotonVision.photonLogKey + "/ApriltagIds",
                 apriltagIds.stream().mapToLong(Number::longValue).toArray()
         );
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 PhotonVision.photonLogKey + "/ApriltagPose3ds",
                 apriltagPoses.toArray(Pose3d[]::new)
         );
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 PhotonVision.photonLogKey + "/ApriltagPose2ds",
                 apriltagPoses.stream().map(Pose3d::toPose2d).toArray(Pose2d[]::new)
         );

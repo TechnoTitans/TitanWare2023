@@ -1,15 +1,15 @@
 package frc.robot.wrappers.sensors.vision;
 
+import frc.robot.constants.Constants;
 import frc.robot.utils.logging.LogUtils;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonPoseEstimator;
 
 public interface PhotonVisionIO {
     class PhotonVisionIOInputs implements LoggableInputs {
         public double[] pipelineResultTargets = new double[] {};
-        public String primaryStrategy = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP.toString();
+        public String primaryStrategy = Constants.Vision.MULTI_TAG_POSE_STRATEGY.toString();
         public EstimatedRobotPose estimatedRobotPose;
         public EstimatedRobotPose stableEstimatedRobotPose;
 
@@ -28,9 +28,9 @@ public interface PhotonVisionIO {
 
         @Override
         public void fromLog(LogTable table) {
-            this.pipelineResultTargets = table.getDoubleArray("PipelineResultTargets", new double[] {});
-            this.primaryStrategy = table.getString(
-                    "PrimaryStrategy", PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP.toString()
+            this.pipelineResultTargets = table.get("PipelineResultTargets", new double[] {});
+            this.primaryStrategy = table.get(
+                    "PrimaryStrategy", Constants.Vision.MULTI_TAG_POSE_STRATEGY.toString()
             );
 
             this.estimatedRobotPose =
