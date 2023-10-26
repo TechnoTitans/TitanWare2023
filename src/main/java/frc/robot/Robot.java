@@ -6,10 +6,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.TitanBoard;
+import frc.robot.utils.auto.MarkerCommand;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
@@ -99,6 +101,11 @@ public class Robot extends LoggedRobot {
         }
 
         robotContainer = new RobotContainer();
+
+        MarkerCommand.setupPathPlannerNamedCommands(new TrajectoryFollower.FollowerContext(
+                robotContainer.elevator, robotContainer.claw, robotContainer.swerve.getFieldRelativeSpeeds())
+        );
+
         // precompute MarkerCommands from registered options on the auto chooser
         robotContainer.trajectoryManager.precomputeMarkerCommands(
                 robotContainer.autoChooser.getRegisteredOptions()

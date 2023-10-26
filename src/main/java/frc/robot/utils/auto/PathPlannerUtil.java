@@ -13,7 +13,7 @@ import java.util.List;
 public class PathPlannerUtil {
     public static List<File> getAllPathPlannerPaths() {
         final File[] pathPlannerPaths = new File(
-                Filesystem.getDeployDirectory().toPath().resolve("pathplanner").toString()
+                Filesystem.getDeployDirectory().toPath().resolve("pathplanner/paths").toString()
         ).listFiles();
 
         if (pathPlannerPaths == null || pathPlannerPaths.length == 0) {
