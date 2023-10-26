@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -29,7 +29,7 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.EnumSet;
 
-public class TrajectoryAutoAlignment extends CommandBase {
+public class TrajectoryAutoAlignment extends Command {
     protected static final String logKey = "AutoAlign";
 
     private static NTGridNode SelectedNTGridNode = NTGridNode.UNKNOWN;

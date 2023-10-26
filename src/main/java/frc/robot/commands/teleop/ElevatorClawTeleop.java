@@ -1,6 +1,6 @@
 package frc.robot.commands.teleop;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -12,7 +12,7 @@ import frc.robot.utils.teleop.ElevatorClawCommand;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ElevatorClawTeleop extends CommandBase {
+public class ElevatorClawTeleop extends Command {
     private static final Map<Trigger, ElevatorClawCommand> controllerMappings = new HashMap<>();
 
     private final Elevator elevator;

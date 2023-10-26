@@ -15,7 +15,7 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
         super(commands);
     }
 
-    public static class CancelSequentialCommand extends CommandBase {
+    public static class CancelSequentialCommand extends Command {
         private final BooleanSupplier condition;
         private SequentialCommandGroup toCancelCommand;
 

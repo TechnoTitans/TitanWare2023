@@ -4,6 +4,7 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -170,27 +171,30 @@ public class TitanTrajectory extends PathPlannerTrajectory {
     }
 
     public static class Constraints extends PathConstraints {
-        public final double maxAngularVelocity;
-        public final double maxAngularAcceleration;
-
         public Constraints(
                 final double maxLinearVelocity,
                 final double maxLinearAcceleration,
                 final double maxAngularVelocity,
                 final double maxAngularAcceleration
         ) {
-            super(maxLinearVelocity, maxLinearAcceleration);
-            this.maxAngularVelocity = maxAngularVelocity;
-            this.maxAngularAcceleration = maxAngularAcceleration;
+            super(
+                    maxLinearVelocity,
+                    maxLinearAcceleration,
+                    maxAngularVelocity,
+                    maxAngularAcceleration
+            );
         }
 
         public Constraints(
                 final double maxLinearVelocity,
                 final double maxLinearAcceleration
         ) {
-            super(maxLinearVelocity, maxLinearAcceleration);
-            this.maxAngularVelocity = Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED;
-            this.maxAngularAcceleration = Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION;
+            this(
+                    maxLinearVelocity,
+                    maxLinearAcceleration,
+                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_SPEED,
+                    Constants.Swerve.TRAJECTORY_MAX_ANGULAR_ACCELERATION
+            );
         }
 
         public static Constraints getDefault() {

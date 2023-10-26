@@ -4,12 +4,12 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.gyro.Gyro;
 
-public class LineUpToGrid extends CommandBase {
+public class LineUpToGrid extends Command {
     public static final double PAST_CHARGE_STATION_X = 2.3;
     public static final double ALLOW_GRID_LATERAL_MOVEMENT_X = 2.3;
 

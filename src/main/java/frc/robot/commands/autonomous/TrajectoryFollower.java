@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.claw.Claw;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-public class TrajectoryFollower extends CommandBase {
+public class TrajectoryFollower extends Command {
     //TODO: this max value need to be tuned/verified (will depend on how well our auto pid is)
     public static final double MAX_DISTANCE_DIFF_METERS = 0.3;
     public static boolean HAS_AUTO_RAN = false;

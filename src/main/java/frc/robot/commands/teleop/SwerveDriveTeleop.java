@@ -4,14 +4,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.teleop.ControllerUtils;
 
-public class SwerveDriveTeleop extends CommandBase {
+public class SwerveDriveTeleop extends Command {
     private final Swerve swerve;
     private final Elevator elevator;
     private final XboxController controller;

@@ -1,6 +1,5 @@
 package frc.robot.commands.autonomous;
 
-import com.pathplanner.lib.PathPlanner;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.claw.Claw;
@@ -14,7 +13,6 @@ import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TrajectoryManager {
     private final Swerve swerve;

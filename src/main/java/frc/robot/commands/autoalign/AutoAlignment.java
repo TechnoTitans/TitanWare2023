@@ -6,7 +6,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.drive.Swerve;
@@ -15,7 +15,7 @@ import frc.robot.utils.alignment.AlignmentZone;
 import frc.robot.utils.teleop.ControllerUtils;
 import org.littletonrobotics.junction.Logger;
 
-public class AutoAlignment extends CommandBase {
+public class AutoAlignment extends Command {
     private final Swerve swerve;
     private final XboxController mainController;
     private final ProfiledPIDController alignPIDController;

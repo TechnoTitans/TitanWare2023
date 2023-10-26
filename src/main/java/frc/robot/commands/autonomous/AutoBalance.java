@@ -1,10 +1,10 @@
 package frc.robot.commands.autonomous;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.Swerve;
 
 @SuppressWarnings({"unused", "RedundantMethodOverride", "FieldCanBeLocal"})
-public class AutoBalance extends CommandBase {
+public class AutoBalance extends Command {
     //TODO: this all needs to be redone/done
     // do we even need AutoBalance? if so, it better be good
     private final Swerve swerve;
