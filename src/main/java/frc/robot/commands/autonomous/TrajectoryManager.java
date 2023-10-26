@@ -1,5 +1,8 @@
 package frc.robot.commands.autonomous;
 
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.claw.Claw;
@@ -11,6 +14,7 @@ import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -53,28 +57,35 @@ public class TrajectoryManager {
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(
-            final List<AutoOption.PathNameWithConstraints> pathNameWithConstraintsList,
-            final boolean reverseTrajectory
+            final List<AutoOption.PathNameWithConstraints> pathNameWithConstraintsList
     ) {
-        final TrajectoryFollower.FollowerContext followerContext =
-                new TrajectoryFollower.FollowerContext(elevator, claw);
+        final List<TitanTrajectory> titanTrajectories = new ArrayList<>(pathNameWithConstraintsList.size());
+        ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
-        return pathNameWithConstraintsList.stream()
-                .map(
-                        (pathNameWithConstraints) -> {
-                            final TitanTrajectory.Constraints constraints = pathNameWithConstraints.constraints();
-                            return TitanTrajectory.fromPathPlannerTrajectory(
-                                    PathPlanner.loadPath(
-                                            pathNameWithConstraints.name(),
-                                            constraints.maxVelocity,
-                                            constraints.maxAcceleration,
-                                            reverseTrajectory
-                                    ),
-                                    followerContext
-                            );
-                        }
-                )
-                .toList();
+        for (final AutoOption.PathNameWithConstraints pathNameWithConstraints : pathNameWithConstraintsList) {
+//            final TitanTrajectory.Constraints constraints = pathNameWithConstraints.constraints();
+            final TrajectoryFollower.FollowerContext followerContext =
+                    new TrajectoryFollower.FollowerContext(elevator, claw, lastChassisSpeeds);
+
+            final TitanTrajectory titanTrajectory = TitanTrajectory.fromPathPlannerPath(
+                    PathPlannerPath.fromPathFile(pathNameWithConstraints.name()),
+                    followerContext
+            );
+
+            final PathPlannerTrajectory.State endState = titanTrajectory.getEndState();
+            lastChassisSpeeds = new ChassisSpeeds(
+                    endState.heading.getCos() * endState.velocityMps,
+                    endState.heading.getSin() * endState.velocityMps,
+                    endState.headingAngularVelocityRps
+            );
+
+            titanTrajectories.add(TitanTrajectory.fromPathPlannerPath(
+                    PathPlannerPath.fromPathFile(pathNameWithConstraints.name()),
+                    followerContext
+            ));
+        }
+
+        return titanTrajectories;
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(final AutoOption autoOption) {
@@ -84,7 +95,7 @@ public class TrajectoryManager {
         }
 
         return getTrajectoriesFromPath(
-                autoOption.pathNameWithConstraintsList(), false
+                autoOption.pathNameWithConstraintsList()
         );
     }
 

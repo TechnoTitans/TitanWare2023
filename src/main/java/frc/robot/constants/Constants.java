@@ -143,13 +143,13 @@ public interface Constants {
         );
 
         Transform3d ROBOT_TO_FL_APRILTAG_CAM_L = new Transform3d(
-                new Translation3d(Units.inchesToMeters(12.78474), Units.inchesToMeters(13.52291), Units.inchesToMeters(9.43904)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(120))
+                new Translation3d(Units.inchesToMeters(11.93), Units.inchesToMeters(12.45), Units.inchesToMeters(9.4)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(145.93))
         );
 
         Transform3d ROBOT_TO_BR_APRILTAG_CAM_B = new Transform3d(
-                new Translation3d(Units.inchesToMeters(-11.87298), Units.inchesToMeters(-11.36695), Units.inchesToMeters(9.151)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(205))
+                new Translation3d(Units.inchesToMeters(-11.78), Units.inchesToMeters(-11.22), Units.inchesToMeters(10.17)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(244.2))
         );
 
         /**

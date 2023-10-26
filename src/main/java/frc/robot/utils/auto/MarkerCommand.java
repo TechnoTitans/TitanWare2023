@@ -1,5 +1,6 @@
 package frc.robot.utils.auto;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -9,10 +10,7 @@ import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.alignment.GridNode;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -107,20 +105,6 @@ public enum MarkerCommand {
                     )
             ))
     ),
-    WAIT(
-            "wait",
-            List.of(ArgumentChecker.doubleChecker()),
-            ((followerContext, args) -> Commands.waitSeconds(Double.parseDouble(args.get(0))))
-    ),
-    // TODO: this messes with the PathPlanner computed time, causing it not to work properly
-    //  either fix it or remove this
-    HOLD_VELOCITY(
-            "holdvel",
-            List.of(ArgumentChecker.doubleChecker()),
-            ((followerContext, args) -> Commands.runOnce(
-                    () -> followerContext.setModuleMaxSpeed(Double.parseDouble(args.get(0)))
-            ))
-    ),
     WHEEL_X(
             "wheelx",
             List.of(ArgumentChecker.booleanChecker()),
@@ -145,10 +129,10 @@ public enum MarkerCommand {
     private final BiFunction<TrajectoryFollower.FollowerContext, List<String>, Command> commandFunction;
 
     private static final Map<String, MarkerCommand> markerCommandMap = Arrays.stream(values())
-                    .collect(Collectors.toUnmodifiableMap(
-                            MarkerCommand::getName,
-                            markerCommand -> markerCommand
-                    ));
+            .collect(Collectors.toUnmodifiableMap(
+                    MarkerCommand::getName,
+                    markerCommand -> markerCommand
+            ));
 
     MarkerCommand(
             final String name,
@@ -161,6 +145,29 @@ public enum MarkerCommand {
         this.commandFunction = commandFunction;
     }
 
+    public static void setupPathPlannerNamedCommands(final TrajectoryFollower.FollowerContext followerContext) {
+        for (final Map.Entry<String, MarkerCommand> markerCommandEntry : markerCommandMap.entrySet()) {
+            final String markerCommandName = markerCommandEntry.getKey();
+            final MarkerCommand markerCommand = markerCommandEntry.getValue();
+
+            final Set<List<String>> argumentCombinations =
+                    ArgumentChecker.cartesianProduct(markerCommand.argumentCheckers);
+
+            for (final List<String> args : argumentCombinations) {
+                final StringBuilder builder = new StringBuilder(markerCommandName);
+                for (final String arg : args) {
+                    builder.append(ARGS_DELIMITER);
+                    builder.append(arg);
+                }
+
+                NamedCommands.registerCommand(
+                        builder.toString(),
+                        markerCommand.command(followerContext, args)
+                );
+            }
+        }
+    }
+
     public static Command get(final String stringCommand, final TrajectoryFollower.FollowerContext followerContext) {
         final String[] args = stringCommand.split(ARGS_DELIMITER);
         if (args.length < 1) {
@@ -169,7 +176,7 @@ public enum MarkerCommand {
 
         final MarkerCommand markerCommand = markerCommandMap.get(args[0]);
         return markerCommand != null
-                ? markerCommand.command(followerContext, Arrays.stream(args).toList())
+                ? markerCommand.command(followerContext, Arrays.stream(args).toList().subList(1, args.length))
                 : Commands.none();
     }
 
@@ -186,8 +193,7 @@ public enum MarkerCommand {
         }
     }
 
-    public Command command(final TrajectoryFollower.FollowerContext followerContext, final List<String> argsWithName) {
-        final List<String> args = argsWithName.subList(1, argsWithName.size());
+    public Command command(final TrajectoryFollower.FollowerContext followerContext, final List<String> args) {
         final int providedArgCount = args.size();
         if (providedArgCount != argCount) {
             reportArgumentMismatch(new ArgumentMismatchException(argCount, providedArgCount));
@@ -208,7 +214,7 @@ public enum MarkerCommand {
             }
         }
 
-        return commandFunction.apply(followerContext, argsWithName.subList(1, argsWithName.size()));
+        return commandFunction.apply(followerContext, args);
     }
 
     public static class ArgumentMismatchException extends RuntimeException {
@@ -223,45 +229,71 @@ public enum MarkerCommand {
 
     public static class ArgumentChecker<T> {
         private final Function<T, Boolean> checkFunction;
+        private final Set<T> options;
 
-        public ArgumentChecker(final Function<T, Boolean> checkFunction) {
+        public ArgumentChecker(
+                final Function<T, Boolean> checkFunction,
+                final Set<T> options
+        ) {
             this.checkFunction = checkFunction;
+            this.options = options;
         }
 
-        public static <T> ArgumentChecker<T> allowAll() {
-            return new ArgumentChecker<>(t -> true);
+        public static <T> Set<List<T>> cartesianProduct(final List<ArgumentChecker<T>> argumentCheckers) {
+            final List<Set<T>> allOptions = argumentCheckers.stream()
+                    .map(ArgumentChecker::getOptions)
+                    .toList();
+
+            return cartesianProduct(0, allOptions);
+        }
+
+        private static <T> Set<List<T>> cartesianProduct(final int index, final List<Set<T>> sets) {
+            final Set<List<T>> ret = new HashSet<>();
+            if (index == sets.size()) {
+                ret.add(new ArrayList<>());
+            } else {
+                for (final T t : sets.get(index)) {
+                    for (List<T> tList : cartesianProduct(index + 1, sets)) {
+                        tList.add(t);
+                        ret.add(tList);
+                    }
+                }
+            }
+
+            return ret;
         }
 
         public static <T extends Enum<T>> ArgumentChecker<String> enumChecker(final Class<T> tClass) {
-            return new ArgumentChecker<>(name -> {
-                try {
-                    Enum.valueOf(tClass, name);
-                    return true;
-                } catch (final IllegalArgumentException illegalArgumentException) {
-                    return false;
-                }
-            });
-        }
-
-        public static ArgumentChecker<String> doubleChecker() {
-            return new ArgumentChecker<>(str -> {
-                try {
-                    Double.parseDouble(str);
-                    return true;
-                } catch (final NumberFormatException numberFormatException) {
-                    return false;
-                }
-            });
+            return new ArgumentChecker<>(
+                    name -> {
+                        try {
+                            Enum.valueOf(tClass, name);
+                            return true;
+                        } catch (final IllegalArgumentException illegalArgumentException) {
+                            return false;
+                        }
+                    },
+                    Arrays.stream(tClass.getEnumConstants())
+                            .map(Enum::name)
+                            .collect(Collectors.toSet())
+            );
         }
 
         public static ArgumentChecker<String> booleanChecker() {
             // all strings can be parsed as a boolean, as all strings that aren't true are parsed as false
             // thus, we can just allowAll here
-            return allowAll();
+            return new ArgumentChecker<>(
+                    Boolean::parseBoolean,
+                    Set.of("TRUE", "FALSE")
+            );
         }
 
         public boolean check(final T input) {
             return checkFunction.apply(input);
+        }
+
+        public Set<T> getOptions() {
+            return options;
         }
     }
 }

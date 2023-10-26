@@ -78,7 +78,8 @@ public class ElevatorSimSolver {
                 SimConstants.Elevator.Vertical.SPROCKET_RADIUS_M,
                 SimConstants.Elevator.Vertical.MIN_TOTAL_EXT_M,
                 SimConstants.Elevator.Vertical.MAX_TOTAL_EXT_M,
-                SimConstants.Elevator.Vertical.SIMULATE_GRAVITY
+                SimConstants.Elevator.Vertical.SIMULATE_GRAVITY,
+                0
         );
 
         this.verticalElevatorEncoder = verticalElevatorEncoder;
@@ -101,7 +102,8 @@ public class ElevatorSimSolver {
                 SimConstants.Elevator.Horizontal.SPROCKET_RADIUS_M,
                 SimConstants.Elevator.Horizontal.MIN_TOTAL_EXT_M,
                 SimConstants.Elevator.Horizontal.MAX_TOTAL_EXT_M,
-                SimConstants.Elevator.Horizontal.SIMULATE_GRAVITY
+                SimConstants.Elevator.Horizontal.SIMULATE_GRAVITY,
+                0
         );
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
         this.horizontalElevatorSimMotor = new RevSparkMAXSim(
@@ -365,34 +367,20 @@ public class ElevatorSimSolver {
          * @param logKey the root logging key (with no suffixed "/")
          */
         public void log(final String logKey) {
-            Logger.getInstance()
-                    .recordOutput(logKey + "/ElevatorRootPose", elevatorRootPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/VerticalStageOneLowerBoundPose", verticalStageOneLowerBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/VerticalStageOneCenterPose", verticalStageOneCenterPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/VerticalStageOneUpperBoundPose", verticalStageOneUpperBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/VerticalStageTwoLowerBoundPose", verticalStageTwoLowerBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/VerticalStageTwoCenterPose", verticalStageTwoCenterPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/VerticalStageTwoUpperBoundPose", verticalStageTwoUpperBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalRootPose", horizontalRootPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalStageOneCenterPose", horizontalStageOneCenterPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalStageOneBackBoundPose", horizontalStageOneBackBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalStageOneFrontBoundPose", horizontalStageOneFrontBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalStageTwoCenterPose", horizontalStageTwoCenterPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalStageTwoBackBoundPose", horizontalStageTwoBackBoundPose);
-            Logger.getInstance()
-                    .recordOutput(logKey + "/HorizontalStageTwoFrontBoundPose", horizontalStageTwoFrontBoundPose);
+            Logger.recordOutput(logKey + "/ElevatorRootPose", elevatorRootPose);
+            Logger.recordOutput(logKey + "/VerticalStageOneLowerBoundPose", verticalStageOneLowerBoundPose);
+            Logger.recordOutput(logKey + "/VerticalStageOneCenterPose", verticalStageOneCenterPose);
+            Logger.recordOutput(logKey + "/VerticalStageOneUpperBoundPose", verticalStageOneUpperBoundPose);
+            Logger.recordOutput(logKey + "/VerticalStageTwoLowerBoundPose", verticalStageTwoLowerBoundPose);
+            Logger.recordOutput(logKey + "/VerticalStageTwoCenterPose", verticalStageTwoCenterPose);
+            Logger.recordOutput(logKey + "/VerticalStageTwoUpperBoundPose", verticalStageTwoUpperBoundPose);
+            Logger.recordOutput(logKey + "/HorizontalRootPose", horizontalRootPose);
+            Logger.recordOutput(logKey + "/HorizontalStageOneCenterPose", horizontalStageOneCenterPose);
+            Logger.recordOutput(logKey + "/HorizontalStageOneBackBoundPose", horizontalStageOneBackBoundPose);
+            Logger.recordOutput(logKey + "/HorizontalStageOneFrontBoundPose", horizontalStageOneFrontBoundPose);
+            Logger.recordOutput(logKey + "/HorizontalStageTwoCenterPose", horizontalStageTwoCenterPose);
+            Logger.recordOutput(logKey + "/HorizontalStageTwoBackBoundPose", horizontalStageTwoBackBoundPose);
+            Logger.recordOutput(logKey + "/HorizontalStageTwoFrontBoundPose", horizontalStageTwoFrontBoundPose);
         }
     }
 }

@@ -1,134 +1,99 @@
 package frc.robot.utils.auto;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TitanTrajectory extends PathPlannerTrajectory {
+    private final List<State> states;
+    private final List<TitanMarker> eventMarkers;
+    private final PathPlannerPath pathPlannerPath;
     private final TrajectoryFollower.FollowerContext followerContext;
-    private final Map<EventMarker, SequentialCommandGroup> markerCommandMap;
-
-    private TitanTrajectory(
-            final List<State> states,
-            final List<EventMarker> markers,
-            final StopEvent startStopEvent,
-            final StopEvent endStopEvent,
-            final boolean fromGUI,
-            final TrajectoryFollower.FollowerContext followerContext,
-            final Map<EventMarker, SequentialCommandGroup> markerCommandMap
-    ) {
-        super(states, markers, startStopEvent, endStopEvent, fromGUI);
-        this.followerContext = followerContext;
-        this.markerCommandMap = markerCommandMap;
-    }
 
     public TitanTrajectory(
             final List<State> states,
-            final List<EventMarker> markers,
-            final StopEvent startStopEvent,
-            final StopEvent endStopEvent,
-            final boolean fromGUI,
+            final List<TitanMarker> eventMarkers,
+            final PathPlannerPath pathPlannerPath,
             final TrajectoryFollower.FollowerContext followerContext
     ) {
-        this(
-                states,
-                markers,
-                startStopEvent,
-                endStopEvent,
-                fromGUI,
-                followerContext,
-                markers.stream()
-                        .collect(Collectors.toUnmodifiableMap(
-                                eventMarker -> eventMarker,
-                                eventMarker -> createCommandFromMarker(eventMarker, followerContext)
-                        ))
-        );
+        super(pathPlannerPath, followerContext.getInitialChassisSpeeds());
+        this.states = states;
+        this.eventMarkers = eventMarkers;
+        this.pathPlannerPath = pathPlannerPath;
+        this.followerContext = followerContext;
+    }
+
+    public TitanTrajectory(
+            final PathPlannerPath pathPlannerPath,
+            final TrajectoryFollower.FollowerContext followerContext
+    ) {
+        super(pathPlannerPath, followerContext.getInitialChassisSpeeds());
+        this.states = super.getStates();
+        this.eventMarkers = pathPlannerPath.getEventMarkers().stream()
+                .map(eventMarker -> TitanMarker.fromEventMarker(pathPlannerPath, eventMarker))
+                .toList();
+        this.pathPlannerPath = pathPlannerPath;
+        this.followerContext = followerContext;
+    }
+
+    @Override
+    public List<State> getStates() {
+        return states;
+    }
+
+    public List<TitanMarker> getEventMarkers() {
+        return eventMarkers;
     }
 
     public TrajectoryFollower.FollowerContext getFollowerContext() {
         return followerContext;
     }
 
-    public SequentialCommandGroup getCommandAtMarker(final EventMarker eventMarker) {
-        if (followerContext == null) {
-            throw new RuntimeException("Cannot get MarkerCommand for a TitanTrajectory without a FollowerContext!");
-        }
-
-        final SequentialCommandGroup commandGroup = markerCommandMap.get(eventMarker);
-        if (commandGroup == null) {
-            throw new RuntimeException("Cannot get invalid EventMarker from MarkerCommand!");
-        }
-
-        return commandGroup;
-    }
-
-    public static SequentialCommandGroup createCommandFromMarker(
-            final EventMarker eventMarker,
-            final TrajectoryFollower.FollowerContext followerContext
-    ) {
-        final SequentialCommandGroup commandGroup = new SequentialCommandGroup();
-
-        final String markerCommands = String.join("", eventMarker.names).trim();
-        final String[] splitStringCommands = markerCommands.split(MarkerCommand.COMMAND_DELIMITER);
-
-        for (final String stringCommand : splitStringCommands) {
-            final Command command = MarkerCommand.get(stringCommand.toUpperCase(), followerContext);
-            commandGroup.addCommands(command);
-        }
-
-        return commandGroup;
-    }
-
-    public static TitanTrajectory fromPathPlannerTrajectory(
-            final PathPlannerTrajectory pathPlannerTrajectory,
+    public static TitanTrajectory fromPathPlannerPath(
+            final PathPlannerPath pathPlannerPath,
             final TrajectoryFollower.FollowerContext followerContext
     ) {
         return new TitanTrajectory(
-                pathPlannerTrajectory.getStates(),
-                pathPlannerTrajectory.getMarkers(),
-                pathPlannerTrajectory.getStartStopEvent(),
-                pathPlannerTrajectory.getEndStopEvent(),
-                pathPlannerTrajectory.fromGUI,
+                pathPlannerPath,
                 followerContext
         );
     }
 
-    public static EventMarker transformMarkerForAlliance(
-            final EventMarker marker,
-            final DriverStation.Alliance alliance
-    ) {
+    public static State transformStateForAlliance(final State state, final DriverStation.Alliance alliance) {
         if (alliance == DriverStation.Alliance.Red) {
-            final EventMarker transformedMarker = new EventMarker(marker.names, marker.waypointRelativePos);
-            final Translation2d translation = marker.positionMeters;
+            // Create a new state so that we don't overwrite the original
+            final State transformedState = new State();
 
-            transformedMarker.timeSeconds = marker.timeSeconds;
-            transformedMarker.positionMeters = new Translation2d(
-                    translation.getX(), FieldConstants.FIELD_WIDTH_Y_METERS - translation.getY()
+            final Translation2d transformedTranslation = new Translation2d(
+                    state.positionMeters.getX(),
+                    FieldConstants.FIELD_WIDTH_Y_METERS - state.positionMeters.getY()
             );
 
-            return transformedMarker;
+            final Rotation2d transformedHeading = state.heading.times(-1);
+            final Rotation2d transformedHolonomicRotation = state.targetHolonomicRotation.times(-1);
+
+            transformedState.timeSeconds = state.timeSeconds;
+            transformedState.velocityMps = state.velocityMps;
+            transformedState.accelerationMpsSq = state.accelerationMpsSq;
+            transformedState.headingAngularVelocityRps = -state.headingAngularVelocityRps;
+            transformedState.positionMeters = transformedTranslation;
+            transformedState.heading = transformedHeading;
+            transformedState.targetHolonomicRotation = transformedHolonomicRotation;
+            transformedState.curvatureRadPerMeter = -state.curvatureRadPerMeter;
+
+            return transformedState;
         } else {
-            return marker;
+            return state;
         }
     }
 
@@ -138,32 +103,25 @@ public class TitanTrajectory extends PathPlannerTrajectory {
     ) {
         if (alliance == DriverStation.Alliance.Red) {
             final List<State> states = trajectory.getStates();
-            final List<EventMarker> markers = trajectory.getMarkers();
+            final List<TitanMarker> markers = trajectory.getEventMarkers();
+
             final List<State> transformedStates = new ArrayList<>(states.size());
-            final List<EventMarker> transformedMarkers = new ArrayList<>(markers.size());
+            final List<TitanMarker> transformedMarkers = new ArrayList<>(markers.size());
 
             for (final State state : states) {
-                final PathPlannerState pathPlannerState = (PathPlannerState) state;
-                transformedStates.add(transformStateForAlliance(pathPlannerState, alliance));
+                transformedStates.add(transformStateForAlliance(state, alliance));
             }
 
-            final Map<EventMarker, SequentialCommandGroup> transformedMarkerCommandMap = new HashMap<>();
-            for (final EventMarker marker : markers) {
-                final SequentialCommandGroup commandGroup = trajectory.markerCommandMap.get(marker);
-                final EventMarker transformedMarker = transformMarkerForAlliance(marker, alliance);
-
-                transformedMarkerCommandMap.put(transformedMarker, commandGroup);
+            for (final TitanMarker marker : markers) {
+                final TitanMarker transformedMarker = TitanMarker.transformMarkerForAlliance(marker, alliance);
                 transformedMarkers.add(transformedMarker);
             }
 
             return new TitanTrajectory(
                     transformedStates,
                     transformedMarkers,
-                    trajectory.getStartStopEvent(),
-                    trajectory.getEndStopEvent(),
-                    trajectory.fromGUI,
-                    trajectory.followerContext,
-                    transformedMarkerCommandMap
+                    trajectory.pathPlannerPath,
+                    trajectory.followerContext
             );
         } else {
             return trajectory;
@@ -177,12 +135,7 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                 final double maxAngularVelocity,
                 final double maxAngularAcceleration
         ) {
-            super(
-                    maxLinearVelocity,
-                    maxLinearAcceleration,
-                    maxAngularVelocity,
-                    maxAngularAcceleration
-            );
+            super(maxLinearVelocity, maxLinearAcceleration, maxAngularVelocity, maxAngularAcceleration);
         }
 
         public Constraints(
@@ -230,9 +183,9 @@ public class TitanTrajectory extends PathPlannerTrajectory {
 
                 final Translation2d transformFromLast = pathPoint.position.minus(lastPoint.position);
                 final double approxDistance = transformFromLast.getNorm();
-                final double approxTime = approxDistance / constraints.maxVelocity;
+                final double approxTime = approxDistance / constraints.getMaxVelocityMps();
 
-                final double approxAngularRotation = constraints.maxAngularVelocity * approxTime;
+                final double approxAngularRotation = constraints.getMaxAngularVelocityRps() * approxTime;
 
                 final Rotation2d deltaHolonomic = pathPoint.holonomicRotation.minus(lastPoint.holonomicRotation);
                 final Rotation2d clampedHolonomic = Rotation2d.fromRadians(
@@ -241,37 +194,27 @@ public class TitanTrajectory extends PathPlannerTrajectory {
 
                 pathPoints.add(new PathPoint(
                         pathPoint.position,
-                        pathPoint.heading,
                         lastPoint.holonomicRotation.plus(clampedHolonomic),
-                        pathPoint.velocityOverride
+                        constraints
                 ));
             }
 
             return this;
         }
 
-        public Builder add(final Pose2d currentPose, final ChassisSpeeds robotRelativeSpeeds) {
-            if (!pathPoints.isEmpty()) {
-                throw new RuntimeException("attempted to add initial PathPoint when points was not empty!");
-            }
-
-            return add(PathPoint.fromCurrentHolonomicState(currentPose, robotRelativeSpeeds));
-        }
-
-        public Builder add(
-                final Translation2d position,
-                final Rotation2d heading,
-                final Rotation2d holonomicRotation,
-                final double velocityOverride
-        ) {
-            return add(new PathPoint(position, heading, holonomicRotation, velocityOverride));
-        }
+//        public Builder add(final Pose2d currentPose, final ChassisSpeeds robotRelativeSpeeds) {
+//            if (!pathPoints.isEmpty()) {
+//                throw new RuntimeException("attempted to add initial PathPoint when points was not empty!");
+//            }
+//
+//            return add(new PathPoint.fromCurrentHolonomicState(currentPose, robotRelativeSpeeds));
+//        }
 
         public Builder add(
                 final Translation2d position,
                 final Rotation2d holonomicRotation
         ) {
-            return add(new PathPoint(position, TEMP_HEADING_HANDLE, holonomicRotation));
+            return add(new PathPoint(position, holonomicRotation));
         }
 
         public Builder add(final Pose2d positionHolonomic) {
@@ -318,25 +261,29 @@ public class TitanTrajectory extends PathPlannerTrajectory {
                         final PathPoint lastPoint = (i > 0) ? pathPoints.get(i - 1) : null;
                         final PathPoint nextPoint = (i < (pathPoints.size() - 1)) ? pathPoints.get(i + 1) : null;
 
-                        final Rotation2d heading = point.heading == TEMP_HEADING_HANDLE
-                                ? getHeading(point, lastPoint, nextPoint)
-                                : point.heading;
+//                        final Rotation2d heading = point.heading == TEMP_HEADING_HANDLE
+//                                ? getHeading(point, lastPoint, nextPoint)
+//                                : point.heading;
 
-                        final double velocityOverride = nextPoint == null && endVelocityOverride != -1
-                                ? endVelocityOverride
-                                : point.velocityOverride;
+//                        final double velocityOverride = nextPoint == null && endVelocityOverride != -1
+//                                ? endVelocityOverride
+//                                : point.velocityOverride;
 
                         return new PathPoint(
                                 point.position,
-                                heading,
-                                point.holonomicRotation,
-                                velocityOverride
+//                                heading,
+                                point.holonomicRotation
+//                                velocityOverride
                         );
                     })
                     .toList();
 
-            return TitanTrajectory.fromPathPlannerTrajectory(
-                    PathPlanner.generatePath(constraints, regenerated),
+            return TitanTrajectory.fromPathPlannerPath(
+                    PathPlannerPath.fromPathPoints(
+                            regenerated,
+                            constraints,
+                            new GoalEndState(0, Rotation2d.fromDegrees(0))
+                    ),
                     followerContext
             );
         }

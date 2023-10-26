@@ -1,7 +1,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -46,16 +45,14 @@ public class Robot extends LoggedRobot {
             throw new RuntimeException("Potentially incorrect CURRENT_MODE specified!");
         }
 
-        final Logger logger = Logger.getInstance();
-
         // we practically never use LiveWindow, and apparently this causes loop overruns so disable it
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
 
         // schedule PathPlanner server to start
-        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
-            PathPlannerServer.startServer(Constants.PathPlanner.SERVER_PORT);
-        }
+//        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
+//            PathPlannerServer.startServer(Constants.PathPlanner.SERVER_PORT);
+//        }
 
         // register shutdown hook
         ToClose.hook();
@@ -64,20 +61,20 @@ public class Robot extends LoggedRobot {
         DriverStation.silenceJoystickConnectionWarning(Constants.CURRENT_MODE == Constants.RobotMode.SIM);
 
         // record git metadata
-        logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
         // no need to inspect this here because BuildConstants is a dynamically changing file upon compilation
         //noinspection RedundantSuppression
         switch (BuildConstants.DIRTY) {
             //noinspection DataFlowIssue
-            case 0 -> logger.recordMetadata("GitDirty", "All changes committed");
+            case 0 -> Logger.recordMetadata("GitDirty", "All changes committed");
             //noinspection DataFlowIssue
-            case 1 -> logger.recordMetadata("GitDirty", "Uncommitted changes");
+            case 1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes");
             //noinspection DataFlowIssue
-            default -> logger.recordMetadata("GitDirty", "Unknown");
+            default -> Logger.recordMetadata("GitDirty", "Unknown");
         }
 
         switch (Constants.CURRENT_MODE) {
@@ -85,19 +82,19 @@ public class Robot extends LoggedRobot {
                 // TODO: this should be correct now, but we might need a more robust/permanent solution
                 // figure out which port is occupied, use sda1 if sda is used
                 // sda on Odin2023 is the CANivore, sda1 is open port
-                logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
-                logger.addDataReceiver(new NT4Publisher());
+                Logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
+                Logger.addDataReceiver(new NT4Publisher());
             }
             case SIM -> {
                 // log to working directory when running sim
-                logger.addDataReceiver(new WPILOGWriter(""));
-                logger.addDataReceiver(new NT4Publisher());
+                Logger.addDataReceiver(new WPILOGWriter(""));
+                Logger.addDataReceiver(new NT4Publisher());
             }
             case REPLAY -> {
                 setUseTiming(false);
                 final String logPath = LogFileUtil.findReplayLog();
-                logger.setReplaySource(new WPILOGReader(logPath));
-                logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+                Logger.setReplaySource(new WPILOGReader(logPath));
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
             }
         }
 
@@ -114,7 +111,7 @@ public class Robot extends LoggedRobot {
         TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
 
         TitanBoard.start();
-        logger.start();
+        Logger.start();
     }
 
     @Override

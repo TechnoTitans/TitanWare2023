@@ -1,7 +1,7 @@
 package frc.robot.commands.autonomous;
 
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.server.PathPlannerServer;
+import com.pathplanner.lib.path.EventMarker;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,6 +18,7 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.auto.DriveController;
+import frc.robot.utils.auto.TitanMarker;
 import frc.robot.utils.auto.TitanTrajectory;
 import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.wrappers.leds.CandleController;
@@ -44,13 +45,13 @@ public class TrajectoryFollower extends Command {
     private final DriveController holonomicDriveController;
     private final DriveToPoseController holdPositionController;
     private final PhotonVision<?> photonVision;
-    private final NavigableMap<Double, PathPlannerTrajectory.EventMarker> eventMarkerNavigableMap;
+    private final NavigableMap<Double, TitanMarker> eventMarkerNavigableMap;
 
     private final FollowerContext followerContext;
 
     private boolean isInAuto;
 
-    private PathPlannerTrajectory.EventMarker lastRanMarker;
+    private EventMarker lastRanMarker;
     private Pose2d holdPosition;
 
     private boolean hasMarkers;
@@ -99,38 +100,38 @@ public class TrajectoryFollower extends Command {
     public void initialize() {
         if (transformForAlliance) {
             transformedTrajectory = TitanTrajectory.transformTrajectoryForAlliance(
-                    trajectory, DriverStation.getAlliance()
+                    trajectory, DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
             );
         } else {
             transformedTrajectory = trajectory;
         }
 
-        final PathPlannerTrajectory.PathPlannerState initialState = transformedTrajectory.getInitialState();
-        final Rotation2d initialHolonomicRotation = initialState.holonomicRotation;
+        final PathPlannerTrajectory.State initialState = transformedTrajectory.getInitialState();
+        final Rotation2d initialHolonomicRotation = initialState.targetHolonomicRotation;
 
         isInAuto = RobotState.isAutonomous();
         if (!TrajectoryFollower.HAS_AUTO_RAN && isInAuto) {
             swerve.setAngle(initialHolonomicRotation);
             photonVision.resetPosition(
-                    new Pose2d(initialState.poseMeters.getTranslation(), initialHolonomicRotation),
+                    new Pose2d(initialState.positionMeters, initialHolonomicRotation),
                     initialHolonomicRotation
             );
             TrajectoryFollower.HAS_AUTO_RAN = true;
         }
 
-        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
-            PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
-        }
+//        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
+//            PathPlannerServer.sendActivePath(transformedTrajectory.getStates());
+//        }
 
-        for (final PathPlannerTrajectory.EventMarker eventMarker : transformedTrajectory.getMarkers()) {
-            eventMarkerNavigableMap.put(eventMarker.timeSeconds, eventMarker);
+        for (final TitanMarker eventMarker : transformedTrajectory.getEventMarkers()) {
+            eventMarkerNavigableMap.put(eventMarker.getTimeSeconds(transformedTrajectory), eventMarker);
         }
         hasMarkers = !eventMarkerNavigableMap.isEmpty();
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/Markers",
                 eventMarkerNavigableMap.values().stream().map(
-                        eventMarker -> new Pose2d(eventMarker.positionMeters, Rotation2d.fromDegrees(0))
+                        eventMarker -> new Pose2d(eventMarker.getMarkerPosition(), Rotation2d.fromDegrees(0))
                 ).toArray(Pose2d[]::new)
         );
 
@@ -142,40 +143,40 @@ public class TrajectoryFollower extends Command {
     private void holdPosition(final Pose2d positionToHold, final Pose2d currentPose) {
         final ChassisSpeeds targetChassisSpeeds = holdPositionController.calculate(currentPose, positionToHold);
 
-        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
-            PathPlannerServer.sendPathFollowingData(positionToHold, currentPose);
-        }
+//        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
+//            PathPlannerServer.sendPathFollowingData(positionToHold, currentPose);
+//        }
 
-        Logger.getInstance().recordOutput(logKey + "/EstimatedPose", new Pose2d(
+        Logger.recordOutput(logKey + "/EstimatedPose", new Pose2d(
                 currentPose.getTranslation(),
                 Rotation2d.fromRadians(MathUtil.angleModulus(currentPose.getRotation().getRadians()))
         ));
-        Logger.getInstance().recordOutput(logKey + "/WantedState", positionToHold);
+        Logger.recordOutput(logKey + "/WantedState", positionToHold);
 
         swerve.drive(targetChassisSpeeds);
     }
 
-    private void driveToState(final PathPlannerTrajectory.PathPlannerState state, final Pose2d currentPose) {
+    private void driveToState(final PathPlannerTrajectory.State state, final Pose2d currentPose) {
         final ChassisSpeeds targetChassisSpeeds = holonomicDriveController.calculate(currentPose, state);
 
-        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
-            PathPlannerServer.sendPathFollowingData(new Pose2d(
-                    state.poseMeters.getTranslation(),
-                    state.holonomicRotation
-            ), currentPose);
-        }
+//        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
+//            PathPlannerServer.sendPathFollowingData(new Pose2d(
+//                    state.poseMeters.getTranslation(),
+//                    state.holonomicRotation
+//            ), currentPose);
+//        }
 
-        Logger.getInstance().recordOutput(logKey + "/EstimatedPose", new Pose2d(
+        Logger.recordOutput(logKey + "/EstimatedPose", new Pose2d(
                 currentPose.getTranslation(),
                 Rotation2d.fromRadians(MathUtil.angleModulus(currentPose.getRotation().getRadians()))
         ));
-        Logger.getInstance().recordOutput(logKey + "/WantedState", new Pose2d(
-                state.poseMeters.getX(),
-                state.poseMeters.getY(),
-                state.holonomicRotation
+        Logger.recordOutput(logKey + "/WantedState", new Pose2d(
+                state.positionMeters.getX(),
+                state.positionMeters.getY(),
+                state.targetHolonomicRotation
         ));
 
-        swerve.drive(targetChassisSpeeds, followerContext.getModuleMaxSpeed());
+        swerve.drive(targetChassisSpeeds);
     }
 
     private void wheelX(final boolean wheelX) {
@@ -210,20 +211,19 @@ public class TrajectoryFollower extends Command {
     @Override
     public void execute() {
         final double currentTime = timer.get();
-        final PathPlannerTrajectory.PathPlannerState sample =
-                (PathPlannerTrajectory.PathPlannerState) transformedTrajectory.sample(currentTime);
+        final PathPlannerTrajectory.State sample = transformedTrajectory.sample(currentTime);
         final Pose2d currentPose = photonVision.getEstimatedPosition();
 
-        if (hasMarkers) {
-            //TODO UNCOMMENT WHEN READY
+        //TODO UNCOMMENT WHEN READY
+//        if (hasMarkers) {
 //             commander(currentPose, currentTime);
-        }
+//        }
 
         final boolean isWheelX = followerContext.isWheelX();
         final boolean isPaused = followerContext.isPaused();
 
-        Logger.getInstance().recordOutput(logKey + "/IsWheelX", isWheelX);
-        Logger.getInstance().recordOutput(logKey + "/IsPaused", isPaused);
+        Logger.recordOutput(logKey + "/IsWheelX", isWheelX);
+        Logger.recordOutput(logKey + "/IsPaused", isPaused);
 
         wheelX(isWheelX);
         dtPause(isPaused);
@@ -252,12 +252,12 @@ public class TrajectoryFollower extends Command {
 
     private void commander(final Pose2d currentPose, final double time) {
         // TODO: does any of this logic here work? test it!
-        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> ceilingEntry =
+        final Map.Entry<Double, TitanMarker> ceilingEntry =
                 eventMarkerNavigableMap.ceilingEntry(time);
-        final Map.Entry<Double, PathPlannerTrajectory.EventMarker> floorEntry =
+        final Map.Entry<Double, TitanMarker> floorEntry =
                 eventMarkerNavigableMap.floorEntry(time);
 
-        final PathPlannerTrajectory.EventMarker nextMarker;
+        final TitanMarker nextMarker;
         if (ceilingEntry == null && floorEntry == null) {
             // return early if there aren't any markers left
             return;
@@ -266,17 +266,17 @@ public class TrajectoryFollower extends Command {
         } else if (floorEntry == null) {
             nextMarker = ceilingEntry.getValue();
         } else {
-            final PathPlannerTrajectory.EventMarker ceilingMarker = ceilingEntry.getValue();
-            final PathPlannerTrajectory.EventMarker floorMarker = floorEntry.getValue();
+            final TitanMarker ceilingMarker = ceilingEntry.getValue();
+            final TitanMarker floorMarker = floorEntry.getValue();
 
             final Translation2d currentTranslation = currentPose.getTranslation();
-            final double currentToCeilingDistance = ceilingMarker.positionMeters.getDistance(currentTranslation);
-            final double currentToFloorDistance = floorMarker.positionMeters.getDistance(currentTranslation);
+            final double currentToCeilingDistance = ceilingMarker.getMarkerPosition().getDistance(currentTranslation);
+            final double currentToFloorDistance = floorMarker.getMarkerPosition().getDistance(currentTranslation);
 
             nextMarker = currentToCeilingDistance > currentToFloorDistance ? floorMarker : ceilingMarker;
         }
 
-        final double distanceToNextMarker = nextMarker.positionMeters.getDistance(currentPose.getTranslation());
+        final double distanceToNextMarker = nextMarker.getMarkerPosition().getDistance(currentPose.getTranslation());
 
         if (lastRanMarker == nextMarker || distanceToNextMarker > MAX_DISTANCE_DIFF_METERS) {
             return;
@@ -284,22 +284,26 @@ public class TrajectoryFollower extends Command {
             lastRanMarker = nextMarker;
         }
 
-        final SequentialCommandGroup commandGroup = transformedTrajectory.getCommandAtMarker(nextMarker);
-        commandGroup.schedule();
+        final Command command = nextMarker.getCommand();
+        command.schedule();
     }
 
     public static class FollowerContext {
         private final Elevator elevator;
         private final Claw claw;
+        private final ChassisSpeeds initialChassisSpeeds;
 
         private boolean paused;
         private boolean wheelX;
 
-        private double moduleMaxSpeed = Constants.Swerve.MODULE_MAX_SPEED;
-
-        public FollowerContext(final Elevator elevator, final Claw claw) {
+        public FollowerContext(
+                final Elevator elevator,
+                final Claw claw,
+                final ChassisSpeeds initialChassisSpeeds
+        ) {
             this.elevator = elevator;
             this.claw = claw;
+            this.initialChassisSpeeds = initialChassisSpeeds;
         }
 
         public Elevator getElevator() {
@@ -326,12 +330,8 @@ public class TrajectoryFollower extends Command {
             this.wheelX = wheelX;
         }
 
-        public double getModuleMaxSpeed() {
-            return moduleMaxSpeed;
-        }
-
-        public void setModuleMaxSpeed(double moduleMaxSpeed) {
-            this.moduleMaxSpeed = moduleMaxSpeed;
+        public ChassisSpeeds getInitialChassisSpeeds() {
+            return initialChassisSpeeds;
         }
     }
 }

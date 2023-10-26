@@ -56,6 +56,7 @@ public class ClawIOStateSpaceSim implements ClawIO {
             Units.degreesToRadians(180),
             Units.degreesToRadians(360)
     );
+    private final TrapezoidProfile profile = new TrapezoidProfile(constraints);
 
     private final LinearSystem<N2, N1, N1> tiltPlant;
     private final KalmanFilter<N2, N1, N1> tiltObserver;
@@ -186,8 +187,8 @@ public class ClawIOStateSpaceSim implements ClawIO {
                         Units.rotationsToRadians(desiredTiltControlInput),
                         0
                 );
-                final TrapezoidProfile profile = new TrapezoidProfile(constraints, goal, lastProfiledState);
-                lastProfiledState = profile.calculate(dtSeconds);
+
+                lastProfiledState = profile.calculate(dtSeconds, goal, lastProfiledState);
 
                 tiltSystemLoop.setNextR(lastProfiledState.position, lastProfiledState.velocity);
                 tiltSystemLoop.correct(

@@ -38,8 +38,8 @@ class Phoenix6UtilsTest {
         when(positionSignal.refresh()).thenReturn(positionSignal);
         when(velocitySignal.refresh()).thenReturn(velocitySignal);
 
-        when(positionSignal.getError()).thenReturn(StatusCode.OK);
-        when(velocitySignal.getError()).thenReturn(StatusCode.OK);
+        when(positionSignal.getStatus()).thenReturn(StatusCode.OK);
+        when(velocitySignal.getStatus()).thenReturn(StatusCode.OK);
 
         when(positionSignal.getValue()).thenReturn(position);
         when(velocitySignal.getValue()).thenReturn(velocity);
@@ -77,7 +77,7 @@ class Phoenix6UtilsTest {
         when(positionSignal.refresh()).thenReturn(positionSignal);
         when(velocitySignal.refresh()).thenReturn(velocitySignal);
 
-        when(positionSignal.getError()).thenReturn(badStatusCode);
+        when(positionSignal.getStatus()).thenReturn(badStatusCode);
         when(positionSignal.getValue()).thenReturn(position);
 
         assertEquals(
@@ -98,8 +98,8 @@ class Phoenix6UtilsTest {
         when(positionSignal.refresh()).thenReturn(positionSignal);
         when(velocitySignal.refresh()).thenReturn(velocitySignal);
 
-        when(positionSignal.getError()).thenReturn(StatusCode.OK);
-        when(velocitySignal.getError()).thenReturn(badStatusCode);
+        when(positionSignal.getStatus()).thenReturn(StatusCode.OK);
+        when(velocitySignal.getStatus()).thenReturn(badStatusCode);
 
         when(positionSignal.getValue()).thenReturn(position);
 

@@ -441,8 +441,12 @@ public enum AlignmentZone {
         return cornerTRBounds;
     }
 
+    private static DriverStation.Alliance getOptionalOrElseBlueAlliance() {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+    }
+
     public Pose2d getLeftCone() {
-        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+        if (AlignmentZone.getOptionalOrElseBlueAlliance() == DriverStation.Alliance.Blue) {
             return leftCone;
         } else {
             return PoseUtils.reflectAndLocalizeGridPoseToAlliance(
@@ -456,7 +460,7 @@ public enum AlignmentZone {
     }
 
     public Pose2d getRightCone() {
-        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+        if (AlignmentZone.getOptionalOrElseBlueAlliance() == DriverStation.Alliance.Blue) {
             return rightCone;
         } else {
             return PoseUtils.reflectAndLocalizeGridPoseToAlliance(
@@ -466,7 +470,7 @@ public enum AlignmentZone {
     }
 
     public Pose2d getLeftDoubleSubstation() {
-        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+        if (AlignmentZone.getOptionalOrElseBlueAlliance() == DriverStation.Alliance.Blue) {
             return leftDoubleSubstation;
         } else {
             return PoseUtils.localizePoseOnAlliance(
@@ -476,7 +480,7 @@ public enum AlignmentZone {
     }
 
     public Pose2d getRightDoubleSubstation() {
-        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+        if (AlignmentZone.getOptionalOrElseBlueAlliance() == DriverStation.Alliance.Blue) {
             return rightDoubleSubstation;
         } else {
             return PoseUtils.localizePoseOnAlliance(
@@ -486,7 +490,7 @@ public enum AlignmentZone {
     }
 
     public Pose2d getTrajectoryTarget(final TrajectoryAlignmentSide trajectoryAlignmentSide) {
-        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final DriverStation.Alliance alliance = AlignmentZone.getOptionalOrElseBlueAlliance();
         final TrajectoryAlignmentSide mappedTrajectoryAlignmentSide = TrajectoryAlignmentSideMapping
                 .getTrajectoryAlignmentSide(alliance, trajectoryAlignmentSide);
 
@@ -541,7 +545,7 @@ public enum AlignmentZone {
     }
 
     public Pose2d[] getLoggablePoseRegionArray() {
-        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final DriverStation.Alliance alliance = AlignmentZone.getOptionalOrElseBlueAlliance();
         return Objects.requireNonNullElseGet(
                 alliance != lastLoggedAlliance ? null : loggablePoseRegionArray,
                 () -> {
@@ -561,7 +565,7 @@ public enum AlignmentZone {
     }
 
     public static AlignmentZone getAlignmentZoneFromCurrentPose(final Pose2d currentPose, final boolean ignoreMapping) {
-        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final DriverStation.Alliance alliance = AlignmentZone.getOptionalOrElseBlueAlliance();
         for (final AlignmentZone zone : cachedValues) {
             if (PoseUtils.poseWithinArea(
                     currentPose, zone.getCornerBLBounds(), zone.getCornerTRBounds(), zone.getMirroringBehavior()

@@ -71,7 +71,8 @@ public class ClawSimSolver {
                 Claw.CLAW_LENGTH_M,
                 Claw.TILT_MIN_ANGLE_RAD,
                 Claw.TILT_MAX_ANGLE_RAD,
-                Claw.TILT_SIMULATE_GRAVITY
+                Claw.TILT_SIMULATE_GRAVITY,
+                0
         );
 
         this.clawTiltSimMotor = new RevSparkMAXSim(
@@ -137,9 +138,9 @@ public class ClawSimSolver {
         );
 
         final double clawTiltMotorVoltage = clawTiltSimMotor.getMotorVoltage();
-        Logger.getInstance().recordOutput("ClawTiltMotorVoltage", clawTiltMotorVoltage);
-        Logger.getInstance().recordOutput("ClawTiltAngleRots", Units.radiansToRotations(clawTiltSim.getAngleRads()));
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput("ClawTiltMotorVoltage", clawTiltMotorVoltage);
+        Logger.recordOutput("ClawTiltAngleRots", Units.radiansToRotations(clawTiltSim.getAngleRads()));
+        Logger.recordOutput(
                 "ClawTiltVelocityRotsPerSec",
                 Units.radiansToRotations(clawTiltSim.getVelocityRadPerSec())
         );

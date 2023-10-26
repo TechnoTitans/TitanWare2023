@@ -65,7 +65,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                 AllTimestamps allTimestamps
         ) {
             public StatusSignalMeasurement(final StatusSignal<T> signal) {
-                this(signal.getValue(), signal.getError(), signal.getTimestamp(), signal.getAllTimestamps());
+                this(signal.getValue(), signal.getStatus(), signal.getTimestamp(), signal.getAllTimestamps());
             }
 
             public static StatusSignalMeasurement<Double> latencyCompensatedMeasurement(
@@ -74,7 +74,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
             ) {
                 return new StatusSignalMeasurement<>(
                         BaseStatusSignal.getLatencyCompensatedValue(signal, deltaSignal),
-                        signal.getError(),
+                        signal.getStatus(),
                         signal.getTimestamp(),
                         signal.getAllTimestamps()
                 );
@@ -350,7 +350,7 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
                     String.format(
                             "Failed to set NeutralMode on TalonFX %s (%s)",
                             driveMotor.getDeviceID(),
-                            driveMotor.getCANBus()
+                            driveMotor.getNetwork()
                     ), false
             );
             return;

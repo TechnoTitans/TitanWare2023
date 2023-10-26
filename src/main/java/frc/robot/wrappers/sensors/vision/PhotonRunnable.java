@@ -33,7 +33,7 @@ public class PhotonRunnable implements Runnable {
         this.logKey = String.format("%s_PoseEstimator", photonCamera.getName());
         this.poseEstimator = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
-                PoseStrategy.MULTI_TAG_PNP,
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 photonCamera,
                 titanCamera.getRobotRelativeToCameraTransform()
         );

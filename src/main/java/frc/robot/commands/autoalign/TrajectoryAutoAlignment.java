@@ -177,7 +177,8 @@ public class TrajectoryAutoAlignment extends Command {
             final TitanTrajectory.Constraints constraints = TitanTrajectory.Constraints.getDefault();
 
             final double approxDistance = trajectoryTarget.getTranslation().getDistance(targetPose.getTranslation());
-            final double endVelocity = (constraints.maxAcceleration * approxDistance) / constraints.maxVelocity;
+            final double endVelocity = (constraints.getMaxAccelerationMpsSq() * approxDistance)
+                    / constraints.getMaxVelocityMps();
 
             final TitanTrajectory trajectory = new TitanTrajectory.Builder()
                     .withConstraints(
@@ -189,15 +190,15 @@ public class TrajectoryAutoAlignment extends Command {
                             )
                     )
 //                    .withConstraints(TitanTrajectory.Constraints.getDefault())
-                    .add(currentPose, swerveChassisSpeeds)
+//                    .add(currentPose, swerveChassisSpeeds)
                     .add(trajectoryTarget)
                     .withEndVelocityOverride(endVelocity)
-                    .build(new TrajectoryFollower.FollowerContext(elevator, claw));
+                    .build(new TrajectoryFollower.FollowerContext(elevator, claw, swerveChassisSpeeds));
 
-            Logger.getInstance().recordOutput(
-                    logKey + "/Trajectory",
-                    LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
-            );
+//            Logger.getInstance().recordOutput(
+//                    logKey + "/Trajectory",
+//                    LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
+//            );
 
             commandGroup.addCommands(trajectoryManager.getTrajectoryFollower(trajectory));
         }

@@ -16,13 +16,17 @@ public class PoseUtils {
         MIRROR_ACROSS_X_CENTER
     }
 
+    private static DriverStation.Alliance getOptionalOrElseBlueAlliance() {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+    }
+
     public static boolean poseWithinArea(
             final Pose2d currentPose,
             final Translation2d point1,
             final Translation2d point2,
             final MirroringBehavior mirroringBehavior
     ) {
-        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final DriverStation.Alliance alliance = PoseUtils.getOptionalOrElseBlueAlliance();
         final Pose2d transformedPose = switch (mirroringBehavior) {
             case MIRROR_ACROSS_GRID_CENTER_POINT -> reflectAndLocalizeGridPoseToAlliance(
                     currentPose, alliance, DriverStation.Alliance.Blue
@@ -75,7 +79,7 @@ public class PoseUtils {
     }
 
     public static Translation2d flipTranslationToBlueAllianceByOrigin(final Translation2d translationToFlip) {
-        return DriverStation.getAlliance() == DriverStation.Alliance.Red
+        return PoseUtils.getOptionalOrElseBlueAlliance() == DriverStation.Alliance.Red
                 ? flipTranslation(translationToFlip)
                 : translationToFlip;
     }
@@ -85,7 +89,7 @@ public class PoseUtils {
             final DriverStation.Alliance sourceAlliance,
             final MirroringBehavior mirroringBehavior
     ) {
-        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final DriverStation.Alliance alliance = PoseUtils.getOptionalOrElseBlueAlliance();
         if (sourceAlliance == alliance) {
             return originalTranslation;
         } else if (alliance == DriverStation.Alliance.Red && sourceAlliance == DriverStation.Alliance.Blue) {
@@ -113,7 +117,7 @@ public class PoseUtils {
             final DriverStation.Alliance sourceAlliance,
             final MirroringBehavior mirroringBehavior
     ) {
-        final DriverStation.Alliance alliance = DriverStation.getAlliance();
+        final DriverStation.Alliance alliance = PoseUtils.getOptionalOrElseBlueAlliance();
         if (sourceAlliance == alliance) {
             return originalPose;
         } else if (alliance == DriverStation.Alliance.Red && sourceAlliance == DriverStation.Alliance.Blue) {
@@ -171,7 +175,7 @@ public class PoseUtils {
             final DriverStation.Alliance sourceAlliance,
             final DriverStation.Alliance desiredAlliance
     ) {
-        final DriverStation.Alliance currentAlliance = DriverStation.getAlliance();
+        final DriverStation.Alliance currentAlliance = PoseUtils.getOptionalOrElseBlueAlliance();
         final Pose2d relativePose = new Pose2d(
                 FieldConstants.FLIPPING_POSE.getX(),
                 currentAlliance == DriverStation.Alliance.Red

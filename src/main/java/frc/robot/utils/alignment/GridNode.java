@@ -111,7 +111,10 @@ public enum GridNode {
     }
 
     public AlignmentZone getAlignmentZone() {
-        return AlignmentZone.AlignmentZoneMapping.getAlignmentZone(DriverStation.getAlliance(), alignmentZone);
+        return AlignmentZone.AlignmentZoneMapping.getAlignmentZone(
+                DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue),
+                alignmentZone
+        );
     }
 
     public AlignmentZone.GenericDesiredAlignmentPosition getAlignmentPosition() {

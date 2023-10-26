@@ -1,6 +1,6 @@
 package frc.robot.utils.auto;
 
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,9 +11,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  *
  * <p>
  *    This controller adds the following functionality over the WPILib version: - calculate() method
- *    takes in a {@link PathPlannerState} directly - Continuous input is automatically enabled for the rotation
- *    controller - Holonomic angular velocity is used as a feedforward for the rotation controller,
- *    which no longer needs to be a {@link edu.wpi.first.math.controller.ProfiledPIDController}
+ *    takes in a {@link com.pathplanner.lib.path.PathPlannerTrajectory.State} directly - Continuous
+ *    input is automatically enabled for the rotation controller - Holonomic angular velocity is used
+ *    as a feedforward for the rotation controller, which no longer needs to be a
+ *    {@link edu.wpi.first.math.controller.ProfiledPIDController}
  * </p>
  */
 
@@ -122,15 +123,15 @@ public class DriveController {
      * @param wantedState The desired trajectory state
      * @return The next output of the holonomic drive controller
      */
-    public ChassisSpeeds calculate(final Pose2d currentPose, final PathPlannerState wantedState) {
+    public ChassisSpeeds calculate(final Pose2d currentPose, final PathPlannerTrajectory.State wantedState) {
         final double xFF = useXFF
-                ? wantedState.velocityMetersPerSecond * wantedState.poseMeters.getRotation().getCos()
+                ? wantedState.velocityMps * wantedState.heading.getCos()
                 : 0;
         final double yFF = useYFF
-                ? wantedState.velocityMetersPerSecond * wantedState.poseMeters.getRotation().getSin()
+                ? wantedState.velocityMps * wantedState.heading.getSin()
                 : 0;
         final double rotationFF = useRotFF
-                ? wantedState.holonomicAngularVelocityRadPerSec
+                ? wantedState.headingAngularVelocityRps
                 : 0;
 
         if (!this.isEnabled) {
@@ -138,12 +139,12 @@ public class DriveController {
         }
 
         final double xFeedback =
-                this.xController.calculate(currentPose.getX(), wantedState.poseMeters.getX());
+                this.xController.calculate(currentPose.getX(), wantedState.positionMeters.getX());
         final double yFeedback =
-                this.yController.calculate(currentPose.getY(), wantedState.poseMeters.getY());
+                this.yController.calculate(currentPose.getY(), wantedState.positionMeters.getY());
         final double rotationFeedback =
                 this.rotationController.calculate(
-                        currentPose.getRotation().getRadians(), wantedState.holonomicRotation.getRadians());
+                        currentPose.getRotation().getRadians(), wantedState.targetHolonomicRotation.getRadians());
 
         return ChassisSpeeds.fromFieldRelativeSpeeds(
                 xFF + xFeedback,
