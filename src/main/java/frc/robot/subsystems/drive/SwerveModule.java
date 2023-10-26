@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.Constants;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
+import org.littletonrobotics.junction.CustomStructs;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
@@ -47,26 +48,25 @@ public class SwerveModule {
         moduleIO.periodic();
         moduleIO.updateInputs(inputs);
 
-        final Logger logger = Logger.getInstance();
-        final double modulePeriodicUpdateStart = logger.getRealTimestamp();
+        final double modulePeriodicUpdateStart = Logger.getRealTimestamp();
 
-        logger.processInputs(logKey, inputs);
+        Logger.processInputs(logKey, inputs);
 
-        logger.recordOutput(logKey + "/CurrentState", getState());
-        logger.recordOutput(logKey + "/LastDesiredState", lastDesiredState);
-        logger.recordOutput(
+        Logger.recordOutput(logKey + "/CurrentState", CustomStructs.swerveModuleState, getState());
+        Logger.recordOutput(logKey + "/LastDesiredState", CustomStructs.swerveModuleState, lastDesiredState);
+        Logger.recordOutput(
                 logKey + "/DriveDesiredVelocityRotsPerSec",
                 computeDesiredDriverVelocity(lastDesiredState)
         );
 
-        logger.recordOutput(
+        Logger.recordOutput(
                 logKey + "/TurnDesiredAbsolutePositionRots",
                 computeDesiredTurnerRotations(lastDesiredState)
         );
 
-        logger.recordOutput(
+        Logger.recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
-                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - modulePeriodicUpdateStart)
+                LogUtils.microsecondsToMilliseconds(Logger.getRealTimestamp() - modulePeriodicUpdateStart)
         );
     }
 
