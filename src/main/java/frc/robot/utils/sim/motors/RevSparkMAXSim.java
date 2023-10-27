@@ -88,9 +88,6 @@ public class RevSparkMAXSim implements SimMotorController {
             final double velocity = relativeEncoder.getVelocity();
             final double positionConversionFactor = relativeEncoder.getPositionConversionFactor();
 
-//            Logger.getInstance().recordOutput(String.format("SparkMax_%d_position", sparkMax.getDeviceId()), position);
-//            Logger.getInstance().recordOutput(String.format("SparkMax_%d_velocity", sparkMax.getDeviceId()), velocity);
-
             relativeEncoder.setPosition(position + velocity * dtMs / 60000.0 * positionConversionFactor);
         }
     }

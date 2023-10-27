@@ -404,6 +404,7 @@ public class SuperstructureStates {
 
     public enum CANdleState {
         OFF(),
+        BLUE(38,69,194),
         YELLOW(200, 100, 0),
         PURPLE(200, 0, 150),
         RED(200, 0, 0);
