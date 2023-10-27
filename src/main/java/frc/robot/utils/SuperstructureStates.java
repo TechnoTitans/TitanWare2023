@@ -12,41 +12,59 @@ public class SuperstructureStates {
 
     public enum VerticalTransitionMode {
         EXTENDING_Z_PLUS,
-        RETRACTING_Z_MINUS
+        RETRACTING_Z_MINUS,
+        HOLDING_Z
     }
 
     public enum HorizontalTransitionMode {
         EXTENDING_X_PLUS,
-        RETRACTING_X_MINUS
+        RETRACTING_X_MINUS,
+        HOLDING_Z
     }
 
     public static SuperstructureStates.VerticalTransitionMode getVerticalTransitionMode(
             final SuperstructureStates.VerticalElevatorMode verticalElevatorMode,
-            final double currentVerticalControl,
-            final double nextVerticalControlInput
+            final double lastVEControlInput,
+            final double currentVEControlInput
     ) {
         return switch (verticalElevatorMode) {
-            case MOTION_MAGIC, POSITION -> nextVerticalControlInput >= currentVerticalControl
-                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
-                    : VerticalTransitionMode.RETRACTING_Z_MINUS;
-            case DUTY_CYCLE -> nextVerticalControlInput >= 0
-                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
-                    : VerticalTransitionMode.RETRACTING_Z_MINUS;
+            case MOTION_MAGIC, POSITION -> currentVEControlInput == lastVEControlInput
+                    ? VerticalTransitionMode.HOLDING_Z
+                    : (
+                            currentVEControlInput > lastVEControlInput
+                                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
+                                    : VerticalTransitionMode.RETRACTING_Z_MINUS
+            );
+            case DUTY_CYCLE -> currentVEControlInput == 0
+                    ? VerticalTransitionMode.HOLDING_Z
+                    : (
+                            currentVEControlInput > 0
+                                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
+                                    : VerticalTransitionMode.RETRACTING_Z_MINUS
+            );
         };
     }
 
     public static HorizontalTransitionMode getHorizontalTransitionMode(
             final HorizontalElevatorMode horizontalElevatorMode,
-            final double currentHorizontalControl,
-            final double nextHorizontalControlInput
+            final double lastHEControlInput,
+            final double currentHEControlInput
     ) {
         return switch (horizontalElevatorMode) {
-            case POSITION -> nextHorizontalControlInput >= currentHorizontalControl
-                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
-                    : HorizontalTransitionMode.RETRACTING_X_MINUS;
-            case DUTY_CYCLE -> nextHorizontalControlInput >= 0
-                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
-                    : HorizontalTransitionMode.RETRACTING_X_MINUS;
+            case POSITION -> currentHEControlInput == lastHEControlInput
+                    ? HorizontalTransitionMode.HOLDING_Z
+                    : (
+                            currentHEControlInput > lastHEControlInput
+                                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
+                                    : HorizontalTransitionMode.RETRACTING_X_MINUS
+            );
+            case DUTY_CYCLE -> currentHEControlInput == 0
+                    ? HorizontalTransitionMode.HOLDING_Z
+                    : (
+                            currentHEControlInput > 0
+                                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
+                                    : HorizontalTransitionMode.RETRACTING_X_MINUS
+            );
         };
     }
 

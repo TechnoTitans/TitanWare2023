@@ -35,6 +35,7 @@ public class ElevatorIOReal implements ElevatorIO {
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
+    private SuperstructureStates.ElevatorState lastDesiredState = desiredState;
 
     private final ProfiledPIDController horizontalElevatorExtensionPID;
     private final ProfiledPIDController horizontalElevatorRetractionPID;
@@ -135,29 +136,19 @@ public class ElevatorIOReal implements ElevatorIO {
         );
     }
 
-    private double getVEControl() {
-        return switch (verticalElevatorMode) {
-            case POSITION, MOTION_MAGIC -> getVEPosition();
-            case DUTY_CYCLE -> verticalElevatorMotor.getDutyCycle().refresh().getValue();
-        };
-    }
-
-    private double getHEControl() {
-        return switch (horizontalElevatorMode) {
-            case POSITION -> getHEPosition();
-            case DUTY_CYCLE -> horizontalElevatorMotor.getAppliedOutput();
-        };
-    }
-
     private MotionMagicVoltage getVerticalMotionMagicControl(
             final MotionMagicVoltage motionMagicVoltage,
             final double positionRots
     ) {
         final SuperstructureStates.VerticalTransitionMode verticalTransitionMode =
-                SuperstructureStates.getVerticalTransitionMode(verticalElevatorMode, getVEControl(), VEControlInput);
+                SuperstructureStates.getVerticalTransitionMode(
+                        verticalElevatorMode,
+                        lastDesiredState.getVEControlInput(),
+                        VEControlInput
+                );
 
         return switch (verticalTransitionMode) {
-            case EXTENDING_Z_PLUS -> motionMagicVoltage
+            case HOLDING_Z, EXTENDING_Z_PLUS -> motionMagicVoltage
                     .withSlot(0)
                     .withPosition(positionRots);
             case RETRACTING_Z_MINUS -> motionMagicVoltage
@@ -168,10 +159,14 @@ public class ElevatorIOReal implements ElevatorIO {
 
     private ProfiledPIDController getHorizontalElevatorPID() {
         final SuperstructureStates.HorizontalTransitionMode nextTransitionMode =
-                SuperstructureStates.getHorizontalTransitionMode(horizontalElevatorMode, getHEControl(), HEControlInput);
+                SuperstructureStates.getHorizontalTransitionMode(
+                        horizontalElevatorMode,
+                        lastDesiredState.getHEControlInput(),
+                        HEControlInput
+                );
 
         final ProfiledPIDController nextController = switch (horizontalTransitionMode) {
-            case EXTENDING_X_PLUS -> horizontalElevatorExtensionPID;
+            case HOLDING_Z, EXTENDING_X_PLUS -> horizontalElevatorExtensionPID;
             case RETRACTING_X_MINUS -> horizontalElevatorRetractionPID;
         };
 
@@ -338,7 +333,9 @@ public class ElevatorIOReal implements ElevatorIO {
 
     @Override
     public void setDesiredState(final SuperstructureStates.ElevatorState desiredState) {
+        this.lastDesiredState = this.desiredState;
         this.desiredState = desiredState;
+
         this.verticalElevatorMode = desiredState.getVerticalElevatorMode();
         this.VEControlInput = desiredState.getVEControlInput();
         this.horizontalElevatorMode = desiredState.getHorizontalElevatorMode();
