@@ -299,8 +299,6 @@ public class ElevatorIOReal implements ElevatorIO {
         verticalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         verticalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorR;
-        verticalElevatorMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        verticalElevatorMotorConfig.CurrentLimits.StatorCurrentLimit = 60;
         // TODO: tune motion magic config
         verticalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
         verticalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 140;
@@ -312,8 +310,6 @@ public class ElevatorIOReal implements ElevatorIO {
         final TalonFXConfiguration verticalElevatorMotorFollowerConfig = new TalonFXConfiguration();
         verticalElevatorMotorFollowerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         verticalElevatorMotorFollowerConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerInverted;
-        verticalElevatorMotorFollowerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        verticalElevatorMotorFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
 
         verticalElevatorMotorFollower.getConfigurator().apply(verticalElevatorMotorFollowerConfig);
 
