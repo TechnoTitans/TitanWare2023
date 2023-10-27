@@ -1,5 +1,5 @@
 {
-  "version": "2.3.0",
+  "version": "3.0.0-beta-3",
   "layout": [
     {
       "type": 1,
@@ -12,13 +12,13 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
-              "color": "#e5b31b",
+              "key": "/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
+              "color": "#af2437",
               "show": true
             }
           ]
@@ -34,12 +34,12 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
-              "color": "#af2437",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
               "color": "#80588e",
               "show": true
             }
@@ -62,22 +62,22 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_FrontRight/DriveDesiredVelocityRotsPerSec",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_BackLeft/DriveDesiredVelocityRotsPerSec",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
+              "key": "/RealOutputs/Swerve/Module_BackRight/DriveDesiredVelocityRotsPerSec",
               "color": "#80588e",
               "show": true
             }
@@ -97,22 +97,22 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontLeft/DriveVelocityRotsPerSec",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontRight/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_FrontRight/DriveVelocityRotsPerSec",
               "color": "#aacaee",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackLeft/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_BackLeft/DriveVelocityRotsPerSec",
               "color": "#c0b487",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackRight/DriveVelocityRotsPerSec",
+              "key": "/Swerve/Module_BackRight/DriveVelocityRotsPerSec",
               "color": "#858584",
               "show": true
             }
@@ -135,22 +135,22 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_FrontLeft/TurnDesiredAbsolutePositionRots",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_FrontRight/TurnDesiredAbsolutePositionRots",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_BackLeft/TurnDesiredAbsolutePositionRots",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
+              "key": "/RealOutputs/Swerve/Module_BackRight/TurnDesiredAbsolutePositionRots",
               "color": "#80588e",
               "show": true
             }
@@ -170,22 +170,22 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontLeft/TurnAbsolutePositionRots",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_FrontRight/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_FrontRight/TurnAbsolutePositionRots",
               "color": "#aacaee",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackLeft/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_BackLeft/TurnAbsolutePositionRots",
               "color": "#c0b487",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Swerve/Module_BackRight/TurnAbsolutePositionRots",
+              "key": "/Swerve/Module_BackRight/TurnAbsolutePositionRots",
               "color": "#858584",
               "show": true
             }
@@ -205,17 +205,17 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Gyro/PitchPositionDeg",
+              "key": "/Gyro/PitchPositionDeg",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Gyro/RollPositionDeg",
+              "key": "/Gyro/RollPositionDeg",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Gyro/YawPositionDeg",
+              "key": "/Gyro/YawPositionDeg",
               "color": "#af2437",
               "show": true
             }
@@ -224,12 +224,12 @@
         "discrete": {
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Gyro/HasHardwareFault",
+              "key": "/Gyro/HasHardwareFault",
               "color": "#80588e",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Swerve/IsUsingFallbackSimGyro",
+              "key": "/RealOutputs/Swerve/IsUsingFallbackSimGyro",
               "color": "#e48b32",
               "show": true
             }
@@ -243,17 +243,17 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/Gyro/PitchVelocityDegPerSec",
+              "key": "/Gyro/PitchVelocityDegPerSec",
               "color": "#aacaee",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Gyro/RollVelocityDegPerSec",
+              "key": "/Gyro/RollVelocityDegPerSec",
               "color": "#c0b487",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/Gyro/YawVelocityDegPerSec",
+              "key": "/Gyro/YawVelocityDegPerSec",
               "color": "#858584",
               "show": true
             }
@@ -276,29 +276,40 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState/0",
+              "key": "/RealOutputs/Auto/WantedState/0",
               "color": "#2b66a2",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState/1",
+              "key": "/RealOutputs/Auto/WantedState/1",
               "color": "#e5b31b",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Auto/EstimatedPose/0",
+              "key": "/RealOutputs/Auto/EstimatedPose/0",
               "color": "#af2437",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Auto/EstimatedPose/1",
+              "key": "/RealOutputs/Auto/EstimatedPose/1",
               "color": "#80588e",
               "show": true
             }
           ]
         },
         "discrete": {
-          "fields": []
+          "fields": [
+            {
+              "key": "/DashboardInputs/AutoSelector",
+              "color": "#c0b487",
+              "show": true
+            },
+            {
+              "key": "/DriverStation/Autonomous",
+              "color": "#858584",
+              "show": true
+            }
+          ]
         },
         "right": {
           "lockedRange": null,
@@ -308,12 +319,12 @@
           },
           "fields": [
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Auto/WantedState/2",
+              "key": "/RealOutputs/Auto/WantedState/2",
               "color": "#e48b32",
               "show": true
             },
             {
-              "key": "NT:/AdvantageKit/RealOutputs/Auto/EstimatedPose/2",
+              "key": "/RealOutputs/Auto/EstimatedPose/2",
               "color": "#aacaee",
               "show": true
             }
@@ -329,13 +340,13 @@
         [
           {
             "type": "Robot",
-            "key": "NT:/AdvantageKit/RealOutputs/Odometry/Robot2d",
+            "key": "/RealOutputs/Odometry/Robot2d",
             "sourceTypeIndex": 0,
             "sourceType": 5
           },
           {
             "type": "Vision Target",
-            "key": "NT:/AdvantageKit/RealOutputs/PhotonVision/ApriltagPose2ds",
+            "key": "/RealOutputs/PhotonVision/ApriltagPose2ds",
             "sourceTypeIndex": 0,
             "sourceType": 5
           }
@@ -351,6 +362,7 @@
         "allianceOrigin": "auto",
         "orientation": "blue left, red right"
       },
+      "configHidden": false,
       "title": "Odometry"
     }
   ]

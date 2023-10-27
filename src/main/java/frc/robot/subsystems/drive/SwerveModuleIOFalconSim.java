@@ -246,13 +246,14 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         this._driveTorqueCurrent = driveMotor.getTorqueCurrent();
         this._driveStatorCurrent = driveMotor.getStatorCurrent();
         this._driveDeviceTemp = driveMotor.getDeviceTemp();
-        this._turnPosition = turnMotor.getPosition();
-        this._turnVelocity = turnMotor.getVelocity();
+        this._turnPosition = turnEncoder.getAbsolutePosition();
+        this._turnVelocity = turnEncoder.getVelocity();
         this._turnTorqueCurrent = turnMotor.getTorqueCurrent();
         this._turnStatorCurrent = turnMotor.getStatorCurrent();
         this._turnDeviceTemp = turnMotor.getDeviceTemp();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void config() {
         final CANcoderConfiguration canCoderConfiguration = new CANcoderConfiguration();

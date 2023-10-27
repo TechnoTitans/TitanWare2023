@@ -372,9 +372,9 @@ public class RobotContainer {
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
                                         photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout
                                 ),
-//                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-//                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
-//                                ),
+                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
+                                ),
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
                                         photonBR_Apriltag_B, PhotonVision.apriltagFieldLayout
                                 ),
@@ -506,25 +506,12 @@ public class RobotContainer {
 
         autoChooser.addAutoOption(new AutoOption("2Cube1Cone", Constants.CompetitionType.COMPETITION));
 
-//        autoChooser.addAutoOption(new AutoOption(
-//                "NewMethod3Piece",
-//                List.of(
-//                        new AutoOption.PathNameWithConstraints("NewMethod5"),
-//                        new AutoOption.PathNameWithConstraints(
-//                                "NewMethod4", new TitanTrajectory.Constraints(1, 1)
-//                        ),
-//                        new AutoOption.PathNameWithConstraints("NewMethod2")
-////                        new AutoOption.PathNameWithConstraints("NewMethod3")
-//                ),
-//                Constants.CompetitionType.COMPETITION
-//        ));
-
         autoChooser.addAutoOption(new AutoOption(
                 "NewMethod3Piece",
                 List.of(
-                        new AutoOption.PathNameWithConstraints("NewMethod1"),
-                        new AutoOption.PathNameWithConstraints("NewMethod2"),
-                        new AutoOption.PathNameWithConstraints("NewMethod3")
+                        new AutoOption.PathOption("NewMethod1"),
+                        new AutoOption.PathOption("NewMethod2"),
+                        new AutoOption.PathOption("NewMethod3")
                 ),
                 Constants.CompetitionType.COMPETITION
         ));
@@ -532,11 +519,8 @@ public class RobotContainer {
         autoChooser.addAutoOption(new AutoOption(
                 "OtherMethod3Piece",
                 List.of(
-                        new AutoOption.PathNameWithConstraints("OtherMethod1"),
-                        new AutoOption.PathNameWithConstraints(
-                                "OtherMethod2",
-                                new TitanTrajectory.Constraints(1, 1)
-                        )
+                        new AutoOption.PathOption("OtherMethod1"),
+                        new AutoOption.PathOption("OtherMethod2")
                 ),
                 Constants.CompetitionType.COMPETITION
         ));

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
     public static final String photonLogKey = "PhotonVision";
-//    protected static final String odometryLogKey = "Odometry";
 
     public static final double TRANSLATION_VELOCITY_TOLERANCE = 0.1;
     public static final double ANGULAR_VELOCITY_TOLERANCE = 0.1;
@@ -71,7 +70,6 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
 
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final Map<T, EstimatedRobotPose> lastEstimatedPosesByCamera;
     private final Map<T, EstimatedRobotPose> lastStableEstimatedPosesByCamera;
 
     private AprilTagFieldLayout.OriginPosition originPosition =
@@ -88,7 +86,6 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         this.poseEstimator = poseEstimator;
         this.photonVisionIOInputsMap = photonVisionIOInputsMap;
 
-        this.lastEstimatedPosesByCamera = new HashMap<>();
         this.lastStableEstimatedPosesByCamera = new HashMap<>();
 
         refreshAlliance();
@@ -225,9 +222,6 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
             final EstimatedRobotPose stableEstimatedRobotPose = photonVisionIOInputs.stableEstimatedRobotPose;
             final EstimatedRobotPose estimatedRobotPose = photonVisionIOInputs.estimatedRobotPose;
 
-            // always add the last estimated pose, even if its null, we want to know immediately if a camera
-            // can no longer see a certain tag
-            lastEstimatedPosesByCamera.put(photonVisionIO, estimatedRobotPose);
             if (estimatedRobotPose == null) {
                 // skip the trouble of calling/indexing things if the estimatedRobotPose is null
                 continue;
@@ -249,11 +243,7 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
 
             // TODO: get better calibrations on cameras or get better cameras
             poseEstimator.addVisionMeasurement(
-//                    estimatedRobotPose.estimatedPose.toPose2d(),
-                    new Pose2d(
-                            estimatedRobotPose.estimatedPose.getTranslation().toTranslation2d(),
-                            swerve.getYaw()
-                    ),
+                    estimatedRobotPose.estimatedPose.toPose2d(),
                     estimatedRobotPose.timestampSeconds
             );
         }
@@ -315,30 +305,6 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         // Update and log PhotonVision results
         update();
         logVisionData();
-
-//        final Rotation2d swerveYaw = swerve.getYaw();
-//        final SwerveModulePosition[] swerveModulePositions = swerve.getModulePositions();
-
-        // Update PoseEstimator and Odometry
-//        final double odometryUpdateStart = Logger.getInstance().getRealTimestamp();
-//        visionIndependentOdometry.update(swerveYaw, swerveModulePositions);
-//        poseEstimator.update(swerveYaw, swerveModulePositions);
-//        final double odometryUpdatePeriodMs = LogUtils.microsecondsToMilliseconds(
-//                Logger.getInstance().getRealTimestamp() - odometryUpdateStart
-//        );
-//
-//        final Pose2d estimatedPosition = poseEstimator.getEstimatedPosition();
-//        Logger.getInstance().recordOutput(
-//                odometryLogKey + "/OdometryUpdatePeriodMs", odometryUpdatePeriodMs
-//        );
-//        Logger.getInstance().recordOutput(
-//                odometryLogKey + "/VisionIndependentRobot2d", visionIndependentOdometry.getPoseMeters()
-//        );
-//        Logger.getInstance().recordOutput(odometryLogKey + "/Robot2d", estimatedPosition);
-//        Logger.getInstance().recordOutput(odometryLogKey + "/Robot3d", GyroUtils.robotPose2dToPose3dWithGyro(
-//                estimatedPosition,
-//                GyroUtils.rpyToRotation3d(swerve.getRoll(), swerve.getPitch(), swerveYaw)
-//        ));
     }
 
     public void refreshAlliance() {

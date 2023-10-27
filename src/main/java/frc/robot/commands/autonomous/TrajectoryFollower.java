@@ -40,12 +40,12 @@ public class TrajectoryFollower extends CommandBase {
     private final Timer timer;
 
     private final Swerve swerve;
-    private final CandleController candleController;
     private final DriveController holonomicDriveController;
     private final DriveToPoseController holdPositionController;
     private final PhotonVision<?> photonVision;
     private final NavigableMap<Double, PathPlannerTrajectory.EventMarker> eventMarkerNavigableMap;
 
+    private final SuperstructureStates.CANdleState originalCandleState;
     private final FollowerContext followerContext;
 
     private boolean isInAuto;
@@ -70,7 +70,6 @@ public class TrajectoryFollower extends CommandBase {
         this.eventMarkerNavigableMap = new TreeMap<>();
 
         this.swerve = swerve;
-        this.candleController = CandleController.getInstance();
         this.holonomicDriveController = holonomicDriveController;
         this.holdPositionController = holdPositionController;
         this.photonVision = photonVision;
@@ -78,6 +77,7 @@ public class TrajectoryFollower extends CommandBase {
         this.transformForAlliance = transformForAlliance;
 
         this.followerContext = followerContext;
+        this.originalCandleState = CandleController.getInstance().getCurrentState();
         addRequirements(swerve, followerContext.getClaw(), followerContext.getElevator());
     }
 
@@ -134,8 +134,7 @@ public class TrajectoryFollower extends CommandBase {
                 ).toArray(Pose2d[]::new)
         );
 
-        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.25);
-
+        CandleController.getInstance().setStrobe(SuperstructureStates.CANdleState.BLUE, 0.25);
         reset();
     }
 
@@ -215,8 +214,7 @@ public class TrajectoryFollower extends CommandBase {
         final Pose2d currentPose = photonVision.getEstimatedPosition();
 
         if (hasMarkers) {
-            //TODO UNCOMMENT WHEN READY
-//             commander(currentPose, currentTime);
+             commander(currentPose, currentTime);
         }
 
         final boolean isWheelX = followerContext.isWheelX();
@@ -239,7 +237,7 @@ public class TrajectoryFollower extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        candleController.setState(SuperstructureStates.CANdleState.OFF);
+        CandleController.getInstance().setState(originalCandleState);
         swerve.stop();
         timer.stop();
     }
