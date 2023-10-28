@@ -12,7 +12,7 @@ import edu.wpi.first.math.util.Units;
 public interface Constants {
     RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
     RobotMode CURRENT_MODE = RobotMode.REAL;
-    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
+    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.COMPETITION;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
 
@@ -137,20 +137,20 @@ public interface Constants {
         );
 
         Transform3d ROBOT_TO_FL_APRILTAG_CAM_L = new Transform3d(
-                new Translation3d(Units.inchesToMeters(12.78474), Units.inchesToMeters(13.52291), Units.inchesToMeters(9.43904)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(120))
+                new Translation3d(Units.inchesToMeters(11.93), Units.inchesToMeters(12.45), Units.inchesToMeters(9.4)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(55))
         );
 
         Transform3d ROBOT_TO_BR_APRILTAG_CAM_B = new Transform3d(
-                new Translation3d(Units.inchesToMeters(-11.87298), Units.inchesToMeters(-11.36695), Units.inchesToMeters(9.151)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(205))
+                new Translation3d(Units.inchesToMeters(-11.78), Units.inchesToMeters(-11.22), Units.inchesToMeters(10.17)),
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(155.05))
         );
 
         /**
-         * Standard deviations of the supplied pose estimate (before vision, likely to be solely wheel odometry)
+         * Standard deviations of the supplied pos  e estimate (before vision, likely to be solely wheel odometry)
          */
-        Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1);
-        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.5, 0.5, 0.5);
+        Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(2.5));
+        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.85, 0.85, Units.degreesToRadians(5));
         double MULTI_TAG_MAX_AMBIGUITY = 0.3;
         double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
     }

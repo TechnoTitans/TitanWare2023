@@ -123,8 +123,8 @@ public class SuperstructureStates {
         ELEVATOR_CUBE(
                 1.3,
                 VerticalElevatorMode.MOTION_MAGIC,
-                -0.3,
-                HorizontalElevatorMode.DUTY_CYCLE,
+                0,
+                HorizontalElevatorMode.POSITION,
                 ElevatorClawStateType.INTAKING
         ),
         ELEVATOR_SINGLE_SUB(
