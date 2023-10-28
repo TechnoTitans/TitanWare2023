@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.constants.Constants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
+import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
 public class ClawIOReal implements ClawIO {
@@ -93,12 +94,12 @@ public class ClawIOReal implements ClawIO {
     public void periodic() {
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
         // TODO: this opens all the way for some reason on STANDBY... gotta fix it!
-//        clawOpenCloseMotor.set(
-//                openCloseControlMode.getControlMode(),
-//                Phoenix5Utils.getPhoenix6To5ControlInput(
-//                        openCloseControlMode.getControlMode(), desiredOpenCloseControlInput
-//                )
-//        );
+        clawOpenCloseMotor.set(
+                openCloseControlMode.getControlMode(),
+                Phoenix5Utils.getPhoenix6To5ControlInput(
+                        openCloseControlMode.getControlMode(), desiredOpenCloseControlInput
+                )
+        );
 
         switch (clawTiltControlMode) {
             case POSITION -> clawTiltNeo.getPIDController().setReference(
