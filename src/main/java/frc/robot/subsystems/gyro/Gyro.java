@@ -1,6 +1,7 @@
 package frc.robot.subsystems.gyro;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.constants.Constants;
 import frc.robot.utils.logging.LogUtils;
@@ -14,11 +15,15 @@ public class Gyro {
     private final GyroIOInputsAutoLogged inputs;
     private final boolean isReal;
 
+    private final LinearFilter pitchVelocityFilter;
+
     public Gyro(final GyroIO gyroIO, final Pigeon2 pigeon2) {
         this.gyroIO = gyroIO;
         this.pigeon2 = pigeon2;
         this.inputs = new GyroIOInputsAutoLogged();
         this.isReal = Constants.CURRENT_MODE == Constants.RobotMode.REAL;
+
+        this.pitchVelocityFilter = LinearFilter.movingAverage(16);
 
         this.gyroIO.config();
     }
@@ -34,6 +39,8 @@ public class Gyro {
                 logKey + "/PeriodicIOPeriodMs",
                 LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - gyroPeriodicUpdateStart)
         );
+
+        Logger.getInstance().recordOutput("FilteredPitchVelocityDPS", getFilteredPitchVelocity());
     }
 
     /**
@@ -98,6 +105,14 @@ public class Gyro {
         return Rotation2d.fromDegrees(getPitch());
     }
 
+    public double getPitchVelocity() {
+        return inputs.pitchVelocityDegPerSec;
+    }
+
+    public double getFilteredPitchVelocity() {
+        return pitchVelocityFilter.calculate(getPitchVelocity());
+    }
+
     /**
      * Get the current roll reported by the Gyro
      * @return the current roll (deg)
@@ -113,6 +128,10 @@ public class Gyro {
      */
     public Rotation2d getRollRotation2d() {
         return Rotation2d.fromDegrees(getRoll());
+    }
+
+    public double getRollVelocity() {
+        return inputs.rollVelocityDegPerSec;
     }
 
     /**
