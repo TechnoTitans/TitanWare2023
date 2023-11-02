@@ -59,7 +59,7 @@ public class TrajectoryManager {
             final boolean reverseTrajectory
     ) {
         final TrajectoryFollower.FollowerContext followerContext =
-                new TrajectoryFollower.FollowerContext(elevator, claw);
+                new TrajectoryFollower.FollowerContext(swerve, elevator, claw);
 
         return pathOptionList.stream()
                 .map(

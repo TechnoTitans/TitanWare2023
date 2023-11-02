@@ -130,8 +130,8 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         this._verticalMotorFollowerTorqueCurrent = verticalElevatorMotorFollower.getTorqueCurrent();
         this._verticalMotorDeviceTemp = verticalElevatorMotor.getDeviceTemp();
         this._verticalMotorFollowerDeviceTemp = verticalElevatorMotorFollower.getDeviceTemp();
-        this._horizontalPosition = horizontalElevatorEncoder.getPosition();
-        this._horizontalVelocity = horizontalElevatorEncoder.getVelocity();
+        this._horizontalPosition = horizontalElevatorMotor.getPosition();
+        this._horizontalVelocity = horizontalElevatorMotor.getVelocity();
     }
 
     private MotionMagicVoltage getVerticalMotionMagicControl(
@@ -164,7 +164,8 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         }
 
         if (!horizontalElevatorReset && horizontalElevatorRearLimitSwitch.get()) {
-            horizontalElevatorEncoder.setPosition(0);
+//            horizontalElevatorEncoder.setPosition(0);
+            horizontalElevatorMotor.setRotorPosition(0);
             horizontalElevatorMode = SuperstructureStates.HorizontalElevatorMode.DUTY_CYCLE;
             HEControlInput = 0;
             horizontalElevatorReset = true;
@@ -286,9 +287,9 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         // Horizontal elevator motor
         final TalonFXConfiguration horizontalElevatorMotorConfig = new TalonFXConfiguration();
         horizontalElevatorMotorConfig.Slot0 = new Slot0Configs(18, 0, 0, 0);
-        horizontalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        horizontalElevatorMotorConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Horizontal.GEARING;
-        horizontalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = horizontalElevatorEncoder.getDeviceID();
+        horizontalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        horizontalElevatorMotorConfig.Feedback.SensorToMechanismRatio = SimConstants.Elevator.Horizontal.GEARING;
+//        horizontalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = horizontalElevatorEncoder.getDeviceID();
         horizontalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         horizontalElevatorMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         horizontalElevatorMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;

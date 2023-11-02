@@ -487,7 +487,7 @@ public class RobotContainer {
                 Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER
         );
 
-        //Add paths that are specifically for one competition type here
+//        Add paths that are specifically for one competition type here
         autoChooser.addAutoOption(
                 new AutoOption(
                         "CubeAndChargeBack",
@@ -496,52 +496,52 @@ public class RobotContainer {
                         Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
         autoChooser.addAutoOption(
                 new AutoOption(
                         "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2.5PieceNoBalTurns",
-                        Units.feetToMeters(13),
-                        2 * Units.feetToMeters(13),
-                        Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
-        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2.5PieceNoBalTurns",
+//                        Units.feetToMeters(13),
+//                        2 * Units.feetToMeters(13),
+//                        Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
+//        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+//
+//        autoChooser.addAutoOption(new AutoOption("2Cube1Cone", Constants.CompetitionType.COMPETITION));
 
-        autoChooser.addAutoOption(new AutoOption("2Cube1Cone", Constants.CompetitionType.COMPETITION));
-
-        autoChooser.addAutoOption(new AutoOption(
-                "NewMethod3Piece",
-                List.of(
-                        new AutoOption.PathOption("NewMethod1"),
-                        new AutoOption.PathOption("NewMethod2"),
-                        new AutoOption.PathOption("NewMethod3")
-                ),
-                Constants.CompetitionType.COMPETITION
-        ));
-
-        autoChooser.addAutoOption(new AutoOption(
-                "OtherMethod3Piece",
-                List.of(
-                        new AutoOption.PathOption("OtherMethod1"),
-                        new AutoOption.PathOption("OtherMethod2")
-                ),
-                Constants.CompetitionType.COMPETITION
-        ));
+//        autoChooser.addAutoOption(new AutoOption(
+//                "NewMethod3Piece",
+//                List.of(
+//                        new AutoOption.PathOption("NewMethod1"),
+//                        new AutoOption.PathOption("NewMethod2"),
+//                        new AutoOption.PathOption("NewMethod3")
+//                ),
+//                Constants.CompetitionType.COMPETITION
+//        ));
+//
+//        autoChooser.addAutoOption(new AutoOption(
+//                "OtherMethod3Piece",
+//                List.of(
+//                        new AutoOption.PathOption("OtherMethod1"),
+//                        new AutoOption.PathOption("OtherMethod2")
+//                ),
+//                Constants.CompetitionType.COMPETITION
+//        ));
 
         //Add the remaining paths automatically
         autoChooser.addOptionsIfNotPresent(

@@ -74,16 +74,16 @@
     },
     {
       "anchorPoint": {
-        "x": 7.069533454330818,
-        "y": 1.0291912167276542
+        "x": 6.77684345753307,
+        "y": 0.732254156816008
       },
       "prevControl": {
-        "x": 6.0508405855911604,
-        "y": 0.8863838052220943
+        "x": 5.842255915281064,
+        "y": 0.7418890799320065
       },
       "nextControl": {
-        "x": 6.0508405855911604,
-        "y": 0.8863838052220943
+        "x": 5.842255915281064,
+        "y": 0.7418890799320065
       },
       "holonomicAngle": 0.0,
       "isReversal": true,
@@ -124,12 +124,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8092227910561378,
-        "y": 1.086368506545857
+        "x": 1.8206582490197787,
+        "y": 1.212158544145904
       },
       "prevControl": {
-        "x": 2.0091531671639205,
-        "y": 0.277126508014354
+        "x": 2.2666411096017622,
+        "y": 0.4116764866910612
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -150,7 +150,7 @@
   "isReversed": null,
   "markers": [
     {
-      "position": 2.2181818181818365,
+      "position": 2.1,
       "names": [
         "elevator:ELEVATOR_CUBE;claw:CLAW_ANGLE_CUBE;"
       ]
@@ -162,7 +162,7 @@
       ]
     },
     {
-      "position": 3.0,
+      "position": 3.05,
       "names": [
         "dtpause:true;claw:CLAW_HOLDING;elevator:ELEVATOR_STANDBY;dtpause:false;"
       ]
