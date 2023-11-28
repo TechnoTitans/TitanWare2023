@@ -13,7 +13,7 @@ import org.photonvision.PhotonPoseEstimator;
 public interface Constants {
     RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
     RobotMode CURRENT_MODE = RobotMode.REAL;
-    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
+    CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.COMPETITION;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
 
@@ -52,10 +52,10 @@ public interface Constants {
         double BATTERY_NOMINAL_VOLTAGE = 12;
         double BATTERY_RESISTANCE_OHMS = 0.02;
 
-        int[] DRIVETRAIN_CHANNELS = {0, 1, 2, 3, 4, 5, 6, 7};
-        int[] VERTICAL_ELEVATOR_CHANNELS = {10, 11};
-        int[] HORIZONTAL_ELEVATOR_CHANNELS = {12};
-        int[] CLAW_CHANNELS = {13, 14, 15, 16};
+        int[] DRIVETRAIN_CHANNELS = {3, 4, 6, 7, 19, 16, 18, 17};
+        int[] VERTICAL_ELEVATOR_CHANNELS = {8, 5};
+        int[] HORIZONTAL_ELEVATOR_CHANNELS = {10};
+        int[] CLAW_CHANNELS = {11, 0, 1, 2};
     }
 
     interface NetworkTables {
@@ -144,19 +144,19 @@ public interface Constants {
 
         Transform3d ROBOT_TO_FL_APRILTAG_CAM_L = new Transform3d(
                 new Translation3d(Units.inchesToMeters(11.93), Units.inchesToMeters(12.45), Units.inchesToMeters(9.4)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(145.93))
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(55))
         );
 
         Transform3d ROBOT_TO_BR_APRILTAG_CAM_B = new Transform3d(
                 new Translation3d(Units.inchesToMeters(-11.78), Units.inchesToMeters(-11.22), Units.inchesToMeters(10.17)),
-                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(244.2))
+                new Rotation3d(0, Units.degreesToRadians(-15), Units.degreesToRadians(155.05))
         );
 
         /**
-         * Standard deviations of the supplied pose estimate (before vision, likely to be solely wheel odometry)
+         * Standard deviations of the supplied pos  e estimate (before vision, likely to be solely wheel odometry)
          */
-        Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1);
-        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(1, 1, 1);
+        Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(2.5));
+        Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.85, 0.85, Units.degreesToRadians(5));
         double MULTI_TAG_MAX_AMBIGUITY = 0.3;
         double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
     }

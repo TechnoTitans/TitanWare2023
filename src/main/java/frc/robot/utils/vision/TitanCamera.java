@@ -18,7 +18,7 @@ public enum TitanCamera {
             CameraProperties.MICROSOFT_LIFECAM_HD3000,
             true
     ),
-    PHOTON_FR_APRILTAG_F(
+    PHOTON_FR_Apriltag_F(
             RobotMap.PhotonVision_FR_Apriltag_F,
             Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F,
             CameraProperties.SPINEL_UC10MPC_ND_OV9281,
