@@ -241,14 +241,15 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
 
             lastStableEstimatedPosesByCamera.put(photonVisionIO, stableEstimatedRobotPose);
 
-            final Pose2d estimatedPoseWithGyro = new Pose2d(
-                    estimatedRobotPose.estimatedPose.getTranslation().toTranslation2d(),
-                    swerve.getYaw()
-            );
+//            final Pose2d estimatedPoseWithGyro = new Pose2d(
+//                    estimatedRobotPose.estimatedPose.getTranslation().toTranslation2d(),
+//                    swerve.getYaw()
+//            );
 
             // TODO: get better calibrations on cameras or get better cameras
             poseEstimator.addVisionMeasurement(
-                    estimatedPoseWithGyro,
+//                    estimatedPoseWithGyro,
+                    estimatedRobotPose.estimatedPose.toPose2d(),
                     estimatedRobotPose.timestampSeconds
             );
         }
