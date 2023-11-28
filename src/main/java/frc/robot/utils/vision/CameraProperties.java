@@ -96,14 +96,14 @@ public enum CameraProperties {
         private final int height;
 
         private static final Map<Integer, Map<Integer, Resolution>> resolutionsMap = Arrays.stream(values())
-                        .collect(Collectors.toUnmodifiableMap(
-                                Resolution::getWidth,
-                                resolution -> new HashMap<>(Map.of(resolution.getHeight(), resolution)),
-                                (existingMap, nextMap) -> {
-                                    existingMap.putAll(nextMap);
-                                    return existingMap;
-                                }
-                        ));
+                .collect(Collectors.toUnmodifiableMap(
+                        Resolution::getWidth,
+                        resolution -> new HashMap<>(Map.of(resolution.getHeight(), resolution)),
+                        (existingMap, nextMap) -> {
+                            existingMap.putAll(nextMap);
+                            return existingMap;
+                        }
+                ));
 
         Resolution(final int width, final int height) {
             this.width = width;

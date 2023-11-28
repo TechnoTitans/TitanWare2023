@@ -126,8 +126,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Brake);
-//        robotContainer.elevator.setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
-//        robotContainer.claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
 
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.swerve);
         CommandScheduler.getInstance().removeDefaultCommand(robotContainer.elevator);
@@ -169,6 +167,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         ButtonBindings.bindAll(robotContainer);
+        robotContainer.elevator.setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
+        robotContainer.claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
 
         final PhotonVision<?> photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance();

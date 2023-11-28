@@ -12,41 +12,59 @@ public class SuperstructureStates {
 
     public enum VerticalTransitionMode {
         EXTENDING_Z_PLUS,
-        RETRACTING_Z_MINUS
+        RETRACTING_Z_MINUS,
+        HOLDING_Z
     }
 
     public enum HorizontalTransitionMode {
         EXTENDING_X_PLUS,
-        RETRACTING_X_MINUS
+        RETRACTING_X_MINUS,
+        HOLDING_Z
     }
 
     public static SuperstructureStates.VerticalTransitionMode getVerticalTransitionMode(
             final SuperstructureStates.VerticalElevatorMode verticalElevatorMode,
-            final double currentVerticalControl,
-            final double nextVerticalControlInput
+            final double lastVEControlInput,
+            final double currentVEControlInput
     ) {
         return switch (verticalElevatorMode) {
-            case MOTION_MAGIC, POSITION -> nextVerticalControlInput >= currentVerticalControl
-                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
-                    : VerticalTransitionMode.RETRACTING_Z_MINUS;
-            case DUTY_CYCLE -> nextVerticalControlInput >= 0
-                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
-                    : VerticalTransitionMode.RETRACTING_Z_MINUS;
+            case MOTION_MAGIC, POSITION -> currentVEControlInput == lastVEControlInput
+                    ? VerticalTransitionMode.HOLDING_Z
+                    : (
+                            currentVEControlInput > lastVEControlInput
+                                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
+                                    : VerticalTransitionMode.RETRACTING_Z_MINUS
+            );
+            case DUTY_CYCLE -> currentVEControlInput == 0
+                    ? VerticalTransitionMode.HOLDING_Z
+                    : (
+                            currentVEControlInput > 0
+                                    ? VerticalTransitionMode.EXTENDING_Z_PLUS
+                                    : VerticalTransitionMode.RETRACTING_Z_MINUS
+            );
         };
     }
 
     public static HorizontalTransitionMode getHorizontalTransitionMode(
             final HorizontalElevatorMode horizontalElevatorMode,
-            final double currentHorizontalControl,
-            final double nextHorizontalControlInput
+            final double lastHEControlInput,
+            final double currentHEControlInput
     ) {
         return switch (horizontalElevatorMode) {
-            case POSITION -> nextHorizontalControlInput >= currentHorizontalControl
-                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
-                    : HorizontalTransitionMode.RETRACTING_X_MINUS;
-            case DUTY_CYCLE -> nextHorizontalControlInput >= 0
-                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
-                    : HorizontalTransitionMode.RETRACTING_X_MINUS;
+            case POSITION -> currentHEControlInput == lastHEControlInput
+                    ? HorizontalTransitionMode.HOLDING_Z
+                    : (
+                            currentHEControlInput > lastHEControlInput
+                                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
+                                    : HorizontalTransitionMode.RETRACTING_X_MINUS
+            );
+            case DUTY_CYCLE -> currentHEControlInput == 0
+                    ? HorizontalTransitionMode.HOLDING_Z
+                    : (
+                            currentHEControlInput > 0
+                                    ? HorizontalTransitionMode.EXTENDING_X_PLUS
+                                    : HorizontalTransitionMode.RETRACTING_X_MINUS
+            );
         };
     }
 
@@ -105,8 +123,8 @@ public class SuperstructureStates {
         ELEVATOR_CUBE(
                 1.3,
                 VerticalElevatorMode.MOTION_MAGIC,
-                -0.3,
-                HorizontalElevatorMode.DUTY_CYCLE,
+                0,
+                HorizontalElevatorMode.POSITION,
                 ElevatorClawStateType.INTAKING
         ),
         ELEVATOR_SINGLE_SUB(
@@ -240,7 +258,7 @@ public class SuperstructureStates {
         CLAW_INTAKING_CONE(
                 0.5,
                 ClawTiltControlMode.POSITION,
-                0.23,
+                0.29,
                 ClawOpenCloseControlMode.POSITION,
                 0.024,
                 ElevatorClawStateType.INTAKING
@@ -249,7 +267,7 @@ public class SuperstructureStates {
         CLAW_INTAKING_CUBE(
                 0.5,
                 ClawTiltControlMode.POSITION,
-                0.3,
+                0.29,
                 ClawOpenCloseControlMode.POSITION,
                 0.171,
                 ElevatorClawStateType.INTAKING
@@ -309,7 +327,7 @@ public class SuperstructureStates {
         CLAW_ANGLE_CUBE(
                 0.6,
                 ClawTiltControlMode.POSITION,
-                0.4,
+                0.38,
                 ClawOpenCloseControlMode.POSITION,
                 0.171,
                 ElevatorClawStateType.INTAKING
@@ -404,6 +422,7 @@ public class SuperstructureStates {
 
     public enum CANdleState {
         OFF(),
+        BLUE(38,69,194),
         YELLOW(200, 100, 0),
         PURPLE(200, 0, 150),
         RED(200, 0, 0);

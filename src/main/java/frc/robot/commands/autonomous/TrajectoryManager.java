@@ -14,7 +14,6 @@ import frc.robot.wrappers.sensors.vision.PhotonVision;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TrajectoryManager {
     private final Swerve swerve;
@@ -55,19 +54,20 @@ public class TrajectoryManager {
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(
-            final List<AutoOption.PathNameWithConstraints> pathNameWithConstraintsList,
+            final AutoOption.PathConfiguration pathConfiguration,
+            final List<AutoOption.PathOption> pathOptionList,
             final boolean reverseTrajectory
     ) {
         final TrajectoryFollower.FollowerContext followerContext =
-                new TrajectoryFollower.FollowerContext(elevator, claw);
+                new TrajectoryFollower.FollowerContext(swerve, elevator, claw);
 
-        return pathNameWithConstraintsList.stream()
+        return pathOptionList.stream()
                 .map(
-                        (pathNameWithConstraints) -> {
-                            final TitanTrajectory.Constraints constraints = pathNameWithConstraints.constraints();
+                        (pathOption) -> {
+                            final TitanTrajectory.Constraints constraints = pathConfiguration.constraints();
                             return TitanTrajectory.fromPathPlannerTrajectory(
                                     PathPlanner.loadPath(
-                                            pathNameWithConstraints.name(),
+                                            pathOption.name(),
                                             constraints.maxVelocity,
                                             constraints.maxAcceleration,
                                             reverseTrajectory
@@ -86,7 +86,7 @@ public class TrajectoryManager {
         }
 
         return getTrajectoriesFromPath(
-                autoOption.pathNameWithConstraintsList(), false
+                autoOption.pathConfiguration(), autoOption.pathOptionList(), false
         );
     }
 

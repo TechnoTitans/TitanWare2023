@@ -27,3 +27,17 @@ For 2023, our guidelines for any and all contributions are as follows:
 3. Break auto...
 4. Fix auto again!
 5. Repeat
+
+### Pre-match Checklist
+1. Check `CURRENT_MODE`, `COMPETITION_TYPE`
+2. Deploy latest code... watch DS for events (errors, warnings, etc...)
+3. Log USB fully seated in RoboRio
+4. **Systems Check**
+   1. `Swerve`
+   2. `Vertical` & `Horizontal Elevator`
+   3. `Claw Tilt` & `OpenClose`
+   4. `Gyro`
+   5. `PhotonVision`
+5. Launch `GameNodeSelector`, ensure autos & profiles are loaded, grid is loaded
+6. Battery check
+7. **JOB DONE!! YIPPEE!!!**

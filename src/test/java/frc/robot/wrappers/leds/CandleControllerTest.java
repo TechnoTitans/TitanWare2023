@@ -48,9 +48,4 @@ class CandleControllerTest {
 
         verifyNoMoreInteractions(mockedCandle);
     }
-
-    @Test
-    void setStrobe() {
-        // TODO: test this?
-    }
 }

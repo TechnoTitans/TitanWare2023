@@ -48,7 +48,8 @@ public class RobotContainer {
     //Elevator
     public final TalonFX elevatorVerticalMotorMain, elevatorVerticalMotorFollower;
     public final CANcoder elevatorVerticalEncoder, elevatorHorizontalEncoder;
-    public final TitanSparkMAX elevatorHorizontalNeo;
+//    public final TitanSparkMAX elevatorHorizontalNeo;
+    public final TalonFX elevatorHorizontalMotor;
     public final DigitalInput elevatorVerticalLimitSwitch, elevatorHorizontalLimitSwitch, elevatorHorizontalHighLimitSwitch;
 
     //Claw
@@ -199,9 +200,10 @@ public class RobotContainer {
         elevatorVerticalEncoder = new CANcoder(RobotMap.verticalElevatorEncoder, RobotMap.CANIVORE_CAN_NAME);
         elevatorVerticalLimitSwitch = new DigitalInput(RobotMap.verticalLimitSwitch);
 
-        elevatorHorizontalNeo = new TitanSparkMAX(
-                RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless
-        );
+//        elevatorHorizontalMotor = new TitanSparkMAX(
+//                RobotMap.horizontalElevatorNeo, CANSparkMaxLowLevel.MotorType.kBrushless
+//        );
+        elevatorHorizontalMotor = new TalonFX(RobotMap.horizontalElevatorNeo);
         elevatorHorizontalEncoder = new CANcoder(RobotMap.horizontalElevatorEncoder);
         elevatorHorizontalLimitSwitch = new DigitalInput(RobotMap.horizontalLimitSwitch);
         elevatorHorizontalHighLimitSwitch = new DigitalInput(RobotMap.horizontalLimitHighSwitch);
@@ -234,7 +236,19 @@ public class RobotContainer {
         //Elevator
         elevator = switch (Constants.CURRENT_MODE) {
             case REAL -> new Elevator(
-                    new ElevatorIOReal(
+//                    new ElevatorIOReal(
+//                            elevatorVerticalMotorMain,
+//                            RobotMap.mainVerticalFalconR,
+//                            elevatorVerticalMotorFollower,
+//                            RobotMap.followerVerticalFalconR,
+//                            elevatorVerticalEncoder,
+//                            elevatorHorizontalEncoder,
+//                            RobotMap.verticalElevatorEncoderR,
+//                            elevatorHorizontalNeo,
+//                            elevatorVerticalLimitSwitch,
+//                            elevatorHorizontalLimitSwitch
+//                    )
+                    new ElevatorIOHorizontalFalcon(
                             elevatorVerticalMotorMain,
                             RobotMap.mainVerticalFalconR,
                             elevatorVerticalMotorFollower,
@@ -242,47 +256,51 @@ public class RobotContainer {
                             elevatorVerticalEncoder,
                             elevatorHorizontalEncoder,
                             RobotMap.verticalElevatorEncoderR,
-                            elevatorHorizontalNeo,
+                            elevatorHorizontalMotor,
                             elevatorVerticalLimitSwitch,
                             elevatorHorizontalLimitSwitch
                     )
             );
-            case SIM -> {
-                 final ElevatorSimSolver simSolver = new ElevatorSimSolver(
-                        elevatorVerticalMotorMain,
-                        elevatorVerticalMotorFollower,
-                        elevatorVerticalEncoder,
-                        elevatorHorizontalEncoder,
-                        elevatorHorizontalNeo
-                 );
-
-                 yield new Elevator(
-                         new ElevatorIOSim(
-                                 elevatorVerticalMotorMain,
-                                 RobotMap.mainVerticalFalconR,
-                                 elevatorVerticalMotorFollower,
-                                 RobotMap.followerVerticalFalconR,
-                                 elevatorVerticalEncoder,
-                                 RobotMap.verticalElevatorEncoderR,
-                                 elevatorHorizontalEncoder,
-                                 RobotMap.horizontalElevatorEncoderR,
-                                 elevatorHorizontalNeo,
-                                 elevatorVerticalLimitSwitch,
-                                 elevatorHorizontalLimitSwitch,
-                                 simSolver
-                         ),
-                         simSolver
-                 );
-            }
-            case REPLAY -> new Elevator(
+//            case SIM -> {
+//                 final ElevatorSimSolver simSolver = new ElevatorSimSolver(
+//                        elevatorVerticalMotorMain,
+//                        elevatorVerticalMotorFollower,
+//                        elevatorVerticalEncoder,
+//                        elevatorHorizontalEncoder,
+//                         elevatorHorizontalMotor
+//                 );
+//
+//                 yield new Elevator(
+//                         new ElevatorIOSim(
+//                                 elevatorVerticalMotorMain,
+//                                 RobotMap.mainVerticalFalconR,
+//                                 elevatorVerticalMotorFollower,
+//                                 RobotMap.followerVerticalFalconR,
+//                                 elevatorVerticalEncoder,
+//                                 RobotMap.verticalElevatorEncoderR,
+//                                 elevatorHorizontalEncoder,
+//                                 RobotMap.horizontalElevatorEncoderR,
+//                                 elevatorHorizontalMotor,
+//                                 elevatorVerticalLimitSwitch,
+//                                 elevatorHorizontalLimitSwitch,
+//                                 simSolver
+//                         ),
+//                         simSolver
+//                 );
+//            }
+//            case REPLAY -> new Elevator(
+//                    new ElevatorIO() {},
+//                    new ElevatorSimSolver(
+//                        elevatorVerticalMotorMain,
+//                        elevatorVerticalMotorFollower,
+//                        elevatorVerticalEncoder,
+//                        elevatorHorizontalEncoder,
+//                            elevatorHorizontalMotor
+//                    )
+//            );
+            case SIM, REPLAY -> new Elevator(
                     new ElevatorIO() {},
-                    new ElevatorSimSolver(
-                        elevatorVerticalMotorMain,
-                        elevatorVerticalMotorFollower,
-                        elevatorVerticalEncoder,
-                        elevatorHorizontalEncoder,
-                        elevatorHorizontalNeo
-                    )
+                    null
             );
         };
 
@@ -359,7 +377,7 @@ public class RobotContainer {
 
         //Vision
         photonDriveCamera = TitanCamera.DRIVER_CAM;
-        photonFR_Apriltag_F = TitanCamera.PHOTON_FR_APRILTAG_F;
+        photonFR_Apriltag_F = TitanCamera.PHOTON_FR_Apriltag_F;
         photonFR_Apriltag_R = TitanCamera.PHOTON_FR_Apriltag_R;
         photonFL_Apriltag_L = TitanCamera.PHOTON_FL_Apriltag_L;
         photonBR_Apriltag_B = TitanCamera.PHOTON_BR_Apriltag_B;
@@ -372,8 +390,14 @@ public class RobotContainer {
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
                                         photonFR_Apriltag_F, PhotonVision.apriltagFieldLayout
                                 ),
+//                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+//                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
+//                                ),
+//                                new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
+//                                        photonBR_Apriltag_B, PhotonVision.apriltagFieldLayout
+//                                ),
                                 new PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal(
-                                        photonFR_Apriltag_R, PhotonVision.apriltagFieldLayout
+                                        photonFL_Apriltag_L, PhotonVision.apriltagFieldLayout
                                 )
                         );
 
@@ -463,7 +487,7 @@ public class RobotContainer {
                 Constants.NetworkTables.AUTO_SELECTED_SUBSCRIBER
         );
 
-        //Add paths that are specifically for one competition type here
+//        Add paths that are specifically for one competition type here
         autoChooser.addAutoOption(
                 new AutoOption(
                         "CubeAndChargeBack",
@@ -472,54 +496,52 @@ public class RobotContainer {
                         Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
         autoChooser.addAutoOption(
                 new AutoOption(
                         "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
                 )
         );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2.5PieceNoBalTurns",
-                        Units.feetToMeters(13),
-                        2 * Units.feetToMeters(13),
-                        Constants.CompetitionType.COMPETITION
-                )
-        );
-        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
-        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2.5PieceNoBalTurns",
+//                        Units.feetToMeters(13),
+//                        2 * Units.feetToMeters(13),
+//                        Constants.CompetitionType.COMPETITION
+//                )
+//        );
+//        autoChooser.addAutoOption(new AutoOption("3PieceAuton", Constants.CompetitionType.COMPETITION));
+//        autoChooser.addAutoOption(new AutoOption("3PieceAutonV2", Constants.CompetitionType.COMPETITION));
+//
+//        autoChooser.addAutoOption(new AutoOption("2Cube1Cone", Constants.CompetitionType.COMPETITION));
 
 //        autoChooser.addAutoOption(new AutoOption(
 //                "NewMethod3Piece",
 //                List.of(
-//                        new AutoOption.PathNameWithConstraints("NewMethod5"),
-//                        new AutoOption.PathNameWithConstraints(
-//                                "NewMethod4", new TitanTrajectory.Constraints(1, 1)
-//                        ),
-//                        new AutoOption.PathNameWithConstraints("NewMethod2")
-////                        new AutoOption.PathNameWithConstraints("NewMethod3")
+//                        new AutoOption.PathOption("NewMethod1"),
+//                        new AutoOption.PathOption("NewMethod2"),
+//                        new AutoOption.PathOption("NewMethod3")
 //                ),
 //                Constants.CompetitionType.COMPETITION
 //        ));
-
-        autoChooser.addAutoOption(new AutoOption(
-                "NewMethod3Piece",
-                List.of(
-                        new AutoOption.PathNameWithConstraints("NewMethod1"),
-                        new AutoOption.PathNameWithConstraints("NewMethod2"),
-                        new AutoOption.PathNameWithConstraints("NewMethod3")
-                ),
-                Constants.CompetitionType.COMPETITION
-        ));
+//
+//        autoChooser.addAutoOption(new AutoOption(
+//                "OtherMethod3Piece",
+//                List.of(
+//                        new AutoOption.PathOption("OtherMethod1"),
+//                        new AutoOption.PathOption("OtherMethod2")
+//                ),
+//                Constants.CompetitionType.COMPETITION
+//        ));
 
         //Add the remaining paths automatically
         autoChooser.addOptionsIfNotPresent(

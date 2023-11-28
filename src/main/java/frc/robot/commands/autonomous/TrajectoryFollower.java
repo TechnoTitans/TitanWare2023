@@ -31,6 +31,7 @@ import java.util.TreeMap;
 public class TrajectoryFollower extends CommandBase {
     //TODO: this max value need to be tuned/verified (will depend on how well our auto pid is)
     public static final double MAX_DISTANCE_DIFF_METERS = 0.3;
+    public static final double REJECT_TIME_SECONDS = 1;
     public static boolean HAS_AUTO_RAN = false;
     private final String logKey = "Auto";
 
@@ -40,12 +41,12 @@ public class TrajectoryFollower extends CommandBase {
     private final Timer timer;
 
     private final Swerve swerve;
-    private final CandleController candleController;
     private final DriveController holonomicDriveController;
     private final DriveToPoseController holdPositionController;
     private final PhotonVision<?> photonVision;
     private final NavigableMap<Double, PathPlannerTrajectory.EventMarker> eventMarkerNavigableMap;
 
+    private final SuperstructureStates.CANdleState originalCandleState;
     private final FollowerContext followerContext;
 
     private boolean isInAuto;
@@ -70,7 +71,6 @@ public class TrajectoryFollower extends CommandBase {
         this.eventMarkerNavigableMap = new TreeMap<>();
 
         this.swerve = swerve;
-        this.candleController = CandleController.getInstance();
         this.holonomicDriveController = holonomicDriveController;
         this.holdPositionController = holdPositionController;
         this.photonVision = photonVision;
@@ -78,6 +78,7 @@ public class TrajectoryFollower extends CommandBase {
         this.transformForAlliance = transformForAlliance;
 
         this.followerContext = followerContext;
+        this.originalCandleState = CandleController.getInstance().getCurrentState();
         addRequirements(swerve, followerContext.getClaw(), followerContext.getElevator());
     }
 
@@ -134,8 +135,7 @@ public class TrajectoryFollower extends CommandBase {
                 ).toArray(Pose2d[]::new)
         );
 
-        candleController.setStrobe(SuperstructureStates.CANdleState.RED, 0.25);
-
+        CandleController.getInstance().setStrobe(SuperstructureStates.CANdleState.BLUE, 0.25);
         reset();
     }
 
@@ -215,8 +215,7 @@ public class TrajectoryFollower extends CommandBase {
         final Pose2d currentPose = photonVision.getEstimatedPosition();
 
         if (hasMarkers) {
-            //TODO UNCOMMENT WHEN READY
-//             commander(currentPose, currentTime);
+             commander(currentPose, currentTime);
         }
 
         final boolean isWheelX = followerContext.isWheelX();
@@ -239,7 +238,7 @@ public class TrajectoryFollower extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        candleController.setState(SuperstructureStates.CANdleState.OFF);
+        CandleController.getInstance().setState(originalCandleState);
         swerve.stop();
         timer.stop();
     }
@@ -276,9 +275,13 @@ public class TrajectoryFollower extends CommandBase {
             nextMarker = currentToCeilingDistance > currentToFloorDistance ? floorMarker : ceilingMarker;
         }
 
+        final double timeToNextMarker = Math.abs(time - nextMarker.timeSeconds);
         final double distanceToNextMarker = nextMarker.positionMeters.getDistance(currentPose.getTranslation());
 
-        if (lastRanMarker == nextMarker || distanceToNextMarker > MAX_DISTANCE_DIFF_METERS) {
+        if (lastRanMarker == nextMarker
+                || distanceToNextMarker > MAX_DISTANCE_DIFF_METERS
+                || timeToNextMarker > REJECT_TIME_SECONDS
+        ) {
             return;
         } else {
             lastRanMarker = nextMarker;
@@ -289,6 +292,7 @@ public class TrajectoryFollower extends CommandBase {
     }
 
     public static class FollowerContext {
+        private final Swerve swerve;
         private final Elevator elevator;
         private final Claw claw;
 
@@ -297,9 +301,14 @@ public class TrajectoryFollower extends CommandBase {
 
         private double moduleMaxSpeed = Constants.Swerve.MODULE_MAX_SPEED;
 
-        public FollowerContext(final Elevator elevator, final Claw claw) {
+        public FollowerContext(final Swerve swerve, final Elevator elevator, final Claw claw) {
+            this.swerve = swerve;
             this.elevator = elevator;
             this.claw = claw;
+        }
+
+        public Swerve getSwerve() {
+            return swerve;
         }
 
         public Elevator getElevator() {
