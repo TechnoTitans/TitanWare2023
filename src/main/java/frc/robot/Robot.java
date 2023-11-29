@@ -102,8 +102,13 @@ public class Robot extends LoggedRobot {
 
         robotContainer = new RobotContainer();
 
-        MarkerCommand.setupPathPlannerNamedCommands(new TrajectoryFollower.FollowerContext(
-                robotContainer.elevator, robotContainer.claw, robotContainer.swerve.getFieldRelativeSpeeds())
+        MarkerCommand.setupPathPlannerNamedCommands(
+                new TrajectoryFollower.FollowerContext(
+                        robotContainer.swerve,
+                        robotContainer.elevator,
+                        robotContainer.claw,
+                        robotContainer.swerve.getFieldRelativeSpeeds()
+                )
         );
 
         // precompute MarkerCommands from registered options on the auto chooser

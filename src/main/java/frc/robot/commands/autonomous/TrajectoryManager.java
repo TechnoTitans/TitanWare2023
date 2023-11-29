@@ -57,18 +57,18 @@ public class TrajectoryManager {
     }
 
     public List<TitanTrajectory> getTrajectoriesFromPath(
-            final List<AutoOption.PathNameWithConstraints> pathNameWithConstraintsList
+            final AutoOption.PathConfiguration pathConfiguration,
+            final List<AutoOption.PathOption> pathOptionsList
     ) {
-        final List<TitanTrajectory> titanTrajectories = new ArrayList<>(pathNameWithConstraintsList.size());
+        final List<TitanTrajectory> titanTrajectories = new ArrayList<>(pathOptionsList.size());
         ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
-        for (final AutoOption.PathNameWithConstraints pathNameWithConstraints : pathNameWithConstraintsList) {
-//            final TitanTrajectory.Constraints constraints = pathNameWithConstraints.constraints();
+        for (final AutoOption.PathOption pathOption : pathOptionsList) {
             final TrajectoryFollower.FollowerContext followerContext =
-                    new TrajectoryFollower.FollowerContext(elevator, claw, lastChassisSpeeds);
+                    new TrajectoryFollower.FollowerContext(swerve, elevator, claw, lastChassisSpeeds);
 
             final TitanTrajectory titanTrajectory = TitanTrajectory.fromPathPlannerPath(
-                    PathPlannerPath.fromPathFile(pathNameWithConstraints.name()),
+                    PathPlannerPath.fromPathFile(pathOption.name()),
                     followerContext
             );
 
@@ -79,10 +79,7 @@ public class TrajectoryManager {
                     endState.headingAngularVelocityRps
             );
 
-            titanTrajectories.add(TitanTrajectory.fromPathPlannerPath(
-                    PathPlannerPath.fromPathFile(pathNameWithConstraints.name()),
-                    followerContext
-            ));
+            titanTrajectories.add(titanTrajectory);
         }
 
         return titanTrajectories;
@@ -95,7 +92,7 @@ public class TrajectoryManager {
         }
 
         return getTrajectoriesFromPath(
-                autoOption.pathNameWithConstraintsList()
+                autoOption.pathConfiguration(), autoOption.pathOptionList()
         );
     }
 

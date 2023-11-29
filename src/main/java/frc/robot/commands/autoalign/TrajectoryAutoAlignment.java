@@ -193,7 +193,7 @@ public class TrajectoryAutoAlignment extends Command {
 //                    .add(currentPose, swerveChassisSpeeds)
                     .add(trajectoryTarget)
                     .withEndVelocityOverride(endVelocity)
-                    .build(new TrajectoryFollower.FollowerContext(swerve, elevator, claw));
+                    .build(new TrajectoryFollower.FollowerContext(swerve, elevator, claw, swerveChassisSpeeds));
 
 //            Logger.getInstance().recordOutput(
 //                    logKey + "/Trajectory",

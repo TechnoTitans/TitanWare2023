@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.constants.Constants;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
@@ -276,8 +274,7 @@ public class TrajectoryFollower extends Command {
         }
 
         final double distanceToNextMarker = nextMarker.getMarkerPosition().getDistance(currentPose.getTranslation());
-        final double timeToNextMarker = Math.abs(time - nextMarker.timeSeconds);
-        final double distanceToNextMarker = nextMarker.positionMeters.getDistance(currentPose.getTranslation());
+        final double timeToNextMarker = Math.abs(time - nextMarker.getTimeSeconds(transformedTrajectory));
 
         if (lastRanMarker == nextMarker
                 || distanceToNextMarker > MAX_DISTANCE_DIFF_METERS

@@ -1,11 +1,10 @@
 package frc.robot.commands.autonomous;
 
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Swerve;
 
-public class AutoBalance extends CommandBase {
+public class AutoBalance extends Command {
     private final Swerve swerve;
 
     public AutoBalance(final Swerve swerve) {

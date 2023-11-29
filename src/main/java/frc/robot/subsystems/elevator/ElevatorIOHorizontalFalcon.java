@@ -165,7 +165,7 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
 
         if (!horizontalElevatorReset && horizontalElevatorRearLimitSwitch.get()) {
 //            horizontalElevatorEncoder.setPosition(0);
-            horizontalElevatorMotor.setRotorPosition(0);
+            horizontalElevatorMotor.setPosition(0);
             horizontalElevatorMode = SuperstructureStates.HorizontalElevatorMode.DUTY_CYCLE;
             HEControlInput = 0;
             horizontalElevatorReset = true;
