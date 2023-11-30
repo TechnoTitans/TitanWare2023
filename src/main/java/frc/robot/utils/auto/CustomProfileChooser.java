@@ -29,7 +29,7 @@ public class CustomProfileChooser<V extends Enum<V>> implements LoggedDashboardI
 
         @Override
         public void fromLog(LogTable table) {
-            selectedProfile = table.getString(ntTableName, selectedProfile);
+            selectedProfile = table.get(ntTableName, selectedProfile);
         }
     };
 
@@ -49,7 +49,7 @@ public class CustomProfileChooser<V extends Enum<V>> implements LoggedDashboardI
         this.selectedProfileSubscriber = ntTable.getStringTopic(ntSubName).subscribe(selectedProfile);
         this.profileMap = new LinkedHashMap<>(Map.of(selectedProfile, defaultProfile));
 
-        Logger.getInstance().registerDashboardInput(this);
+        Logger.registerDashboardInput(this);
         ToClose.add(this);
     }
 
@@ -90,9 +90,9 @@ public class CustomProfileChooser<V extends Enum<V>> implements LoggedDashboardI
 
     @Override
     public void periodic() {
-        if (!Logger.getInstance().hasReplaySource()) {
+        if (!Logger.hasReplaySource()) {
             selectedProfile = selectedProfileSubscriber.get();
         }
-        Logger.getInstance().processInputs(prefix, inputs);
+        Logger.processInputs(prefix, inputs);
     }
 }

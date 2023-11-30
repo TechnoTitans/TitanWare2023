@@ -22,7 +22,6 @@ import frc.robot.utils.alignment.GridNode;
 import frc.robot.utils.alignment.NTGridNode;
 import frc.robot.utils.alignment.SubstationNode;
 import frc.robot.utils.auto.TitanTrajectory;
-import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.teleop.ControllerUtils;
 import frc.robot.utils.teleop.ElevatorClawCommand;
 import org.littletonrobotics.junction.Logger;
@@ -86,7 +85,7 @@ public class TrajectoryAutoAlignment extends Command {
 
     @Override
     public void initialize() {
-        Logger.getInstance().recordOutput(logKey + "IsActive", true);
+        Logger.recordOutput(logKey + "IsActive", true);
 
         if (desiredTrajectoryAlignmentSide == null) {
             cancel();
@@ -102,7 +101,7 @@ public class TrajectoryAutoAlignment extends Command {
             return;
         }
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/TrajectoryAlignmentZone",
                 trajectoryAlignmentZone.toString()
         );
@@ -117,13 +116,13 @@ public class TrajectoryAutoAlignment extends Command {
                 final long ntGridNodeId = NTGridNodeSubscriber.get();
                 final GridNode gridNode = GridNode.getFromNT(SelectedNTGridNode).orElse(null);
 
-                Logger.getInstance().recordOutput(
+                Logger.recordOutput(
                         logKey + "/NTGridNodeId", ntGridNodeId
                 );
-                Logger.getInstance().recordOutput(
+                Logger.recordOutput(
                         logKey + "/NTGridNode", SelectedNTGridNode.toString()
                 );
-                Logger.getInstance().recordOutput(
+                Logger.recordOutput(
                         logKey + "/GridNode", (gridNode != null) ? gridNode.toString() : "None"
                 );
 
@@ -195,7 +194,7 @@ public class TrajectoryAutoAlignment extends Command {
                     .withEndVelocityOverride(endVelocity)
                     .build(new TrajectoryFollower.FollowerContext(swerve, elevator, claw, swerveChassisSpeeds));
 
-//            Logger.getInstance().recordOutput(
+//            Logger.recordOutput(
 //                    logKey + "/Trajectory",
 //                    LogUtils.LoggableTrajectory.fromTrajectory(trajectory)
 //            );
@@ -204,13 +203,13 @@ public class TrajectoryAutoAlignment extends Command {
         }
 
         //Score Sequence
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/AlignmentZone", directAlignmentZone.toString()
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/AlignmentPosition", desiredAlignmentPosition.toString()
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/TargetPose", targetPose
         );
 
@@ -271,6 +270,6 @@ public class TrajectoryAutoAlignment extends Command {
             commandGroup.cancel();
         }
 
-        Logger.getInstance().recordOutput(logKey + "/IsActive", false);
+        Logger.recordOutput(logKey + "/IsActive", false);
     }
 }

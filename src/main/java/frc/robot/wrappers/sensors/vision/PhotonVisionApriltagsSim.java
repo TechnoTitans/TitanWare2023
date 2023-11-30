@@ -173,7 +173,7 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
             ioApriltagsSim.periodic();
             ioApriltagsSim.updateInputs(ioInputs);
 
-            Logger.getInstance().processInputs(
+            Logger.processInputs(
                     String.format("%s/%s", PhotonVision.photonLogKey, ioApriltagsSim.logKey),
                     ioInputs
             );

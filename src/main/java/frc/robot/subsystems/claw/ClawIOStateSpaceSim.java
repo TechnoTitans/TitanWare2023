@@ -199,7 +199,7 @@ public class ClawIOStateSpaceSim implements ClawIO {
                 tiltSystemLoop.predict(dtSeconds);
 
                 final double nextInputVoltage = tiltSystemLoop.getU(0);
-                Logger.getInstance().recordOutput("NextInputVoltage", nextInputVoltage);
+                Logger.recordOutput("NextInputVoltage", nextInputVoltage);
                 clawTiltNeo.getPIDController().setReference(nextInputVoltage, CANSparkMax.ControlType.kVoltage);
             }
             case DUTY_CYCLE -> throw new RuntimeException("UhOh!");

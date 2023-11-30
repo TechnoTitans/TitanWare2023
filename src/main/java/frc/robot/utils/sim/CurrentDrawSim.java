@@ -97,8 +97,8 @@ public class CurrentDrawSim extends VirtualSubsystem {
     @Override
     public void periodic() {
         this.isDataOld = true;
-        Logger.getInstance().recordOutput(logKey + "/TotalCurrentDraw", getTotalCurrentDraw());
-        Logger.getInstance().recordOutput(logKey + "/CurrentDraws", currentDraws.values().stream()
+        Logger.recordOutput(logKey + "/TotalCurrentDraw", getTotalCurrentDraw());
+        Logger.recordOutput(logKey + "/CurrentDraws", currentDraws.values().stream()
                 .mapToDouble(Double::doubleValue)
                 .toArray()
         );

@@ -99,38 +99,38 @@ public class Claw extends SubsystemBase {
 
     @Override
     public void periodic() {
-        final double clawIOPeriodicStart = Logger.getInstance().getRealTimestamp();
+        final double clawIOPeriodicStart = Logger.getRealTimestamp();
         clawIO.periodic();
         clawIO.updateInputs(inputs);
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
-                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - clawIOPeriodicStart)
+                LogUtils.microsecondsToMilliseconds(Logger.getRealTimestamp() - clawIOPeriodicStart)
         );
 
-        Logger.getInstance().processInputs(logKey, inputs);
+        Logger.processInputs(logKey, inputs);
 
         final boolean atDesiredState = isAtDesiredState();
 
-        Logger.getInstance().recordOutput(logKey + "/CurrentState", currentState.toString());
-        Logger.getInstance().recordOutput(logKey + "/DesiredState", desiredState.toString());
-        Logger.getInstance().recordOutput(logKey + "/AtDesiredState", atDesiredState);
-        Logger.getInstance().recordOutput(logKey + "/IsTransitioning", transitioning);
+        Logger.recordOutput(logKey + "/CurrentState", currentState.toString());
+        Logger.recordOutput(logKey + "/DesiredState", desiredState.toString());
+        Logger.recordOutput(logKey + "/AtDesiredState", atDesiredState);
+        Logger.recordOutput(logKey + "/IsTransitioning", transitioning);
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/DesiredTiltControlInput", desiredState.getTiltControlInput()
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/DesiredOpenCloseControlInput", desiredState.getOpenCloseControlInput()
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/DesiredIntakeWheelsPercentOutput", desiredState.getIntakeWheelsPercentOutput()
         );
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/DesiredTiltControlMode", desiredState.getClawTiltControlMode().toString()
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/DesiredOpenCloseControlMode", desiredState.getClawOpenCloseControlMode().toString()
         );
     }

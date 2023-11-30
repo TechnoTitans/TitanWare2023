@@ -67,11 +67,11 @@ public class GyroIOSim implements GyroIO {
         final Twist2d wheelDeltasTwist = kinematics.toTwist2d(wheelDeltas);
         gyroUseOdometryPose = gyroUseOdometryPose.exp(wheelDeltasTwist);
 
-        Logger.getInstance().recordOutput(Gyro.logKey + "/GyroUseOdometryPose", gyroUseOdometryPose);
-        Logger.getInstance().recordOutput(Gyro.logKey + "/WheelDeltasTwistDx", wheelDeltasTwist.dx);
-        Logger.getInstance().recordOutput(Gyro.logKey + "/WheelDeltasTwistDy", wheelDeltasTwist.dy);
-        Logger.getInstance().recordOutput(Gyro.logKey + "/WheelDeltasTwistDTheta", wheelDeltasTwist.dtheta);
-        Logger.getInstance().recordOutput(Gyro.logKey + "/LastSwerveModulePositionMeters", lastSwerveModulePositionMeters);
+        Logger.recordOutput(Gyro.logKey + "/GyroUseOdometryPose", gyroUseOdometryPose);
+        Logger.recordOutput(Gyro.logKey + "/WheelDeltasTwistDx", wheelDeltasTwist.dx);
+        Logger.recordOutput(Gyro.logKey + "/WheelDeltasTwistDy", wheelDeltasTwist.dy);
+        Logger.recordOutput(Gyro.logKey + "/WheelDeltasTwistDTheta", wheelDeltasTwist.dtheta);
+        Logger.recordOutput(Gyro.logKey + "/LastSwerveModulePositionMeters", lastSwerveModulePositionMeters);
 
         setAngleInternal(gyroUseOdometryPose.getRotation().getDegrees());
     }

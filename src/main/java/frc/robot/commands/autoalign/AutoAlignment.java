@@ -74,10 +74,10 @@ public class AutoAlignment extends Command {
         desiredUnmappedAlignmentZone = currentUnmappedAlignmentZone;
         targetPose = currentAlignmentZone.getAlignmentPosition(desiredAlignmentPosition);
 
-        Logger.getInstance().recordOutput(logKey + "/IsActive", true);
-        Logger.getInstance().recordOutput(logKey + "/DesiredAlignmentZone", desiredUnmappedAlignmentZone.toString());
-        Logger.getInstance().recordOutput(logKey + "/WantedPose", targetPose);
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(logKey + "/IsActive", true);
+        Logger.recordOutput(logKey + "/DesiredAlignmentZone", desiredUnmappedAlignmentZone.toString());
+        Logger.recordOutput(logKey + "/WantedPose", targetPose);
+        Logger.recordOutput(
                 logKey + "/AlignmentZoneTrajectory", desiredUnmappedAlignmentZone.getLoggablePoseRegionArray()
         );
     }
@@ -105,9 +105,9 @@ public class AutoAlignment extends Command {
                 true
         );
 
-        Logger.getInstance().recordOutput(logKey + "/ControlEffort", controlEffort);
-        Logger.getInstance().recordOutput(logKey + "/PositionError", alignPIDController.getPositionError());
-        Logger.getInstance().recordOutput(logKey + "/VelocityError", alignPIDController.getVelocityError());
+        Logger.recordOutput(logKey + "/ControlEffort", controlEffort);
+        Logger.recordOutput(logKey + "/PositionError", alignPIDController.getPositionError());
+        Logger.recordOutput(logKey + "/VelocityError", alignPIDController.getVelocityError());
     }
 
     @Override
@@ -115,8 +115,8 @@ public class AutoAlignment extends Command {
         final boolean targetPoseIsNull = targetPose == null;
         final boolean isAtGoal = alignPIDController.atGoal();
 
-        Logger.getInstance().recordOutput(logKey + "/TargetPoseIsNull", targetPoseIsNull);
-        Logger.getInstance().recordOutput(logKey + "/AlignPIDAtGoal", isAtGoal);
+        Logger.recordOutput(logKey + "/TargetPoseIsNull", targetPoseIsNull);
+        Logger.recordOutput(logKey + "/AlignPIDAtGoal", isAtGoal);
 
         // check targetPose first as it should be the least expensive check
         if (targetPoseIsNull) {
@@ -145,6 +145,6 @@ public class AutoAlignment extends Command {
         swerve.stop();
         targetPose = null;
 
-        Logger.getInstance().recordOutput(logKey + "/IsActive", false);
+        Logger.recordOutput(logKey + "/IsActive", false);
     }
 }

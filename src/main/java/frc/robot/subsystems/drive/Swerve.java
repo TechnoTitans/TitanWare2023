@@ -98,7 +98,7 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
-        final double swervePeriodicUpdateStart = Logger.getInstance().getRealTimestamp();
+        final double swervePeriodicUpdateStart = Logger.getRealTimestamp();
         gyro.periodic();
 
         frontLeft.periodic();
@@ -106,9 +106,9 @@ public class Swerve extends SubsystemBase {
         backLeft.periodic();
         backRight.periodic();
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
-                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - swervePeriodicUpdateStart)
+                LogUtils.microsecondsToMilliseconds(Logger.getRealTimestamp() - swervePeriodicUpdateStart)
         );
 
         //report current draws in sim
@@ -124,14 +124,14 @@ public class Swerve extends SubsystemBase {
 
         //log current swerve chassis speeds
         final ChassisSpeeds robotRelativeSpeeds = getRobotRelativeSpeeds();
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/LinearSpeedMetersPerSecond",
                 Math.hypot(robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/RobotRelativeChassisSpeeds", LogUtils.toDoubleArray(robotRelativeSpeeds)
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/FieldRelativeChassisSpeeds", LogUtils.toDoubleArray(getFieldRelativeSpeeds())
         );
 
@@ -139,8 +139,8 @@ public class Swerve extends SubsystemBase {
         final SwerveModuleState[] lastDesiredStates = modifyModuleStatesForDisplay(getModuleLastDesiredStates());
         final SwerveModuleState[] currentStates = modifyModuleStatesForDisplay(getModuleStates());
 
-        Logger.getInstance().recordOutput(logKey + "/DesiredStates", lastDesiredStates);
-        Logger.getInstance().recordOutput(logKey + "/CurrentStates", currentStates);
+        Logger.recordOutput(logKey + "/DesiredStates", lastDesiredStates);
+        Logger.recordOutput(logKey + "/CurrentStates", currentStates);
 
         // only update gyro from wheel odometry if we're not simulating and the gyro has failed
         if (Constants.CURRENT_MODE == Constants.RobotMode.REAL && gyroInputs.hasHardwareFault && gyro.isReal()) {
@@ -148,23 +148,23 @@ public class Swerve extends SubsystemBase {
             gyro = new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
         }
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                logKey + "/IsUsingFallbackSimGyro",
                Constants.CURRENT_MODE == Constants.RobotMode.REAL && !gyro.isReal()
         );
 
         // Update PoseEstimator and Odometry
-        final double odometryUpdateStart = Logger.getInstance().getRealTimestamp();
+        final double odometryUpdateStart = Logger.getRealTimestamp();
         final Pose2d estimatedPosition = poseEstimator.update(getYaw(), getModulePositions());
         final double odometryUpdatePeriodMs = LogUtils.microsecondsToMilliseconds(
-                Logger.getInstance().getRealTimestamp() - odometryUpdateStart
+                Logger.getRealTimestamp() - odometryUpdateStart
         );
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 odometryLogKey + "/OdometryUpdatePeriodMs", odometryUpdatePeriodMs
         );
-        Logger.getInstance().recordOutput(odometryLogKey + "/Robot2d", estimatedPosition);
-        Logger.getInstance().recordOutput(odometryLogKey + "/Robot3d", GyroUtils.robotPose2dToPose3dWithGyro(
+        Logger.recordOutput(odometryLogKey + "/Robot2d", estimatedPosition);
+        Logger.recordOutput(odometryLogKey + "/Robot3d", GyroUtils.robotPose2dToPose3dWithGyro(
                 estimatedPosition,
                 GyroUtils.rpyToRotation3d(getRoll(), getPitch(), getYaw())
         ));

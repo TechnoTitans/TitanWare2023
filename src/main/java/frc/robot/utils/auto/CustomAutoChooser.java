@@ -32,7 +32,7 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
 
         @Override
         public void fromLog(LogTable table) {
-            selectedAuto = table.getString(ntTableName, selectedAuto);
+            selectedAuto = table.get(ntTableName, selectedAuto);
         }
     };
 
@@ -60,7 +60,7 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
         final Map<String, V> initialAutoMap = defaultAuto != null ? Map.of(selectedAuto, defaultAuto) : Map.of();
         this.autoMap = new LinkedHashMap<>(initialAutoMap);
 
-        Logger.getInstance().registerDashboardInput(this);
+        Logger.registerDashboardInput(this);
         ToClose.add(this);
     }
 
@@ -127,9 +127,9 @@ public class CustomAutoChooser<I, V extends AutoOption> implements AutoCloseable
 
     @Override
     public void periodic() {
-        if (!Logger.getInstance().hasReplaySource()) {
+        if (!Logger.hasReplaySource()) {
             selectedAuto = selectedAutoSubscriber.get();
         }
-        Logger.getInstance().processInputs(prefix, inputs);
+        Logger.processInputs(prefix, inputs);
     }
 }

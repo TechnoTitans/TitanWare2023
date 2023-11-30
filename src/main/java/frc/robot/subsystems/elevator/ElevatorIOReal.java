@@ -202,7 +202,7 @@ public class ElevatorIOReal implements ElevatorIO {
 //            nextController.reset(0, 0);
         }
 
-        Logger.getInstance().recordOutput("transitionHoriz", horizontalTransitionMode.toString());
+        Logger.recordOutput("transitionHoriz", horizontalTransitionMode.toString());
 
         return nextController;
     }

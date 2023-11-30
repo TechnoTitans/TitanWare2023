@@ -13,18 +13,12 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.constants.SimConstants;
 import frc.robot.utils.SuperstructureStates;
-import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.control.Slot1Configs;
-import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
@@ -76,9 +70,6 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private boolean verticalElevatorReset = false;
     private boolean horizontalElevatorReset = false;
     private boolean elevatorsHaveReset = false;
-
-    private SuperstructureStates.HorizontalTransitionMode horizontalTransitionMode =
-            SuperstructureStates.HorizontalTransitionMode.EXTENDING_X_PLUS;
 
     public ElevatorIOHorizontalFalcon(
             final TalonFX verticalElevatorMotor,

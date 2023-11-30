@@ -11,7 +11,6 @@ public class DeltaTime {
     private final boolean disableLoggedTimestamps;
     private boolean isFirstCall = true;
 
-    private final Logger logger;
     private double lastRealFPGASeconds;
 
     /**
@@ -23,8 +22,7 @@ public class DeltaTime {
     public DeltaTime(final boolean disableLoggedTimestamps) {
         this.timer = new Timer();
         this.disableLoggedTimestamps = disableLoggedTimestamps;
-        this.logger = Logger.getInstance();
-        this.lastRealFPGASeconds = MICRO_TO_SEC * logger.getRealTimestamp();
+        this.lastRealFPGASeconds = MICRO_TO_SEC * Logger.getRealTimestamp();
 
         if (disableLoggedTimestamps) {
             DriverStation.reportWarning(
@@ -61,7 +59,7 @@ public class DeltaTime {
             return dtSeconds;
         } else {
             final double lastFPGASeconds = lastRealFPGASeconds;
-            final double newRealTimestampSeconds = MICRO_TO_SEC * logger.getRealTimestamp();
+            final double newRealTimestampSeconds = MICRO_TO_SEC * Logger.getRealTimestamp();
 
             lastRealFPGASeconds = newRealTimestampSeconds;
             return newRealTimestampSeconds - lastFPGASeconds;

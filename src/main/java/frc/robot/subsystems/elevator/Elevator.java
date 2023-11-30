@@ -39,39 +39,39 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        final double elevatorIOPeriodicStart = Logger.getInstance().getRealTimestamp();
+        final double elevatorIOPeriodicStart = Logger.getRealTimestamp();
         elevatorIO.periodic();
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
-                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - elevatorIOPeriodicStart)
+                LogUtils.microsecondsToMilliseconds(Logger.getRealTimestamp() - elevatorIOPeriodicStart)
         );
 
         elevatorIO.updateInputs(inputs);
-        Logger.getInstance().processInputs(logKey, inputs);
+        Logger.processInputs(logKey, inputs);
 
-        Logger.getInstance().recordOutput(logKey + "/HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
-        Logger.getInstance().recordOutput(logKey + "/HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
-        Logger.getInstance().recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
+        Logger.recordOutput(logKey + "/HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
+        Logger.recordOutput(logKey + "/HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
+        Logger.recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
 
-        Logger.getInstance().recordOutput(logKey + "/VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
-        Logger.getInstance().recordOutput(logKey + "/VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
-        Logger.getInstance().recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
+        Logger.recordOutput(logKey + "/VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
+        Logger.recordOutput(logKey + "/VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
+        Logger.recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
 
         final boolean atDesiredState = isAtDesiredState();
 
-        Logger.getInstance().recordOutput(logKey + "/CurrentState", currentState.toString());
-        Logger.getInstance().recordOutput(logKey + "/DesiredState", desiredState.toString());
-        Logger.getInstance().recordOutput(logKey + "/AtDesiredState", atDesiredState);
-        Logger.getInstance().recordOutput(logKey + "/IsTransitioning", transitioning);
+        Logger.recordOutput(logKey + "/CurrentState", currentState.toString());
+        Logger.recordOutput(logKey + "/DesiredState", desiredState.toString());
+        Logger.recordOutput(logKey + "/AtDesiredState", atDesiredState);
+        Logger.recordOutput(logKey + "/IsTransitioning", transitioning);
 
-        Logger.getInstance().recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
+        Logger.recordOutput(
                 logKey + "/VerticalMode", desiredState.getVerticalElevatorMode().toString()
         );
 
-        Logger.getInstance().recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
+        Logger.recordOutput(
                 logKey + "/HorizontalMode", desiredState.getHorizontalElevatorMode().toString()
         );
     }

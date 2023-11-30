@@ -29,18 +29,18 @@ public class Gyro {
     }
 
     public void periodic() {
-        final double gyroPeriodicUpdateStart = Logger.getInstance().getRealTimestamp();
+        final double gyroPeriodicUpdateStart = Logger.getRealTimestamp();
 
         gyroIO.periodic();
         gyroIO.updateInputs(inputs);
-        Logger.getInstance().processInputs(logKey, inputs);
+        Logger.processInputs(logKey, inputs);
 
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
                 logKey + "/PeriodicIOPeriodMs",
-                LogUtils.microsecondsToMilliseconds(Logger.getInstance().getRealTimestamp() - gyroPeriodicUpdateStart)
+                LogUtils.microsecondsToMilliseconds(Logger.getRealTimestamp() - gyroPeriodicUpdateStart)
         );
 
-        Logger.getInstance().recordOutput("FilteredPitchVelocityDPS", getFilteredPitchVelocity());
+        Logger.recordOutput("FilteredPitchVelocityDPS", getFilteredPitchVelocity());
     }
 
     /**
