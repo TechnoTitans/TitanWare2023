@@ -194,14 +194,15 @@ public class SwerveModule {
         /**
          * Make a SDS MK4i {@link SwerveModule} with 2 Falcon500s ({@link TalonFX}s) for the drive and turn motors
          * and a {@link CANcoder} as the turn encoder.
-         * @param name the name of the {@link SwerveModule}
-         * @param driveMotor the drive {@link TalonFX}
-         * @param turnMotor the turn {@link TalonFX}
-         * @param canCoder the turn {@link CANcoder}
+         *
+         * @param name                    the name of the {@link SwerveModule}
+         * @param driveMotor              the drive {@link TalonFX}
+         * @param turnMotor               the turn {@link TalonFX}
+         * @param canCoder                the turn {@link CANcoder}
          * @param driveMotorInvertedValue {@link InvertedValue} of the drive {@link TalonFX}
-         * @param turnMotorInvertedValue {@link InvertedValue} of the turn {@link TalonFX}
-         * @param magnetOffset the magnet offset of the turn {@link CANcoder}
-         * @param robotMode the {@link Constants.RobotMode} describing the current mode
+         * @param turnMotorInvertedValue  {@link InvertedValue} of the turn {@link TalonFX}
+         * @param magnetOffset            the magnet offset of the turn {@link CANcoder}
+         * @param robotMode               the {@link Constants.RobotMode} describing the current mode
          * @return the constructed {@link SwerveModule}
          */
         public static SwerveModule SDSMK4iFalcon500CANCoder(
@@ -223,43 +224,8 @@ public class SwerveModule {
                         driveMotor, turnMotor, canCoder,
                         driveMotorInvertedValue, turnMotorInvertedValue, magnetOffset
                 );
-                case REPLAY -> new SwerveModuleIO() {};
-            };
-
-            return new SwerveModule(swerveModuleIO, name);
-        }
-
-        /**
-         * Make a SDS MK4i {@link SwerveModule} with 2 {@link TitanSparkMAX}s for the drive and turn motors and
-         * an {@link com.revrobotics.AbsoluteEncoder} as the turn encoder.
-         * @param name the name of the {@link SwerveModule}
-         * @param driveMotor the drive {@link TitanSparkMAX}
-         * @param turnMotor the turn {@link TitanSparkMAX}
-         * @param driveMotorInvertedValue {@link InvertedValue} of the drive {@link TitanSparkMAX}
-         * @param turnMotorInvertedValue {@link InvertedValue} of the turn {@link TitanSparkMAX}
-         * @param magnetOffset the magnet offset of the turn {@link com.revrobotics.AbsoluteEncoder}
-         * @param robotMode the {@link Constants.RobotMode} describing the current mode
-         * @return the constructed {@link SwerveModule}
-         */
-        public static SwerveModule SDSMk4iSparkMAX(
-                final String name,
-                final TitanSparkMAX driveMotor,
-                final TitanSparkMAX turnMotor,
-                final InvertedValue driveMotorInvertedValue,
-                final InvertedValue turnMotorInvertedValue,
-                final double magnetOffset,
-                final Constants.RobotMode robotMode
-        ) {
-            final SwerveModuleIO swerveModuleIO = switch (robotMode) {
-                case REAL -> new SwerveModuleIONeo(
-                        driveMotor, turnMotor,
-                        driveMotorInvertedValue, turnMotorInvertedValue, magnetOffset
-                );
-                case SIM -> new SwerveModuleIONeoSim(
-                        driveMotor, turnMotor,
-                        driveMotorInvertedValue, turnMotorInvertedValue, magnetOffset
-                );
-                case REPLAY -> new SwerveModuleIO() {};
+                case REPLAY -> new SwerveModuleIO() {
+                };
             };
 
             return new SwerveModule(swerveModuleIO, name);

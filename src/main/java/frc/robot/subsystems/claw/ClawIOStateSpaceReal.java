@@ -122,7 +122,7 @@ public class ClawIOStateSpaceReal implements ClawIO {
                 // Decrease this to more heavily penalize state excursion, or make the controller behave more
                 // aggressively. In this example we weight position much more highly than velocity, but
                 // this can be tuned to balance the two.
-                VecBuilder.fill(Units.degreesToRadians(0.01), Units.degreesToRadians(0.01)),
+                VecBuilder.fill(Units.degreesToRadians(1.0), Units.degreesToRadians(10.0)),
                 // relms.
                 // Control effort (voltage) tolerance.
                 // Decrease this to more heavily penalize control effort, or make the controller less aggressive.

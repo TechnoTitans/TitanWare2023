@@ -11,16 +11,10 @@ import edu.wpi.first.math.util.Units;
 import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
-    RobotHardware ROBOT_HARDWARE = RobotHardware.ROBOT_2023_FALCON_SWERVE;
     RobotMode CURRENT_MODE = RobotMode.REAL;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.COMPETITION;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
-
-    enum RobotHardware {
-        ROBOT_2023_FALCON_SWERVE,
-        ROBOT_2023_NEO_SWERVE
-    }
 
     enum RobotMode {
         REAL,
@@ -124,7 +118,7 @@ public interface Constants {
     }
 
     interface Claw {
-        ClosedLoopControllerType CONTROLLER = ClosedLoopControllerType.PID;
+        ClosedLoopControllerType CONTROLLER = ClosedLoopControllerType.STATE_SPACE;
     }
 
     interface Vision {

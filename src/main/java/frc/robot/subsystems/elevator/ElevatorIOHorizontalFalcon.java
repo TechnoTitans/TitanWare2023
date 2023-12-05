@@ -2,23 +2,16 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.constants.SimConstants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.wrappers.control.Slot0Configs;
-import frc.robot.wrappers.control.Slot1Configs;
 
 public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
@@ -32,7 +25,7 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private SuperstructureStates.ElevatorState lastDesiredState = desiredState;
 
     private final PositionVoltage positionVoltage;
-    private final MotionMagicVoltage motionMagicVoltage;
+    private final DynamicMotionMagicVoltage motionMagicVoltage;
     private final DutyCycleOut dutyCycleOut;
 
     private final DutyCycleOut horizontalDutyCycleOut;
@@ -94,25 +87,12 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
         this.horizontalElevatorRearLimitSwitch = horizontalElevatorRearLimitSwitch;
 
-//        this.horizontalElevatorExtensionPID = new ProfiledPIDController(
-//                0.5, 0, 0,
-//                new TrapezoidProfile.Constraints(13, 18)
-//        );
-//        this.horizontalElevatorRetractionPID = new ProfiledPIDController(
-//                0.5, 0, 0,
-//                new TrapezoidProfile.Constraints(24, 60)
-//        );
-
         this.positionVoltage = new PositionVoltage(0);
-        this.motionMagicVoltage = new MotionMagicVoltage(0);
+        this.motionMagicVoltage = new DynamicMotionMagicVoltage(0, 0, 0, 0);
         this.dutyCycleOut = new DutyCycleOut(0);
 
-        this.horizontalDutyCycleOut = new DutyCycleOut(
-                0, false, false
-        );
-        this.horizontalMotionMagicVoltage = new MotionMagicVoltage(
-                0, false, 0, 0, false
-        );
+        this.horizontalDutyCycleOut = new DutyCycleOut(0);
+        this.horizontalMotionMagicVoltage = new MotionMagicVoltage(0);
 
         this._verticalPosition = verticalElevatorMotor.getPosition();
         this._verticalVelocity = verticalElevatorMotor.getVelocity();
@@ -125,8 +105,8 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         this._horizontalVelocity = horizontalElevatorMotor.getVelocity();
     }
 
-    private MotionMagicVoltage getVerticalMotionMagicControl(
-            final MotionMagicVoltage motionMagicVoltage,
+    private DynamicMotionMagicVoltage getVerticalMotionMagicControl(
+            final DynamicMotionMagicVoltage motionMagicVoltage,
             final double positionRots
     ) {
         final SuperstructureStates.VerticalTransitionMode verticalTransitionMode =
@@ -138,11 +118,15 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
 
         return switch (verticalTransitionMode) {
             case HOLDING_Z, EXTENDING_Z_PLUS -> motionMagicVoltage
-                    .withSlot(0)
-                    .withPosition(positionRots);
+                    .withPosition(positionRots)
+                    .withVelocity(100)
+                    .withAcceleration(160)
+                    .withJerk(200);
             case RETRACTING_Z_MINUS -> motionMagicVoltage
-                    .withSlot(1)
-                    .withPosition(positionRots);
+                    .withPosition(positionRots)
+                    .withVelocity(20)
+                    .withAcceleration(40)
+                    .withJerk(60);
         };
     }
 
@@ -244,17 +228,16 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
 
         // Vertical elevator motor
         final TalonFXConfiguration verticalElevatorMotorConfig = new TalonFXConfiguration();
-        verticalElevatorMotorConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
-        verticalElevatorMotorConfig.Slot1 = new Slot1Configs(12, 0, 0, 0);
+        verticalElevatorMotorConfig.Slot0 = new Slot0Configs()
+                .withKP(22)
+                .withKG(0.73)
+                .withGravityType(GravityTypeValue.Elevator_Static);
+
         verticalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         verticalElevatorMotorConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;
         verticalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         verticalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorR;
-        // TODO: tune motion magic config
-        verticalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
-        verticalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 140;
-        verticalElevatorMotorConfig.MotionMagic.MotionMagicJerk = 200;
 
         verticalElevatorMotor.getConfigurator().apply(verticalElevatorMotorConfig);
 
@@ -264,7 +247,6 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         verticalElevatorMotorFollowerConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerInverted;
 
         verticalElevatorMotorFollower.getConfigurator().apply(verticalElevatorMotorFollowerConfig);
-
         verticalElevatorMotorFollower.setControl(new Follower(
                 verticalElevatorMotor.getDeviceID(),
                 false
@@ -277,7 +259,8 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
 
         // Horizontal elevator motor
         final TalonFXConfiguration horizontalElevatorMotorConfig = new TalonFXConfiguration();
-        horizontalElevatorMotorConfig.Slot0 = new Slot0Configs(18, 0, 0, 0);
+        horizontalElevatorMotorConfig.Slot0 = new Slot0Configs()
+                .withKP(18);
         horizontalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         horizontalElevatorMotorConfig.Feedback.SensorToMechanismRatio = SimConstants.Elevator.Horizontal.GEARING;
 //        horizontalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = horizontalElevatorEncoder.getDeviceID();

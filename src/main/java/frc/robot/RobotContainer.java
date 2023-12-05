@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
@@ -27,7 +26,9 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule;
-import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOHorizontalFalcon;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
@@ -40,7 +41,6 @@ import frc.robot.wrappers.motors.TitanSparkMAX;
 import frc.robot.wrappers.sensors.vision.*;
 import org.photonvision.simulation.VisionSystemSim;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,8 +104,7 @@ public class RobotContainer {
         powerDistribution.clearStickyFaults();
 
         //Swerve Modules
-        frontLeft = switch (Constants.ROBOT_HARDWARE) {
-            case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
+        frontLeft = SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "FrontLeft",
                     new TalonFX(RobotMap.frontLeftDrive, RobotMap.CANIVORE_CAN_NAME),
                     new TalonFX(RobotMap.frontLeftTurn, RobotMap.CANIVORE_CAN_NAME),
@@ -114,20 +113,9 @@ public class RobotContainer {
                     RobotMap.frontLeftTurnR,
                     0.320556640625,
                     Constants.CURRENT_MODE
-            );
-            case ROBOT_2023_NEO_SWERVE -> SwerveModule.Builder.SDSMk4iSparkMAX(
-                    "FrontLeft",
-                    new TitanSparkMAX(RobotMap.frontLeftDrive, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    new TitanSparkMAX(RobotMap.frontLeftTurn, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    RobotMap.frontLeftDriveR,
-                    RobotMap.frontLeftTurnR,
-                    0.320556640625,
-                    Constants.CURRENT_MODE
-            );
-        };
+        );
 
-        frontRight = switch (Constants.ROBOT_HARDWARE) {
-            case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
+        frontRight = SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "FrontRight",
                     new TalonFX(RobotMap.frontRightDrive, RobotMap.CANIVORE_CAN_NAME),
                     new TalonFX(RobotMap.frontRightTurn, RobotMap.CANIVORE_CAN_NAME),
@@ -136,20 +124,9 @@ public class RobotContainer {
                     RobotMap.frontRightTurnR,
                     0.33251953125,
                     Constants.CURRENT_MODE
-            );
-            case ROBOT_2023_NEO_SWERVE -> SwerveModule.Builder.SDSMk4iSparkMAX(
-                    "FrontRight",
-                    new TitanSparkMAX(RobotMap.frontRightDrive, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    new TitanSparkMAX(RobotMap.frontRightTurn, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    RobotMap.frontRightDriveR,
-                    RobotMap.frontRightTurnR,
-                    0.33251953125,
-                    Constants.CURRENT_MODE
-            );
-        };
+        );
 
-        backLeft = switch (Constants.ROBOT_HARDWARE) {
-            case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
+        backLeft = SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "BackLeft",
                     new TalonFX(RobotMap.backLeftDrive, RobotMap.CANIVORE_CAN_NAME),
                     new TalonFX(RobotMap.backLeftTurn, RobotMap.CANIVORE_CAN_NAME),
@@ -158,20 +135,9 @@ public class RobotContainer {
                     RobotMap.backLeftTurnR,
                     0.0478515625,
                     Constants.CURRENT_MODE
-            );
-            case ROBOT_2023_NEO_SWERVE -> SwerveModule.Builder.SDSMk4iSparkMAX(
-                    "BackLeft",
-                    new TitanSparkMAX(RobotMap.backLeftDrive, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    new TitanSparkMAX(RobotMap.backLeftTurn, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    RobotMap.backLeftDriveR,
-                    RobotMap.backLeftTurnR,
-                    0.0478515625,
-                    Constants.CURRENT_MODE
-            );
-        };
+        );
 
-        backRight = switch (Constants.ROBOT_HARDWARE) {
-            case ROBOT_2023_FALCON_SWERVE -> SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
+        backRight = SwerveModule.Builder.SDSMK4iFalcon500CANCoder(
                     "BackRight",
                     new TalonFX(RobotMap.backRightDrive, RobotMap.CANIVORE_CAN_NAME),
                     new TalonFX(RobotMap.backRightTurn, RobotMap.CANIVORE_CAN_NAME),
@@ -180,17 +146,7 @@ public class RobotContainer {
                     RobotMap.backRightTurnR,
                     0.283203125,
                     Constants.CURRENT_MODE
-            );
-            case ROBOT_2023_NEO_SWERVE -> SwerveModule.Builder.SDSMk4iSparkMAX(
-                    "BackRight",
-                    new TitanSparkMAX(RobotMap.backRightDrive, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    new TitanSparkMAX(RobotMap.backRightTurn, CANSparkMaxLowLevel.MotorType.kBrushless),
-                    RobotMap.backRightDriveR,
-                    RobotMap.backRightTurnR,
-                    0.283203125,
-                    Constants.CURRENT_MODE
-            );
-        };
+        );
 
         final SwerveModule[] swerveModules = {frontLeft, frontRight, backLeft, backRight};
 
@@ -236,18 +192,6 @@ public class RobotContainer {
         //Elevator
         elevator = switch (Constants.CURRENT_MODE) {
             case REAL -> new Elevator(
-//                    new ElevatorIOReal(
-//                            elevatorVerticalMotorMain,
-//                            RobotMap.mainVerticalFalconR,
-//                            elevatorVerticalMotorFollower,
-//                            RobotMap.followerVerticalFalconR,
-//                            elevatorVerticalEncoder,
-//                            elevatorHorizontalEncoder,
-//                            RobotMap.verticalElevatorEncoderR,
-//                            elevatorHorizontalNeo,
-//                            elevatorVerticalLimitSwitch,
-//                            elevatorHorizontalLimitSwitch
-//                    )
                     new ElevatorIOHorizontalFalcon(
                             elevatorVerticalMotorMain,
                             RobotMap.mainVerticalFalconR,

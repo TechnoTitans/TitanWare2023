@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -25,7 +26,6 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
-import frc.robot.wrappers.control.Slot0Configs;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
 public class ElevatorIOSim implements ElevatorIO {
@@ -284,7 +284,8 @@ public class ElevatorIOSim implements ElevatorIO {
 //        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(verticalElevatorEncoder));
 
         final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.Slot0 = new Slot0Configs(22, 0, 0, 0);
+        VEConfig.Slot0 = new Slot0Configs()
+                .withKP(22);
 
         VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         VEConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;

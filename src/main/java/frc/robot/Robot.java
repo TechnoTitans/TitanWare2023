@@ -6,12 +6,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.autonomous.TrajectoryFollower;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.TitanBoard;
-import frc.robot.utils.auto.MarkerCommand;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.gyro.GyroUtils;
@@ -35,6 +33,14 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
+        final List<File> paths = PathPlannerUtil.getAllPathPlannerPaths();
+        for (final File path : paths) {
+            final boolean deleteSuccess = path.delete();
+            DriverStation.reportWarning(
+                    String.format("File at %s deletion %s", path, deleteSuccess ? "Success" : "Failed"), false
+            );
+        }
+
         if ((RobotBase.isReal() && Constants.CURRENT_MODE != Constants.RobotMode.REAL)
                 || (RobotBase.isSimulation() && Constants.CURRENT_MODE == Constants.RobotMode.REAL)
         ) {
@@ -102,19 +108,20 @@ public class Robot extends LoggedRobot {
 
         robotContainer = new RobotContainer();
 
-        MarkerCommand.setupPathPlannerNamedCommands(
-                new TrajectoryFollower.FollowerContext(
-                        robotContainer.swerve,
-                        robotContainer.elevator,
-                        robotContainer.claw,
-                        robotContainer.swerve.getFieldRelativeSpeeds()
-                )
-        );
+        //TODO FIX
+//        MarkerCommand.setupPathPlannerNamedCommands(
+//                new TrajectoryFollower.FollowerContext(
+//                        robotContainer.swerve,
+//                        robotContainer.elevator,
+//                        robotContainer.claw,
+//                        robotContainer.swerve.getFieldRelativeSpeeds()
+//                )
+//        );
 
         // precompute MarkerCommands from registered options on the auto chooser
-        robotContainer.trajectoryManager.precomputeMarkerCommands(
-                robotContainer.autoChooser.getRegisteredOptions()
-        );
+//        robotContainer.trajectoryManager.precomputeMarkerCommands(
+//                robotContainer.autoChooser.getRegisteredOptions()
+//        );
 
         TitanBoard.addDouble("Yaw", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getYaw));
         TitanBoard.addDouble("Pitch", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getPitch));

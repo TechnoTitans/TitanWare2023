@@ -50,13 +50,8 @@ public class Elevator extends SubsystemBase {
         elevatorIO.updateInputs(inputs);
         Logger.processInputs(logKey, inputs);
 
-        Logger.recordOutput(logKey + "/HEControlMeasurement", getHEControlMeasurement(desiredState.getHorizontalElevatorMode()));
         Logger.recordOutput(logKey + "/HEControlVelocity", getHEControlVelocity(desiredState.getHorizontalElevatorMode()));
-        Logger.recordOutput(logKey + "/HEControlInput", desiredState.getHEControlInput());
-
-        Logger.recordOutput(logKey + "/VEControlMeasurement", getVEControlMeasurement(desiredState.getVerticalElevatorMode()));
         Logger.recordOutput(logKey + "/VEControlVelocity", getVEControlVelocity(desiredState.getVerticalElevatorMode()));
-        Logger.recordOutput(logKey + "/VEControlInput", desiredState.getVEControlInput());
 
         final boolean atDesiredState = isAtDesiredState();
 
