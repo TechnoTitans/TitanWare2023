@@ -1,10 +1,16 @@
 package frc.robot.commands.autonomous;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.constants.Constants;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
@@ -46,6 +52,21 @@ public class TrajectoryManager {
         this.elevator = elevator;
 
         this.cachedTitanTrajectories = new HashMap<>();
+
+        AutoBuilder.configureHolonomic(
+                swerve::getEstimatedPosition,
+                photonVision::resetPosition,
+                swerve::getRobotRelativeSpeeds,
+                swerve::drive,
+                new HolonomicPathFollowerConfig(
+                        new PIDConstants(1, 0, 0),
+                        new PIDConstants(1, 0, 0),
+                        Constants.Swerve.MODULE_MAX_SPEED,
+                        Math.hypot(Constants.Swerve.WHEEL_BASE, Constants.Swerve.TRACK_WIDTH),
+                        new ReplanningConfig()
+                ),
+                swerve
+        );
     }
 
     public void precomputeMarkerCommands(final List<AutoOption> autoOptions) {
@@ -130,8 +151,7 @@ public class TrajectoryManager {
         );
     }
 
-    @SuppressWarnings("unused")
-    public void follow(final AutoOption autoOption) {
-        getTrajectoryFollowerSequence(autoOption).schedule();
+    public Command followTrajectoryCommand(final AutoOption autoOption) {
+        return new PathPlannerAuto(autoOption.name());
     }
 }

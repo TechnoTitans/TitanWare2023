@@ -11,7 +11,7 @@ import edu.wpi.first.math.util.Units;
 import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.COMPETITION;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -25,11 +25,6 @@ public interface Constants {
     enum CompetitionType {
         TESTING,
         COMPETITION
-    }
-
-    enum ClosedLoopControllerType {
-        PID,
-        STATE_SPACE
     }
 
     interface CTRE {
@@ -115,10 +110,6 @@ public interface Constants {
         Translation2d FR_OFFSET = new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2); // front right
         Translation2d BL_OFFSET = new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2); // back left
         Translation2d BR_OFFSET = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2); //back right
-    }
-
-    interface Claw {
-        ClosedLoopControllerType CONTROLLER = ClosedLoopControllerType.STATE_SPACE;
     }
 
     interface Vision {

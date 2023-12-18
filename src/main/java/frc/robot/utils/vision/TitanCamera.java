@@ -1,6 +1,6 @@
 package frc.robot.utils.vision;
 
-import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -25,12 +25,11 @@ public enum TitanCamera {
             new TitanCameraCalibration()
                     .withCalibrations(
                             CameraProperties.Resolution.R1280x720,
-                            Matrix.mat(Nat.N3(), Nat.N3())
-                                    .fill(
-                                            743.6218079385169, 0.0, 674.3875273200663,
-                                            0.0, 747.5846567641577, 447.6187926456991,
-                                            0.0, 0.0, 1.0
-                                    ),
+                            MatBuilder.fill(Nat.N3(), Nat.N3(),
+                                    743.6218079385169, 0.0, 674.3875273200663,
+                                    0.0, 747.5846567641577, 447.6187926456991,
+                                    0.0, 0.0, 1.0
+                            ),
                             VecBuilder.fill(
                                     0.1591471755951106,
                                     -0.2841112431032636,
@@ -68,12 +67,11 @@ public enum TitanCamera {
             new TitanCameraCalibration()
                     .withCalibrations(
                             CameraProperties.Resolution.R1280x800,
-                            Matrix.mat(Nat.N3(), Nat.N3())
-                                    .fill(
-                                            894.2562605297965, 0.0, 639.9829530010343,
-                                            0.0, 892.6042435867523, 411.79669510853427,
-                                            0.0, 0.0, 1.0
-                                    ),
+                            MatBuilder.fill(Nat.N3(), Nat.N3(),
+                                    894.2562605297965, 0.0, 639.9829530010343,
+                                    0.0, 892.6042435867523, 411.79669510853427,
+                                    0.0, 0.0, 1.0
+                            ),
                             VecBuilder.fill(
                                     0.15397416138064096,
                                     -0.28355930665899937,
@@ -107,12 +105,11 @@ public enum TitanCamera {
                     )
                     .withCalibrations(
                             CameraProperties.Resolution.R800x600,
-                            Matrix.mat(Nat.N3(), Nat.N3())
-                                    .fill(
-                                            683.201957503352, 0.0, 408.18115707888694,
-                                            0.0, 681.5900397776495, 321.5456475271882,
-                                            0.0, 0.0, 1.0
-                                    ),
+                            MatBuilder.fill(Nat.N3(), Nat.N3(),
+                                    683.201957503352, 0.0, 408.18115707888694,
+                                    0.0, 681.5900397776495, 321.5456475271882,
+                                    0.0, 0.0, 1.0
+                            ),
                             VecBuilder.fill(
                                     0.15397416138064096,
                                     -0.28355930665899937,
@@ -140,12 +137,11 @@ public enum TitanCamera {
                     )
                     .withCalibrations(
                             CameraProperties.Resolution.R1280x720,
-                            Matrix.mat(Nat.N3(), Nat.N3())
-                                    .fill(
-                                            908.708184379716, 0.0, 623.8361593082838,
-                                            0.0, 913.1020519669654, 371.5509219532872,
-                                            0.0, 0.0, 1.0
-                                    ),
+                            MatBuilder.fill(Nat.N3(), Nat.N3(),
+                                    908.708184379716, 0.0, 623.8361593082838,
+                                    0.0, 913.1020519669654, 371.5509219532872,
+                                    0.0, 0.0, 1.0
+                            ),
                             VecBuilder.fill(
                                     0.061027763093237396,
                                     -0.09831807768480012,

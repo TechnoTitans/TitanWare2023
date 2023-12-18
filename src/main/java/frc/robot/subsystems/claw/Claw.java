@@ -48,36 +48,6 @@ public class Claw extends SubsystemBase {
 
             return new Claw(io);
         }
-
-        public static Claw clawStateSpaceController(
-                final TalonSRX clawMainWheelBag,
-                final TalonSRX clawFollowerWheelBag,
-                final InvertType clawMainWheelBagInverted,
-                final TalonSRX clawOpenCloseMotor,
-                final InvertType clawOpenCloseMotorInverted,
-                final CANCoder clawOpenCloseEncoder,
-                final TitanSparkMAX clawTiltNeo,
-                final CANcoder clawTiltEncoder,
-                final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier,
-                final Constants.RobotMode robotMode
-        ) {
-            final ClawIO io = switch (robotMode) {
-                case REAL -> new ClawIOStateSpaceReal(
-                        clawMainWheelBag, clawFollowerWheelBag, clawMainWheelBagInverted,
-                        clawOpenCloseMotor, clawOpenCloseMotorInverted, clawOpenCloseEncoder,
-                        clawTiltNeo, clawTiltEncoder
-                );
-                case SIM -> new ClawIOStateSpaceSim(
-                        clawMainWheelBag, clawFollowerWheelBag, clawMainWheelBagInverted,
-                        clawOpenCloseMotor, clawOpenCloseMotorInverted, clawOpenCloseEncoder,
-                        clawTiltNeo, clawTiltEncoder,
-                        elevatorSimStateSupplier
-                );
-                case REPLAY -> new ClawIO() {};
-            };
-
-            return new Claw(io);
-        }
     }
 
     private final ClawIO clawIO;

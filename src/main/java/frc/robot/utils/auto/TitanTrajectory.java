@@ -187,14 +187,18 @@ public class TitanTrajectory extends PathPlannerTrajectory {
 
                 final double approxAngularRotation = constraints.getMaxAngularVelocityRps() * approxTime;
 
-                final Rotation2d deltaHolonomic = pathPoint.holonomicRotation.minus(lastPoint.holonomicRotation);
+                final Rotation2d deltaHolonomic = pathPoint.rotationTarget.getTarget().minus(lastPoint.rotationTarget.getTarget());
                 final Rotation2d clampedHolonomic = Rotation2d.fromRadians(
                         MathUtil.clamp(deltaHolonomic.getRadians(), -approxAngularRotation, approxAngularRotation)
                 );
 
                 pathPoints.add(new PathPoint(
                         pathPoint.position,
-                        lastPoint.holonomicRotation.plus(clampedHolonomic),
+                        new RotationTarget(
+                                pathPoint.rotationTarget.getPosition(),
+                                lastPoint.rotationTarget.getTarget().plus(clampedHolonomic),
+                                pathPoint.rotationTarget.shouldRotateFast()
+                        ),
                         constraints
                 ));
             }

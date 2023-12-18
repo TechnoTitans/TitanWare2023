@@ -43,7 +43,8 @@ public class ElevatorSimSolver {
     // Horizontal Elevator Motor Sims
     private final ElevatorSim horizontalElevatorSim;
     private final CANcoder horizontalElevatorEncoder;
-    private final RevSparkMAXSim horizontalElevatorSimMotor;
+//    private final RevSparkMAXSim horizontalElevatorSimMotor;
+    private final CTREPhoenix6TalonFXSim horizontalElevatorSimMotor;
 
     private Pose3d horizontalElevatorRoot = new Pose3d();
 
@@ -64,7 +65,8 @@ public class ElevatorSimSolver {
             final TalonFX verticalElevatorMotorFollower,
             final CANcoder verticalElevatorEncoder,
             final CANcoder horizontalElevatorEncoder,
-            final TitanSparkMAX horizontalElevatorMotor
+//            final TitanSparkMAX horizontalElevatorMotor
+            final TalonFX horizontalElevatorMotor
     ) {
         // Elevator root position
         this.elevatorRootPose = SimConstants.Elevator.Vertical.ROBOT_TO_ROOT_MOUNT_POSE;
@@ -106,9 +108,18 @@ public class ElevatorSimSolver {
                 0
         );
         this.horizontalElevatorEncoder = horizontalElevatorEncoder;
-        this.horizontalElevatorSimMotor = new RevSparkMAXSim(
+//        this.horizontalElevatorSimMotor = new RevSparkMAXSim(
+//                horizontalElevatorMotor,
+//                horizontalElevatorDCMotor,
+//                new DCMotorSim(
+//                        horizontalElevatorDCMotor,
+//                        SimConstants.Elevator.Horizontal.GEARING,
+//                        SimConstants.Elevator.Horizontal.EXT_MOI
+//                )
+//        );
+        this.horizontalElevatorSimMotor = new CTREPhoenix6TalonFXSim(
                 horizontalElevatorMotor,
-                horizontalElevatorDCMotor,
+                SimConstants.Elevator.Horizontal.GEARING,
                 new DCMotorSim(
                         horizontalElevatorDCMotor,
                         SimConstants.Elevator.Horizontal.GEARING,

@@ -9,8 +9,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.Constants;
 import frc.robot.utils.logging.LogUtils;
-import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.CustomStructs;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
@@ -52,8 +50,8 @@ public class SwerveModule {
 
         Logger.processInputs(logKey, inputs);
 
-        Logger.recordOutput(logKey + "/CurrentState", CustomStructs.swerveModuleState, getState());
-        Logger.recordOutput(logKey + "/LastDesiredState", CustomStructs.swerveModuleState, lastDesiredState);
+        Logger.recordOutput(logKey + "/CurrentState", getState());
+        Logger.recordOutput(logKey + "/LastDesiredState", lastDesiredState);
         Logger.recordOutput(
                 logKey + "/DriveDesiredVelocityRotsPerSec",
                 computeDesiredDriverVelocity(lastDesiredState)

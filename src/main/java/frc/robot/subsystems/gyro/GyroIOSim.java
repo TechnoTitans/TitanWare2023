@@ -43,9 +43,9 @@ public class GyroIOSim implements GyroIO {
         this._yaw = pigeon.getYaw();
         this._pitch = pigeon.getPitch();
         this._roll = pigeon.getRoll();
-        this._yawVelocity = pigeon.getAngularVelocityZ();
-        this._pitchVelocity = pigeon.getAngularVelocityX();
-        this._rollVelocity = pigeon.getAngularVelocityY();
+        this._yawVelocity = pigeon.getAngularVelocityZWorld();
+        this._pitchVelocity = pigeon.getAngularVelocityXWorld();
+        this._rollVelocity = pigeon.getAngularVelocityYWorld();
 
         pigeonSimState.setSupplyVoltage(12);
         pigeonSimState.setPitch(USE_SIMULATED_PITCH);

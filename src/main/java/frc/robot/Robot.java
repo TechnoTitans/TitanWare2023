@@ -9,10 +9,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.SuperstructureStates;
-import frc.robot.utils.TitanBoard;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
-import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.subsystems.VirtualSubsystem;
 import frc.robot.utils.teleop.ButtonBindings;
 import frc.robot.wrappers.leds.CandleController;
@@ -33,14 +31,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        final List<File> paths = PathPlannerUtil.getAllPathPlannerPaths();
-        for (final File path : paths) {
-            final boolean deleteSuccess = path.delete();
-            DriverStation.reportWarning(
-                    String.format("File at %s deletion %s", path, deleteSuccess ? "Success" : "Failed"), false
-            );
-        }
-
         if ((RobotBase.isReal() && Constants.CURRENT_MODE != Constants.RobotMode.REAL)
                 || (RobotBase.isSimulation() && Constants.CURRENT_MODE == Constants.RobotMode.REAL)
         ) {
@@ -53,7 +43,7 @@ public class Robot extends LoggedRobot {
             throw new RuntimeException("Potentially incorrect CURRENT_MODE specified!");
         }
 
-        // we practically never use LiveWindow, and apparently this causes loop overruns so disable it
+        // we never use LiveWindow, and apparently this causes loop overruns so disable it
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
 
@@ -87,10 +77,7 @@ public class Robot extends LoggedRobot {
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
-                // TODO: this should be correct now, but we might need a more robust/permanent solution
-                // figure out which port is occupied, use sda1 if sda is used
-                // sda on Odin2023 is the CANivore, sda1 is open port
-                Logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
+                Logger.addDataReceiver(new WPILOGWriter("/U"));
                 Logger.addDataReceiver(new NT4Publisher());
             }
             case SIM -> {
@@ -123,13 +110,6 @@ public class Robot extends LoggedRobot {
 //                robotContainer.autoChooser.getRegisteredOptions()
 //        );
 
-        TitanBoard.addDouble("Yaw", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getYaw));
-        TitanBoard.addDouble("Pitch", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getPitch));
-        TitanBoard.addDouble("Roll", () -> GyroUtils.getAsAngleModdedDoubleDeg(robotContainer.swerve::getRoll));
-
-        TitanBoard.addBoolean("Robot Enabled", DriverStation::isEnabled);
-
-        TitanBoard.start();
         Logger.start();
     }
 

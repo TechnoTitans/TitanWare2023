@@ -5,6 +5,10 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -29,6 +33,7 @@ import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOHorizontalFalcon;
+import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
@@ -205,16 +210,17 @@ public class RobotContainer {
                             elevatorHorizontalLimitSwitch
                     )
             );
-//            case SIM -> {
-//                 final ElevatorSimSolver simSolver = new ElevatorSimSolver(
-//                        elevatorVerticalMotorMain,
-//                        elevatorVerticalMotorFollower,
-//                        elevatorVerticalEncoder,
-//                        elevatorHorizontalEncoder,
-//                         elevatorHorizontalMotor
-//                 );
-//
-//                 yield new Elevator(
+            case SIM -> {
+                 final ElevatorSimSolver simSolver = new ElevatorSimSolver(
+                         elevatorVerticalMotorMain,
+                         elevatorVerticalMotorFollower,
+                         elevatorVerticalEncoder,
+                         elevatorHorizontalEncoder,
+                         elevatorHorizontalMotor
+                 );
+
+                 yield new Elevator(
+                         new ElevatorIO() {},
 //                         new ElevatorIOSim(
 //                                 elevatorVerticalMotorMain,
 //                                 RobotMap.mainVerticalFalconR,
@@ -229,27 +235,22 @@ public class RobotContainer {
 //                                 elevatorHorizontalLimitSwitch,
 //                                 simSolver
 //                         ),
-//                         simSolver
-//                 );
-//            }
-//            case REPLAY -> new Elevator(
-//                    new ElevatorIO() {},
-//                    new ElevatorSimSolver(
-//                        elevatorVerticalMotorMain,
-//                        elevatorVerticalMotorFollower,
-//                        elevatorVerticalEncoder,
-//                        elevatorHorizontalEncoder,
-//                            elevatorHorizontalMotor
-//                    )
-//            );
-            case SIM, REPLAY -> new Elevator(
+                         simSolver
+                 );
+            }
+            case REPLAY -> new Elevator(
                     new ElevatorIO() {},
-                    null
+                    new ElevatorSimSolver(
+                            elevatorVerticalMotorMain,
+                            elevatorVerticalMotorFollower,
+                            elevatorVerticalEncoder,
+                            elevatorHorizontalEncoder,
+                            elevatorHorizontalMotor
+                    )
             );
         };
 
-        claw = switch (Constants.Claw.CONTROLLER) {
-            case PID -> Claw.Builder.clawPIDController(
+        claw = Claw.Builder.clawPIDController(
                     clawMainWheelsMotor,
                     clawFollowerWheelsMotor,
                     RobotMap.clawMainWheelsMotorInverted,
@@ -260,20 +261,7 @@ public class RobotContainer {
                     clawTiltEncoder,
                     elevator::getElevatorSimState,
                     Constants.CURRENT_MODE
-            );
-            case STATE_SPACE -> Claw.Builder.clawStateSpaceController(
-                    clawMainWheelsMotor,
-                    clawFollowerWheelsMotor,
-                    RobotMap.clawMainWheelsMotorInverted,
-                    clawOpenCloseMotor,
-                    RobotMap.clawOpenCloseMotorInverted,
-                    clawOpenCloseEncoder,
-                    clawTiltNeo,
-                    clawTiltEncoder,
-                    elevator::getElevatorSimState,
-                    Constants.CURRENT_MODE
-            );
-        };
+        );
 
         //Swerve
         swerve = new Swerve(gyro, kinematics, frontLeft, frontRight, backLeft, backRight);

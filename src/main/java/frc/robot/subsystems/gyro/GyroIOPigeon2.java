@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gyro;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -25,10 +26,9 @@ public class GyroIOPigeon2 implements GyroIO {
         this._yaw = pigeon.getYaw();
         this._pitch = pigeon.getPitch();
         this._roll = pigeon.getRoll();
-        this._yawVelocity = pigeon.getAngularVelocityZ();
-        // TODO: this is probably because we don't set MountPose, so velocities are flipped...
-        this._pitchVelocity = pigeon.getAngularVelocityY();
-        this._rollVelocity = pigeon.getAngularVelocityX();
+        this._yawVelocity = pigeon.getAngularVelocityZWorld();
+        this._pitchVelocity = pigeon.getAngularVelocityYWorld();
+        this._rollVelocity = pigeon.getAngularVelocityXWorld();
     }
 
     @Override
