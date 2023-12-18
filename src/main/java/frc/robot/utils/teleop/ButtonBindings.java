@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.commands.autoalign.AutoAlignment;
-import frc.robot.commands.autoalign.TrajectoryAutoAlignment;
 import frc.robot.commands.teleop.ElevatorClawTeleop;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.claw.Claw;
@@ -37,25 +36,25 @@ public class ButtonBindings {
                             .withDesiredAlignmentPosition(AlignmentZone.GenericDesiredAlignmentPosition.RIGHT)
             );
         } else {
-            driverController.leftBumper().whileTrue(
-                    new TrajectoryAutoAlignment(
-                            robotContainer.swerve,
-                            robotContainer.elevator,
-                            robotContainer.claw,
-                            robotContainer.driverController,
-                            robotContainer.trajectoryManager
-                    ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.LEFT)
-            );
-
-            driverController.rightBumper().whileTrue(
-                    new TrajectoryAutoAlignment(
-                            robotContainer.swerve,
-                            robotContainer.elevator,
-                            robotContainer.claw,
-                            robotContainer.driverController,
-                            robotContainer.trajectoryManager
-                    ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.RIGHT)
-            );
+//            driverController.leftBumper().whileTrue(
+//                    new TrajectoryAutoAlignment(
+//                            robotContainer.swerve,
+//                            robotContainer.elevator,
+//                            robotContainer.claw,
+//                            robotContainer.driverController,
+//                            robotContainer.trajectoryManager
+//                    ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.LEFT)
+//            );
+//
+//            driverController.rightBumper().whileTrue(
+//                    new TrajectoryAutoAlignment(
+//                            robotContainer.swerve,
+//                            robotContainer.elevator,
+//                            robotContainer.claw,
+//                            robotContainer.driverController,
+//                            robotContainer.trajectoryManager
+//                    ).withDesiredAlignmentSide(AlignmentZone.TrajectoryAlignmentSide.RIGHT)
+//            );
         }
 
         // Co Driver

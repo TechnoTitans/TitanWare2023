@@ -2,7 +2,6 @@ package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
@@ -25,7 +24,7 @@ public class Claw extends SubsystemBase {
                 final InvertType clawMainWheelBagInverted,
                 final TalonSRX clawOpenCloseMotor,
                 final InvertType clawOpenCloseMotorInverted,
-                final CANCoder clawOpenCloseEncoder,
+                final CANcoder clawOpenCloseEncoder,
                 final TitanSparkMAX clawTiltNeo,
                 final CANcoder clawTiltEncoder,
                 final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier,

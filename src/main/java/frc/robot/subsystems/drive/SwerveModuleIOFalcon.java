@@ -84,11 +84,11 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         turnEncoder.getConfigurator().apply(canCoderConfiguration);
 
         driveTalonFXConfiguration.Slot0 = new Slot0Configs()
-                .withKP(60)
-                .withKS(3);
-        driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
-        driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
-        driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
+                .withKP(50)
+                .withKS(5.875);
+        driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 50;
+        driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -50;
+        driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.15;
         driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
         driveTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;

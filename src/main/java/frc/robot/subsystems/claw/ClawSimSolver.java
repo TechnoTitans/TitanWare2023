@@ -1,7 +1,6 @@
 package frc.robot.subsystems.claw;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -13,7 +12,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.sim.feedback.SimPhoenix5CANCoder;
 import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
 import frc.robot.utils.sim.motors.CTREPhoenix5TalonSRXSim;
 import frc.robot.utils.sim.motors.RevSparkMAXSim;
@@ -38,7 +36,7 @@ public class ClawSimSolver {
             final TalonSRX clawMainWheelBag,
             final TalonSRX clawFollowerWheelBag,
             final TalonSRX clawOpenCloseMotor,
-            final CANCoder clawOpenCloseEncoder,
+            final CANcoder clawOpenCloseEncoder,
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder
     ) {
@@ -95,7 +93,7 @@ public class ClawSimSolver {
                         Claw.OPEN_CLOSE_MOI
                 )
         );
-        this.clawOpenCloseSim.attachFeedbackSensor(new SimPhoenix5CANCoder(clawOpenCloseEncoder));
+        this.clawOpenCloseSim.attachFeedbackSensor(new SimPhoenix6CANCoder(clawOpenCloseEncoder));
     }
 
     public SingleJointedArmSim getClawTiltSim() {

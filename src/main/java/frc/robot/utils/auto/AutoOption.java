@@ -16,10 +16,8 @@ public record AutoOption(
     public static final List<Constants.CompetitionType> defaultCompetitionTypes =
             List.of(Constants.CompetitionType.TESTING);
 
-    public record PathConfiguration(TitanTrajectory.Constraints constraints) {
-        public static PathConfiguration getDefault() {
-            return new PathConfiguration(TitanTrajectory.Constraints.getDefault());
-        }
+    public record PathConfiguration() {
+
     }
 
     public record PathOption(String name) {
@@ -32,7 +30,7 @@ public record AutoOption(
     ) {
         this(
                 name,
-                PathConfiguration.getDefault(),
+                new PathConfiguration(),
                 pathOptions,
                 new HashSet<>(defaultCompetitionTypes)
         );
@@ -59,7 +57,7 @@ public record AutoOption(
     ) {
         this(
                 name,
-                PathConfiguration.getDefault(),
+                new PathConfiguration(),
                 pathOptions,
                 competitionTypes
         );
@@ -76,7 +74,7 @@ public record AutoOption(
     ) {
         this(
                 pathName,
-                new PathConfiguration(new TitanTrajectory.Constraints(maxVelocity, maxAcceleration)),
+                new PathConfiguration(),
                 List.of(new PathOption(pathName)),
                 competitionTypes
         );

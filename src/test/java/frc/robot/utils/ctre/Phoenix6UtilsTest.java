@@ -32,8 +32,7 @@ class Phoenix6UtilsTest {
     void latencyCompensateIfSignalIsGood(
             final double position,
             final double velocity,
-            final double latency,
-            final double expected
+            final double latency
     ) {
         when(positionSignal.refresh()).thenReturn(positionSignal);
         when(velocitySignal.refresh()).thenReturn(velocitySignal);
@@ -47,6 +46,7 @@ class Phoenix6UtilsTest {
         when(timestamp.getLatency()).thenReturn(latency);
         when(positionSignal.getTimestamp()).thenReturn(timestamp);
 
+        final double expected = position + (velocity * Math.min(latency, 0.3));
         assertEquals(
                 expected, Phoenix6Utils.latencyCompensateIfSignalIsGood(positionSignal, velocitySignal), EPSILON
         );

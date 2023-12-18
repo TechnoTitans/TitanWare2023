@@ -1,14 +1,9 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -38,7 +33,10 @@ import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.subsystems.gyro.GyroIO;
 import frc.robot.subsystems.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.gyro.GyroIOSim;
-import frc.robot.utils.auto.*;
+import frc.robot.utils.auto.AutoOption;
+import frc.robot.utils.auto.CustomAutoChooser;
+import frc.robot.utils.auto.CustomProfileChooser;
+import frc.robot.utils.auto.DriveController;
 import frc.robot.utils.control.DriveToPoseController;
 import frc.robot.utils.vision.TitanCamera;
 import frc.robot.wrappers.leds.CandleController;
@@ -59,7 +57,7 @@ public class RobotContainer {
 
     //Claw
     public final TalonSRX clawMainWheelsMotor, clawFollowerWheelsMotor, clawOpenCloseMotor;
-    public final CANCoder clawOpenCloseEncoder;
+    public final CANcoder clawOpenCloseEncoder;
     public final CANcoder clawTiltEncoder;
     public final TitanSparkMAX clawTiltNeo;
     public final DigitalInput clawTiltLimitSwitch;
@@ -176,7 +174,7 @@ public class RobotContainer {
         clawMainWheelsMotor = new TalonSRX(RobotMap.clawMainWheelsMotor);
         clawFollowerWheelsMotor = new TalonSRX(RobotMap.clawFollowerWheelsMotor);
         clawOpenCloseMotor = new TalonSRX(RobotMap.clawOpenCloseMotor);
-        clawOpenCloseEncoder = new CANCoder(RobotMap.clawOpenCloseEncoder);
+        clawOpenCloseEncoder = new CANcoder(RobotMap.clawOpenCloseEncoder);
 
         //Swerve Kinematics
         kinematics = new SwerveDriveKinematics(
@@ -396,11 +394,7 @@ public class RobotContainer {
         //Auto Commands
         trajectoryManager = new TrajectoryManager(
                 swerve,
-                holonomicDriveController,
-                holdPositionDriveController,
-                photonVision,
-                claw,
-                elevator
+                photonVision
         );
 
         //Driver Profile Selector
@@ -420,24 +414,24 @@ public class RobotContainer {
         );
 
 //        Add paths that are specifically for one competition type here
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "CubeAndChargeBack",
-                        2,
-                        1,
-                        Constants.CompetitionType.COMPETITION
-                )
-        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "CubeAndChargeBack",
+//                        2,
+//                        1,
+//                        Constants.CompetitionType.COMPETITION
+//                )
+//        );
 //        autoChooser.addAutoOption(
 //                new AutoOption(
 //                        "DropAndCharge", 2, 1, Constants.CompetitionType.COMPETITION
 //                )
 //        );
-        autoChooser.addAutoOption(
-                new AutoOption(
-                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
-                )
-        );
+//        autoChooser.addAutoOption(
+//                new AutoOption(
+//                        "2PieceBump", 2, 1, Constants.CompetitionType.COMPETITION
+//                )
+//        );
 //        autoChooser.addAutoOption(
 //                new AutoOption(
 //                        "2PieceAuto", 2, 1, Constants.CompetitionType.COMPETITION
@@ -476,17 +470,20 @@ public class RobotContainer {
 //        ));
 
         //Add the remaining paths automatically
-        autoChooser.addOptionsIfNotPresent(
-                AutoOption::getDescriptiveName,
-                AutoOption::new,
-                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
-        );
+//        autoChooser.addOptionsIfNotPresent(
+//                AutoOption::getDescriptiveName,
+//                AutoOption::new,
+//                PathPlannerUtil.getAllPathPlannerPathNames().stream().sorted().toList()
+//        );
+
+        autoChooser.addAutoOption(new AutoOption("CurvyForwardAuto"));
+        autoChooser.addAutoOption(new AutoOption("TestAuto"));
     }
 
     public Command getAutonomousCommand() {
         final AutoOption selectedAutoOption = autoChooser.getSelected();
         return selectedAutoOption != null
-                ? trajectoryManager.getTrajectoryFollowerSequence(selectedAutoOption)
+                ? trajectoryManager.followAutoCommand(selectedAutoOption)
                 : Commands.waitUntil(() -> !RobotState.isAutonomous());
     }
 }

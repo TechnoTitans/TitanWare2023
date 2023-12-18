@@ -3,10 +3,6 @@ package frc.robot.subsystems.claw;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -15,7 +11,6 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.constants.Constants;
 import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;
@@ -35,7 +30,7 @@ public class ClawIOSim implements ClawIO {
     private final InvertType clawMainWheelBagInverted;
     private final TalonSRX clawOpenCloseMotor;
     private final InvertType clawOpenCloseMotorInverted;
-    private final CANCoder clawOpenCloseEncoder;
+    private final CANcoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
 
@@ -46,6 +41,8 @@ public class ClawIOSim implements ClawIO {
     // Cached StatusSignals
     private final StatusSignal<Double> _tiltPosition;
     private final StatusSignal<Double> _tiltVelocity;
+    private final StatusSignal<Double> _openClosePosition;
+    private final StatusSignal<Double> _openCloseVelocity;
 
     private SuperstructureStates.ClawOpenCloseControlMode openCloseControlMode;
     private SuperstructureStates.ClawTiltControlMode clawTiltControlMode;
@@ -63,7 +60,7 @@ public class ClawIOSim implements ClawIO {
             final InvertType clawMainWheelBagInverted,
             final TalonSRX clawOpenCloseMotor,
             final InvertType clawOpenCloseMotorInverted,
-            final CANCoder clawOpenCloseEncoder,
+            final CANcoder clawOpenCloseEncoder,
             final TitanSparkMAX clawTiltNeo,
             final CANcoder clawTiltEncoder,
             final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier
@@ -99,6 +96,8 @@ public class ClawIOSim implements ClawIO {
 
         this._tiltPosition = clawTiltEncoder.getAbsolutePosition();
         this._tiltVelocity = clawTiltEncoder.getVelocity();
+        this._openClosePosition = clawOpenCloseEncoder.getAbsolutePosition();
+        this._openCloseVelocity = clawOpenCloseEncoder.getVelocity();
     }
 
     @Override
@@ -164,8 +163,8 @@ public class ClawIOSim implements ClawIO {
         inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
         inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
-        inputs.openCloseEncoderPositionRots = clawOpenCloseEncoder.getAbsolutePosition();
-        inputs.openCloseEncoderVelocityRotsPerSec = clawOpenCloseEncoder.getVelocity();
+        inputs.openCloseEncoderPositionRots = _openClosePosition.refresh().getValue();
+        inputs.openCloseEncoderVelocityRotsPerSec = _openCloseVelocity.refresh().getValue();
         inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
         inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();
@@ -185,16 +184,12 @@ public class ClawIOSim implements ClawIO {
         clawFollowerWheelBag.setInverted(InvertType.OpposeMaster);
 
         // Claw Open Close Encoder
-        final CANCoderConfiguration clawOpenCloseEncoderConfig = new CANCoderConfiguration();
-        clawOpenCloseEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        clawOpenCloseEncoderConfig.unitString = Constants.CTRE.PHOENIX_5_CANCODER_UNIT_STRING_ROTS;
-        clawOpenCloseEncoderConfig.sensorDirection = false;
-        clawOpenCloseEncoderConfig.sensorCoefficient = Constants.CTRE.PHOENIX_5_CANCODER_SENSOR_COEFFICIENT_ROTS;
-        clawOpenCloseEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-        clawOpenCloseEncoderConfig.magnetOffsetDegrees = 0;
+        final CANcoderConfiguration clawOpenCloseEncoderConfig = new CANcoderConfiguration();
+        clawOpenCloseEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+        clawOpenCloseEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        clawOpenCloseEncoderConfig.MagnetSensor.MagnetOffset = 0.28;
 
-        clawOpenCloseEncoder.configFactoryDefault();
-        clawOpenCloseEncoder.configAllSettings(clawOpenCloseEncoderConfig);
+        clawOpenCloseEncoder.getConfigurator().apply(clawOpenCloseEncoderConfig);
 
         // Claw Open Close Motor
         final TalonSRXConfiguration clawOpenCloseMotorConfig = new TalonSRXConfiguration();

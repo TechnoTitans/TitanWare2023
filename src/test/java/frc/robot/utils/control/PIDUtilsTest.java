@@ -51,7 +51,7 @@ class PIDUtilsTest {
         when(timestamp.getLatency()).thenReturn(latency);
         when(positionSignal.getTimestamp()).thenReturn(timestamp);
 
-        final double compensatedPosition = position + (velocity * latency);
+        final double compensatedPosition = position + (velocity * Math.min(latency, 0.3));
         PIDUtils.resetProfiledPIDControllerWithStatusSignal(profiledPIDController, positionSignal, velocitySignal);
 
         verify(profiledPIDController).reset(compensatedPosition, velocity);
