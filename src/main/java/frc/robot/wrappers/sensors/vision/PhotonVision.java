@@ -7,14 +7,17 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.utils.PoseUtils;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.subsystems.VirtualSubsystem;
+import frc.robot.utils.vision.TitanCamera;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.io.UncheckedIOException;
@@ -22,7 +25,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
+public class PhotonVision extends VirtualSubsystem {
     public static final String photonLogKey = "PhotonVision";
 
     public static final double TRANSLATION_VELOCITY_TOLERANCE = 0.1;
@@ -55,6 +58,19 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         }
     }
 
+    private static PhotonVisionApriltagsReal.IOApriltagsReal makePhotonVisionRealIO(final TitanCamera titanCamera) {
+        return new PhotonVisionApriltagsReal.IOApriltagsReal(titanCamera, PhotonVision.apriltagFieldLayout);
+    }
+
+    private static PhotonVisionApriltagsSim.IOApriltagsSim makePhotonVisionSimIO(
+            final TitanCamera titanCamera,
+            final VisionSystemSim visionSystemSim
+    ) {
+        return new PhotonVisionApriltagsSim.IOApriltagsSim(
+                titanCamera, PhotonVision.apriltagFieldLayout, visionSystemSim
+        );
+    }
+
     @SafeVarargs
     public static <T extends PhotonVisionIO> Map<T, PhotonVisionIO.PhotonVisionIOInputs> makePhotonVisionIOInputsMap(
             final T... photonVisionIOs
@@ -65,26 +81,55 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
         ));
     }
 
-    private final PhotonVisionRunner runner;
-    private final Map<T, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
+    private final PhotonVisionRunner<? extends PhotonVisionIO> runner;
+    private final Map<? extends PhotonVisionIO, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
 
     private final Swerve swerve;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final Map<T, EstimatedRobotPose> lastStableEstimatedPosesByCamera;
+    private final Map<PhotonVisionIO, EstimatedRobotPose> lastStableEstimatedPosesByCamera;
 
     private AprilTagFieldLayout.OriginPosition originPosition =
             AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide;
 
     public PhotonVision(
-            final PhotonVisionRunner runner,
             final Swerve swerve,
-            final SwerveDrivePoseEstimator poseEstimator,
-            final Map<T, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap
+            final SwerveDrivePoseEstimator poseEstimator
     ) {
-        this.runner = runner;
+        this.runner = switch (Constants.CURRENT_MODE) {
+            case REAL -> new PhotonVisionApriltagsReal(
+                    PhotonVision.makePhotonVisionIOInputsMap(
+                            makePhotonVisionRealIO(TitanCamera.PHOTON_FR_Apriltag_F),
+                            makePhotonVisionRealIO(TitanCamera.PHOTON_FR_Apriltag_R),
+                            makePhotonVisionRealIO(TitanCamera.PHOTON_FL_Apriltag_L),
+                            makePhotonVisionRealIO(TitanCamera.PHOTON_BR_Apriltag_B)
+                    )
+            );
+            case SIM -> {
+                final VisionSystemSim visionSystemSim = new VisionSystemSim(PhotonVision.photonLogKey);
+                yield new PhotonVisionApriltagsSim(
+                        swerve,
+                        new SwerveDriveOdometry(
+                                swerve.getKinematics(),
+                                swerve.getYaw(),
+                                swerve.getModulePositions(),
+                                new Pose2d()
+                        ),
+                        PhotonVision.apriltagFieldLayout,
+                        visionSystemSim,
+                        PhotonVision.makePhotonVisionIOInputsMap(
+                                makePhotonVisionSimIO(TitanCamera.PHOTON_FR_Apriltag_F, visionSystemSim),
+                                makePhotonVisionSimIO(TitanCamera.PHOTON_FR_Apriltag_R, visionSystemSim),
+                                makePhotonVisionSimIO(TitanCamera.PHOTON_FL_Apriltag_L, visionSystemSim),
+                                makePhotonVisionSimIO(TitanCamera.PHOTON_BR_Apriltag_B, visionSystemSim)
+                        )
+                );
+            }
+            case REPLAY -> new PhotonVisionRunner<>() {};
+        };
+
         this.swerve = swerve;
         this.poseEstimator = poseEstimator;
-        this.photonVisionIOInputsMap = photonVisionIOInputsMap;
+        this.photonVisionIOInputsMap = runner.getPhotonVisionIOInputsMap();
 
         this.lastStableEstimatedPosesByCamera = new HashMap<>();
 
@@ -214,10 +259,10 @@ public class PhotonVision<T extends PhotonVisionIO> extends VirtualSubsystem {
 
     private void update() {
         for (
-                final Map.Entry<T, PhotonVisionIO.PhotonVisionIOInputs>
+                final Map.Entry<? extends PhotonVisionIO, PhotonVisionIO.PhotonVisionIOInputs>
                         photonVisionIOInputsEntry : photonVisionIOInputsMap.entrySet()
         ) {
-            final T photonVisionIO = photonVisionIOInputsEntry.getKey();
+            final PhotonVisionIO photonVisionIO = photonVisionIOInputsEntry.getKey();
             final PhotonVisionIO.PhotonVisionIOInputs photonVisionIOInputs = photonVisionIOInputsEntry.getValue();
 
             final EstimatedRobotPose stableEstimatedRobotPose = photonVisionIOInputs.stableEstimatedRobotPose;

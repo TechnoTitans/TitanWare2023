@@ -33,8 +33,6 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
     private final CANcoder turnEncoder;
     private final double magnetOffset;
 
-    private final InvertedValue driveInvertedValue;
-    private final InvertedValue turnInvertedValue;
     private final TalonFXConfiguration driveTalonFXConfiguration = new TalonFXConfiguration();
     private final TalonFXConfiguration turnTalonFXConfiguration = new TalonFXConfiguration();
 
@@ -204,34 +202,30 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
             final TalonFX driveMotor,
             final TalonFX turnMotor,
             final CANcoder turnEncoder,
-            final InvertedValue driveInvertedValue,
-            final InvertedValue turnInvertedValue,
             final double magnetOffset
     ) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
 
-        this.driveInvertedValue = driveInvertedValue;
         this.driveSim = new CTREPhoenix6TalonFXSim(
                 driveMotor,
-                Constants.Modules.DRIVER_GEAR_RATIO,
+                Constants.Swerve.Modules.DRIVER_GEAR_RATIO,
                 new DCMotorSim(
                         SimUtils.getFalcon500FOC(1),
-                        Constants.Modules.DRIVER_GEAR_RATIO,
-                        Constants.Modules.DRIVE_WHEEL_MOMENT_OF_INERTIA
+                        Constants.Swerve.Modules.DRIVER_GEAR_RATIO,
+                        Constants.Swerve.Modules.DRIVE_WHEEL_MOMENT_OF_INERTIA
                 )
         );
 
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
-        this.turnInvertedValue = turnInvertedValue;
         this.turnSim = new CTREPhoenix6TalonFXSim(
                 turnMotor,
-                Constants.Modules.TURNER_GEAR_RATIO,
+                Constants.Swerve.Modules.TURNER_GEAR_RATIO,
                 new DCMotorSim(
                         SimUtils.getFalcon500FOC(1),
-                        Constants.Modules.TURNER_GEAR_RATIO,
-                        Constants.Modules.TURN_WHEEL_MOMENT_OF_INERTIA
+                        Constants.Swerve.Modules.TURNER_GEAR_RATIO,
+                        Constants.Swerve.Modules.TURN_WHEEL_MOMENT_OF_INERTIA
                 )
         );
         this.turnSim.attachFeedbackSensor(new SimPhoenix6CANCoder(turnEncoder));
@@ -264,24 +258,26 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         // TODO: I think we need to look at VoltageConfigs and/or CurrentLimitConfigs for limiting the
         //  current we can apply in sim, this is cause we use VelocityVoltage in sim instead of VelocityTorqueCurrentFOC
         //  which means that TorqueCurrent.PeakForwardTorqueCurrent and related won't affect it
+        final InvertedValue driveInvertedValue = InvertedValue.CounterClockwise_Positive;
         driveTalonFXConfiguration.Slot0 = new Slot0Configs()
                 .withKV(0.973);
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 60;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -60;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.2;
         driveTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
+        driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Swerve.Modules.DRIVER_GEAR_RATIO;
         driveTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
+        final InvertedValue turnInvertedValue = InvertedValue.Clockwise_Positive;
         turnTalonFXConfiguration.Slot0 = new Slot0Configs()
                 .withKP(40);
         turnTalonFXConfiguration.Voltage.PeakForwardVoltage = 6;
         turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
+        turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Swerve.Modules.TURNER_GEAR_RATIO;
         turnTalonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
         turnTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnTalonFXConfiguration.MotorOutput.Inverted = turnInvertedValue;

@@ -2,7 +2,7 @@ package frc.robot.wrappers.leds;
 
 import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.RobotMap;
+import frc.robot.constants.RobotMap;
 import frc.robot.utils.SuperstructureStates;
 
 public class CandleController {

@@ -10,7 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.subsystems.elevator.ElevatorSimSolver;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.ctre.Phoenix6Utils;
 import frc.robot.utils.sim.feedback.SimPhoenix6CANCoder;
 import frc.robot.utils.sim.motors.CTREPhoenix5TalonSRXSim;
@@ -129,7 +129,7 @@ public class ClawSimSolver {
         clawOpenCloseSim.update(dt);
     }
 
-    private void updateTiltInternal(final double dt, final ElevatorSimSolver.ElevatorSimState elevatorSimState) {
+    private void updateTiltInternal(final double dt, final Elevator.ElevatorPoseState elevatorPoseState) {
         clawTiltSimMotor.rawUpdate(
                 Units.radiansToRotations(clawTiltSim.getAngleRads()),
                 Units.radiansToRotations(clawTiltSim.getVelocityRadPerSec())
@@ -147,14 +147,14 @@ public class ClawSimSolver {
         clawTiltSim.update(dt);
 
         clawRootPose =
-                elevatorSimState
+                elevatorPoseState
                         .horizontalStageTwoFrontBoundPose()
                         .transformBy(Claw.CARRIAGE_TO_ROOT_MOUNT_TRANSFORM);
         clawTiltRots = getClawTiltPosition();
     }
 
-    public void update(final double dt, final ElevatorSimSolver.ElevatorSimState elevatorSimState) {
-        updateTiltInternal(dt, elevatorSimState);
+    public void update(final double dt, final Elevator.ElevatorPoseState elevatorPoseState) {
+        updateTiltInternal(dt, elevatorPoseState);
         updateOpenCloseInternal(dt);
         updateIntakeWheelsInternal(dt);
 

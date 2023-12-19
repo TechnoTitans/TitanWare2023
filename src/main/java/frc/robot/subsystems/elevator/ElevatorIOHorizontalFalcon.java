@@ -9,14 +9,13 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.constants.HardwareConstants;
 import frc.robot.constants.SimConstants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.ctre.Phoenix6Utils;
 
 public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
-    private final InvertedValue verticalElevatorMotorR, verticalElevatorMotorFollowerInverted;
-    private final SensorDirectionValue verticalElevatorEncoderR;
     private final TalonFX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
@@ -24,9 +23,9 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private SuperstructureStates.ElevatorState lastDesiredState = desiredState;
 
-    private final PositionVoltage positionVoltage;
-    private final DynamicMotionMagicVoltage motionMagicVoltage;
-    private final DutyCycleOut dutyCycleOut;
+    private final PositionVoltage verticalPositionVoltage;
+    private final DynamicMotionMagicVoltage verticalMotionMagicVoltage;
+    private final DutyCycleOut verticalDutyCycleOut;
 
     private final DutyCycleOut horizontalDutyCycleOut;
     private final MotionMagicVoltage horizontalMotionMagicVoltage;
@@ -64,32 +63,35 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private boolean horizontalElevatorReset = false;
     private boolean elevatorsHaveReset = false;
 
-    public ElevatorIOHorizontalFalcon(
-            final TalonFX verticalElevatorMotor,
-            final InvertedValue verticalElevatorMotorR,
-            final TalonFX verticalElevatorMotorFollower,
-            final InvertedValue verticalElevatorMotorFollowerInverted,
-            final CANcoder verticalElevatorEncoder,
-            final CANcoder horizontalElevatorEncoder,
-            final SensorDirectionValue verticalElevatorEncoderR,
-            final TalonFX horizontalElevatorMotor,
-            final DigitalInput verticalElevatorLimitSwitch,
-            final DigitalInput horizontalElevatorRearLimitSwitch
-    ) {
-        this.verticalElevatorMotor = verticalElevatorMotor;
-        this.verticalElevatorMotorR = verticalElevatorMotorR;
-        this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
-        this.verticalElevatorMotorFollowerInverted = verticalElevatorMotorFollowerInverted;
-        this.verticalElevatorEncoder = verticalElevatorEncoder;
-        this.horizontalElevatorEncoder = horizontalElevatorEncoder;
-        this.verticalElevatorEncoderR = verticalElevatorEncoderR;
-        this.horizontalElevatorMotor = horizontalElevatorMotor;
-        this.verticalElevatorLimitSwitch = verticalElevatorLimitSwitch;
-        this.horizontalElevatorRearLimitSwitch = horizontalElevatorRearLimitSwitch;
+    public ElevatorIOHorizontalFalcon(final HardwareConstants.ElevatorConstants elevatorConstants) {
+        this.verticalElevatorMotor = new TalonFX(
+                elevatorConstants.verticalMainMotorId(),
+                elevatorConstants.verticalElevatorCANBus()
+        );
+        this.verticalElevatorMotorFollower = new TalonFX(
+                elevatorConstants.verticalFollowerMotorId(),
+                elevatorConstants.verticalElevatorCANBus()
+        );
+        this.verticalElevatorEncoder = new CANcoder(
+                elevatorConstants.verticalEncoderId(),
+                elevatorConstants.verticalElevatorCANBus()
+        );
 
-        this.positionVoltage = new PositionVoltage(0);
-        this.motionMagicVoltage = new DynamicMotionMagicVoltage(0, 0, 0, 0);
-        this.dutyCycleOut = new DutyCycleOut(0);
+        this.horizontalElevatorMotor = new TalonFX(
+                elevatorConstants.horizontalMotorId(),
+                elevatorConstants.horizontalElevatorCANBus()
+        );
+        this.horizontalElevatorEncoder = new CANcoder(
+                elevatorConstants.horizontalEncoderId(),
+                elevatorConstants.horizontalElevatorCANBus()
+        );
+
+        this.verticalElevatorLimitSwitch = new DigitalInput(elevatorConstants.verticalLimitSwitchDIOChannel());
+        this.horizontalElevatorRearLimitSwitch = new DigitalInput(elevatorConstants.horizontalLimitSwitchDIOChannel());
+
+        this.verticalPositionVoltage = new PositionVoltage(0);
+        this.verticalMotionMagicVoltage = new DynamicMotionMagicVoltage(0, 0, 0, 0);
+        this.verticalDutyCycleOut = new DutyCycleOut(0);
 
         this.horizontalDutyCycleOut = new DutyCycleOut(0);
         this.horizontalMotionMagicVoltage = new MotionMagicVoltage(0);
@@ -169,13 +171,13 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
 
         switch (verticalElevatorMode) {
             case POSITION -> verticalElevatorMotor.setControl(
-                    positionVoltage.withPosition(VEControlInput)
+                    verticalPositionVoltage.withPosition(VEControlInput)
             );
             case MOTION_MAGIC -> verticalElevatorMotor.setControl(
-                    getVerticalMotionMagicControl(motionMagicVoltage, VEControlInput)
+                    getVerticalMotionMagicControl(verticalMotionMagicVoltage, VEControlInput)
             );
             case DUTY_CYCLE -> verticalElevatorMotor.setControl(
-                    dutyCycleOut.withOutput(VEControlInput)
+                    verticalDutyCycleOut.withOutput(VEControlInput)
             );
         }
 
@@ -210,7 +212,6 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getDutyCycle().refresh().getValue();
         inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getDeviceTemp().refresh().getValue();
 
-
         inputs.verticalLimitSwitch = verticalElevatorLimitSwitch.get();
         inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitch.get();
 
@@ -222,7 +223,7 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     public void config() {
         // Vertical elevator CANCoder
         final CANcoderConfiguration verticalElevatorEncoderConfig = new CANcoderConfiguration();
-        verticalElevatorEncoderConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderR;
+        verticalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
         verticalElevatorEncoder.getConfigurator().apply(verticalElevatorEncoderConfig);
 
@@ -237,14 +238,14 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         verticalElevatorMotorConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;
         verticalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
         verticalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorR;
+        verticalElevatorMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         verticalElevatorMotor.getConfigurator().apply(verticalElevatorMotorConfig);
 
         // Vertical elevator motor follower
         final TalonFXConfiguration verticalElevatorMotorFollowerConfig = new TalonFXConfiguration();
         verticalElevatorMotorFollowerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        verticalElevatorMotorFollowerConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerInverted;
+        verticalElevatorMotorFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         verticalElevatorMotorFollower.getConfigurator().apply(verticalElevatorMotorFollowerConfig);
         verticalElevatorMotorFollower.setControl(new Follower(
@@ -263,6 +264,8 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
                 .withKP(18);
         horizontalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         horizontalElevatorMotorConfig.Feedback.SensorToMechanismRatio = SimConstants.Elevator.Horizontal.GEARING;
+        // TODO: we use the internal RotorSensor for the horizontal elevator because our CAN chain sucks, maybe we can
+        //  use the CANCoder again if it ever gets fixed?
 //        horizontalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = horizontalElevatorEncoder.getDeviceID();
         horizontalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         horizontalElevatorMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

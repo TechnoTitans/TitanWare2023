@@ -107,7 +107,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                getDriveVelocity() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getDriveVelocity() * Constants.Swerve.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
         );
     }
@@ -120,7 +120,7 @@ public class SwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                getDrivePosition() * Constants.Modules.WHEEL_CIRCUMFERENCE,
+                getDrivePosition() * Constants.Swerve.Modules.WHEEL_CIRCUMFERENCE,
                 getAngle()
         );
     }
@@ -133,7 +133,7 @@ public class SwerveModule {
      * @see SwerveModuleState
      */
     public double computeDesiredDriverVelocity(final SwerveModuleState wantedState) {
-        return wantedState.speedMetersPerSecond / Constants.Modules.WHEEL_CIRCUMFERENCE;
+        return wantedState.speedMetersPerSecond / Constants.Swerve.Modules.WHEEL_CIRCUMFERENCE;
     }
 
     /**
@@ -197,8 +197,6 @@ public class SwerveModule {
          * @param driveMotor              the drive {@link TalonFX}
          * @param turnMotor               the turn {@link TalonFX}
          * @param canCoder                the turn {@link CANcoder}
-         * @param driveMotorInvertedValue {@link InvertedValue} of the drive {@link TalonFX}
-         * @param turnMotorInvertedValue  {@link InvertedValue} of the turn {@link TalonFX}
          * @param magnetOffset            the magnet offset of the turn {@link CANcoder}
          * @param robotMode               the {@link Constants.RobotMode} describing the current mode
          * @return the constructed {@link SwerveModule}
@@ -208,19 +206,15 @@ public class SwerveModule {
                 final TalonFX driveMotor,
                 final TalonFX turnMotor,
                 final CANcoder canCoder,
-                final InvertedValue driveMotorInvertedValue,
-                final InvertedValue turnMotorInvertedValue,
                 final double magnetOffset,
                 final Constants.RobotMode robotMode
         ) {
             final SwerveModuleIO swerveModuleIO = switch (robotMode) {
                 case REAL -> new SwerveModuleIOFalcon(
-                        driveMotor, turnMotor, canCoder,
-                        driveMotorInvertedValue, turnMotorInvertedValue, magnetOffset
+                        driveMotor, turnMotor, canCoder, magnetOffset
                 );
                 case SIM -> new SwerveModuleIOFalconSim(
-                        driveMotor, turnMotor, canCoder,
-                        driveMotorInvertedValue, turnMotorInvertedValue, magnetOffset
+                        driveMotor, turnMotor, canCoder, magnetOffset
                 );
                 case REPLAY -> new SwerveModuleIO() {
                 };

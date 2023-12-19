@@ -20,13 +20,13 @@ public class TrajectoryManager {
 
     public TrajectoryManager(
             final Swerve swerve,
-            final PhotonVision<?> photonVision
+            final PhotonVision photonVision
     ) {
         this.swerve = swerve;
         this.holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
                 new PIDConstants(5, 0, 0),
                 new PIDConstants(5, 0, 0),
-                Constants.Swerve.MODULE_MAX_SPEED,
+                Constants.Swerve.Modules.MODULE_MAX_SPEED,
                 Math.hypot(Constants.Swerve.WHEEL_BASE, Constants.Swerve.TRACK_WIDTH),
                 new ReplanningConfig()
         );

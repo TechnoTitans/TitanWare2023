@@ -9,11 +9,14 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.robot.constants.HardwareConstants;
+import frc.robot.constants.RobotMap;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
@@ -22,9 +25,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ClawIOReal implements ClawIO {
     private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
-    private final InvertType clawMainWheelBagInverted;
     private final TalonSRX clawOpenCloseMotor;
-    private final InvertType clawOpenCloseMotorInverted;
     private final CANcoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
@@ -50,26 +51,15 @@ public class ClawIOReal implements ClawIO {
     //Claw Open Close Control Input
     private double desiredOpenCloseControlInput;
 
-    public ClawIOReal(
-            final TalonSRX clawMainWheelBag,
-            final TalonSRX clawFollowerWheelBag,
-            final InvertType clawMainWheelBagInverted,
-            final TalonSRX clawOpenCloseMotor,
-            final InvertType clawOpenCloseMotorInverted,
-            final CANcoder clawOpenCloseEncoder,
-            final TitanSparkMAX clawTiltNeo,
-            final CANcoder clawTiltEncoder
-    ) {
-        this.clawMainWheelBag = clawMainWheelBag;
-        this.clawFollowerWheelBag = clawFollowerWheelBag;
-        this.clawMainWheelBagInverted = clawMainWheelBagInverted;
+    public ClawIOReal(final HardwareConstants.ClawConstants clawConstants) {
+        this.clawMainWheelBag = new TalonSRX(clawConstants.clawMainWheelMotorId());
+        this.clawFollowerWheelBag = new TalonSRX(clawConstants.clawFollowerWheelMotorId());
 
-        this.clawTiltNeo = clawTiltNeo;
-        this.clawTiltEncoder = clawTiltEncoder;
+        this.clawOpenCloseMotor = new TalonSRX(clawConstants.clawOpenCloseMotorId());
+        this.clawOpenCloseEncoder = new CANcoder(clawConstants.clawOpenCloseEncoderId(), clawConstants.clawCANBus());
 
-        this.clawOpenCloseMotor = clawOpenCloseMotor;
-        this.clawOpenCloseEncoder = clawOpenCloseEncoder;
-        this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
+        this.clawTiltNeo = new TitanSparkMAX(clawConstants.clawTiltMotorId(), CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.clawTiltEncoder = new CANcoder(clawConstants.clawTiltEncoderId(), clawConstants.clawCANBus());
 
         //TODO: tune pid in real
         this.armFeedforward = new ArmFeedforward(0, 0.05, 0, 0);
@@ -158,7 +148,7 @@ public class ClawIOReal implements ClawIO {
     public void config() {
         // Bag Motors
         clawMainWheelBag.configFactoryDefault();
-        clawMainWheelBag.setInverted(clawMainWheelBagInverted);
+        clawMainWheelBag.setInverted(InvertType.None);
 
         clawFollowerWheelBag.configFactoryDefault();
         clawFollowerWheelBag.set(ControlMode.Follower, clawMainWheelBag.getDeviceID());
@@ -178,7 +168,7 @@ public class ClawIOReal implements ClawIO {
 
         clawOpenCloseMotor.configFactoryDefault();
         clawOpenCloseMotor.configAllSettings(clawOpenCloseMotorConfig);
-        clawOpenCloseMotor.setInverted(clawOpenCloseMotorInverted);
+        clawOpenCloseMotor.setInverted(InvertType.None);
         clawOpenCloseMotor.setNeutralMode(NeutralMode.Brake);
 
         // Claw Tilt Neo

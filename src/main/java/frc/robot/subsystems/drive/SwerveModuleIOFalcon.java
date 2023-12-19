@@ -23,8 +23,6 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
     private final CANcoder turnEncoder;
     private final double magnetOffset;
 
-    private final InvertedValue driveInvertedValue;
-    private final InvertedValue turnInvertedValue;
     private final TalonFXConfiguration driveTalonFXConfiguration = new TalonFXConfiguration();
     private final TalonFXConfiguration turnTalonFXConfiguration = new TalonFXConfiguration();
 
@@ -47,18 +45,13 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
             final TalonFX driveMotor,
             final TalonFX turnMotor,
             final CANcoder turnEncoder,
-            final InvertedValue driveInvertedValue,
-            final InvertedValue turnInvertedValue,
             final double magnetOffset
     ) {
         this.driveMotor = driveMotor;
         this.turnMotor = turnMotor;
 
-        this.driveInvertedValue = driveInvertedValue;
-
         this.turnEncoder = turnEncoder;
         this.magnetOffset = magnetOffset;
-        this.turnInvertedValue = turnInvertedValue;
 
         this.velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0);
         this.positionVoltage = new PositionVoltage(0);
@@ -89,9 +82,9 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         driveTalonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = 50;
         driveTalonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent = -50;
         driveTalonFXConfiguration.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.15;
-        driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Modules.DRIVER_GEAR_RATIO;
+        driveTalonFXConfiguration.Feedback.SensorToMechanismRatio = Constants.Swerve.Modules.DRIVER_GEAR_RATIO;
         driveTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        driveTalonFXConfiguration.MotorOutput.Inverted = driveInvertedValue;
+        driveTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         driveMotor.getConfigurator().apply(driveTalonFXConfiguration);
 
         turnTalonFXConfiguration.Slot0 = new Slot0Configs()
@@ -101,10 +94,10 @@ public class SwerveModuleIOFalcon implements SwerveModuleIO {
         turnTalonFXConfiguration.Voltage.PeakReverseVoltage = -6;
         turnTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = turnEncoder.getDeviceID();
         turnTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Modules.TURNER_GEAR_RATIO;
+        turnTalonFXConfiguration.Feedback.RotorToSensorRatio = Constants.Swerve.Modules.TURNER_GEAR_RATIO;
         turnTalonFXConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
         turnTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        turnTalonFXConfiguration.MotorOutput.Inverted = turnInvertedValue;
+        turnTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         turnMotor.getConfigurator().apply(turnTalonFXConfiguration);
     }
 

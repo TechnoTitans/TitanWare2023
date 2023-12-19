@@ -11,7 +11,7 @@ import edu.wpi.first.math.util.Units;
 import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -75,22 +75,10 @@ public interface Constants {
         boolean USE_LEGACY_AUTO_ALIGNMENT = false;
     }
 
-    interface Modules {
-        double WHEEL_RADIUS = 0.0508; //2 in
-        double WHEEL_MASS = 0.2313321; //0.51 lbs
-        double DRIVE_WHEEL_MOMENT_OF_INERTIA = WHEEL_MASS * WHEEL_RADIUS * WHEEL_RADIUS;
-        double TURN_WHEEL_MOMENT_OF_INERTIA = 0.004;
-        double DRIVER_GEAR_RATIO = 8.14;
-        double TURNER_GEAR_RATIO = 150.0 / 7.0;
-
-        double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
-    }
-
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
         double ROBOT_MAX_SPEED = Units.feetToMeters(13.5);
-        double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
         double ROBOT_MAX_ANGULAR_SPEED = 2 * Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
@@ -110,6 +98,18 @@ public interface Constants {
         Translation2d FR_OFFSET = new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2); // front right
         Translation2d BL_OFFSET = new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2); // back left
         Translation2d BR_OFFSET = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2); //back right
+
+        interface Modules {
+            double WHEEL_RADIUS = 0.0508; //2 in
+            double WHEEL_MASS = 0.2313321; //0.51 lbs
+            double DRIVE_WHEEL_MOMENT_OF_INERTIA = WHEEL_MASS * WHEEL_RADIUS * WHEEL_RADIUS;
+            double TURN_WHEEL_MOMENT_OF_INERTIA = 0.004;
+            double DRIVER_GEAR_RATIO = 8.14;
+            double TURNER_GEAR_RATIO = 150.0 / 7.0;
+
+            double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
+            double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
+        }
     }
 
     interface Vision {

@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
-    public static class PhotonVisionIOApriltagsReal implements PhotonVisionIO {
+public class PhotonVisionApriltagsReal implements PhotonVisionRunner<PhotonVisionApriltagsReal.IOApriltagsReal> {
+    public static class IOApriltagsReal implements PhotonVisionIO {
         private final PhotonCamera photonCamera;
         private final String logKey;
 
@@ -33,7 +33,7 @@ public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
          */
         private EstimatedRobotPose stableEstimatedRobotPose;
 
-        public PhotonVisionIOApriltagsReal(
+        public IOApriltagsReal(
                 final TitanCamera titanCamera,
                 final AprilTagFieldLayout blueSideApriltagFieldLayout
         ) {
@@ -123,11 +123,11 @@ public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
     }
 
 
-    private final Map<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
+    private final Map<IOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
             photonVisionIOInputsMap;
 
     public PhotonVisionApriltagsReal(
-            final Map<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
+            final Map<IOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
                     photonVisionIOInputsMap
     ) {
         this.photonVisionIOInputsMap = photonVisionIOInputsMap;
@@ -141,17 +141,17 @@ public class PhotonVisionApriltagsReal implements PhotonVisionRunner {
         }
 
         for (
-                final Map.Entry<PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
+                final Map.Entry<IOApriltagsReal, PhotonVisionIO.PhotonVisionIOInputs>
                         photonVisionIOInputsEntry : photonVisionIOInputsMap.entrySet()
         ) {
-            final PhotonVisionApriltagsReal.PhotonVisionIOApriltagsReal ioApriltagsSim = photonVisionIOInputsEntry.getKey();
+            final IOApriltagsReal ioApriltagsReal = photonVisionIOInputsEntry.getKey();
             final PhotonVisionIO.PhotonVisionIOInputs ioInputs = photonVisionIOInputsEntry.getValue();
 
-            ioApriltagsSim.periodic();
-            ioApriltagsSim.updateInputs(ioInputs);
+            ioApriltagsReal.periodic();
+            ioApriltagsReal.updateInputs(ioInputs);
 
             Logger.processInputs(
-                    String.format("%s/%s", PhotonVision.photonLogKey, ioApriltagsSim.logKey),
+                    String.format("%s/%s", PhotonVision.photonLogKey, ioApriltagsReal.logKey),
                     ioInputs
             );
         }

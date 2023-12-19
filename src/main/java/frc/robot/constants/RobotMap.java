@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.constants;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -18,8 +18,9 @@ public interface RobotMap {
     String PhotonVision_FL_Apriltag_L = "FL_Apriltag_L";
     String PhotonVision_BR_Apriltag_B = "BR_Apriltag_B";
 
-    //Canivore
-    String CANIVORE_CAN_NAME = "CANivore";
+    //CAN Bus
+    String rioCANBus = "rio";
+    String canivoreCANBus = "CANivore";
 
     //LEDS
     int CANdle_ID = 0;
@@ -29,14 +30,14 @@ public interface RobotMap {
     int frontLeftDrive = 1;
     int frontLeftTurn = 2;
     int frontLeftEncoder = 1;
-    InvertedValue frontLeftDriveR = InvertedValue.CounterClockwise_Positive;
-    InvertedValue frontLeftTurnR = InvertedValue.Clockwise_Positive;
+    InvertedValue frontLeftDriveInverted = InvertedValue.CounterClockwise_Positive;
+    InvertedValue frontLeftTurnInverted = InvertedValue.Clockwise_Positive;
 
     int frontRightDrive = 3;
     int frontRightTurn = 4;
     int frontRightEncoder = 2;
-    InvertedValue frontRightDriveR = InvertedValue.CounterClockwise_Positive;
-    InvertedValue frontRightTurnR = InvertedValue.Clockwise_Positive;
+    InvertedValue frontRightDriveInverted = InvertedValue.CounterClockwise_Positive;
+    InvertedValue frontRightTurnInverted = InvertedValue.Clockwise_Positive;
 
     int backRightDrive = 5;
     int backRightTurn = 6;

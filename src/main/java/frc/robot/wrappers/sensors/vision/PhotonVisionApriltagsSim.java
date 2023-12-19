@@ -22,12 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
-    public static class PhotonVisionIOApriltagsSim implements PhotonVisionIO {
+public class PhotonVisionApriltagsSim implements PhotonVisionRunner<PhotonVisionApriltagsSim.IOApriltagsSim> {
+    public static class IOApriltagsSim implements PhotonVisionIO {
         private final PhotonCamera photonCamera;
         private final String logKey;
 
-        private final PhotonCameraSim photonCameraSim;
         private final PhotonPoseEstimator poseEstimator;
 
         private PhotonPipelineResult latestPhotonPipelineResult;
@@ -40,7 +39,7 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
          */
         private EstimatedRobotPose stableEstimatedRobotPose;
 
-        public PhotonVisionIOApriltagsSim(
+        public IOApriltagsSim(
                 final TitanCamera titanCamera,
                 final AprilTagFieldLayout blueSideApriltagFieldLayout,
                 final VisionSystemSim visionSystemSim
@@ -48,7 +47,6 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
             this.photonCamera = titanCamera.getPhotonCamera();
             this.logKey = String.format("%s_PhotonVisionIOApriltagsSim", photonCamera.getName());
 
-            this.photonCameraSim = new PhotonCameraSim(titanCamera.getPhotonCamera(), titanCamera.toSimCameraProperties());
             this.poseEstimator = new PhotonPoseEstimator(
                     blueSideApriltagFieldLayout,
                     Constants.Vision.MULTI_TAG_POSE_STRATEGY,
@@ -56,6 +54,9 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
                     titanCamera.getRobotRelativeToCameraTransform()
             );
             this.poseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+
+            final PhotonCameraSim photonCameraSim =
+                    new PhotonCameraSim(titanCamera.getPhotonCamera(), titanCamera.toSimCameraProperties());
 
             ToClose.add(photonCameraSim);
             visionSystemSim.addCamera(photonCameraSim, titanCamera.getRobotRelativeToCameraTransform());
@@ -137,7 +138,7 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
 
     private final Swerve swerve;
     private final SwerveDriveOdometry visionIndependentOdometry;
-    private final Map<PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
+    private final Map<IOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap;
 
     private final VisionSystemSim visionSystemSim;
 
@@ -146,7 +147,7 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
             final SwerveDriveOdometry visionIndependentOdometry,
             final AprilTagFieldLayout aprilTagFieldLayout,
             final VisionSystemSim visionSystemSim,
-            final Map<PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap
+            final Map<IOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs> photonVisionIOInputsMap
     ) {
         this.swerve = swerve;
         this.visionIndependentOdometry = visionIndependentOdometry;
@@ -164,10 +165,10 @@ public class PhotonVisionApriltagsSim implements PhotonVisionRunner {
         }
 
         for (
-                final Map.Entry<PhotonVisionIOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs>
+                final Map.Entry<IOApriltagsSim, PhotonVisionIO.PhotonVisionIOInputs>
                         photonVisionIOInputsEntry : photonVisionIOInputsMap.entrySet()
         ) {
-            final PhotonVisionIOApriltagsSim ioApriltagsSim = photonVisionIOInputsEntry.getKey();
+            final IOApriltagsSim ioApriltagsSim = photonVisionIOInputsEntry.getKey();
             final PhotonVisionIO.PhotonVisionIOInputs ioInputs = photonVisionIOInputsEntry.getValue();
 
             ioApriltagsSim.periodic();

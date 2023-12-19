@@ -2,31 +2,20 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
-import frc.robot.subsystems.gyro.Gyro;
-import frc.robot.subsystems.gyro.GyroIOInputsAutoLogged;
-import frc.robot.subsystems.gyro.GyroIOSim;
-import frc.robot.utils.auto.AutoOption;
+import frc.robot.constants.HardwareConstants;
+import frc.robot.constants.RobotMap;
+import frc.robot.subsystems.gyro.*;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.utils.sim.CurrentDrawSim;
@@ -42,7 +31,6 @@ public class Swerve extends SubsystemBase {
 
     private Gyro gyro;
     private final GyroIOInputsAutoLogged gyroInputs;
-
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -50,22 +38,34 @@ public class Swerve extends SubsystemBase {
     private final SwerveModule[] swerveModules;
 
     public Swerve(
-            final Gyro gyro,
-            final SwerveDriveKinematics kinematics,
-            final SwerveModule frontLeft,
-            final SwerveModule frontRight,
-            final SwerveModule backLeft,
-            final SwerveModule backRight
+            final HardwareConstants.SwerveModuleConstants frontLeftConstants,
+            final HardwareConstants.SwerveModuleConstants frontRightConstants,
+            final HardwareConstants.SwerveModuleConstants backLeftConstants,
+            final HardwareConstants.SwerveModuleConstants backRightConstants
     ) {
-        this.gyro = gyro;
+        final Constants.RobotMode mode = Constants.CURRENT_MODE;
+        final Pigeon2 pigeon2 = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.canivoreCANBus);
+
+        this.frontLeft = frontLeftConstants.create(mode);
+        this.frontRight = frontRightConstants.create(mode);
+        this.backLeft = backLeftConstants.create(mode);
+        this.backRight = backRightConstants.create(mode);
+
+        this.swerveModules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
+        this.kinematics = new SwerveDriveKinematics(
+                frontLeftConstants.translationOffset(),
+                frontRightConstants.translationOffset(),
+                backLeftConstants.translationOffset(),
+                backRightConstants.translationOffset()
+        );
+
         this.gyroInputs = new GyroIOInputsAutoLogged();
+        this.gyro = switch (mode) {
+            case REAL -> new Gyro(new GyroIOPigeon2(pigeon2), pigeon2);
+            case SIM -> new Gyro(new GyroIOSim(pigeon2, kinematics, swerveModules), pigeon2);
+            case REPLAY -> new Gyro(new GyroIO() {}, pigeon2);
+        };
 
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.backLeft = backLeft;
-        this.backRight = backRight;
-
-        this.kinematics = kinematics;
         this.poseEstimator = new SwerveDrivePoseEstimator(
                 kinematics,
                 getYaw(),
@@ -74,8 +74,6 @@ public class Swerve extends SubsystemBase {
                 Constants.Vision.STATE_STD_DEVS,
                 Constants.Vision.VISION_MEASUREMENT_STD_DEVS
         );
-
-        this.swerveModules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
     }
 
     /**
@@ -181,6 +179,9 @@ public class Swerve extends SubsystemBase {
         ));
     }
 
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
+    }
     public SwerveDrivePoseEstimator getPoseEstimator() {
         return poseEstimator;
     }
@@ -216,7 +217,7 @@ public class Swerve extends SubsystemBase {
         gyro.setAngle(angle);
     }
 
-    public void zeroRotation(final PhotonVision<?> photonVision) {
+    public void zeroRotation(final PhotonVision photonVision) {
         gyro.zeroRotation();
         photonVision.resetPosition(
                 photonVision.getEstimatedPosition(),
@@ -276,7 +277,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void drive(final SwerveModuleState[] states) {
-        drive(states, Constants.Swerve.MODULE_MAX_SPEED);
+        drive(states, Constants.Swerve.Modules.MODULE_MAX_SPEED);
     }
 
     public void drive(
@@ -317,7 +318,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void drive(final ChassisSpeeds speeds) {
-        drive(speeds, Constants.Swerve.MODULE_MAX_SPEED);
+        drive(speeds, Constants.Swerve.Modules.MODULE_MAX_SPEED);
     }
 
     public void stop() {

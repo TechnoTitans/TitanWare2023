@@ -141,7 +141,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        final PhotonVision<?> photonVision = robotContainer.photonVision;
+        final PhotonVision photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance();
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
@@ -166,7 +166,7 @@ public class Robot extends LoggedRobot {
         robotContainer.elevator.setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
         robotContainer.claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
 
-        final PhotonVision<?> photonVision = robotContainer.photonVision;
+        final PhotonVision photonVision = robotContainer.photonVision;
         photonVision.refreshAlliance();
 
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);

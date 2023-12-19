@@ -1,6 +1,9 @@
 package frc.robot.subsystems.elevator;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants;
+import frc.robot.constants.HardwareConstants;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
@@ -13,28 +16,24 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIO elevatorIO;
     private final ElevatorIOInputsAutoLogged inputs;
 
-    private final boolean hasSimSolver;
-    private final ElevatorSimSolver elevatorSimSolver;
-
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
     private SuperstructureStates.ElevatorState currentState = desiredState;
     private boolean transitioning = false;
 
-    public Elevator(final ElevatorIO elevatorIO, final ElevatorSimSolver elevatorSimSolver) {
-        this.elevatorIO = elevatorIO;
-        this.inputs = new ElevatorIOInputsAutoLogged();
+    public Elevator(final HardwareConstants.ElevatorConstants elevatorConstants) {
+        final Constants.RobotMode mode = Constants.CURRENT_MODE;
+        this.elevatorIO = switch (mode) {
+            case REAL -> new ElevatorIOHorizontalFalcon(elevatorConstants);
+            case SIM -> new ElevatorIOSimHorizontalFalcon(elevatorConstants);
+            case REPLAY -> new ElevatorIO() {};
+        };
 
-        this.hasSimSolver = elevatorSimSolver != null;
-        this.elevatorSimSolver = elevatorSimSolver;
+        this.inputs = new ElevatorIOInputsAutoLogged();
 
         this.elevatorIO.config();
         this.elevatorIO.initialize();
 
         setDesiredState(desiredState);
-    }
-
-    public Elevator(final ElevatorIO elevatorIO) {
-        this(elevatorIO, null);
     }
 
     @Override
@@ -216,20 +215,19 @@ public class Elevator extends SubsystemBase {
     }
 
     /**
-     * Get the {@link ElevatorSimSolver.ElevatorSimState} (simulation state) of the
+     * Get the {@link ElevatorPoseState} (simulation state) of the
      * elevator.
      * <p>
      *     The implementation spec requires that this throw an {@link UnsupportedOperationException} or
      *     otherwise a {@link RuntimeException} if an {@link ElevatorSimSolver} does not exist.
      * </p>
-     * @return the current {@link ElevatorSimSolver.ElevatorSimState}
+     * @return the current {@link ElevatorPoseState}
      */
-    public ElevatorSimSolver.ElevatorSimState getElevatorSimState() {
-        if (hasSimSolver) {
-            return elevatorSimSolver.getElevatorSimState();
-        }
-
-        throw new UnsupportedOperationException("Attempted to GetElevatorSimState without a SimSolver!");
+    public ElevatorPoseState getElevatorPoseState() {
+        return ElevatorSimSolver.generatePoseState(
+                inputs.verticalEncoderPositionRots,
+                inputs.horizontalEncoderPositionRots
+        );
     }
 
     /**
@@ -241,5 +239,29 @@ public class Elevator extends SubsystemBase {
         return desiredState == SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_HIGH
                 || desiredState == SuperstructureStates.ElevatorState.ELEVATOR_EXTENDED_MID
                 || desiredState == SuperstructureStates.ElevatorState.ELEVATOR_DOUBLE_SUB;
+    }
+
+    public record ElevatorPoseState(
+            Pose3d elevatorRootPose,
+            Pose3d verticalStageOneCenterPose,
+            Pose3d verticalStageTwoPose,
+            Pose3d horizontalRootPose,
+            Pose3d horizontalStageOnePose,
+            Pose3d horizontalStageTwoPose,
+            Pose3d horizontalStageTwoFrontBoundPose
+    ) {
+        /**
+         * Log all information contained in this {@link ElevatorPoseState}
+         * @param logKey the root logging key (with no suffixed "/")
+         */
+        public void log(final String logKey) {
+            Logger.recordOutput(logKey + "/ElevatorRootPose", elevatorRootPose);
+            Logger.recordOutput(logKey + "/VerticalStageOneCenterPose", verticalStageOneCenterPose);
+            Logger.recordOutput(logKey + "/VerticalStageTwoCenterPose", verticalStageTwoPose);
+            Logger.recordOutput(logKey + "/HorizontalRootPose", horizontalRootPose);
+            Logger.recordOutput(logKey + "/HorizontalStageOneCenterPose", horizontalStageOnePose);
+            Logger.recordOutput(logKey + "/HorizontalStageTwoCenterPose", horizontalStageTwoPose);
+            Logger.recordOutput(logKey + "/HorizontalStageTwoFrontBoundPose", horizontalStageTwoFrontBoundPose);
+        }
     }
 }

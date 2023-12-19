@@ -14,37 +14,32 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.constants.HardwareConstants;
 import frc.robot.constants.SimConstants;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;
-import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix6Utils;
-import frc.robot.utils.rev.RevUtils;
 import frc.robot.utils.sim.LimitSwitchSim;
 import frc.robot.utils.sim.SimUtils;
-import frc.robot.wrappers.motors.TitanSparkMAX;
 
-public class ElevatorIOSim implements ElevatorIO {
+public class ElevatorIOSimHorizontalFalcon implements ElevatorIO {
     private final ElevatorSimSolver elevatorSimSolver;
     private final DeltaTime deltaTime;
 
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
-    private final InvertedValue verticalElevatorMotorInverted, verticalElevatorMotorFollowerInverted;
-    private final TitanSparkMAX horizontalElevatorMotor;
+    private final TalonFX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
-    private final SensorDirectionValue verticalElevatorEncoderSensorDirection, horizontalElevatorEncoderSensorDirection;
     private final LimitSwitchSim verticalElevatorLimitSwitchSim, horizontalElevatorRearLimitSwitchSim;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
-    private final ProfiledPIDController horizontalElevatorPID;
 
-    private final PositionVoltage positionVoltage;
-    private final MotionMagicVoltage motionMagicVoltage;
-    private final DutyCycleOut dutyCycleOut;
+    private final PositionVoltage verticalPositionVoltage;
+    private final MotionMagicVoltage verticalMotionMagicVoltage;
+    private final DutyCycleOut verticalDutyCycleOut;
+
+    private final DutyCycleOut horizontalDutyCycleOut;
+    private final MotionMagicVoltage horizontalMotionMagicVoltage;
 
     // Cached StatusSignals
     private final StatusSignal<Double> _verticalPosition;
@@ -75,51 +70,58 @@ public class ElevatorIOSim implements ElevatorIO {
     private boolean horizontalElevatorReset = false;
     private boolean elevatorsHaveReset = false;
 
-    public ElevatorIOSim(
-            final TalonFX verticalElevatorMotor,
-            final InvertedValue verticalElevatorMotorInverted,
-            final TalonFX verticalElevatorMotorFollower,
-            final InvertedValue verticalElevatorMotorFollowerInverted,
-            final CANcoder verticalElevatorEncoder,
-            final SensorDirectionValue verticalElevatorEncoderSensorDirection,
-            final CANcoder horizontalElevatorEncoder,
-            final SensorDirectionValue horizontalElevatorEncoderSensorDirection,
-            final TitanSparkMAX horizontalElevatorMotor,
-            final DigitalInput verticalElevatorLimitSwitch,
-            final DigitalInput horizontalElevatorRearLimitSwitch,
-            final ElevatorSimSolver elevatorSimSolver
-    ) {
-        this.elevatorSimSolver = elevatorSimSolver;
+    public ElevatorIOSimHorizontalFalcon(final HardwareConstants.ElevatorConstants elevatorConstants) {
         this.deltaTime = new DeltaTime();
 
         // Vertical Elevator
-        this.verticalElevatorMotor = verticalElevatorMotor;
-        this.verticalElevatorMotorInverted = verticalElevatorMotorInverted;
-        this.verticalElevatorMotorFollower = verticalElevatorMotorFollower;
-        this.verticalElevatorMotorFollowerInverted = verticalElevatorMotorFollowerInverted;
+        this.verticalElevatorMotor = new TalonFX(
+                elevatorConstants.verticalMainMotorId(),
+                elevatorConstants.verticalElevatorCANBus()
+        );
+        this.verticalElevatorMotorFollower = new TalonFX(
+                elevatorConstants.verticalFollowerMotorId(),
+                elevatorConstants.verticalElevatorCANBus()
+        );
+        this.verticalElevatorEncoder = new CANcoder(
+                elevatorConstants.verticalEncoderId(),
+                elevatorConstants.verticalElevatorCANBus()
+        );
 
-        this.verticalElevatorEncoder = verticalElevatorEncoder;
-        this.verticalElevatorEncoderSensorDirection = verticalElevatorEncoderSensorDirection;
-
-        this.verticalElevatorLimitSwitchSim = new LimitSwitchSim(verticalElevatorLimitSwitch);
+        this.verticalElevatorLimitSwitchSim = new LimitSwitchSim(
+                new DigitalInput(elevatorConstants.verticalLimitSwitchDIOChannel())
+        );
         this.verticalElevatorLimitSwitchSim.setInitialized(true);
 
         // Horizontal Elevator
-        this.horizontalElevatorMotor = horizontalElevatorMotor;
-        this.horizontalElevatorEncoder = horizontalElevatorEncoder;
-        this.horizontalElevatorEncoderSensorDirection = horizontalElevatorEncoderSensorDirection;
-
-        this.horizontalElevatorRearLimitSwitchSim = new LimitSwitchSim(horizontalElevatorRearLimitSwitch);
-        this.verticalElevatorLimitSwitchSim.setInitialized(true);
-
-        this.horizontalElevatorPID = new ProfiledPIDController(
-                0.3, 0, 0,
-                new TrapezoidProfile.Constraints(10, 20)
+        this.horizontalElevatorMotor = new TalonFX(
+                elevatorConstants.horizontalMotorId(),
+                elevatorConstants.horizontalElevatorCANBus()
+        );
+        this.horizontalElevatorEncoder = new CANcoder(
+                elevatorConstants.horizontalEncoderId(),
+                elevatorConstants.horizontalElevatorCANBus()
         );
 
-        this.positionVoltage = new PositionVoltage(0);
-        this.motionMagicVoltage = new MotionMagicVoltage(0);
-        this.dutyCycleOut = new DutyCycleOut(0);
+        this.horizontalElevatorRearLimitSwitchSim = new LimitSwitchSim(
+                new DigitalInput(elevatorConstants.horizontalLimitSwitchDIOChannel())
+        );
+        this.verticalElevatorLimitSwitchSim.setInitialized(true);
+
+        // Sim Solver
+        this.elevatorSimSolver = new ElevatorSimSolver(
+                verticalElevatorMotor,
+                verticalElevatorMotorFollower,
+                verticalElevatorEncoder,
+                horizontalElevatorMotor,
+                horizontalElevatorEncoder
+        );
+
+        this.verticalPositionVoltage = new PositionVoltage(0);
+        this.verticalMotionMagicVoltage = new MotionMagicVoltage(0);
+        this.verticalDutyCycleOut = new DutyCycleOut(0);
+
+        this.horizontalDutyCycleOut = new DutyCycleOut(0);
+        this.horizontalMotionMagicVoltage = new MotionMagicVoltage(0);
 
         this._verticalPosition = verticalElevatorMotor.getPosition();
         this._verticalVelocity = verticalElevatorMotor.getVelocity();
@@ -128,17 +130,8 @@ public class ElevatorIOSim implements ElevatorIO {
         this._verticalMotorFollowerTorqueCurrent = verticalElevatorMotorFollower.getTorqueCurrent();
         this._verticalMotorDeviceTemp = verticalElevatorMotor.getDeviceTemp();
         this._verticalMotorFollowerDeviceTemp = verticalElevatorMotorFollower.getDeviceTemp();
-        this._horizontalPosition = horizontalElevatorEncoder.getPosition();
-        this._horizontalVelocity = horizontalElevatorEncoder.getVelocity();
-    }
-
-    @Override
-    public void initialize() {
-        PIDUtils.resetProfiledPIDControllerWithStatusSignal(
-                horizontalElevatorPID,
-                _horizontalPosition.waitForUpdate(0.25),
-                _horizontalVelocity.waitForUpdate(0.25)
-        );
+        this._horizontalPosition = horizontalElevatorMotor.getPosition();
+        this._horizontalVelocity = horizontalElevatorMotor.getVelocity();
     }
 
     private boolean resetElevator() {
@@ -150,16 +143,10 @@ public class ElevatorIOSim implements ElevatorIO {
         }
 
         if (!horizontalElevatorReset && horizontalElevatorRearLimitSwitchSim.getValue()) {
-            horizontalElevatorEncoder.setPosition(0);
+            horizontalElevatorMotor.setPosition(0);
             horizontalElevatorMode = SuperstructureStates.HorizontalElevatorMode.DUTY_CYCLE;
             HEControlInput = 0;
             horizontalElevatorReset = true;
-
-            PIDUtils.resetProfiledPIDControllerWithStatusSignal(
-                    horizontalElevatorPID,
-                    _horizontalPosition.waitForUpdate(0.25),
-                    _horizontalVelocity.waitForUpdate(0.25)
-            );
         }
 
         return verticalElevatorReset && horizontalElevatorReset;
@@ -203,38 +190,22 @@ public class ElevatorIOSim implements ElevatorIO {
 
         switch (verticalElevatorMode) {
             case POSITION -> verticalElevatorMotor.setControl(
-                    positionVoltage.withPosition(VEControlInput)
+                    verticalPositionVoltage.withPosition(VEControlInput)
             );
             case MOTION_MAGIC -> verticalElevatorMotor.setControl(
-                    motionMagicVoltage.withPosition(VEControlInput)
+                    verticalMotionMagicVoltage.withPosition(VEControlInput)
             );
             case DUTY_CYCLE -> verticalElevatorMotor.setControl(
-                    dutyCycleOut.withOutput(VEControlInput)
+                    verticalDutyCycleOut.withOutput(VEControlInput)
             );
         }
 
         switch (horizontalElevatorMode) {
-            case POSITION -> horizontalElevatorMotor.getPIDController().setReference(
-                    RevUtils.convertControlTypeOutput(
-                            horizontalElevatorMotor,
-                            CANSparkMax.ControlType.kDutyCycle,
-                            CANSparkMax.ControlType.kVoltage,
-                            horizontalElevatorPID.calculate(
-                                    _horizontalPosition.refresh().getValue(),
-                                    HEControlInput
-                            )
-                    ),
-                    CANSparkMax.ControlType.kVoltage
+            case POSITION -> horizontalElevatorMotor.setControl(
+                    horizontalMotionMagicVoltage.withPosition(HEControlInput)
             );
-            // TODO: we can likely just use kDutyCycle control here, im fairly sure it works in sim
-            case DUTY_CYCLE -> horizontalElevatorMotor.getPIDController().setReference(
-                    RevUtils.convertControlTypeOutput(
-                            horizontalElevatorMotor,
-                            CANSparkMax.ControlType.kDutyCycle,
-                            CANSparkMax.ControlType.kVoltage,
-                            HEControlInput
-                    ),
-                    CANSparkMax.ControlType.kVoltage
+            case DUTY_CYCLE -> horizontalElevatorMotor.setControl(
+                    horizontalDutyCycleOut.withOutput(HEControlInput)
             );
         }
     }
@@ -242,7 +213,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
-        final ElevatorSimSolver.ElevatorSimState simState = elevatorSimSolver.getElevatorSimState();
+        final Elevator.ElevatorPoseState simState = elevatorSimSolver.getElevatorPoseState();
         simState.log(Elevator.logKey + "SimState");
 
         inputs.verticalEncoderPositionRots = getVEPosition();
@@ -259,9 +230,9 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.horizontalEncoderPositionRots = getHEPosition();
         inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.refresh().getValue();
-        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getOutputCurrent();
-        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getAppliedOutput();
-        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getMotorTemperature();
+        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getTorqueCurrent().refresh().getValue();
+        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getDutyCycle().refresh().getValue();
+        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getDeviceTemp().refresh().getValue();
 
         inputs.verticalLimitSwitch = verticalElevatorLimitSwitchSim.getValue();
         inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitchSim.getValue();
@@ -273,6 +244,8 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void config() {
         // Vertical Elevator
+        final SensorDirectionValue verticalElevatorEncoderSensorDirection =
+                SensorDirectionValue.CounterClockwise_Positive;
         final CANcoderConfiguration verticalElevatorEncoderConfig = new CANcoderConfiguration();
         verticalElevatorEncoderConfig.MagnetSensor.SensorDirection = verticalElevatorEncoderSensorDirection;
         verticalElevatorEncoder.getConfigurator().apply(verticalElevatorEncoderConfig);
@@ -283,23 +256,25 @@ public class ElevatorIOSim implements ElevatorIO {
         // TODO: this fix for CANCoder initialization in sim doesn't seem to work all the time...investigate!
 //        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(verticalElevatorEncoder));
 
-        final TalonFXConfiguration VEConfig = new TalonFXConfiguration();
-        VEConfig.Slot0 = new Slot0Configs()
+        final InvertedValue verticalElevatorMotorInverted = InvertedValue.Clockwise_Positive;
+        final TalonFXConfiguration verticalElevatorMotorConfig = new TalonFXConfiguration();
+        verticalElevatorMotorConfig.Slot0 = new Slot0Configs()
                 .withKP(22);
 
-        VEConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        VEConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;
-        VEConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
+        verticalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        verticalElevatorMotorConfig.Feedback.RotorToSensorRatio = SimConstants.Elevator.Vertical.GEARING;
+        verticalElevatorMotorConfig.Feedback.FeedbackRemoteSensorID = verticalElevatorEncoder.getDeviceID();
 
-        VEConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        VEConfig.MotorOutput.Inverted = verticalElevatorMotorInverted;
+        verticalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        verticalElevatorMotorConfig.MotorOutput.Inverted = verticalElevatorMotorInverted;
 
-        VEConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
-        VEConfig.MotionMagic.MotionMagicAcceleration = 40;
-        VEConfig.MotionMagic.MotionMagicJerk = 100;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 40;
+        verticalElevatorMotorConfig.MotionMagic.MotionMagicJerk = 100;
 
-        verticalElevatorMotor.getConfigurator().apply(VEConfig);
+        verticalElevatorMotor.getConfigurator().apply(verticalElevatorMotorConfig);
 
+        final InvertedValue verticalElevatorMotorFollowerInverted = InvertedValue.Clockwise_Positive;
         final TalonFXConfiguration verticalElevatorMotorFollowerConfig = new TalonFXConfiguration();
         verticalElevatorMotorFollowerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         verticalElevatorMotorFollowerConfig.MotorOutput.Inverted = verticalElevatorMotorFollowerInverted;
@@ -321,8 +296,9 @@ public class ElevatorIOSim implements ElevatorIO {
         );
 
         // Horizontal Elevator
+        final SensorDirectionValue horizontalElevatorEncoderSensorDirection = SensorDirectionValue.Clockwise_Positive;
         final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();
-        horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = horizontalElevatorEncoderSensorDirection;
         horizontalElevatorEncoder.getConfigurator().apply(horizontalElevatorEncoderConfig);
 
         SimUtils.setCTRECANCoderSimStateSensorDirection(
@@ -331,8 +307,21 @@ public class ElevatorIOSim implements ElevatorIO {
         // TODO: this fix for CANCoder initialization in sim doesn't seem to work all the time...investigate!
 //        Phoenix6Utils.assertIsOK(SimUtils.initializeCTRECANCoderSim(horizontalElevatorEncoder));
 
-        horizontalElevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-    }
+        // Horizontal elevator motor
+        final TalonFXConfiguration horizontalElevatorMotorConfig = new TalonFXConfiguration();
+        horizontalElevatorMotorConfig.Slot0 = new Slot0Configs()
+                .withKP(18);
+        horizontalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        horizontalElevatorMotorConfig.Feedback.SensorToMechanismRatio = SimConstants.Elevator.Horizontal.GEARING;
+        horizontalElevatorMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        horizontalElevatorMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        horizontalElevatorMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        horizontalElevatorMotorConfig.CurrentLimits.StatorCurrentLimit = 60;
+        horizontalElevatorMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
+        horizontalElevatorMotorConfig.MotionMagic.MotionMagicAcceleration = 110;
+        horizontalElevatorMotorConfig.MotionMagic.MotionMagicJerk = 165;
+
+        horizontalElevatorMotor.getConfigurator().apply(horizontalElevatorMotorConfig);    }
 
     @Override
     public void setDesiredState(final SuperstructureStates.ElevatorState state) {

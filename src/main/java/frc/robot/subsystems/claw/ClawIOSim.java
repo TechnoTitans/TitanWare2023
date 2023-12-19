@@ -9,9 +9,11 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.subsystems.elevator.ElevatorSimSolver;
+import frc.robot.constants.HardwareConstants;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.DeltaTime;
 import frc.robot.utils.control.PIDUtils;
@@ -27,14 +29,12 @@ public class ClawIOSim implements ClawIO {
     private final DeltaTime deltaTime;
 
     private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
-    private final InvertType clawMainWheelBagInverted;
     private final TalonSRX clawOpenCloseMotor;
-    private final InvertType clawOpenCloseMotorInverted;
     private final CANcoder clawOpenCloseEncoder;
     private final CANcoder clawTiltEncoder;
     private final TitanSparkMAX clawTiltNeo;
 
-    private final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier;
+    private final Supplier<Elevator.ElevatorPoseState> elevatorPoseStateSupplier;
 
     private final ProfiledPIDController tiltPID;
 
@@ -55,16 +55,21 @@ public class ClawIOSim implements ClawIO {
     private double desiredOpenCloseControlInput;
 
     public ClawIOSim(
-            final TalonSRX clawMainWheelBag,
-            final TalonSRX clawFollowerWheelBag,
-            final InvertType clawMainWheelBagInverted,
-            final TalonSRX clawOpenCloseMotor,
-            final InvertType clawOpenCloseMotorInverted,
-            final CANcoder clawOpenCloseEncoder,
-            final TitanSparkMAX clawTiltNeo,
-            final CANcoder clawTiltEncoder,
-            final Supplier<ElevatorSimSolver.ElevatorSimState> elevatorSimStateSupplier
+            final HardwareConstants.ClawConstants clawConstants,
+            final Supplier<Elevator.ElevatorPoseState> elevatorPoseStateSupplier
     ) {
+        this.deltaTime = new DeltaTime();
+        this.elevatorPoseStateSupplier = elevatorPoseStateSupplier;
+
+        this.clawMainWheelBag = new TalonSRX(clawConstants.clawMainWheelMotorId());
+        this.clawFollowerWheelBag = new TalonSRX(clawConstants.clawFollowerWheelMotorId());
+
+        this.clawOpenCloseMotor = new TalonSRX(clawConstants.clawOpenCloseMotorId());
+        this.clawOpenCloseEncoder = new CANcoder(clawConstants.clawOpenCloseEncoderId(), clawConstants.clawCANBus());
+
+        this.clawTiltNeo = new TitanSparkMAX(clawConstants.clawTiltMotorId(), CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.clawTiltEncoder = new CANcoder(clawConstants.clawTiltEncoderId(), clawConstants.clawCANBus());
+
         this.clawSimSolver = new ClawSimSolver(
                 clawMainWheelBag,
                 clawFollowerWheelBag,
@@ -73,20 +78,6 @@ public class ClawIOSim implements ClawIO {
                 clawTiltNeo,
                 clawTiltEncoder
         );
-        this.deltaTime = new DeltaTime();
-
-        this.clawMainWheelBag = clawMainWheelBag;
-        this.clawFollowerWheelBag = clawFollowerWheelBag;
-        this.clawMainWheelBagInverted = clawMainWheelBagInverted;
-
-        this.clawTiltNeo = clawTiltNeo;
-        this.clawTiltEncoder = clawTiltEncoder;
-
-        this.clawOpenCloseMotor = clawOpenCloseMotor;
-        this.clawOpenCloseEncoder = clawOpenCloseEncoder;
-        this.clawOpenCloseMotorInverted = clawOpenCloseMotorInverted;
-
-        this.elevatorSimStateSupplier = elevatorSimStateSupplier;
 
         //TODO: transfer tuned pid from real, then tune in sim
         this.tiltPID = new ProfiledPIDController(
@@ -111,8 +102,8 @@ public class ClawIOSim implements ClawIO {
 
     @Override
     public void periodic() {
-        final ElevatorSimSolver.ElevatorSimState elevatorSimState = elevatorSimStateSupplier.get();
-        clawSimSolver.update(deltaTime.get(), elevatorSimState);
+        final Elevator.ElevatorPoseState elevatorPoseState = elevatorPoseStateSupplier.get();
+        clawSimSolver.update(deltaTime.get(), elevatorPoseState);
 
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
 
@@ -177,7 +168,7 @@ public class ClawIOSim implements ClawIO {
     public void config() {
         // Bag Motors
         clawMainWheelBag.configFactoryDefault();
-        clawMainWheelBag.setInverted(clawMainWheelBagInverted);
+        clawMainWheelBag.setInverted(InvertType.None);
 
         clawFollowerWheelBag.configFactoryDefault();
         clawFollowerWheelBag.set(ControlMode.Follower, clawMainWheelBag.getDeviceID());
@@ -201,7 +192,7 @@ public class ClawIOSim implements ClawIO {
 
         clawOpenCloseMotor.configFactoryDefault();
         clawOpenCloseMotor.configAllSettings(clawOpenCloseMotorConfig);
-        clawOpenCloseMotor.setInverted(clawOpenCloseMotorInverted);
+        clawOpenCloseMotor.setInverted(InvertType.None);
         clawOpenCloseMotor.setNeutralMode(NeutralMode.Brake);
 
         // Claw Tilt Neo
