@@ -1,14 +1,17 @@
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.constants.Constants;
 import frc.robot.profiler.Profiler;
 import frc.robot.utils.SuperstructureStates;
+import frc.robot.utils.auto.MarkerCommand;
 import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.utils.closeables.ToClose;
 import frc.robot.utils.subsystems.VirtualSubsystem;
@@ -77,12 +80,14 @@ public class Robot extends LoggedRobot {
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
-                Logger.addDataReceiver(new WPILOGWriter("/U"));
+                SignalLogger.setPath("/U/hoot");
+                Logger.addDataReceiver(new WPILOGWriter("/U/akit"));
                 Logger.addDataReceiver(new NT4Publisher());
             }
             case SIM -> {
                 // log to working directory when running sim
-                Logger.addDataReceiver(new WPILOGWriter(""));
+                SignalLogger.setPath("/logs/hoot");
+                Logger.addDataReceiver(new WPILOGWriter("/logs/akit"));
                 Logger.addDataReceiver(new NT4Publisher());
             }
             case REPLAY -> {
@@ -95,21 +100,20 @@ public class Robot extends LoggedRobot {
 
         robotContainer = new RobotContainer();
 
-        //TODO FIX
-//        MarkerCommand.setupPathPlannerNamedCommands(
-//                new TrajectoryFollower.FollowerContext(
-//                        robotContainer.swerve,
-//                        robotContainer.elevator,
-//                        robotContainer.claw,
-//                        robotContainer.swerve.getFieldRelativeSpeeds()
-//                )
-//        );
+        MarkerCommand.setupPathPlannerNamedCommands(
+                new TrajectoryManager.FollowerContext(
+                        robotContainer.swerve,
+                        robotContainer.elevator,
+                        robotContainer.claw
+                )
+        );
 
         // precompute MarkerCommands from registered options on the auto chooser
 //        robotContainer.trajectoryManager.precomputeMarkerCommands(
 //                robotContainer.autoChooser.getRegisteredOptions()
 //        );
 
+        SignalLogger.enableAutoLogging(true);
         Logger.start();
     }
 

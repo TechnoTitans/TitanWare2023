@@ -98,10 +98,10 @@ public class PhotonVision extends VirtualSubsystem {
         this.runner = switch (Constants.CURRENT_MODE) {
             case REAL -> new PhotonVisionApriltagsReal(
                     PhotonVision.makePhotonVisionIOInputsMap(
-                            makePhotonVisionRealIO(TitanCamera.PHOTON_FR_Apriltag_F),
-                            makePhotonVisionRealIO(TitanCamera.PHOTON_FR_Apriltag_R),
-                            makePhotonVisionRealIO(TitanCamera.PHOTON_FL_Apriltag_L),
-                            makePhotonVisionRealIO(TitanCamera.PHOTON_BR_Apriltag_B)
+//                            makePhotonVisionRealIO(TitanCamera.PHOTON_FR_Apriltag_F),
+//                            makePhotonVisionRealIO(TitanCamera.PHOTON_FR_Apriltag_R),
+//                            makePhotonVisionRealIO(TitanCamera.PHOTON_FL_Apriltag_L),
+//                            makePhotonVisionRealIO(TitanCamera.PHOTON_BR_Apriltag_B)
                     )
             );
             case SIM -> {

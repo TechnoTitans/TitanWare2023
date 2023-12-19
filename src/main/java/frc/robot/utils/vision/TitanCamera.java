@@ -13,13 +13,13 @@ import java.util.List;
 
 public enum TitanCamera {
     DRIVER_CAM(
-            RobotMap.PhotonVision_Driver_Cam,
+            RobotMap.photonvision_driver_cam,
             new Transform3d(),
             CameraProperties.MICROSOFT_LIFECAM_HD3000,
             true
     ),
     PHOTON_FR_Apriltag_F(
-            RobotMap.PhotonVision_FR_Apriltag_F,
+            RobotMap.photonvision_FR_apriltag_F,
             Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_F,
             CameraProperties.SPINEL_UC10MPC_ND_OV9281,
             new TitanCameraCalibration()
@@ -61,7 +61,7 @@ public enum TitanCamera {
             false
     ),
     PHOTON_FR_Apriltag_R(
-            RobotMap.PhotonVision_FR_Apriltag_R,
+            RobotMap.photonvision_FR_apriltag_R,
             Constants.Vision.ROBOT_TO_FR_APRILTAG_CAM_R,
             CameraProperties.ARDUCAM_B0332_OV9281,
             new TitanCameraCalibration()
@@ -174,7 +174,7 @@ public enum TitanCamera {
     ),
     //TODO: put real numbers here -> do not use PERFECT_90DEG
     PHOTON_FL_Apriltag_L(
-            RobotMap.PhotonVision_FL_Apriltag_L,
+            RobotMap.photonvision_FL_apriltag_L,
             Constants.Vision.ROBOT_TO_FL_APRILTAG_CAM_L,
             CameraProperties.PERFECT_90,  //TODO: GET FOR NEW CAMERAS
             TitanCameraCalibration.fromSimCameraProperties(SimCameraProperties.PERFECT_90DEG()),
@@ -182,7 +182,7 @@ public enum TitanCamera {
     ),
     //TODO: put real numbers here -> do not use PERFECT_90DEG
     PHOTON_BR_Apriltag_B(
-            RobotMap.PhotonVision_BR_Apriltag_B,
+            RobotMap.photonvision_BR_apriltag_B,
             Constants.Vision.ROBOT_TO_BR_APRILTAG_CAM_B,
             CameraProperties.PERFECT_90, //TODO: GET FOR NEW CAMERAS
             TitanCameraCalibration.fromSimCameraProperties(SimCameraProperties.PERFECT_90DEG()),

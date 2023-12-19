@@ -9,7 +9,7 @@ public class CandleController {
     private static CandleController INSTANCE;
     public static CandleController getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new CandleController(new CANdle(RobotMap.CANdle_ID));
+            INSTANCE = new CandleController(new CANdle(RobotMap.candle));
         }
         return INSTANCE;
     }

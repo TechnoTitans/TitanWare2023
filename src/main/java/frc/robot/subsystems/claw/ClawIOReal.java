@@ -16,12 +16,10 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import frc.robot.constants.HardwareConstants;
-import frc.robot.constants.RobotMap;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.control.PIDUtils;
 import frc.robot.utils.ctre.Phoenix5Utils;
 import frc.robot.wrappers.motors.TitanSparkMAX;
-import org.littletonrobotics.junction.Logger;
 
 public class ClawIOReal implements ClawIO {
     private final TalonSRX clawMainWheelBag, clawFollowerWheelBag;
@@ -178,7 +176,7 @@ public class ClawIOReal implements ClawIO {
         final CANcoderConfiguration clawTiltEncoderConfig = new CANcoderConfiguration();
         clawTiltEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         clawTiltEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
-        clawTiltEncoderConfig.MagnetSensor.MagnetOffset = -0.17;
+        clawTiltEncoderConfig.MagnetSensor.MagnetOffset = 0.48;
 
         clawTiltEncoder.getConfigurator().apply(clawTiltEncoderConfig);
     }

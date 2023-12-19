@@ -4,14 +4,13 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.SIM;
+    RobotMode CURRENT_MODE = RobotMode.REAL;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -78,7 +77,7 @@ public interface Constants {
     interface Swerve {
         double WHEEL_BASE = 0.7366;
         double TRACK_WIDTH = 0.7366;
-        double ROBOT_MAX_SPEED = Units.feetToMeters(13.5);
+        double ROBOT_MAX_SPEED = Units.feetToMeters(13);
         double ROBOT_MAX_ANGULAR_SPEED = 2 * Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
@@ -93,12 +92,6 @@ public interface Constants {
         // see https://github.com/wpilibsuite/allwpilib/issues/5749
         boolean USE_SWERVE_COSINE_SCALING = true;
 
-        //in meters, swerve modules relative to the center of robot
-        Translation2d FL_OFFSET = new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2); //front left
-        Translation2d FR_OFFSET = new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2); // front right
-        Translation2d BL_OFFSET = new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2); // back left
-        Translation2d BR_OFFSET = new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2); //back right
-
         interface Modules {
             double WHEEL_RADIUS = 0.0508; //2 in
             double WHEEL_MASS = 0.2313321; //0.51 lbs
@@ -108,7 +101,9 @@ public interface Constants {
             double TURNER_GEAR_RATIO = 150.0 / 7.0;
 
             double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
-            double MODULE_MAX_SPEED = Units.feetToMeters(13.5);
+            // SDS MK4i L1 with Falcon 500 FOC
+            // see https://www.swervedrivespecialties.com/products/mk4i-swerve-module
+            double MODULE_MAX_SPEED = Units.feetToMeters(13);
         }
     }
 

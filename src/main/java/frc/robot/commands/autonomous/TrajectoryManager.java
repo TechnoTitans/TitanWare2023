@@ -10,7 +10,9 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
+import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
@@ -60,5 +62,43 @@ public class TrajectoryManager {
                 path,
                 swerve::getEstimatedPosition
         );
+    }
+
+    public static class FollowerContext {
+        private final Swerve swerve;
+        private final Elevator elevator;
+        private final Claw claw;
+
+        private boolean wheelX;
+
+        public FollowerContext(
+                final Swerve swerve,
+                final Elevator elevator,
+                final Claw claw
+        ) {
+            this.swerve = swerve;
+            this.elevator = elevator;
+            this.claw = claw;
+        }
+
+        public Swerve getSwerve() {
+            return swerve;
+        }
+
+        public Elevator getElevator() {
+            return elevator;
+        }
+
+        public Claw getClaw() {
+            return claw;
+        }
+
+        public boolean isWheelX() {
+            return wheelX;
+        }
+
+        public void setWheelX(boolean wheelX) {
+            this.wheelX = wheelX;
+        }
     }
 }
