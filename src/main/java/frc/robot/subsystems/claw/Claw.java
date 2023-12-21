@@ -27,10 +27,11 @@ public class Claw extends SubsystemBase {
     private boolean transitioning = false;
 
     public Claw(
+            final Constants.RobotMode mode,
             final HardwareConstants.ClawConstants clawConstants,
             final Supplier<Elevator.ElevatorPoseState> elevatorPoseStateSupplier
     ) {
-        this.clawIO = switch (Constants.CURRENT_MODE) {
+        this.clawIO = switch (mode) {
             case REAL -> new ClawIOReal(clawConstants);
             case SIM -> new ClawIOSim(clawConstants, elevatorPoseStateSupplier);
             case REPLAY -> new ClawIO() {};

@@ -37,7 +37,13 @@ public class TrajectoryManager {
 
         // TODO: this might work? probably should check, though
         PathPlannerLogging.setLogCurrentPoseCallback(pose2d -> Logger.recordOutput("Auto/CurrentPose", pose2d));
-        PathPlannerLogging.setLogTargetPoseCallback(pose2d -> Logger.recordOutput("Auto/TargetPose", pose2d));
+        PathPlannerLogging.setLogTargetPoseCallback(pose2d -> {
+            Logger.recordOutput("Auto/TargetPose", pose2d);
+            Logger.recordOutput(
+                    "Auto/DistanceToTarget",
+                    swerve.getEstimatedPosition().minus(pose2d).getTranslation().getNorm()
+            );
+        });
         AutoBuilder.configureHolonomic(
                 swerve::getEstimatedPosition,
                 photonVision::resetPosition,

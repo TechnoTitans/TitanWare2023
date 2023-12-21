@@ -17,7 +17,8 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 public class ElevatorIOHorizontalFalcon implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
     private final TalonFX horizontalElevatorMotor;
-    private final CANcoder verticalElevatorEncoder, horizontalElevatorEncoder;
+    private final CANcoder verticalElevatorEncoder;
+//    private final CANcoder horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
@@ -81,10 +82,10 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
                 elevatorConstants.horizontalMotorId(),
                 elevatorConstants.horizontalElevatorCANBus()
         );
-        this.horizontalElevatorEncoder = new CANcoder(
-                elevatorConstants.horizontalEncoderId(),
-                elevatorConstants.horizontalElevatorCANBus()
-        );
+//        this.horizontalElevatorEncoder = new CANcoder(
+//                elevatorConstants.horizontalEncoderId(),
+//                elevatorConstants.horizontalElevatorCANBus()
+//        );
 
         this.verticalElevatorLimitSwitch = new DigitalInput(elevatorConstants.verticalLimitSwitchDIOChannel());
         this.horizontalElevatorRearLimitSwitch = new DigitalInput(elevatorConstants.horizontalLimitSwitchDIOChannel());
@@ -231,7 +232,7 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         final TalonFXConfiguration verticalElevatorMotorConfig = new TalonFXConfiguration();
         verticalElevatorMotorConfig.Slot0 = new Slot0Configs()
                 .withKP(22)
-                .withKG(0.73)
+                .withKG(0.6)
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         verticalElevatorMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
@@ -254,9 +255,9 @@ public class ElevatorIOHorizontalFalcon implements ElevatorIO {
         ));
 
         // Horizontal elevator CANCoder
-        final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();
-        horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        horizontalElevatorEncoder.getConfigurator().apply(horizontalElevatorEncoderConfig);
+//        final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();
+//        horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+//        horizontalElevatorEncoder.getConfigurator().apply(horizontalElevatorEncoderConfig);
 
         // Horizontal elevator motor
         final TalonFXConfiguration horizontalElevatorMotorConfig = new TalonFXConfiguration();

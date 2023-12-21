@@ -36,12 +36,12 @@ public class Swerve extends SubsystemBase {
     private final SwerveModule[] swerveModules;
 
     public Swerve(
+            final Constants.RobotMode mode,
             final HardwareConstants.SwerveModuleConstants frontLeftConstants,
             final HardwareConstants.SwerveModuleConstants frontRightConstants,
             final HardwareConstants.SwerveModuleConstants backLeftConstants,
             final HardwareConstants.SwerveModuleConstants backRightConstants
     ) {
-        final Constants.RobotMode mode = Constants.CURRENT_MODE;
         final Pigeon2 pigeon2 = new Pigeon2(RobotMap.PIGEON_ID, RobotMap.canivoreCANBus);
 
         this.frontLeft = frontLeftConstants.create(mode);
@@ -164,6 +164,9 @@ public class Swerve extends SubsystemBase {
                 estimatedPosition,
                 GyroUtils.rpyToRotation3d(getRoll(), getPitch(), getYaw())
         ));
+
+        Logger.recordOutput("PoseX", estimatedPosition.getX());
+        Logger.recordOutput("PoseY", estimatedPosition.getY());
     }
 
     public SwerveDriveKinematics getKinematics() {

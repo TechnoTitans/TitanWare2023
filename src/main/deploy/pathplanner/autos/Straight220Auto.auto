@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.8390329507931746,
-      "y": 5.0
+      "x": 2,
+      "y": 5
     },
-    "rotation": 180.0
+    "rotation": 3.743712040239461e-29
   },
   "command": {
     "type": "sequential",
@@ -14,17 +14,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Test2"
+            "pathName": "New Path"
           }
         }
       ]
     }
   },
-  "folder": null
+  "folder": null,
+  "choreoAuto": true
 }

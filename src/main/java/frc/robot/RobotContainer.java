@@ -15,9 +15,11 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.orchestra.OrchestrateAll;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.CustomAutoChooser;
 import frc.robot.utils.auto.CustomProfileChooser;
+import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
@@ -29,10 +31,12 @@ public class RobotContainer {
     //Vision
     public final PhotonVision photonVision;
 
-    //SubSystems
+    //Subsystems
     public final Swerve swerve;
     public final Elevator elevator;
     public final Claw claw;
+
+//    public final OrchestrateAll orchestra;
 
     //Teleop Commands
     public final SwerveDriveTeleop swerveDriveTeleop;
@@ -51,14 +55,29 @@ public class RobotContainer {
         powerDistribution = new PowerDistribution(RobotMap.POWER_DISTRIBUTION_HUB, PowerDistribution.ModuleType.kRev);
         powerDistribution.clearStickyFaults();
 
-        elevator = new Elevator(HardwareConstants.ELEVATOR);
-        claw = new Claw(HardwareConstants.CLAW, elevator::getElevatorPoseState);
+        elevator = new Elevator(Constants.CURRENT_MODE, HardwareConstants.ELEVATOR);
+        claw = new Claw(
+                Constants.CURRENT_MODE,
+                HardwareConstants.CLAW,
+                elevator::getElevatorPoseState
+        );
         swerve = new Swerve(
+                Constants.CURRENT_MODE,
                 HardwareConstants.FRONT_LEFT_MODULE,
                 HardwareConstants.FRONT_RIGHT_MODULE,
                 HardwareConstants.BACK_LEFT_MODULE,
                 HardwareConstants.BACK_RIGHT_MODULE
         );
+
+//        orchestra = new OrchestrateAll(
+//                "jingle-bells.chrp",
+//                2,
+//                HardwareConstants.FRONT_LEFT_MODULE,
+//                HardwareConstants.FRONT_RIGHT_MODULE,
+//                HardwareConstants.BACK_LEFT_MODULE,
+//                HardwareConstants.BACK_RIGHT_MODULE,
+//                HardwareConstants.ELEVATOR
+//        );
 
 //        holonomicDriveController = new DriveController(
 //                new PIDController(14, 0, 0),
@@ -177,6 +196,9 @@ public class RobotContainer {
 
         autoChooser.addAutoOption(new AutoOption("CurvyForwardAuto"));
         autoChooser.addAutoOption(new AutoOption("TestAuto"));
+        autoChooser.addAutoOption(new AutoOption("SellingAuto"));
+        autoChooser.addAutoOption(new AutoOption("CheerioAuto"));
+        autoChooser.addAutoOption(new AutoOption("Straight220Auto"));
     }
 
     public Command getAutonomousCommand() {
