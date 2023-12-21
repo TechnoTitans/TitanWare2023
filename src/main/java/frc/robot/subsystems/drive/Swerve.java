@@ -18,7 +18,6 @@ import frc.robot.constants.RobotMap;
 import frc.robot.subsystems.gyro.*;
 import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.logging.LogUtils;
-import frc.robot.utils.sim.CurrentDrawSim;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,7 +26,6 @@ import java.util.Arrays;
 public class Swerve extends SubsystemBase {
     protected static final String logKey = "Swerve";
     protected static final String odometryLogKey = "Odometry";
-    private static final boolean _currentDrawEnabled = CurrentDrawSim.isEnabled();
 
     private Gyro gyro;
     private final GyroIOInputsAutoLogged gyroInputs;
@@ -119,17 +117,6 @@ public class Swerve extends SubsystemBase {
                 logKey + "/PeriodicIOPeriodMs",
                 LogUtils.microsecondsToMilliseconds(Logger.getRealTimestamp() - swervePeriodicUpdateStart)
         );
-
-        //report current draws in sim
-        if (_currentDrawEnabled) {
-            CurrentDrawSim.getInstance().report(
-                    Arrays.stream(swerveModules)
-                            .map(SwerveModule::getCurrentDrawAmps)
-                            .mapToDouble(Double::doubleValue)
-                            .sum(),
-                    Constants.PDH.DRIVETRAIN_CHANNELS
-            );
-        }
 
         //log current swerve chassis speeds
         final ChassisSpeeds robotRelativeSpeeds = getRobotRelativeSpeeds();

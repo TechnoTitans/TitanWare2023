@@ -5,8 +5,9 @@
 # see https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/docs/INSTALLATION.md#gversion-plugin-git-metadata
 src/main/java/frc/robot/BuildConstants.java
 
-# Ignore wpilib logs
+# Ignore wpilib, ctre(hoot) logs
 *.wpilog
+*.hoot
 
 ### C++ ###
 # Prerequisites

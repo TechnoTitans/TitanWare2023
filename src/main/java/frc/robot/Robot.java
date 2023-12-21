@@ -80,14 +80,17 @@ public class Robot extends LoggedRobot {
 
         switch (Constants.CURRENT_MODE) {
             case REAL -> {
+                // TODO: I don't think SignalLogger.setPath will create the non-existent directories if they don't exist
+                //  verify this, and then it might be worth it to make the directory ourselves
                 SignalLogger.setPath("/U/hoot");
                 Logger.addDataReceiver(new WPILOGWriter("/U/akit"));
                 Logger.addDataReceiver(new NT4Publisher());
             }
             case SIM -> {
                 // log to working directory when running sim
-                SignalLogger.setPath("/logs/hoot");
-                Logger.addDataReceiver(new WPILOGWriter("/logs/akit"));
+                // setPath doesn't seem to work in sim (path is ignored and hoot files are always sent to /logs)
+//                SignalLogger.setPath("/logs");
+                Logger.addDataReceiver(new WPILOGWriter(""));
                 Logger.addDataReceiver(new NT4Publisher());
             }
             case REPLAY -> {
@@ -108,19 +111,17 @@ public class Robot extends LoggedRobot {
                 )
         );
 
-        // precompute MarkerCommands from registered options on the auto chooser
-//        robotContainer.trajectoryManager.precomputeMarkerCommands(
-//                robotContainer.autoChooser.getRegisteredOptions()
-//        );
+//        SignalLogger.enableAutoLogging(true);
+        SignalLogger.start();
+        ToClose.add(SignalLogger::stop);
 
-        SignalLogger.enableAutoLogging(true);
         Logger.start();
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        VirtualSubsystem.run();
+//        VirtualSubsystem.run();
     }
 
     @Override

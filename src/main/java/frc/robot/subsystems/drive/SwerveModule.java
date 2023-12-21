@@ -21,7 +21,7 @@ public class SwerveModule {
 
     public SwerveModule(final SwerveModuleIO moduleIO, final String name) {
         this.name = name;
-        this.logKey = String.format("%s/Module_%s", Swerve.logKey, name);
+        this.logKey = String.format("%s/%s", Swerve.logKey, name);
 
         this.moduleIO = moduleIO;
         this.moduleIO.config();

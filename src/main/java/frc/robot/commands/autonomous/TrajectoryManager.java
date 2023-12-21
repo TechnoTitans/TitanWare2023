@@ -7,6 +7,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
@@ -15,6 +16,7 @@ import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
+import org.littletonrobotics.junction.Logger;
 
 public class TrajectoryManager {
     private final Swerve swerve;
@@ -33,6 +35,9 @@ public class TrajectoryManager {
                 new ReplanningConfig()
         );
 
+        // TODO: this might work? probably should check, though
+        PathPlannerLogging.setLogCurrentPoseCallback(pose2d -> Logger.recordOutput("Auto/CurrentPose", pose2d));
+        PathPlannerLogging.setLogTargetPoseCallback(pose2d -> Logger.recordOutput("Auto/TargetPose", pose2d));
         AutoBuilder.configureHolonomic(
                 swerve::getEstimatedPosition,
                 photonVision::resetPosition,
