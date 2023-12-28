@@ -21,8 +21,6 @@ import frc.robot.utils.logging.LogUtils;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Arrays;
-
 public class Swerve extends SubsystemBase {
     protected static final String logKey = "Swerve";
     protected static final String odometryLogKey = "Odometry";
@@ -286,8 +284,10 @@ public class Swerve extends SubsystemBase {
     public void drive(final ChassisSpeeds speeds, final double moduleMaxSpeed) {
         final ChassisSpeeds correctedSpeeds;
         if (Constants.Swerve.USE_SWERVE_SKEW_FIX) {
-            // TODO: replace with ChassisSpeeds.discretize() once we get wpilib updated
-            final double dtSeconds = Constants.LOOP_PERIOD_SECONDS;
+            // TODO: maybe replace with ChassisSpeeds.discretize() or some other tyler math that's more
+            //  "mathematically correct"
+            // lookahead 4 loop cycles cause uh the goated teams do it and it works so uh
+            final double dtSeconds = 4 * Constants.LOOP_PERIOD_SECONDS;
             final Pose2d desiredDeltaPose = new Pose2d(
                     speeds.vxMetersPerSecond * dtSeconds,
                     speeds.vyMetersPerSecond * dtSeconds,

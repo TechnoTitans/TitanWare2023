@@ -2,7 +2,6 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -37,6 +36,7 @@ public class SwerveModule {
      * @param wheelRotation the measured wheel {@link Rotation2d}
      */
     public static void scaleWithErrorCosine(final SwerveModuleState state, final Rotation2d wheelRotation) {
+        // see https://github.com/wpilibsuite/allwpilib/issues/5749
         state.speedMetersPerSecond *= state.angle.minus(wheelRotation).getCos();
     }
 
@@ -156,9 +156,7 @@ public class SwerveModule {
         final Rotation2d currentWheelRotation = getAngle();
 
         final SwerveModuleState wantedState = SwerveModuleState.optimize(state, currentWheelRotation);
-        if (Constants.Swerve.USE_SWERVE_COSINE_SCALING) {
-            SwerveModule.scaleWithErrorCosine(wantedState, currentWheelRotation);
-        }
+        SwerveModule.scaleWithErrorCosine(wantedState, currentWheelRotation);
 
         final double desiredDriverVelocity = computeDesiredDriverVelocity(wantedState);
         final double desiredTurnerRotations = computeDesiredTurnerRotations(wantedState);

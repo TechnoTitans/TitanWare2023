@@ -16,6 +16,12 @@
           "data": {
             "pathName": "CurvyForward"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "score:high"
+          }
         }
       ]
     }

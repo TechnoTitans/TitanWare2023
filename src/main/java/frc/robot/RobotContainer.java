@@ -15,11 +15,9 @@ import frc.robot.profiler.Profiler;
 import frc.robot.subsystems.claw.Claw;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.orchestra.OrchestrateAll;
 import frc.robot.utils.auto.AutoOption;
 import frc.robot.utils.auto.CustomAutoChooser;
 import frc.robot.utils.auto.CustomProfileChooser;
-import frc.robot.utils.auto.PathPlannerUtil;
 import frc.robot.wrappers.leds.CandleController;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 
@@ -180,6 +178,7 @@ public class RobotContainer {
 //
 //        autoChooser.addAutoOption(new AutoOption(
 //                "OtherMethod3Piece",
+
 //                List.of(
 //                        new AutoOption.PathOption("OtherMethod1"),
 //                        new AutoOption.PathOption("OtherMethod2")

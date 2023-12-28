@@ -45,11 +45,11 @@ public class LogUtils {
         logTable.put(prefix + "_TimestampSeconds", estimatedRobotPose.timestampSeconds);
 
         final int targetsUsedSize = estimatedRobotPose.targetsUsed.size();
-        final int packetSize = targetsUsedSize * PhotonTrackedTarget.PACK_SIZE_BYTES;
         for (int i = 0; i < targetsUsedSize; i++) {
             final PhotonTrackedTarget trackedTarget = estimatedRobotPose.targetsUsed.get(i);
-            final Packet packet = trackedTarget.populatePacket(new Packet(packetSize));
+            final Packet packet = new Packet(PhotonTrackedTarget.serde.getMaxByteSize());
 
+            PhotonTrackedTarget.serde.pack(packet, trackedTarget);
             LogUtils.serializePhotonVisionPacket(logTable, prefix + "_TargetsUsed_Packet_" + i, packet);
         }
 
@@ -76,8 +76,7 @@ public class LogUtils {
                     logTable, prefix + "_TargetsUsed_Packet_" + i
             );
 
-            final PhotonTrackedTarget trackedTarget = new PhotonTrackedTarget();
-            trackedTarget.createFromPacket(packet);
+            final PhotonTrackedTarget trackedTarget = PhotonTrackedTarget.serde.unpack(packet);
             trackedTargets.add(trackedTarget);
         }
 
@@ -141,9 +140,9 @@ public class LogUtils {
      * it can be properly logged
      * <p>
      * Do <b>NOT</b> rely on this class to provide accurate states - this should ONLY be used for logging purposes
-     * @see org.littletonrobotics.junction.Logger#recordOutput(String, Trajectory)
      * @see Trajectory
      */
+    @SuppressWarnings("unused")
     public static class LoggableTrajectory extends Trajectory {
         public static final double TIME_ACCURACY = 0.1;
         public static final int MAX_STATES = 25;

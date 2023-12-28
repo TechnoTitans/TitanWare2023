@@ -43,13 +43,16 @@ public enum MarkerCommand {
             "score",
             List.of(ArgumentChecker.enumChecker(GridNode.Level.class)),
             (((followerContext, args) ->
-                    Commands.sequence(
-                            GridNode.buildScoringSequence(
-                                    followerContext.getElevator(),
-                                    followerContext.getClaw(),
-                                    GridNode.Level.valueOf(args.get(0))
-                            ),
-                            Commands.waitSeconds(0.6)
+                    Commands.parallel(
+                            Commands.idle(followerContext.getSwerve()),
+                            Commands.sequence(
+                                GridNode.buildScoringSequence(
+                                        followerContext.getElevator(),
+                                        followerContext.getClaw(),
+                                        GridNode.Level.valueOf(args.get(0))
+                                ),
+                                Commands.waitSeconds(0.6)
+                        )
                     )
             ))
     ),
@@ -154,7 +157,7 @@ public enum MarkerCommand {
                     builder.append(arg);
                 }
 
-                final String commandName = builder.toString();
+                final String commandName = builder.toString().toLowerCase();
                 final Command command = markerCommand.command(followerContext, args);
                 NamedCommands.registerCommand(commandName, command);
             }

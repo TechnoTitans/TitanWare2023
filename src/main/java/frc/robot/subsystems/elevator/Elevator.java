@@ -22,8 +22,8 @@ public class Elevator extends SubsystemBase {
 
     public Elevator(final Constants.RobotMode mode, final HardwareConstants.ElevatorConstants elevatorConstants) {
         this.elevatorIO = switch (mode) {
-            case REAL -> new ElevatorIOHorizontalFalcon(elevatorConstants);
-            case SIM -> new ElevatorIOSimHorizontalFalcon(elevatorConstants);
+            case REAL -> new ElevatorIOFalcon(elevatorConstants);
+            case SIM -> new ElevatorIOSimFalcon(elevatorConstants);
             case REPLAY -> new ElevatorIO() {};
         };
 

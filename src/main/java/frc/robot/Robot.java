@@ -167,6 +167,10 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
+        }
+
         ButtonBindings.bindAll(robotContainer);
         robotContainer.elevator.setDesiredState(SuperstructureStates.ElevatorState.ELEVATOR_STANDBY);
         robotContainer.claw.setDesiredState(SuperstructureStates.ClawState.CLAW_STANDBY);
@@ -177,10 +181,6 @@ public class Robot extends LoggedRobot {
         robotContainer.swerve.setNeutralMode(NeutralModeValue.Coast);
 
         Profiler.setDriverProfile(robotContainer.profileChooser.getSelected());
-
-        if (autonomousCommand != null) {
-            autonomousCommand.cancel();
-        }
 
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.swerve, robotContainer.swerveDriveTeleop);
         CommandScheduler.getInstance().setDefaultCommand(robotContainer.elevator, robotContainer.elevatorClawTeleop);

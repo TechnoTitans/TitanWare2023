@@ -1,17 +1,12 @@
 package frc.robot.subsystems.claw;
 
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 import frc.robot.constants.HardwareConstants;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorSimSolver;
 import frc.robot.utils.MathUtils;
 import frc.robot.utils.SuperstructureStates;
 import frc.robot.utils.logging.LogUtils;
-import frc.robot.wrappers.motors.TitanSparkMAX;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;

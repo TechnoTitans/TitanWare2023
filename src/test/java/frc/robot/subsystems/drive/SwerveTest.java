@@ -62,6 +62,7 @@ class SwerveTest {
             when(gyro.getYawRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
 
             swerve = new Swerve(
+                    Constants.CURRENT_MODE,
                     HardwareConstants.FRONT_LEFT_MODULE,
                     HardwareConstants.FRONT_RIGHT_MODULE,
                     HardwareConstants.BACK_LEFT_MODULE,
@@ -213,9 +214,7 @@ class SwerveTest {
         }
 
         final SwerveModuleState desiredOptimized = SwerveModuleState.optimize(desired, measured.angle);
-        if (Constants.Swerve.USE_SWERVE_COSINE_SCALING) {
-            SwerveModule.scaleWithErrorCosine(desiredOptimized, measured.angle);
-        }
+        SwerveModule.scaleWithErrorCosine(desiredOptimized, measured.angle);
 
         return desiredOptimized.equals(optimized);
     }

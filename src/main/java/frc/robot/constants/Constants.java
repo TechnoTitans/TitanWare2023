@@ -81,16 +81,14 @@ public interface Constants {
         double ROBOT_MAX_ANGULAR_SPEED = 2 * Math.PI;
         double TELEOP_MAX_SPEED = ROBOT_MAX_SPEED;
         double TELEOP_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
-        double TRAJECTORY_MAX_SPEED = 4;
-        double TRAJECTORY_MAX_ACCELERATION = 3;
+        double TRAJECTORY_MAX_SPEED = 2;
+        double TRAJECTORY_MAX_ACCELERATION = 2;
         double TRAJECTORY_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJECTORY_MAX_ANGULAR_ACCELERATION = 1.5 * ROBOT_MAX_ANGULAR_SPEED;
         double ROTATE_P = 1;
 
         // see https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/40
         boolean USE_SWERVE_SKEW_FIX = true;
-        // see https://github.com/wpilibsuite/allwpilib/issues/5749
-        boolean USE_SWERVE_COSINE_SCALING = true;
 
         interface Modules {
             double WHEEL_RADIUS = 0.0508; //2 in
