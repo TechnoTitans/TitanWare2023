@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -89,13 +90,20 @@ public class ClawIOReal implements ClawIO {
 
     @Override
     public void periodic() {
+        BaseStatusSignal.refreshAll(
+                _tiltPosition,
+                _tiltVelocity,
+                _openClosePosition,
+                _openCloseVelocity
+        );
+
         clawMainWheelBag.set(ControlMode.PercentOutput, desiredIntakeWheelsPercentOutput);
 
         switch (openCloseControlMode) {
             case POSITION -> clawOpenCloseMotor.set(
                     ControlMode.PercentOutput,
                     openClosePID.calculate(
-                            _openClosePosition.refresh().getValue(),
+                            _openClosePosition.getValue(),
                             desiredOpenCloseControlInput
                     )
             );
@@ -110,7 +118,7 @@ public class ClawIOReal implements ClawIO {
         switch (clawTiltControlMode) {
             case POSITION -> clawTiltNeo.getPIDController().setReference(
                     tiltPID.calculate(
-                            _tiltPosition.refresh().getValue(),
+                            _tiltPosition.getValue(),
                             desiredTiltControlInput
                     ) + armFeedforward.calculate(
                             Units.rotationsToRadians(desiredTiltControlInput - 0.315),
@@ -128,14 +136,14 @@ public class ClawIOReal implements ClawIO {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final ClawIOInputs inputs) {
-        inputs.tiltEncoderPositionRots = _tiltPosition.refresh().getValue();
-        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.refresh().getValue();
+        inputs.tiltEncoderPositionRots = _tiltPosition.getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.getValue();
         inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         inputs.tiltCurrentAmps = clawTiltNeo.getOutputCurrent();
         inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
-        inputs.openCloseEncoderPositionRots = _openClosePosition.refresh().getValue();
-        inputs.openCloseEncoderVelocityRotsPerSec = _openCloseVelocity.refresh().getValue();
+        inputs.openCloseEncoderPositionRots = _openClosePosition.getValue();
+        inputs.openCloseEncoderVelocityRotsPerSec = _openCloseVelocity.getValue();
         inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
         inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();

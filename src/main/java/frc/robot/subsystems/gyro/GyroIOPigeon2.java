@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gyro;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -31,16 +32,29 @@ public class GyroIOPigeon2 implements GyroIO {
     }
 
     @Override
+    public void periodic() {
+        BaseStatusSignal.refreshAll(
+                _faultHardware,
+                _yaw,
+                _pitch,
+                _roll,
+                _yawVelocity,
+                _pitchVelocity,
+                _rollVelocity
+        );
+    }
+
+    @Override
     public void updateInputs(final GyroIOInputs inputs) {
-        inputs.hasHardwareFault = _faultHardware.refresh().getValue();
+        inputs.hasHardwareFault = _faultHardware.getValue();
 
         inputs.yawPositionDeg = getYaw();
         inputs.pitchPositionDeg = getPitch();
         inputs.rollPositionDeg = getRoll();
 
-        inputs.yawVelocityDegPerSec = _yawVelocity.refresh().getValue();
-        inputs.pitchVelocityDegPerSec = _pitchVelocity.refresh().getValue();
-        inputs.rollVelocityDegPerSec = _rollVelocity.refresh().getValue();
+        inputs.yawVelocityDegPerSec = _yawVelocity.getValue();
+        inputs.pitchVelocityDegPerSec = _pitchVelocity.getValue();
+        inputs.rollVelocityDegPerSec = _rollVelocity.getValue();
     }
 
     @Override
@@ -53,15 +67,15 @@ public class GyroIOPigeon2 implements GyroIO {
     }
 
     public double getYaw() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_yaw, _yawVelocity);
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_yaw, _yawVelocity);
     }
 
     public double getPitch() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_pitch, _pitchVelocity);
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_pitch, _pitchVelocity);
     }
 
     public double getRoll() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_roll, _rollVelocity);
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_roll, _rollVelocity);
     }
 
     @Override

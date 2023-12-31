@@ -101,9 +101,9 @@ public class ClawSimSolver {
     }
 
     public double getClawTiltPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                clawTiltEncoder.getAbsolutePosition(),
-                clawTiltEncoder.getVelocity()
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(
+                clawTiltEncoder.getAbsolutePosition().refresh(),
+                clawTiltEncoder.getVelocity().refresh()
         );
     }
 

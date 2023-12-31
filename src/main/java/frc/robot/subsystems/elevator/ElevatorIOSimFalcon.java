@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -153,14 +154,14 @@ public class ElevatorIOSimFalcon implements ElevatorIO {
     }
 
     private double getVEPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(
                 _verticalPosition,
                 _verticalVelocity
         );
     }
 
     private double getHEPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(
                 _horizontalPosition,
                 _horizontalVelocity
         );
@@ -176,6 +177,18 @@ public class ElevatorIOSimFalcon implements ElevatorIO {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
+        BaseStatusSignal.refreshAll(
+                _verticalPosition,
+                _verticalVelocity,
+                _verticalDutyCycle,
+                _verticalMotorTorqueCurrent,
+                _verticalMotorFollowerTorqueCurrent,
+                _verticalMotorDeviceTemp,
+                _verticalMotorFollowerDeviceTemp,
+                _horizontalPosition,
+                _horizontalVelocity
+        );
+
         updateSimulation();
 
         if (desiredState == SuperstructureStates.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
@@ -217,22 +230,22 @@ public class ElevatorIOSimFalcon implements ElevatorIO {
         simState.log(Elevator.logKey + "SimState");
 
         inputs.verticalEncoderPositionRots = getVEPosition();
-        inputs.verticalEncoderVelocityRotsPerSec = _verticalVelocity.refresh().getValue();
-        inputs.verticalMotorDutyCycle = _verticalDutyCycle.refresh().getValue();
+        inputs.verticalEncoderVelocityRotsPerSec = _verticalVelocity.getValue();
+        inputs.verticalMotorDutyCycle = _verticalDutyCycle.getValue();
         inputs.verticalMotorCurrentsAmps = new double[] {
-                _verticalMotorTorqueCurrent.refresh().getValue(),
-                _verticalMotorFollowerTorqueCurrent.refresh().getValue()
+                _verticalMotorTorqueCurrent.getValue(),
+                _verticalMotorFollowerTorqueCurrent.getValue()
         };
         inputs.verticalMotorTempsCelsius = new double[] {
-                _verticalMotorDeviceTemp.refresh().getValue(),
-                _verticalMotorFollowerDeviceTemp.refresh().getValue()
+                _verticalMotorDeviceTemp.getValue(),
+                _verticalMotorFollowerDeviceTemp.getValue()
         };
 
         inputs.horizontalEncoderPositionRots = getHEPosition();
-        inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.refresh().getValue();
-        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getTorqueCurrent().refresh().getValue();
-        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getDutyCycle().refresh().getValue();
-        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getDeviceTemp().refresh().getValue();
+        inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.getValue();
+        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getTorqueCurrent().getValue();
+        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getDutyCycle().getValue();
+        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getDeviceTemp().getValue();
 
         inputs.verticalLimitSwitch = verticalElevatorLimitSwitchSim.getValue();
         inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitchSim.getValue();

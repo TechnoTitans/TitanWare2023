@@ -7,10 +7,12 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
-    RobotMode CURRENT_MODE = RobotMode.REAL;
+    //We have yet to use replay in a useful way and this is much easier to deal with
+    RobotMode CURRENT_MODE = RobotBase.isReal() ? RobotMode.REAL : RobotBase.isSimulation() ? RobotMode.SIM : null;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);
@@ -86,9 +88,6 @@ public interface Constants {
         double TRAJECTORY_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJECTORY_MAX_ANGULAR_ACCELERATION = 1.5 * ROBOT_MAX_ANGULAR_SPEED;
         double ROTATE_P = 1;
-
-        // see https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/40
-        boolean USE_SWERVE_SKEW_FIX = true;
 
         interface Modules {
             double WHEEL_RADIUS = 0.0508; //2 in

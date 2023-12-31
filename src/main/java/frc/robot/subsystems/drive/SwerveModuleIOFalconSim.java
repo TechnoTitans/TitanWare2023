@@ -294,22 +294,35 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
         final double dtSeconds = deltaTime.get();
         driveSim.update(dtSeconds);
         turnSim.update(dtSeconds);
+
+        BaseStatusSignal.refreshAll(
+                _drivePosition,
+                _driveVelocity,
+                _driveTorqueCurrent,
+                _driveStatorCurrent,
+                _driveDeviceTemp,
+                _turnPosition,
+                _turnVelocity,
+                _turnTorqueCurrent,
+                _turnStatorCurrent,
+                _turnDeviceTemp
+        );
     }
 
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void updateInputs(final SwerveModuleIO.SwerveModuleIOInputs inputs) {
         inputs.drivePositionRots = getDrivePosition();
-        inputs.driveVelocityRotsPerSec = getDriveVelocity();
-        inputs.driveTorqueCurrentAmps = _driveTorqueCurrent.refresh().getValue();
-        inputs.driveStatorCurrentAmps = _driveStatorCurrent.refresh().getValue();
-        inputs.driveTempCelsius = _driveDeviceTemp.refresh().getValue();
+        inputs.driveVelocityRotsPerSec = _driveVelocity.getValue();
+        inputs.driveTorqueCurrentAmps = _driveTorqueCurrent.getValue();
+        inputs.driveStatorCurrentAmps = _driveStatorCurrent.getValue();
+        inputs.driveTempCelsius = _driveDeviceTemp.getValue();
 
         inputs.turnAbsolutePositionRots = getRawAngle();
-        inputs.turnVelocityRotsPerSec = _turnVelocity.refresh().getValue();
-        inputs.turnTorqueCurrentAmps = _turnTorqueCurrent.refresh().getValue();
-        inputs.turnStatorCurrentAmps = _turnStatorCurrent.refresh().getValue();
-        inputs.turnTempCelsius = _turnDeviceTemp.refresh().getValue();
+        inputs.turnVelocityRotsPerSec = _turnVelocity.getValue();
+        inputs.turnTorqueCurrentAmps = _turnTorqueCurrent.getValue();
+        inputs.turnStatorCurrentAmps = _turnStatorCurrent.getValue();
+        inputs.turnTempCelsius = _turnDeviceTemp.getValue();
     }
 
     /**
@@ -317,15 +330,11 @@ public class SwerveModuleIOFalconSim implements SwerveModuleIO {
      * @return the measured wheel (turner) angle, in rotations
      */
     private double getRawAngle() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_turnPosition, _turnVelocity);
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_turnPosition, _turnVelocity);
     }
 
     public double getDrivePosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_drivePosition, _driveVelocity);
-    }
-
-    public double getDriveVelocity() {
-        return _driveVelocity.refresh().getValue();
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_drivePosition, _driveVelocity);
     }
 
     @Override

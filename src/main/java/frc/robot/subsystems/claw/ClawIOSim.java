@@ -3,6 +3,7 @@ package frc.robot.subsystems.claw;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -102,6 +103,13 @@ public class ClawIOSim implements ClawIO {
 
     @Override
     public void periodic() {
+        BaseStatusSignal.refreshAll(
+                _tiltPosition,
+                _tiltVelocity,
+                _openClosePosition,
+                _openCloseVelocity
+        );
+
         final Elevator.ElevatorPoseState elevatorPoseState = elevatorPoseStateSupplier.get();
         clawSimSolver.update(deltaTime.get(), elevatorPoseState);
 
@@ -123,7 +131,7 @@ public class ClawIOSim implements ClawIO {
                             CANSparkMax.ControlType.kDutyCycle,
                             CANSparkMax.ControlType.kVoltage,
                             tiltPID.calculate(
-                                    _tiltPosition.refresh().getValue(),
+                                    _tiltPosition.getValue(),
                                     desiredTiltControlInput
                             )
                     ),
@@ -147,15 +155,15 @@ public class ClawIOSim implements ClawIO {
         final ClawSimSolver.ClawSimState clawSimState = clawSimSolver.getClawSimState();
         clawSimState.log(Claw.logKey + "SimState");
 
-        inputs.tiltEncoderPositionRots = _tiltPosition.refresh().getValue();
-        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.refresh().getValue();
+        inputs.tiltEncoderPositionRots = _tiltPosition.getValue();
+        inputs.tiltEncoderVelocityRotsPerSec = _tiltVelocity.getValue();
         inputs.tiltPercentOutput = clawTiltNeo.getAppliedOutput();
         // TODO: this doesn't work... probably cause adding static friction makes a plant non-linear
         inputs.tiltCurrentAmps = clawSimSolver.getClawTiltSim().getCurrentDrawAmps();
         inputs.tiltTempCelsius = clawTiltNeo.getMotorTemperature();
 
-        inputs.openCloseEncoderPositionRots = _openClosePosition.refresh().getValue();
-        inputs.openCloseEncoderVelocityRotsPerSec = _openCloseVelocity.refresh().getValue();
+        inputs.openCloseEncoderPositionRots = _openClosePosition.getValue();
+        inputs.openCloseEncoderVelocityRotsPerSec = _openCloseVelocity.getValue();
         inputs.openClosePercentOutput = clawOpenCloseMotor.getMotorOutputPercent();
         inputs.openCloseCurrentAmps = clawOpenCloseMotor.getStatorCurrent();
         inputs.openCloseMotorControllerTempCelsius = clawOpenCloseMotor.getTemperature();

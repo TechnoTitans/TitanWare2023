@@ -314,16 +314,16 @@ public class ElevatorSimSolver {
     }
 
     public double getVerticalElevatorPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                verticalElevatorEncoder.getPosition(),
-                verticalElevatorEncoder.getVelocity()
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(
+                verticalElevatorEncoder.getPosition().refresh(),
+                verticalElevatorEncoder.getVelocity().refresh()
         );
     }
 
     public double getHorizontalElevatorPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(
-                horizontalElevatorEncoder.getPosition(),
-                horizontalElevatorEncoder.getVelocity()
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(
+                horizontalElevatorEncoder.getPosition().refresh(),
+                horizontalElevatorEncoder.getVelocity().refresh()
         );
     }
 

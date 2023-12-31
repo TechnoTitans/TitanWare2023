@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gyro;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -87,20 +88,30 @@ public class GyroIOSim implements GyroIO {
 
     @Override
     public void periodic() {
+        BaseStatusSignal.refreshAll(
+                _faultHardware,
+                _yaw,
+                _pitch,
+                _roll,
+                _yawVelocity,
+                _pitchVelocity,
+                _rollVelocity
+        );
+
         updateGyro();
     }
 
     @Override
     public void updateInputs(final GyroIOInputs inputs) {
-        inputs.hasHardwareFault = _faultHardware.refresh().getValue();
+        inputs.hasHardwareFault = _faultHardware.getValue();
 
         inputs.yawPositionDeg = getYaw();
         inputs.pitchPositionDeg = getPitch();
         inputs.rollPositionDeg = getRoll();
 
-        inputs.yawVelocityDegPerSec = _yawVelocity.refresh().getValue();
-        inputs.pitchVelocityDegPerSec = _pitchVelocity.refresh().getValue();
-        inputs.rollVelocityDegPerSec = _rollVelocity.refresh().getValue();
+        inputs.yawVelocityDegPerSec = _yawVelocity.getValue();
+        inputs.pitchVelocityDegPerSec = _pitchVelocity.getValue();
+        inputs.rollVelocityDegPerSec = _rollVelocity.getValue();
     }
 
     public double getYaw() {
@@ -109,7 +120,7 @@ public class GyroIOSim implements GyroIO {
 //                _yaw,
 //                getYawVelocitySignal()
 //        );
-        return _yaw.refresh().getValue();
+        return _yaw.getValue();
     }
 
     public double getPitch() {
@@ -119,7 +130,7 @@ public class GyroIOSim implements GyroIO {
 //                pigeon.getPitch(),
 //                getPitchVelocitySignal()
 //        );
-        return _pitch.refresh().getValue();
+        return _pitch.getValue();
     }
 
     public double getRoll() {
@@ -129,7 +140,7 @@ public class GyroIOSim implements GyroIO {
 //                pigeon.getRoll(),
 //                getRollVelocitySignal()
 //        );
-        return _roll.refresh().getValue();
+        return _roll.getValue();
     }
 
     private void setAngleInternal(final double angle) {

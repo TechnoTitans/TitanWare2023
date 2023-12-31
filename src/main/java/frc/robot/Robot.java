@@ -34,23 +34,21 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        if ((RobotBase.isReal() && Constants.CURRENT_MODE != Constants.RobotMode.REAL)
-                || (RobotBase.isSimulation() && Constants.CURRENT_MODE == Constants.RobotMode.REAL)
-        ) {
-            DriverStation.reportWarning(String.format(
-                    "Potentially incorrect CURRENT_MODE \"%s\" specified, robot is running \"%s\"",
-                    Constants.CURRENT_MODE,
-                    RobotBase.getRuntimeType().toString()
-            ), true);
+        if (Constants.CURRENT_MODE == null) {
+            DriverStation.reportWarning(
+                    "Incorrect CURRENT_MODE specified!",
+                    true
+            );
 
-            throw new RuntimeException("Potentially incorrect CURRENT_MODE specified!");
+            throw new RuntimeException("Incorrect CURRENT_MODE specified!");
         }
 
         // we never use LiveWindow, and apparently this causes loop overruns so disable it
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
 
-        // schedule PathPlanner server to start
+        //TODO Change to their new thing
+        //schedule PathPlanner server to start
 //        if (Constants.PathPlanner.IS_USING_PATH_PLANNER_SERVER) {
 //            PathPlannerServer.startServer(Constants.PathPlanner.SERVER_PORT);
 //        }

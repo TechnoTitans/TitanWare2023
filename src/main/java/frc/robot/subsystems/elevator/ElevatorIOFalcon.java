@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -18,7 +19,6 @@ public class ElevatorIOFalcon implements ElevatorIO {
     private final TalonFX verticalElevatorMotor, verticalElevatorMotorFollower;
     private final TalonFX horizontalElevatorMotor;
     private final CANcoder verticalElevatorEncoder;
-//    private final CANcoder horizontalElevatorEncoder;
     private final DigitalInput verticalElevatorLimitSwitch, horizontalElevatorRearLimitSwitch;
 
     private SuperstructureStates.ElevatorState desiredState = SuperstructureStates.ElevatorState.ELEVATOR_RESET;
@@ -82,10 +82,6 @@ public class ElevatorIOFalcon implements ElevatorIO {
                 elevatorConstants.horizontalMotorId(),
                 elevatorConstants.horizontalElevatorCANBus()
         );
-//        this.horizontalElevatorEncoder = new CANcoder(
-//                elevatorConstants.horizontalEncoderId(),
-//                elevatorConstants.horizontalElevatorCANBus()
-//        );
 
         this.verticalElevatorLimitSwitch = new DigitalInput(elevatorConstants.verticalLimitSwitchDIOChannel());
         this.horizontalElevatorRearLimitSwitch = new DigitalInput(elevatorConstants.horizontalLimitSwitchDIOChannel());
@@ -153,16 +149,28 @@ public class ElevatorIOFalcon implements ElevatorIO {
     }
 
     private double getVEPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_verticalPosition, _verticalVelocity);
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_verticalPosition, _verticalVelocity);
     }
 
     private double getHEPosition() {
-        return Phoenix6Utils.latencyCompensateIfSignalIsGood(_horizontalPosition, _horizontalVelocity);
+        return Phoenix6Utils.latencyCompensateRefreshedSignalIfIsGood(_horizontalPosition, _horizontalVelocity);
     }
 
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
+        BaseStatusSignal.refreshAll(
+                _verticalPosition,
+                _verticalVelocity,
+                _verticalDutyCycle,
+                _verticalMotorTorqueCurrent,
+                _verticalMotorFollowerTorqueCurrent,
+                _verticalMotorDeviceTemp,
+                _verticalMotorFollowerDeviceTemp,
+                _horizontalPosition,
+                _horizontalVelocity
+        );
+
         if (desiredState == SuperstructureStates.ElevatorState.ELEVATOR_RESET && !elevatorsHaveReset) {
             elevatorsHaveReset = resetElevator();
             if (elevatorsHaveReset) {
@@ -196,22 +204,22 @@ public class ElevatorIOFalcon implements ElevatorIO {
     @Override
     public void updateInputs(final ElevatorIOInputs inputs) {
         inputs.verticalEncoderPositionRots = getVEPosition();
-        inputs.verticalEncoderVelocityRotsPerSec = _verticalVelocity.refresh().getValue();
-        inputs.verticalMotorDutyCycle = _verticalDutyCycle.refresh().getValue();
+        inputs.verticalEncoderVelocityRotsPerSec = _verticalVelocity.getValue();
+        inputs.verticalMotorDutyCycle = _verticalDutyCycle.getValue();
         inputs.verticalMotorCurrentsAmps = new double[] {
-                _verticalMotorTorqueCurrent.refresh().getValue(),
-                _verticalMotorFollowerTorqueCurrent.refresh().getValue()
+                _verticalMotorTorqueCurrent.getValue(),
+                _verticalMotorFollowerTorqueCurrent.getValue()
         };
         inputs.verticalMotorTempsCelsius = new double[] {
-                _verticalMotorDeviceTemp.refresh().getValue(),
-                _verticalMotorFollowerDeviceTemp.refresh().getValue()
+                _verticalMotorDeviceTemp.getValue(),
+                _verticalMotorFollowerDeviceTemp.getValue()
         };
 
         inputs.horizontalEncoderPositionRots = getHEPosition();
-        inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.refresh().getValue();
-        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getTorqueCurrent().refresh().getValue();
-        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getDutyCycle().refresh().getValue();
-        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getDeviceTemp().refresh().getValue();
+        inputs.horizontalEncoderVelocityRotsPerSec = _horizontalVelocity.getValue();
+        inputs.horizontalMotorCurrentAmps = horizontalElevatorMotor.getTorqueCurrent().getValue();
+        inputs.horizontalMotorDutyCycle = horizontalElevatorMotor.getDutyCycle().getValue();
+        inputs.horizontalMotorTempCelsius = horizontalElevatorMotor.getDeviceTemp().getValue();
 
         inputs.verticalLimitSwitch = verticalElevatorLimitSwitch.get();
         inputs.horizontalLimitSwitch = horizontalElevatorRearLimitSwitch.get();
@@ -253,11 +261,6 @@ public class ElevatorIOFalcon implements ElevatorIO {
                 verticalElevatorMotor.getDeviceID(),
                 false
         ));
-
-        // Horizontal elevator CANCoder
-//        final CANcoderConfiguration horizontalElevatorEncoderConfig = new CANcoderConfiguration();
-//        horizontalElevatorEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-//        horizontalElevatorEncoder.getConfigurator().apply(horizontalElevatorEncoderConfig);
 
         // Horizontal elevator motor
         final TalonFXConfiguration horizontalElevatorMotorConfig = new TalonFXConfiguration();
