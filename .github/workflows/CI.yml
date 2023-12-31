@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ "wpilib-2024-beta" ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ "wpilib-2024-beta" ]
+    branches:
+      - '**'
 
 permissions:
   contents: read
