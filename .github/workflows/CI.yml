@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "AdvKit" ]
+    branches: [ "wpilib-2024-beta" ]
   pull_request:
-    branches: [ "AdvKit" ]
+    branches: [ "wpilib-2024-beta" ]
 
 permissions:
   contents: read
