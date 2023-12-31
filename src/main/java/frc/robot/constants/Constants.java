@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
@@ -58,18 +57,6 @@ public interface Constants {
         String PROFILE_SELECTED_SUBSCRIBER = "SelectedProfile";
 
         boolean USE_STRUCT_AND_PROTOBUF = true;
-    }
-
-    interface PathPlanner {
-        boolean USE_PATH_PLANNER_SERVER = false;
-        int SERVER_PORT = 1683;
-
-        //TODO: it would be better if we could check if we're in a real match
-        // and only start the PathPlannerServer if we're not, but DSData delays are annoying to deal with
-        // for now, this is addressed by CURRENT_COMPETITION_TYPE
-        boolean IS_USING_PATH_PLANNER_SERVER =
-                USE_PATH_PLANNER_SERVER
-                        && CURRENT_COMPETITION_TYPE != CompetitionType.COMPETITION;
     }
 
     interface Teleop {
