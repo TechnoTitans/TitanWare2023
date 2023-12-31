@@ -569,8 +569,6 @@ public class ElevatorClawCommand extends SequentialCommandGroup {
                 claw.setDesiredState(clawState);
             }));
 
-//            withElevatorState(elevatorState);
-//            withClawState(clawState);
             return this;
         }
 

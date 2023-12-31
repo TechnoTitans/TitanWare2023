@@ -32,7 +32,7 @@ public class SwerveDriveTeleop extends Command {
     public void execute() {
         final double matchTime = DriverStation.getMatchTime();
         if (matchTime >= 0 && matchTime <= Constants.MATCH_END_THRESHOLD_SEC) {
-            swerve.wheelX();
+            swerve.wheelXCommand().schedule();
             return;
         }
 
@@ -67,35 +67,20 @@ public class SwerveDriveTeleop extends Command {
                 throttleWeight
         );
 
-        if (controller.getRightStickButton()) {
-            final double rightStickXInput = ControllerUtils.applyDeadband(controller.getRightX(), 0.01);
-            final double rightStickYInput = ControllerUtils.applyDeadband(controller.getRightY(), 0.01);
+        final double rot = ControllerUtils.getStickSquaredInput(
+                controller.getRightX(),
+                0.01,
+                Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED,
+                driverProfile.getRotationalSensitivity(),
+                rotWeight
+        );
 
-            final Rotation2d rightStickAngleDeg =
-                    ControllerUtils.getFieldRelativeAngleFromStickInputs(rightStickXInput, rightStickYInput);
-
-            swerve.faceDirection(
-                    leftStickSpeeds.getX(),
-                    leftStickSpeeds.getY(),
-                    rightStickAngleDeg,
-                    true
-            );
-        } else {
-            final double rot = ControllerUtils.getStickSquaredInput(
-                    controller.getRightX(),
-                    0.01,
-                    Constants.Swerve.TELEOP_MAX_ANGULAR_SPEED,
-                    driverProfile.getRotationalSensitivity(),
-                    rotWeight
-            );
-
-            swerve.drive(
-                    leftStickSpeeds.getX(),
-                    leftStickSpeeds.getY(),
-                    rot,
-                    true
-            );
-        }
+        swerve.drive(
+                leftStickSpeeds.getX(),
+                leftStickSpeeds.getY(),
+                rot,
+                true
+        );
     }
 
     @Override

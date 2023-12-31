@@ -34,11 +34,14 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        if (Constants.CURRENT_MODE == null) {
-            DriverStation.reportWarning(
-                    "Incorrect CURRENT_MODE specified!",
-                    true
-            );
+        if ((RobotBase.isReal() && Constants.CURRENT_MODE != Constants.RobotMode.REAL)
+                || (RobotBase.isSimulation() && Constants.CURRENT_MODE == Constants.RobotMode.REAL)
+        ) {
+            DriverStation.reportWarning(String.format(
+                    "Potentially incorrect CURRENT_MODE \"%s\" specified, robot is running \"%s\"",
+                    Constants.CURRENT_MODE,
+                    RobotBase.getRuntimeType().toString()
+            ), true);
 
             throw new RuntimeException("Incorrect CURRENT_MODE specified!");
         }

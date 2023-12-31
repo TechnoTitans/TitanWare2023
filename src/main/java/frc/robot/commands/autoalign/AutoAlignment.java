@@ -1,5 +1,6 @@
 package frc.robot.commands.autoalign;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -19,6 +20,7 @@ public class AutoAlignment extends Command {
     private final Swerve swerve;
     private final XboxController mainController;
     private final ProfiledPIDController alignPIDController;
+    private final PIDController rotationPIDController;
     private final String logKey = "AutoAlign";
 
     private AlignmentZone.GenericDesiredAlignmentPosition desiredAlignmentPosition;
@@ -36,6 +38,9 @@ public class AutoAlignment extends Command {
                 new TrapezoidProfile.Constraints(4, 4)
         );
         this.alignPIDController.setTolerance(0.1, 0.1);
+
+        this.rotationPIDController = new PIDController(5, 0, 0);
+        this.rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
         addRequirements(swerve);
     }
@@ -98,10 +103,13 @@ public class AutoAlignment extends Command {
         );
 
         final double controlEffort = alignPIDController.calculate(currentPose.getY(), targetPose.getY());
-        swerve.faceDirection(
+        swerve.drive(
                 xSpeed,
                 alignPIDController.calculate(currentPose.getY(), targetPose.getY()),
-                targetPose.getRotation(),
+                rotationPIDController.calculate(
+                        swerve.getYaw().getDegrees(),
+                        targetPose.getRotation().getDegrees()
+                ),
                 true
         );
 

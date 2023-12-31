@@ -4,7 +4,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.autonomous.AutoBalance;
 import frc.robot.commands.autonomous.TrajectoryManager;
 import frc.robot.constants.Constants;
 import frc.robot.utils.SuperstructureStates;
@@ -108,14 +107,12 @@ public enum MarkerCommand {
     WHEEL_X(
             "wheelx",
             List.of(ArgumentChecker.booleanChecker()),
-            ((followerContext, args) -> Commands.runOnce(
-                    () -> followerContext.setWheelX(Boolean.parseBoolean(args.get(0)))
-            ))
+            ((followerContext, args) -> followerContext.getSwerve().wheelXCommand())
     ),
     AUTO_BALANCE(
             "autobalance",
             List.of(),
-            (((followerContext, args) -> new AutoBalance(followerContext.getSwerve())))
+            (((followerContext, args) -> followerContext.getSwerve().autoBalanceCommand()))
     );
 
     public static final String ARGS_DELIMITER = ":";

@@ -12,7 +12,7 @@ import org.photonvision.PhotonPoseEstimator;
 
 public interface Constants {
     //We have yet to use replay in a useful way and this is much easier to deal with
-    RobotMode CURRENT_MODE = RobotBase.isReal() ? RobotMode.REAL : RobotBase.isSimulation() ? RobotMode.SIM : null;
+    RobotMode CURRENT_MODE = RobotMode.SIM;
     CompetitionType CURRENT_COMPETITION_TYPE = CompetitionType.TESTING;
     double LOOP_PERIOD_SECONDS = 0.02;
     double MATCH_END_THRESHOLD_SEC = Units.millisecondsToSeconds(250);

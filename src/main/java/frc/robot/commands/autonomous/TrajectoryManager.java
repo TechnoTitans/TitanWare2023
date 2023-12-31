@@ -55,8 +55,6 @@ public class TrajectoryManager {
         private final Elevator elevator;
         private final Claw claw;
 
-        private boolean wheelX;
-
         public FollowerContext(
                 final Swerve swerve,
                 final Elevator elevator,
@@ -77,14 +75,6 @@ public class TrajectoryManager {
 
         public Claw getClaw() {
             return claw;
-        }
-
-        public boolean isWheelX() {
-            return wheelX;
-        }
-
-        public void setWheelX(boolean wheelX) {
-            this.wheelX = wheelX;
         }
     }
 }

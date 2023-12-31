@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled // TODO: fixme!
+@Disabled //TODO HARRY PLS FIX THIS TEST CASE IT IS BROKEN AND I DONT KNOW WHY -JOSH 10/10/21 11:30 PM EST (I think it's because of the gyro mock)
 class SwerveTest {
     private static final double EPSILON = 1E-7;
 
@@ -49,26 +49,17 @@ class SwerveTest {
     @Spy
     private final SwerveModule backRight = new SwerveModule(new SwerveModuleIO() {}, "BackRight");
 
-    private Swerve swerve;
+    private final Swerve swerve = new Swerve(
+            Constants.RobotMode.SIM,
+            HardwareConstants.FRONT_LEFT_MODULE,
+            HardwareConstants.FRONT_RIGHT_MODULE,
+            HardwareConstants.BACK_LEFT_MODULE,
+            HardwareConstants.BACK_RIGHT_MODULE
+    );
 
     @BeforeAll
     static void beforeAll() {
         assertTrue(HAL.initialize(500, 0));
-    }
-
-    @BeforeEach
-    void setUp() {
-        if (swerve == null) {
-            when(gyro.getYawRotation2d()).thenReturn(Rotation2d.fromDegrees(0));
-
-            swerve = new Swerve(
-                    Constants.CURRENT_MODE,
-                    HardwareConstants.FRONT_LEFT_MODULE,
-                    HardwareConstants.FRONT_RIGHT_MODULE,
-                    HardwareConstants.BACK_LEFT_MODULE,
-                    HardwareConstants.BACK_RIGHT_MODULE
-            );
-        }
     }
 
     @Test
@@ -347,17 +338,6 @@ class SwerveTest {
         );
     }
 
-    @Test
-    void faceDirection() {
-        when(swerve.getYaw()).thenReturn(Rotation2d.fromDegrees(0));
-
-        swerve.faceDirection(0, 0, Rotation2d.fromDegrees(0), true, 1);
-        assertEquals(new SwerveModuleState(), frontLeft.getLastDesiredState());
-        assertEquals(new SwerveModuleState(), frontRight.getLastDesiredState());
-        assertEquals(new SwerveModuleState(), backLeft.getLastDesiredState());
-        assertEquals(new SwerveModuleState(), backRight.getLastDesiredState());
-    }
-
     @ParameterizedTest
     @MethodSource("provideRawSet")
     void rawSet(
@@ -395,7 +375,7 @@ class SwerveTest {
 
     @Test
     void zero() {
-        swerve.zero();
+        swerve.zeroCommand().schedule();
 
         assertEquals(new SwerveModuleState(), frontLeft.getLastDesiredState());
         assertEquals(new SwerveModuleState(), frontRight.getLastDesiredState());
@@ -405,7 +385,7 @@ class SwerveTest {
 
     @Test
     void wheelX() {
-        swerve.wheelX();
+        swerve.wheelXCommand().schedule();
 
         assertEquals(
                 new SwerveModuleState(0, Rotation2d.fromDegrees(45)),

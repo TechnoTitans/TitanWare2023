@@ -11,6 +11,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 import frc.robot.constants.HardwareConstants;
@@ -20,6 +24,8 @@ import frc.robot.utils.gyro.GyroUtils;
 import frc.robot.utils.logging.LogUtils;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
     protected static final String logKey = "Swerve";
@@ -281,8 +287,7 @@ public class Swerve extends SubsystemBase {
         drive(speeds);
     }
 
-    public void drive(final ChassisSpeeds speeds, final double moduleMaxSpeed) {
-        final ChassisSpeeds correctedSpeeds;
+    public void drive(final ChassisSpeeds speeds) {
         // TODO: maybe replace with ChassisSpeeds.discretize() or some other tyler math that's more
         //  "mathematically correct"
         // see https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/40
@@ -295,60 +300,31 @@ public class Swerve extends SubsystemBase {
         );
 
         final Twist2d twist2d = new Pose2d().log(desiredDeltaPose);
-        correctedSpeeds = new ChassisSpeeds(
+        final ChassisSpeeds correctedSpeeds = new ChassisSpeeds(
                 twist2d.dx / dtSeconds,
                 twist2d.dy / dtSeconds,
                 twist2d.dtheta / dtSeconds
         );
 
-        drive(kinematics.toSwerveModuleStates(correctedSpeeds), moduleMaxSpeed);
+        drive(kinematics.toSwerveModuleStates(correctedSpeeds));
     }
 
-    public void drive(final ChassisSpeeds speeds) {
-        drive(speeds, Constants.Swerve.Modules.MODULE_MAX_SPEED);
+    public Command teleopDriveCommand(
+            final DoubleSupplier xSpeedSupplier,
+            final DoubleSupplier ySpeedSupplier,
+            final DoubleSupplier rotSupplier
+    ) {
+        return run(() -> drive(
+                xSpeedSupplier.getAsDouble(),
+                ySpeedSupplier.getAsDouble(),
+                rotSupplier.getAsDouble(),
+                true
+        ));
     }
 
     public void stop() {
         drive(new ChassisSpeeds());
     }
-
-    /**
-     * Drive with dx and dy while facing a specified (non)holonomic rotation theta with a custom rotation kP
-     * @param dx the desired dx component
-     * @param dy the desired dy component
-     * @param theta the desired holonomic (if fieldRelative) or non-holonomic (if not fieldRelative) rotation (deg)
-     * @param fieldRelative true if driving should be field relative, false if not
-     * @param rotation_kP custom kP component of the rotation
-     */
-    public void faceDirection(
-            final double dx,
-            final double dy,
-            final Rotation2d theta,
-            final boolean fieldRelative,
-            final double rotation_kP
-    ) {
-        final Rotation2d error = theta.minus(getYaw());
-        final Rotation2d rotPower = error.times(rotation_kP);
-
-        drive(dx, dy, rotPower.getRadians(), fieldRelative);
-    }
-
-    /**
-     * Drive with dx and dy while facing a specified (non)holonomic rotation theta
-     * @param dx the desired dx component
-     * @param dy the desired dy component
-     * @param theta the desired holonomic (if fieldRelative) or non-holonomic (if not fieldRelative) rotation (deg)
-     * @param fieldRelative true if driving should be field relative, false if not
-     */
-    public void faceDirection(
-            final double dx,
-            final double dy,
-            final Rotation2d theta,
-            final boolean fieldRelative
-    ) {
-        faceDirection(dx, dy, theta, fieldRelative, 1);
-    }
-
 
     /**
      * Drive all modules to a raw {@link SwerveModuleState}
@@ -386,16 +362,22 @@ public class Swerve extends SubsystemBase {
      * @see Swerve#rawSet(double, double, double, double, double, double, double, double)
      */
     @SuppressWarnings("unused")
-    public void zero() {
-        rawSet(0, 0, 0, 0, 0, 0, 0, 0);
+    public Command zeroCommand() {
+        return runOnce(() -> rawSet(0, 0, 0, 0, 0, 0, 0, 0));
     }
 
     /**
      * Put modules into an X pattern (significantly reduces the swerve's ability to coast/roll)
      * @see Swerve#rawSet(double, double, double, double, double, double, double, double)
      */
-    public void wheelX() {
-        rawSet(0, 0, 0, 0, 45, -45, -45, 45);
+    public Command wheelXCommand() {
+        return runOnce(() -> rawSet(0, 0, 0, 0, 45, -45, -45, 45));
+    }
+
+    public Command autoBalanceCommand() {
+        return run(() -> drive(2, 0, 0, false))
+                .until(() -> getPitch().getDegrees() > 12 && getGyro().getFilteredPitchVelocity() < -5)
+                .andThen(wheelXCommand());
     }
 
     /**
