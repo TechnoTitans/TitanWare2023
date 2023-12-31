@@ -346,7 +346,7 @@ public class Swerve extends SubsystemBase {
             final Rotation2d theta,
             final boolean fieldRelative
     ) {
-        faceDirection(dx, dy, theta, fieldRelative, Constants.Swerve.ROTATE_P);
+        faceDirection(dx, dy, theta, fieldRelative, 1);
     }
 
 

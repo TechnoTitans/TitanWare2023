@@ -87,7 +87,6 @@ public interface Constants {
         double TRAJECTORY_MAX_ACCELERATION = 2;
         double TRAJECTORY_MAX_ANGULAR_SPEED = ROBOT_MAX_ANGULAR_SPEED;
         double TRAJECTORY_MAX_ANGULAR_ACCELERATION = 1.5 * ROBOT_MAX_ANGULAR_SPEED;
-        double ROTATE_P = 1;
 
         interface Modules {
             double WHEEL_RADIUS = 0.0508; //2 in
@@ -130,7 +129,7 @@ public interface Constants {
         );
 
         /**
-         * Standard deviations of the supplied pos  e estimate (before vision, likely to be solely wheel odometry)
+         * Standard deviations of the supplied pose estimate (before vision, likely to be solely wheel odometry)
          */
         Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(2.5));
         Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.85, 0.85, Units.degreesToRadians(5));
