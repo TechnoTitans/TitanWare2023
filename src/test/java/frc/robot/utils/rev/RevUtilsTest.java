@@ -13,8 +13,8 @@ import testutils.JNIUtils;
 
 import java.util.stream.Stream;
 
-import static com.revrobotics.CANSparkMax.ControlType.kDutyCycle;
-import static com.revrobotics.CANSparkMax.ControlType.kVoltage;
+import static com.revrobotics.CANSparkBase.ControlType.kDutyCycle;
+import static com.revrobotics.CANSparkBase.ControlType.kVoltage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 

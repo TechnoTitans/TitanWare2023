@@ -1,8 +1,8 @@
 package frc.robot.wrappers.motors;
 
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,10 +17,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TitanSparkMAXTest {
     @Spy
-    private final TitanSparkMAX titanSparkMAX = new TitanSparkMAX(0, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private final TitanSparkMAX titanSparkMAX = new TitanSparkMAX(0, CANSparkLowLevel.MotorType.kBrushless);
 
     @Spy
-    final SparkMaxPIDController sparkMaxPIDController = titanSparkMAX.getPIDController();
+    final SparkPIDController sparkMaxPIDController = titanSparkMAX.getPIDController();
 
     @BeforeAll
     static void beforeAll() {

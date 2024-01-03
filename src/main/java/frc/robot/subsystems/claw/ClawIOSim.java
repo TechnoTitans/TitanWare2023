@@ -9,8 +9,8 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.constants.HardwareConstants;
@@ -68,7 +68,7 @@ public class ClawIOSim implements ClawIO {
         this.clawOpenCloseMotor = new TalonSRX(clawConstants.clawOpenCloseMotorId());
         this.clawOpenCloseEncoder = new CANcoder(clawConstants.clawOpenCloseEncoderId(), clawConstants.clawCANBus());
 
-        this.clawTiltNeo = new TitanSparkMAX(clawConstants.clawTiltMotorId(), CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.clawTiltNeo = new TitanSparkMAX(clawConstants.clawTiltMotorId(), CANSparkLowLevel.MotorType.kBrushless);
         this.clawTiltEncoder = new CANcoder(clawConstants.clawTiltEncoderId(), clawConstants.clawCANBus());
 
         this.clawSimSolver = new ClawSimSolver(

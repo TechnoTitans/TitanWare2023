@@ -3,7 +3,7 @@ package frc.robot.utils.sim.feedback;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkAbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.wrappers.motors.TitanSparkMAX;
 
@@ -21,8 +21,8 @@ public class SimSparkMaxAbsoluteEncoder implements AbsoluteEncoder, SimFeedbackS
     private double addedPositionOffset = 0;
     private double setVelocityOffset = 0;
 
-    public SimSparkMaxAbsoluteEncoder(final TitanSparkMAX sparkMax, final SparkMaxAbsoluteEncoder.Type type) {
-        if (type != SparkMaxAbsoluteEncoder.Type.kDutyCycle) {
+    public SimSparkMaxAbsoluteEncoder(final TitanSparkMAX sparkMax, final SparkAbsoluteEncoder.Type type) {
+        if (type != SparkAbsoluteEncoder.Type.kDutyCycle) {
             throw new IllegalStateException("NotImplemented!");
         }
 
