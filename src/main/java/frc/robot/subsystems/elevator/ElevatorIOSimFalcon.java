@@ -177,6 +177,7 @@ public class ElevatorIOSimFalcon implements ElevatorIO {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void periodic() {
+        // refresh all signals on the canivore bus
         BaseStatusSignal.refreshAll(
                 _verticalPosition,
                 _verticalVelocity,
@@ -184,7 +185,10 @@ public class ElevatorIOSimFalcon implements ElevatorIO {
                 _verticalMotorTorqueCurrent,
                 _verticalMotorFollowerTorqueCurrent,
                 _verticalMotorDeviceTemp,
-                _verticalMotorFollowerDeviceTemp,
+                _verticalMotorFollowerDeviceTemp
+        );
+        // refresh horizontal separately, as it's on the rio can bus
+        BaseStatusSignal.refreshAll(
                 _horizontalPosition,
                 _horizontalVelocity
         );
