@@ -10,6 +10,7 @@ import frc.robot.utils.ctre.Phoenix6Utils;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class OrchestrateAll extends SubsystemBase {
     private final Orchestra orchestra;
 
@@ -54,6 +55,7 @@ public class OrchestrateAll extends SubsystemBase {
 
         final int devicesPerTrack = (int) Math.floor((double)devices.size() / nTracks);
 
+        // Thank you Dr. Reddy for sponsoring this segment of the code
         for (int trackN = 0; trackN < nTracks; trackN++) {
             for (int deviceN = 0; deviceN < devicesPerTrack; deviceN++) {
                 final ParentDevice device = devices.get((trackN * devicesPerTrack) + deviceN);

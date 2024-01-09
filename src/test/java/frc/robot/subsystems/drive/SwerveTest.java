@@ -2,17 +2,18 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.constants.Constants;
 import frc.robot.constants.HardwareConstants;
 import frc.robot.subsystems.gyro.Gyro;
 import frc.robot.wrappers.sensors.vision.PhotonVision;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,8 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled //TODO HARRY PLS FIX THIS TEST CASE IT IS BROKEN AND I DONT KNOW WHY -JOSH 10/10/21 11:30 PM EST (I think it's because of the gyro mock)
-class SwerveTest {
+public class SwerveTest {
     private static final double EPSILON = 1E-7;
 
     @Mock
@@ -48,17 +48,43 @@ class SwerveTest {
     @Spy
     private final SwerveModule backRight = new SwerveModule(new SwerveModuleIO() {}, "BackRight");
 
-    private final Swerve swerve = new Swerve(
-            Constants.RobotMode.SIM,
-            HardwareConstants.FRONT_LEFT_MODULE,
-            HardwareConstants.FRONT_RIGHT_MODULE,
-            HardwareConstants.BACK_LEFT_MODULE,
-            HardwareConstants.BACK_RIGHT_MODULE
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+            HardwareConstants.FRONT_LEFT_MODULE.translationOffset(),
+            HardwareConstants.FRONT_RIGHT_MODULE.translationOffset(),
+            HardwareConstants.BACK_LEFT_MODULE.translationOffset(),
+            HardwareConstants.BACK_RIGHT_MODULE.translationOffset()
     );
+
+    private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
+            kinematics,
+            Rotation2d.fromDegrees(0),
+            new SwerveModulePosition[] {
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition()
+            },
+            new Pose2d()
+    );
+
+    private Swerve swerve;
 
     @BeforeAll
     static void beforeAll() {
         assertTrue(HAL.initialize(500, 0));
+    }
+
+    @BeforeEach
+    void setUp() {
+        swerve = new Swerve(
+                gyro,
+                frontLeft,
+                frontRight,
+                backLeft,
+                backRight,
+                kinematics,
+                poseEstimator
+        );
     }
 
     @Test
@@ -384,7 +410,7 @@ class SwerveTest {
 
     @Test
     void wheelX() {
-        swerve.wheelXCommand().schedule();
+        swerve.wheelX();
 
         assertEquals(
                 new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
