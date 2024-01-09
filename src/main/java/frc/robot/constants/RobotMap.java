@@ -2,10 +2,10 @@ package frc.robot.constants;
 
 public interface RobotMap {
     //PDP
-    int POWER_DISTRIBUTION_HUB = 1;
+    int POWER_DISTRIBUTION_HUB = 0;
 
     //Sensors
-    int PIGEON_ID = 1;
+    int PIGEON_ID = 13;
 
     //Vision
     String photonvision_driver_cam = "drivercam1";
@@ -19,7 +19,7 @@ public interface RobotMap {
     String canivoreCANBus = "CANivore";
 
     //LEDs
-    int candle = 0;
+    int candle = 25;
 
     //Controllers
     int MainController = 0;

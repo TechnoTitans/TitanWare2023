@@ -51,7 +51,7 @@ public class HardwareConstants {
             new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2),
             1,
             2,
-            1,
+            3,
             0.320556640625
     );
 
@@ -60,9 +60,9 @@ public class HardwareConstants {
             RobotMap.canivoreCANBus,
             SwerveModuleConstants.Hardware.SDSMk4i_Falcon500_CANCoder,
             new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2),
-            3,
             4,
-            2,
+            5,
+            6,
             0.33251953125
     );
 
@@ -73,7 +73,7 @@ public class HardwareConstants {
             new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2),
             7,
             8,
-            4,
+            9,
             0.0478515625
     );
 
@@ -82,9 +82,9 @@ public class HardwareConstants {
             RobotMap.canivoreCANBus,
             SwerveModuleConstants.Hardware.SDSMk4i_Falcon500_CANCoder,
             new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2),
-            5,
-            6,
-            3,
+            10,
+            11,
+            12,
             0.283203125
     );
 
@@ -102,13 +102,13 @@ public class HardwareConstants {
 
     public static final ElevatorConstants ELEVATOR = new ElevatorConstants(
             RobotMap.canivoreCANBus,
-            10,
-            11,
-            12,
+            14,
+            15,
+            16,
             6,
             RobotMap.rioCANBus,
-            15,
-            13,
+            17,
+            18,
             8
     );
 
@@ -124,11 +124,11 @@ public class HardwareConstants {
 
     public static final ClawConstants CLAW = new ClawConstants(
             RobotMap.rioCANBus,
-            13,
-            14,
-            12,
-            9,
-            16,
-            14
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
     );
 }

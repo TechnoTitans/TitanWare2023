@@ -14,13 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test1"
+            "pathName": "FastCone0ToCube1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Test2"
+            "pathName": "FastCube1ToCone2"
           }
         }
       ]
