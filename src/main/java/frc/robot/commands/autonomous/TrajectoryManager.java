@@ -42,6 +42,7 @@ public class TrajectoryManager {
                 swerve::getRobotRelativeSpeeds,
                 swerve::drive,
                 holonomicPathFollowerConfig,
+                () -> false, // TODO: this needs to actually flip paths correctly
                 swerve
         );
     }
