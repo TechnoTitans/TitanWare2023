@@ -1,5 +1,5 @@
 # TitanWare2023
-FRC 1683's primarily code repository for Charged Up 2023.
+FRC 1683's primary code repository for Charged Up 2023.
 
 ![CI](https://github.com/TechnoTitans/TitanWare2023/actions/workflows/CI.yml/badge.svg)
 
